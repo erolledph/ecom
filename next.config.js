@@ -21,6 +21,10 @@ const nextConfig = {
 
     if (!isServer) {
       // Client-side configuration
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@firebase/auth': '@firebase/auth/dist/esm/index.js',
+      };
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
