@@ -85,81 +85,83 @@ export async function POST(request: NextRequest) {
     const scrapedData: ScrapedProduct = {
       name: '',
       description: '',
-      price: '',
+      price: '', // Will be empty for manual entry
       images: []
     };
 
-    // 1. Try to extract data from Schema.org JSON-LD
+    // 1. Try to extract data from Schema.org JSON-LD (highest priority)
     console.log('Attempting to extract Schema.org JSON-LD data...');
     const schemaData = extractSchemaOrgData($);
     if (schemaData) {
       console.log('Found Schema.org data:', schemaData);
       
       if (schemaData.name) {
-        scrapedData.name = schemaData.name;
+        scrapedData.name = cleanText(schemaData.name);
+        console.log('✓ Name from Schema.org:', scrapedData.name);
       }
       
       if (schemaData.description) {
-        scrapedData.description = schemaData.description;
-      }
-      
-      if (schemaData.offers) {
-        const price = extractPriceFromOffers(schemaData.offers);
-        if (price) {
-          scrapedData.price = price;
-        }
+        scrapedData.description = cleanText(schemaData.description);
+        console.log('✓ Description from Schema.org');
       }
       
       if (schemaData.image) {
         const images = extractImagesFromSchema(schemaData.image, url);
         scrapedData.images.push(...images);
+        console.log('✓ Images from Schema.org:', images.length);
       }
     }
 
-    // 2. Try to extract data from Open Graph meta tags
+    // 2. Try to extract data from Open Graph meta tags (second priority)
     console.log('Attempting to extract Open Graph meta tags...');
     const ogData = extractOpenGraphData($);
     if (ogData) {
       console.log('Found Open Graph data:', ogData);
       
       if (!scrapedData.name && ogData.title) {
-        scrapedData.name = ogData.title;
+        scrapedData.name = cleanText(ogData.title);
+        console.log('✓ Name from Open Graph:', scrapedData.name);
       }
       
       if (!scrapedData.description && ogData.description) {
-        scrapedData.description = ogData.description;
+        scrapedData.description = cleanText(ogData.description);
+        console.log('✓ Description from Open Graph');
       }
       
       if (ogData.image && scrapedData.images.length === 0) {
         try {
           const absoluteUrl = new URL(ogData.image, url).href;
           scrapedData.images.push(absoluteUrl);
+          console.log('✓ Image from Open Graph:', absoluteUrl);
         } catch {
-          // Skip invalid URLs
+          console.log('✗ Invalid Open Graph image URL');
         }
       }
     }
 
-    // 3. Try to extract data from Twitter Card meta tags (as additional fallback)
+    // 3. Try to extract data from Twitter Card meta tags (third priority)
     console.log('Attempting to extract Twitter Card meta tags...');
     const twitterData = extractTwitterCardData($);
     if (twitterData) {
       console.log('Found Twitter Card data:', twitterData);
       
       if (!scrapedData.name && twitterData.title) {
-        scrapedData.name = twitterData.title;
+        scrapedData.name = cleanText(twitterData.title);
+        console.log('✓ Name from Twitter Card:', scrapedData.name);
       }
       
       if (!scrapedData.description && twitterData.description) {
-        scrapedData.description = twitterData.description;
+        scrapedData.description = cleanText(twitterData.description);
+        console.log('✓ Description from Twitter Card');
       }
       
       if (twitterData.image && scrapedData.images.length === 0) {
         try {
           const absoluteUrl = new URL(twitterData.image, url).href;
           scrapedData.images.push(absoluteUrl);
+          console.log('✓ Image from Twitter Card:', absoluteUrl);
         } catch {
-          // Skip invalid URLs
+          console.log('✗ Invalid Twitter Card image URL');
         }
       }
     }
@@ -170,37 +172,42 @@ export async function POST(request: NextRequest) {
     // Extract product name if not found
     if (!scrapedData.name) {
       scrapedData.name = extractProductName($);
+      if (scrapedData.name) {
+        console.log('✓ Name from CSS selectors:', scrapedData.name);
+      }
     }
 
     // Extract description if not found
     if (!scrapedData.description) {
       scrapedData.description = extractProductDescription($);
+      if (scrapedData.description) {
+        console.log('✓ Description from CSS selectors');
+      }
     }
 
-    // Extract price if not found
-    if (!scrapedData.price) {
-      scrapedData.price = extractProductPrice($);
-    }
-
-    // Extract additional images if needed
+    // Extract additional images if needed (limit to 5 total)
     if (scrapedData.images.length < 5) {
       const additionalImages = extractProductImages($, url, 5 - scrapedData.images.length);
       scrapedData.images.push(...additionalImages);
+      if (additionalImages.length > 0) {
+        console.log('✓ Additional images from CSS selectors:', additionalImages.length);
+      }
     }
 
-    // Remove duplicates from images
-    scrapedData.images = [...new Set(scrapedData.images)];
+    // Remove duplicates from images using Array.from() instead of spread operator
+    scrapedData.images = Array.from(new Set(scrapedData.images));
 
     // Apply fallback values if scraping failed
     if (!scrapedData.name) {
       scrapedData.name = 'Product Name (Please edit)';
+      console.log('⚠ Using fallback product name');
     }
     if (!scrapedData.description) {
       scrapedData.description = 'Product description (Please edit)';
+      console.log('⚠ Using fallback description');
     }
-    if (!scrapedData.price) {
-      scrapedData.price = '0.00';
-    }
+    // Price is intentionally left empty for manual entry
+    scrapedData.price = '';
 
     // Clean up the data
     scrapedData.name = cleanText(scrapedData.name);
@@ -212,7 +219,7 @@ export async function POST(request: NextRequest) {
     console.log('Scraping completed:', {
       name: scrapedData.name,
       description: scrapedData.description.substring(0, 100) + '...',
-      price: scrapedData.price,
+      price: 'Manual entry required',
       imageCount: scrapedData.images.length
     });
 
@@ -308,40 +315,6 @@ function extractTwitterCardData($: cheerio.CheerioAPI) {
   }
 }
 
-// Extract price from Schema.org offers
-function extractPriceFromOffers(offers: SchemaProduct['offers']): string {
-  if (!offers) return '';
-  
-  try {
-    const offerArray = Array.isArray(offers) ? offers : [offers];
-    
-    for (const offer of offerArray) {
-      if (offer.price) {
-        const currency = offer.priceCurrency || '$';
-        const price = typeof offer.price === 'string' ? offer.price : offer.price.toString();
-        
-        // If price already includes currency symbol, return as is
-        if (/[\$£€¥₹]/.test(price)) {
-          return price;
-        }
-        
-        // Otherwise, prepend currency
-        return `${currency === 'USD' ? '$' : currency}${price}`;
-      }
-      
-      if (offer.lowPrice) {
-        const currency = offer.priceCurrency || '$';
-        const price = typeof offer.lowPrice === 'string' ? offer.lowPrice : offer.lowPrice.toString();
-        return `${currency === 'USD' ? '$' : currency}${price}`;
-      }
-    }
-  } catch (error) {
-    console.log('Error extracting price from offers:', error);
-  }
-  
-  return '';
-}
-
 // Extract images from Schema.org image field
 function extractImagesFromSchema(image: SchemaProduct['image'], baseUrl: string): string[] {
   if (!image) return [];
@@ -361,7 +334,7 @@ function extractImagesFromSchema(image: SchemaProduct['image'], baseUrl: string)
       }
     }
     
-    // Convert relative URLs to absolute
+    // Convert relative URLs to absolute and filter valid URLs
     return images.map(img => {
       try {
         return new URL(img, baseUrl).href;
@@ -417,7 +390,8 @@ function extractProductDescription($: cheerio.CheerioAPI): string {
     '.pdp-description',
     '[class*="description"]',
     '.product-overview',
-    '.item-description'
+    '.item-description',
+    'meta[name="description"]'
   ];
 
   for (const selector of descriptionSelectors) {
@@ -427,59 +401,10 @@ function extractProductDescription($: cheerio.CheerioAPI): string {
     }
   }
   
-  return '';
-}
-
-// Fallback: Extract product price using CSS selectors
-function extractProductPrice($: cheerio.CheerioAPI): string {
-  const priceSelectors = [
-    '.price-current',
-    '.current-price',
-    '.price',
-    '[data-testid="price"]',
-    '.product-price',
-    '.price-now',
-    '.sale-price',
-    '.regular-price',
-    '[class*="price"]',
-    '[id*="price"]',
-    '.pdp-price',
-    '.price-display',
-    '.item-price',
-    '.cost'
-  ];
-
-  for (const selector of priceSelectors) {
-    const element = $(selector).first();
-    if (element.length && element.text().trim()) {
-      let priceText = element.text().trim();
-      
-      // Enhanced price extraction patterns
-      const pricePatterns = [
-        /[\$£€¥₹]\s*[\d,]+\.?\d*/,  // $10.99, £20.50, etc.
-        /[\d,]+\.?\d*\s*[\$£€¥₹]/,  // 10.99$, 20.50£, etc.
-        /[\d,]+\.?\d*\s*(USD|EUR|GBP|JPY|INR)/i,  // 10.99 USD, etc.
-        /Price:\s*[\$£€¥₹]?\s*[\d,]+\.?\d*/i,  // Price: $10.99
-        /[\d,]+\.?\d*/  // Just numbers as last resort
-      ];
-      
-      for (const pattern of pricePatterns) {
-        const priceMatch = priceText.match(pattern);
-        if (priceMatch) {
-          let price = priceMatch[0];
-          
-          // Clean up the price
-          price = price.replace(/Price:\s*/i, '');
-          
-          // If it's just numbers, add a dollar sign
-          if (/^[\d,]+\.?\d*$/.test(price.trim())) {
-            price = '$' + price;
-          }
-          
-          return price;
-        }
-      }
-    }
+  // Try meta description as final fallback
+  const metaDescription = $('meta[name="description"]').attr('content');
+  if (metaDescription) {
+    return metaDescription.trim();
   }
   
   return '';
@@ -501,11 +426,11 @@ function extractProductImages($: cheerio.CheerioAPI, baseUrl: string, maxImages:
     '.item-image img'
   ];
 
-  const imageUrls = new Set<string>();
+  const imageUrls: string[] = [];
   
   for (const selector of imageSelectors) {
     $(selector).each((_, element) => {
-      if (imageUrls.size >= maxImages) return false;
+      if (imageUrls.length >= maxImages) return false;
       
       const src = $(element).attr('src') || 
                    $(element).attr('data-src') || 
@@ -520,8 +445,9 @@ function extractProductImages($: cheerio.CheerioAPI, baseUrl: string, maxImages:
               !src.includes('logo') && 
               !src.includes('thumb') &&
               !src.includes('sprite') &&
-              !absoluteUrl.includes('data:image')) {
-            imageUrls.add(absoluteUrl);
+              !absoluteUrl.includes('data:image') &&
+              !imageUrls.includes(absoluteUrl)) {
+            imageUrls.push(absoluteUrl);
           }
         } catch {
           // Skip invalid URLs
@@ -529,10 +455,10 @@ function extractProductImages($: cheerio.CheerioAPI, baseUrl: string, maxImages:
       }
     });
     
-    if (imageUrls.size >= maxImages) break;
+    if (imageUrls.length >= maxImages) break;
   }
 
-  return Array.from(imageUrls);
+  return imageUrls;
 }
 
 // Clean and normalize text
