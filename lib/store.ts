@@ -1,18 +1,4 @@
-import { 
-  doc, 
-  getDoc, 
-  setDoc, 
-  updateDoc, 
-  collection, 
-  addDoc, 
-  getDocs, 
-  deleteDoc,
-  query,
-  where,
-  orderBy,
-  Timestamp 
-} from 'firebase/firestore';
-import { db } from './firebase';
+import { getFirebaseInstances } from './firebase';
 
 export interface Store {
   id: string;
@@ -60,6 +46,11 @@ export interface Slide {
 // Store Management Functions
 export const getStoreBySlug = async (slug: string): Promise<Store | null> => {
   try {
+    const { db } = await getFirebaseInstances();
+    if (!db) return null;
+
+    const { collection, query, where, getDocs } = await import('firebase/firestore');
+    
     const storesRef = collection(db, 'stores');
     const q = query(storesRef, where('slug', '==', slug));
     const querySnapshot = await getDocs(q);
@@ -83,6 +74,11 @@ export const getStoreBySlug = async (slug: string): Promise<Store | null> => {
 
 export const checkSlugAvailability = async (slug: string, excludeStoreId?: string): Promise<boolean> => {
   try {
+    const { db } = await getFirebaseInstances();
+    if (!db) return false;
+
+    const { collection, query, where, getDocs } = await import('firebase/firestore');
+    
     const storesRef = collection(db, 'stores');
     const q = query(storesRef, where('slug', '==', slug));
     const querySnapshot = await getDocs(q);
@@ -106,6 +102,11 @@ export const checkSlugAvailability = async (slug: string, excludeStoreId?: strin
 
 export const getUserStore = async (userId: string): Promise<Store | null> => {
   try {
+    const { db } = await getFirebaseInstances();
+    if (!db) return null;
+
+    const { doc, getDoc } = await import('firebase/firestore');
+    
     const storeDoc = await getDoc(doc(db, 'stores', userId));
     if (storeDoc.exists()) {
       const data = storeDoc.data();
@@ -125,6 +126,11 @@ export const getUserStore = async (userId: string): Promise<Store | null> => {
 
 export const updateStore = async (userId: string, storeData: Partial<Store>) => {
   try {
+    const { db } = await getFirebaseInstances();
+    if (!db) throw new Error('Database not available');
+
+    const { doc, updateDoc } = await import('firebase/firestore');
+    
     const storeRef = doc(db, 'stores', userId);
     await updateDoc(storeRef, {
       ...storeData,
@@ -140,6 +146,11 @@ export const updateStore = async (userId: string, storeData: Partial<Store>) => 
 // Product Management Functions
 export const getStoreProducts = async (storeId: string): Promise<Product[]> => {
   try {
+    const { db } = await getFirebaseInstances();
+    if (!db) return [];
+
+    const { collection, query, orderBy, getDocs } = await import('firebase/firestore');
+    
     const productsRef = collection(db, 'stores', storeId, 'products');
     const q = query(productsRef, orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
@@ -158,6 +169,11 @@ export const getStoreProducts = async (storeId: string): Promise<Product[]> => {
 
 export const addProduct = async (storeId: string, productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
   try {
+    const { db } = await getFirebaseInstances();
+    if (!db) throw new Error('Database not available');
+
+    const { collection, addDoc } = await import('firebase/firestore');
+    
     const productsRef = collection(db, 'stores', storeId, 'products');
     const docRef = await addDoc(productsRef, {
       ...productData,
@@ -173,6 +189,11 @@ export const addProduct = async (storeId: string, productData: Omit<Product, 'id
 
 export const updateProduct = async (storeId: string, productId: string, productData: Partial<Product>) => {
   try {
+    const { db } = await getFirebaseInstances();
+    if (!db) throw new Error('Database not available');
+
+    const { doc, updateDoc } = await import('firebase/firestore');
+    
     const productRef = doc(db, 'stores', storeId, 'products', productId);
     await updateDoc(productRef, {
       ...productData,
@@ -187,6 +208,11 @@ export const updateProduct = async (storeId: string, productId: string, productD
 
 export const deleteProduct = async (storeId: string, productId: string) => {
   try {
+    const { db } = await getFirebaseInstances();
+    if (!db) throw new Error('Database not available');
+
+    const { doc, deleteDoc } = await import('firebase/firestore');
+    
     const productRef = doc(db, 'stores', storeId, 'products', productId);
     await deleteDoc(productRef);
     return true;
@@ -199,6 +225,11 @@ export const deleteProduct = async (storeId: string, productId: string) => {
 // Slide Management Functions
 export const getStoreSlides = async (storeId: string): Promise<Slide[]> => {
   try {
+    const { db } = await getFirebaseInstances();
+    if (!db) return [];
+
+    const { collection, query, orderBy, getDocs } = await import('firebase/firestore');
+    
     const slidesRef = collection(db, 'stores', storeId, 'slides');
     const q = query(slidesRef, orderBy('order', 'asc'));
     const querySnapshot = await getDocs(q);
@@ -217,6 +248,11 @@ export const getStoreSlides = async (storeId: string): Promise<Slide[]> => {
 
 export const addSlide = async (storeId: string, slideData: Omit<Slide, 'id' | 'createdAt' | 'updatedAt'>) => {
   try {
+    const { db } = await getFirebaseInstances();
+    if (!db) throw new Error('Database not available');
+
+    const { collection, addDoc } = await import('firebase/firestore');
+    
     const slidesRef = collection(db, 'stores', storeId, 'slides');
     const docRef = await addDoc(slidesRef, {
       ...slideData,
@@ -232,6 +268,11 @@ export const addSlide = async (storeId: string, slideData: Omit<Slide, 'id' | 'c
 
 export const updateSlide = async (storeId: string, slideId: string, slideData: Partial<Slide>) => {
   try {
+    const { db } = await getFirebaseInstances();
+    if (!db) throw new Error('Database not available');
+
+    const { doc, updateDoc } = await import('firebase/firestore');
+    
     const slideRef = doc(db, 'stores', storeId, 'slides', slideId);
     await updateDoc(slideRef, {
       ...slideData,
@@ -246,6 +287,11 @@ export const updateSlide = async (storeId: string, slideId: string, slideData: P
 
 export const deleteSlide = async (storeId: string, slideId: string) => {
   try {
+    const { db } = await getFirebaseInstances();
+    if (!db) throw new Error('Database not available');
+
+    const { doc, deleteDoc } = await import('firebase/firestore');
+    
     const slideRef = doc(db, 'stores', storeId, 'slides', slideId);
     await deleteDoc(slideRef);
     return true;
@@ -255,24 +301,21 @@ export const deleteSlide = async (storeId: string, slideId: string) => {
   }
 };
 
-// File Upload Functions
+// File Upload Functions - Using placeholder URLs since Firebase Storage causes build issues
 export const uploadProductImages = async (storeId: string, productId: string, files: File[]): Promise<string[]> => {
-  // For now, return placeholder URLs since Firebase Storage causes build issues
-  // In production, you would implement this with a different storage solution
+  // Return placeholder URLs since Firebase Storage causes build issues
   return files.map((file, index) => 
     `https://placehold.co/600x600/8b5cf6/ffffff?text=Product+${index + 1}`
   );
 };
 
 export const uploadSlideImage = async (storeId: string, slideId: string, file: File): Promise<string> => {
-  // For now, return a placeholder URL since Firebase Storage causes build issues
-  // In production, you would implement this with a different storage solution
+  // Return a placeholder URL since Firebase Storage causes build issues
   return 'https://images.unsplash.com/photo-1542435503-956c469947f6?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
 };
 
 export const uploadStoreImage = async (storeId: string, file: File, type: 'avatar' | 'background'): Promise<string> => {
-  // For now, return placeholder URLs since Firebase Storage causes build issues
-  // In production, you would implement this with a different storage solution
+  // Return placeholder URLs since Firebase Storage causes build issues
   if (type === 'avatar') {
     return 'https://placehold.co/300x300/6b7280/ffffff?text=Avatar';
   } else {

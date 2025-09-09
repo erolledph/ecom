@@ -1,6 +1,7 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+// Firebase configuration - only initialize on client side
+let auth: any = null;
+let db: any = null;
+let app: any = null;
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -12,11 +13,42 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase only on client side
+const initializeFirebase = async () => {
+  if (typeof window === 'undefined') {
+    // Return mock objects for server-side rendering
+    return {
+      auth: null,
+      db: null,
+      app: null
+    };
+  }
 
-// Initialize Firebase services
-export const auth = getAuth(app);
-export const db = getFirestore(app);
+  if (app) {
+    return { auth, db, app };
+  }
 
+  try {
+    const { initializeApp } = await import('firebase/app');
+    const { getAuth } = await import('firebase/auth');
+    const { getFirestore } = await import('firebase/firestore');
+
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+
+    return { auth, db, app };
+  } catch (error) {
+    console.error('Failed to initialize Firebase:', error);
+    return { auth: null, db: null, app: null };
+  }
+};
+
+// Export a function that returns the initialized Firebase instances
+export const getFirebaseInstances = async () => {
+  return await initializeFirebase();
+};
+
+// For backward compatibility, export individual instances
+export { auth, db };
 export default app;
