@@ -8,6 +8,7 @@ const nextConfig = {
   },
   assetPrefix: '',
   basePath: '',
+  transpilePackages: ['firebase', '@firebase/auth'],
   experimental: {
     esmExternals: 'loose'
   },
