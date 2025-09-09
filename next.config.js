@@ -8,34 +8,30 @@ const nextConfig = {
   },
   assetPrefix: '',
   basePath: '',
-  transpilePackages: ['undici'],
   webpack: (config) => {
-    // Handle undici and other Node.js modules
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      'undici': false,
-    };
-    
-    // Add rule to handle modern JavaScript syntax
-    config.module.rules.push({
-      test: /\.m?js$/,
-      type: 'javascript/auto',
-      resolve: {
-        fullySpecified: false,
-      },
-    });
-
+    // Exclude Node.js modules from client bundle
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
       net: false,
       tls: false,
-      crypto: false,
-      stream: false,
-      util: false,
-      url: false,
-      buffer: false,
-      undici: false,
+    };
+    
+    // Ignore specific modules that cause issues
+    config.externals = config.externals || [];
+    config.externals.push({
+      'undici': 'undici',
+      'node:crypto': 'crypto',
+      'node:stream': 'stream',
+      'node:util': 'util',
+      'node:url': 'url',
+      'node:buffer': 'buffer',
+    });
+    
+    // Add webpack alias to resolve firebase/storage/lite to firebase/storage
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'firebase/storage/lite': 'firebase/storage',
     };
     
     return config;
