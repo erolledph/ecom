@@ -5,6 +5,9 @@ import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { getStoreBySlug, getStoreProducts, getStoreSlides, Store, Product, Slide } from '@/lib/store';
 
+// This ensures the page is dynamically rendered
+export const dynamic = 'force-dynamic';
+
 const categories = [
   { id: 'all', name: 'All', color: 'bg-gray-200', placeholder: 'All' },
   { id: 'electronics', name: 'Electronics', color: 'bg-indigo-200', placeholder: 'Tech' },

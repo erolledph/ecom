@@ -1,13 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
-  trailingSlash: false,
-  skipTrailingSlashRedirect: true,
   images: {
-    unoptimized: true,
+    domains: [
+      'images.unsplash.com',
+      'placehold.co',
+      'firebasestorage.googleapis.com'
+    ],
   },
-  assetPrefix: '',
-  basePath: '',
   transpilePackages: ['firebase', '@firebase/auth', '@firebase/firestore', '@firebase/app'],
   experimental: {
     esmExternals: 'loose'
