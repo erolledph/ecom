@@ -183,7 +183,7 @@ export default function StoreSettingsPage() {
         </p>
         {store && (
           <p className="mt-2 text-sm text-indigo-600">
-            Your store URL: <strong>{typeof window !== &quot;undefined&quot; ? window.location.origin : &quot;&quot;}/{store.slug}</strong>
+            Your store URL: <strong>{typeof window !== "undefined" ? window.location.origin : ""}/{store.slug}</strong>
           </p>
         )}
       </div>
@@ -216,7 +216,7 @@ export default function StoreSettingsPage() {
               </label>
               <div className="flex">
                 <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                  {typeof window !== &quot;undefined&quot; ? window.location.origin : &quot;&quot;}/
+                  {typeof window !== "undefined" ? window.location.origin : ""}/
                 </span>
                 <input
                   type="text"
