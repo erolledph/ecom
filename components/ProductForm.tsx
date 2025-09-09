@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import { useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { addProduct, uploadProductImages } from '@/lib/store';
-import { Product } from '@/lib/store';
+import { addProduct, uploadProductImages, Product } from '@/lib/store';
 
 interface ProductFormProps {
   product?: Product | null;
   onCancel: () => void;
+  onSubmit: (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   onSuccess?: () => void;
 }
 
@@ -20,7 +21,7 @@ interface ProductData {
   images: File[];
 }
 
-export default function ProductForm({ product, onCancel, onSuccess }: ProductFormProps) {
+export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: ProductFormProps) {
   const { user } = useAuth();
   const [productData, setProductData] = useState<ProductData>({
     name: '',
@@ -33,6 +34,20 @@ export default function ProductForm({ product, onCancel, onSuccess }: ProductFor
   const [scrapeUrl, setScrapeUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isScraping, setIsScraping] = useState(false);
+
+  // Initialize form with product data if editing
+  useEffect(() => {
+    if (product) {
+      setProductData({
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        productLink: product.productLink,
+        category: product.category,
+        images: [], // Reset images for editing
+      });
+    }
+  }, [product]);
 
   const categories = [
     'electronics',
@@ -113,13 +128,11 @@ export default function ProductForm({ product, onCancel, onSuccess }: ProductFor
       
       // Upload images if any are selected
       if (productData.images.length > 0) {
-        // Create a temporary product ID for organizing images
         const tempProductId = `temp_${Date.now()}`;
         imageUrls = await uploadProductImages(user.uid, tempProductId, productData.images);
       }
       
-      // Save product to Firestore
-      const productId = await addProduct(user.uid, {
+      await onSubmit({
         name: productData.name,
         description: productData.description,
         price: productData.price,
@@ -129,7 +142,6 @@ export default function ProductForm({ product, onCancel, onSuccess }: ProductFor
         isActive: true,
       });
       
-      alert('Product saved successfully!');
       onSuccess?.();
       onCancel();
     } catch (error) {

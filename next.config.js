@@ -8,16 +8,7 @@ const nextConfig = {
   },
   assetPrefix: '',
   basePath: '',
-  experimental: {
-    esmExternals: 'loose',
-  },
   webpack: (config) => {
-    // Handle Firebase/undici compatibility issues
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      'undici': false,
-    };
-    
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
@@ -28,13 +19,7 @@ const nextConfig = {
       util: false,
       url: false,
       buffer: false,
-      undici: false,
     };
-    
-    // Ignore undici in client-side bundles
-    config.externals = config.externals || [];
-    config.externals.push('undici');
-    
     return config;
   },
 };

@@ -114,7 +114,7 @@ export default function StorePage() {
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Store Not Found</h1>
-          <p className="text-gray-600">The store you&apos;re looking for doesn&apos;t exist or has been deactivated.</p>
+          <p className="text-gray-600">The store you're looking for doesn't exist or has been deactivated.</p>
         </div>
       </div>
     );
