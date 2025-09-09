@@ -150,7 +150,7 @@ export default function ProductsPage() {
                 Edit
               </button>
               <button
-                onClick={() => handleDeleteProduct(product.id)}
+                onClick={() => product.id && handleDeleteProduct(product.id)}
                 className="flex-1 bg-red-100 text-red-700 px-3 py-2 rounded hover:bg-red-200 transition-colors"
               >
                 Delete
