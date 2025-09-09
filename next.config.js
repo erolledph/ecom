@@ -9,31 +9,58 @@ const nextConfig = {
   assetPrefix: '',
   basePath: '',
   experimental: {
-    esmExternals: 'loose',
+    esmExternals: false,
   },
-  webpack: (config) => {
-    // Configure webpack for Firebase compatibility
+  webpack: (config, { isServer }) => {
+    // Handle Firebase compatibility
     config.resolve.alias = {
       ...config.resolve.alias,
-      // Force Firebase to use the full modules instead of lite versions
+      // Force Firebase to use browser versions
       'firebase/app': require.resolve('firebase/app'),
       'firebase/auth': require.resolve('firebase/auth'),
       'firebase/firestore': require.resolve('firebase/firestore'),
       'firebase/storage': require.resolve('firebase/storage'),
     };
     
-    // Exclude Node.js modules from client bundle
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      fs: false,
-      net: false,
-      tls: false,
-      crypto: false,
-      stream: false,
-      util: false,
-      url: false,
-      buffer: false,
-    };
+    // Exclude problematic Node.js modules from client bundle
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        crypto: false,
+        stream: false,
+        util: false,
+        url: false,
+        buffer: false,
+        process: false,
+        path: false,
+        os: false,
+        http: false,
+        https: false,
+        zlib: false,
+        querystring: false,
+        child_process: false,
+        worker_threads: false,
+        perf_hooks: false,
+        undici: false,
+      };
+    }
+    
+    // Handle undici module issues
+    config.module.rules.push({
+      test: /\.m?js$/,
+      resolve: {
+        fullySpecified: false,
+      },
+    });
+    
+    // Exclude undici from client-side bundle
+    config.externals = config.externals || [];
+    if (!isServer) {
+      config.externals.push('undici');
+    }
     
     return config;
   },

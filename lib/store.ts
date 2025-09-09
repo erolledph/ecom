@@ -12,8 +12,7 @@ import {
   orderBy,
   Timestamp 
 } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage/lite';
-import { db, storage } from './firebase';
+import { db, getStorageInstance } from './firebase';
 
 export interface Store {
   id: string;
@@ -259,6 +258,13 @@ export const deleteSlide = async (storeId: string, slideId: string) => {
 // File Upload Functions
 export const uploadProductImages = async (storeId: string, productId: string, files: File[]): Promise<string[]> => {
   try {
+    const storage = await getStorageInstance();
+    if (!storage) {
+      throw new Error('Storage not available on server side');
+    }
+    
+    const { ref, uploadBytes, getDownloadURL } = await import('firebase/storage');
+    
     const uploadPromises = files.map(async (file, index) => {
       const fileName = `${Date.now()}_${index}_${file.name}`;
       const storageRef = ref(storage, `product_images/${storeId}/${productId}/${fileName}`);
@@ -275,6 +281,13 @@ export const uploadProductImages = async (storeId: string, productId: string, fi
 
 export const uploadSlideImage = async (storeId: string, slideId: string, file: File): Promise<string> => {
   try {
+    const storage = await getStorageInstance();
+    if (!storage) {
+      throw new Error('Storage not available on server side');
+    }
+    
+    const { ref, uploadBytes, getDownloadURL } = await import('firebase/storage');
+    
     const fileName = `${Date.now()}_${file.name}`;
     const storageRef = ref(storage, `slider_images/${storeId}/${slideId}/${fileName}`);
     const snapshot = await uploadBytes(storageRef, file);
@@ -287,6 +300,13 @@ export const uploadSlideImage = async (storeId: string, slideId: string, file: F
 
 export const uploadStoreImage = async (storeId: string, file: File, type: 'avatar' | 'background'): Promise<string> => {
   try {
+    const storage = await getStorageInstance();
+    if (!storage) {
+      throw new Error('Storage not available on server side');
+    }
+    
+    const { ref, uploadBytes, getDownloadURL } = await import('firebase/storage');
+    
     const fileName = `${type}_${Date.now()}_${file.name}`;
     const storageRef = ref(storage, `store_images/${storeId}/${fileName}`);
     const snapshot = await uploadBytes(storageRef, file);
