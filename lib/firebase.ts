@@ -2,14 +2,6 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
-// Only import storage on client side to avoid Node.js compatibility issues
-let storage: any = null;
-if (typeof window !== 'undefined') {
-  import('firebase/storage').then((storageModule) => {
-    storage = storageModule.getStorage(app);
-  });
-}
-
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -27,19 +19,27 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Export a function to get storage instead of direct export
+// Storage instance - only available on client side
+let storageInstance: any = null;
+
 export const getStorageInstance = async () => {
   if (typeof window === 'undefined') {
-    // Return null on server side
+    // Server-side: return null to avoid import issues
     return null;
   }
   
-  if (!storage) {
-    const { getStorage } = await import('firebase/storage');
-    storage = getStorage(app);
+  if (!storageInstance) {
+    try {
+      // Dynamic import to avoid build issues
+      const storageModule = await import('firebase/storage');
+      storageInstance = storageModule.getStorage(app);
+    } catch (error) {
+      console.warn('Firebase Storage not available:', error);
+      return null;
+    }
   }
   
-  return storage;
+  return storageInstance;
 };
 
 export default app;

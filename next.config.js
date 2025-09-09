@@ -12,16 +12,6 @@ const nextConfig = {
     esmExternals: false,
   },
   webpack: (config, { isServer }) => {
-    // Handle Firebase compatibility
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      // Force Firebase to use browser versions
-      'firebase/app': require.resolve('firebase/app'),
-      'firebase/auth': require.resolve('firebase/auth'),
-      'firebase/firestore': require.resolve('firebase/firestore'),
-      'firebase/storage': require.resolve('firebase/storage'),
-    };
-    
     // Exclude problematic Node.js modules from client bundle
     if (!isServer) {
       config.resolve.fallback = {
@@ -46,21 +36,39 @@ const nextConfig = {
         perf_hooks: false,
         undici: false,
       };
+      
+      // Exclude Firebase Storage from client bundle to avoid undici issues
+      config.externals = config.externals || [];
+      config.externals.push({
+        'firebase/storage': 'firebase/storage',
+        'undici': 'undici'
+      });
     }
     
-    // Handle undici module issues
+    // Handle module resolution issues
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      // Ensure proper Firebase module resolution
+      'firebase/app': require.resolve('firebase/app'),
+      'firebase/auth': require.resolve('firebase/auth'),
+      'firebase/firestore': require.resolve('firebase/firestore'),
+    };
+    
+    // Add rule to handle ES modules properly
     config.module.rules.push({
       test: /\.m?js$/,
+      type: 'javascript/auto',
       resolve: {
         fullySpecified: false,
       },
     });
     
-    // Exclude undici from client-side bundle
-    config.externals = config.externals || [];
-    if (!isServer) {
-      config.externals.push('undici');
-    }
+    // Ignore undici parsing issues
+    config.ignoreWarnings = [
+      /Failed to parse source map/,
+      /Critical dependency: the request of a dependency is an expression/,
+      /Module parse failed.*undici/,
+    ];
     
     return config;
   },

@@ -260,10 +260,12 @@ export const uploadProductImages = async (storeId: string, productId: string, fi
   try {
     const storage = await getStorageInstance();
     if (!storage) {
-      throw new Error('Storage not available on server side');
+      throw new Error('Firebase Storage is not available. Please try again.');
     }
     
-    const { ref, uploadBytes, getDownloadURL } = await import('firebase/storage');
+    // Dynamic import to avoid build issues
+    const storageModule = await import('firebase/storage');
+    const { ref, uploadBytes, getDownloadURL } = storageModule;
     
     const uploadPromises = files.map(async (file, index) => {
       const fileName = `${Date.now()}_${index}_${file.name}`;
@@ -283,10 +285,12 @@ export const uploadSlideImage = async (storeId: string, slideId: string, file: F
   try {
     const storage = await getStorageInstance();
     if (!storage) {
-      throw new Error('Storage not available on server side');
+      throw new Error('Firebase Storage is not available. Please try again.');
     }
     
-    const { ref, uploadBytes, getDownloadURL } = await import('firebase/storage');
+    // Dynamic import to avoid build issues
+    const storageModule = await import('firebase/storage');
+    const { ref, uploadBytes, getDownloadURL } = storageModule;
     
     const fileName = `${Date.now()}_${file.name}`;
     const storageRef = ref(storage, `slider_images/${storeId}/${slideId}/${fileName}`);
@@ -302,10 +306,12 @@ export const uploadStoreImage = async (storeId: string, file: File, type: 'avata
   try {
     const storage = await getStorageInstance();
     if (!storage) {
-      throw new Error('Storage not available on server side');
+      throw new Error('Firebase Storage is not available. Please try again.');
     }
     
-    const { ref, uploadBytes, getDownloadURL } = await import('firebase/storage');
+    // Dynamic import to avoid build issues
+    const storageModule = await import('firebase/storage');
+    const { ref, uploadBytes, getDownloadURL } = storageModule;
     
     const fileName = `${type}_${Date.now()}_${file.name}`;
     const storageRef = ref(storage, `store_images/${storeId}/${fileName}`);
