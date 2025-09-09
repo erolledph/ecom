@@ -369,7 +369,7 @@ export function generateCategoriesFromProductsSync(products: Product[]): Array<{
   
   products.forEach(product => {
     if (product.category && !categoryMap.has(product.category)) {
-      categoryMap.set(product.category, product.images?.[0] || '');
+     categoryMap.set(product.category, product.images?.[0] || '');
     }
   });
   
