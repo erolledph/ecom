@@ -8,30 +8,31 @@ const nextConfig = {
   },
   assetPrefix: '',
   basePath: '',
+  experimental: {
+    esmExternals: 'loose',
+  },
   webpack: (config) => {
+    // Configure webpack for Firebase compatibility
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      // Force Firebase to use the full modules instead of lite versions
+      'firebase/app': require.resolve('firebase/app'),
+      'firebase/auth': require.resolve('firebase/auth'),
+      'firebase/firestore': require.resolve('firebase/firestore'),
+      'firebase/storage': require.resolve('firebase/storage'),
+    };
+    
     // Exclude Node.js modules from client bundle
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
       net: false,
       tls: false,
-    };
-    
-    // Ignore specific modules that cause issues
-    config.externals = config.externals || [];
-    config.externals.push({
-      'undici': 'undici',
-      'node:crypto': 'crypto',
-      'node:stream': 'stream',
-      'node:util': 'util',
-      'node:url': 'url',
-      'node:buffer': 'buffer',
-    });
-    
-    // Add webpack alias to resolve firebase/storage/lite to firebase/storage
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      'firebase/storage/lite': 'firebase/storage',
+      crypto: false,
+      stream: false,
+      util: false,
+      url: false,
+      buffer: false,
     };
     
     return config;
