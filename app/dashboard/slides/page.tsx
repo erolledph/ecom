@@ -174,7 +174,10 @@ export default function SlidesPage() {
             </p>
           </div>
           <button
-            onClick={() => setShowForm(true)}
+            onClick={() => {
+              resetForm();
+              setShowForm(true);
+            }}
             className="bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 transition-colors"
           >
             Add New Slide
