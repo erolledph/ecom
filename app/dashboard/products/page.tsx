@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { 
@@ -117,6 +118,17 @@ export default function ProductsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map((product) => (
           <div key={product.id} className="bg-white rounded-lg shadow-md p-6">
+            {product.images.length > 0 && (
+              <div className="mb-4 aspect-square overflow-hidden rounded-lg">
+                <Image
+                  src={product.images[0]}
+                  alt={product.name}
+                  width={300}
+                  height={300}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
             <div className="flex justify-between items-start mb-4">
               <h3 className="text-xl font-semibold text-gray-900">{product.name}</h3>
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -143,6 +155,7 @@ export default function ProductsPage() {
                 Edit
               </button>
               <button
+                onClick={() => handleDeleteProduct(product.id)}
                 className="flex-1 bg-red-100 text-red-700 px-3 py-2 rounded hover:bg-red-200 transition-colors"
               >
                 Delete

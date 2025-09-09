@@ -10,27 +10,26 @@ service cloud.firestore {
     // Stores collection: Public read, owner write/create/delete
     match /stores/{storeId} {
       allow read; // Anyone can read store details
-      allow create: if request.auth != null && request.auth.uid == storeId && request.auth.uid == request.resource.data.ownerId;
-      allow update, delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
       allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerId;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
     }
 
-    // Products subcollection: Public read, owner write
-    match /stores/{storeId}/products/{productId} {
+    // Products collection: Public read, owner write
+    match /products/{productId} {
       allow read; // Anyone can read products from any store
-      allow create, update, delete: if request.auth != null && request.auth.uid == storeId;
+      allow create, update, delete: if request.auth != null && request.auth.uid == resource.data.storeId;
     }
 
-    // Slides subcollection: Public read, owner write
-    match /stores/{storeId}/slides/{slideId} {
+    // Slides collection: Public read, owner write
+    match /slides/{slideId} {
       allow read; // Anyone can read slides from any store
-      allow create, update, delete: if request.auth != null && request.auth.uid == storeId;
+      allow create, update, delete: if request.auth != null && request.auth.uid == resource.data.storeId;
     }
 
-    // Categories subcollection: Public read, owner write
-    match /stores/{storeId}/categories/{categoryId} {
+    // Categories collection: Public read, owner write
+    match /categories/{categoryId} {
       allow read; // Anyone can read categories from any store
-      allow create, update, delete: if request.auth != null && request.auth.uid == storeId;
+      allow create, update, delete: if request.auth != null && request.auth.uid == resource.data.storeId;
     }
   }
 }

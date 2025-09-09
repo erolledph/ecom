@@ -1,351 +1,350 @@
-import { getFirebaseInstances } from './firebase';
+import { 
+  collection, 
+  doc, 
+  getDoc, 
+  getDocs, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  query, 
+  where, 
+  orderBy,
+  serverTimestamp 
+} from 'firebase/firestore';
+import { 
+  ref, 
+  uploadBytes, 
+  getDownloadURL, 
+  deleteObject 
+} from 'firebase/storage';
+import { db, storage } from './firebase';
 
 export interface Store {
   id: string;
-  ownerId: string;
   name: string;
-  description: string;
   slug: string;
+  description: string;
   avatar: string;
   backgroundImage: string;
+  ownerId: string;
   socialLinks: {
     instagram: string;
     twitter: string;
     facebook: string;
   };
-  createdAt: Date;
-  updatedAt: Date;
-  isActive: boolean;
+  createdAt: any;
+  updatedAt: any;
 }
 
 export interface Product {
   id: string;
   name: string;
   description: string;
-  price: string;
-  productLink: string;
+  price: number;
   category: string;
   images: string[];
-  createdAt: Date;
-  updatedAt: Date;
-  isActive: boolean;
+  storeId: string;
+  createdAt: any;
+  updatedAt: any;
 }
 
 export interface Slide {
   id: string;
   title: string;
-  description?: string;
+  description: string;
   image: string;
-  link?: string;
+  buttonText: string;
+  buttonLink: string;
+  storeId: string;
   order: number;
-  createdAt: Date;
-  updatedAt: Date;
-  isActive: boolean;
+  createdAt: any;
+  updatedAt: any;
 }
 
-// Store Management Functions
-export const getStoreBySlug = async (slug: string): Promise<Store | null> => {
+// Store functions
+export async function getUserStore(userId: string): Promise<Store | null> {
   try {
-    const { db } = await getFirebaseInstances();
-    if (!db) {
-      console.log('getStoreBySlug: Database not available');
+    const storesRef = collection(db, 'stores');
+    const q = query(storesRef, where('ownerId', '==', userId));
+    const querySnapshot = await getDocs(q);
+    
+    if (querySnapshot.empty) {
       return null;
     }
-
-    const { collection, query, where, getDocs } = await import('firebase/firestore');
     
-    console.log('getStoreBySlug: Searching for store with slug:', slug);
-    const storesRef = collection(db, 'stores');
-    const q = query(storesRef, where('slug', '==', slug));
-    const querySnapshot = await getDocs(q);
-    console.log('getStoreBySlug: Query returned', querySnapshot.size, 'documents');
-    
-    if (!querySnapshot.empty) {
-      const doc = querySnapshot.docs[0];
-      const data = doc.data();
-      console.log('getStoreBySlug: Found store data:', data);
-      return {
-        id: doc.id,
-        ...data,
-        createdAt: data.createdAt?.toDate() || new Date(),
-        updatedAt: data.updatedAt?.toDate() || new Date(),
-      } as Store;
-    }
-    console.log('getStoreBySlug: No store found with slug:', slug);
-    return null;
+    const storeDoc = querySnapshot.docs[0];
+    return {
+      id: storeDoc.id,
+      ...storeDoc.data()
+    } as Store;
   } catch (error) {
-    console.error('getStoreBySlug: Error fetching store by slug:', slug, 'Error:', error);
-    return null;
+    console.error('Error getting user store:', error);
+    throw error;
   }
-};
+}
 
-export const checkSlugAvailability = async (slug: string, excludeStoreId?: string): Promise<boolean> => {
+export async function getStoreBySlug(slug: string): Promise<Store | null> {
   try {
-    const { db } = await getFirebaseInstances();
-    if (!db) return false;
-
-    const { collection, query, where, getDocs } = await import('firebase/firestore');
-    
     const storesRef = collection(db, 'stores');
     const q = query(storesRef, where('slug', '==', slug));
     const querySnapshot = await getDocs(q);
     
     if (querySnapshot.empty) {
-      return true; // Slug is available
-    }
-    
-    // If excludeStoreId is provided, check if the found store is the same one being updated
-    if (excludeStoreId) {
-      const foundStore = querySnapshot.docs[0];
-      return foundStore.id === excludeStoreId;
-    }
-    
-    return false; // Slug is taken
-  } catch (error) {
-    console.error('Error checking slug availability:', error);
-    return false;
-  }
-};
-
-export const getUserStore = async (userId: string): Promise<Store | null> => {
-  try {
-    const { db } = await getFirebaseInstances();
-    if (!db) {
-      console.log('Database not available in getUserStore');
       return null;
     }
-
-    const { doc, getDoc } = await import('firebase/firestore');
     
-    console.log('getUserStore: Fetching store for userId:', userId);
-    const storeDoc = await getDoc(doc(db, 'stores', userId));
-    console.log('getUserStore: Store document exists:', storeDoc.exists());
-    
-    if (storeDoc.exists()) {
-      const data = storeDoc.data();
-      console.log('getUserStore: Raw store data:', data);
-      const storeData = {
-        id: storeDoc.id,
-        ...data,
-        createdAt: data.createdAt?.toDate() || new Date(),
-        updatedAt: data.updatedAt?.toDate() || new Date(),
-      } as Store;
-      console.log('getUserStore: Processed store data:', storeData);
-      return {
-        id: storeDoc.id,
-        ...data,
-        createdAt: data.createdAt?.toDate() || new Date(),
-        updatedAt: data.updatedAt?.toDate() || new Date(),
-      } as Store;
-    }
-    console.log('getUserStore: No store document found for userId:', userId);
-    return null;
+    const storeDoc = querySnapshot.docs[0];
+    return {
+      id: storeDoc.id,
+      ...storeDoc.data()
+    } as Store;
   } catch (error) {
-    console.error('getUserStore: Error fetching store for userId:', userId, 'Error:', error);
-    return null;
-  }
-};
-
-export const updateStore = async (userId: string, storeData: Partial<Store>) => {
-  try {
-    const { db } = await getFirebaseInstances();
-    if (!db) {
-      console.log('updateStore: Database not available');
-      throw new Error('Database not available');
-    }
-
-    const { doc, updateDoc } = await import('firebase/firestore');
-    
-    console.log('updateStore: Updating store for userId:', userId, 'with data:', storeData);
-    const storeRef = doc(db, 'stores', userId);
-    await updateDoc(storeRef, {
-      ...storeData,
-      updatedAt: new Date(),
-    });
-    console.log('updateStore: Store updated successfully for userId:', userId);
-    return true;
-  } catch (error) {
-    console.error('updateStore: Error updating store for userId:', userId, 'Error:', error);
+    console.error('Error getting store by slug:', error);
     throw error;
   }
-};
+}
 
-// Product Management Functions
-export const getStoreProducts = async (storeId: string): Promise<Product[]> => {
+export async function updateStore(storeId: string, updates: Partial<Store>): Promise<void> {
   try {
-    const { db } = await getFirebaseInstances();
-    if (!db) return [];
+    const storeRef = doc(db, 'stores', storeId);
+    await updateDoc(storeRef, {
+      ...updates,
+      updatedAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error('Error updating store:', error);
+    throw error;
+  }
+}
 
-    const { collection, query, orderBy, getDocs } = await import('firebase/firestore');
-    
-    const productsRef = collection(db, 'stores', storeId, 'products');
-    const q = query(productsRef, orderBy('createdAt', 'desc'));
+export async function checkSlugAvailability(slug: string, excludeStoreId?: string): Promise<boolean> {
+  try {
+    const storesRef = collection(db, 'stores');
+    const q = query(storesRef, where('slug', '==', slug));
     const querySnapshot = await getDocs(q);
     
-    return querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      createdAt: doc.data().createdAt?.toDate() || new Date(),
-      updatedAt: doc.data().updatedAt?.toDate() || new Date(),
-    })) as Product[];
-  } catch (error) {
-    console.error('Error fetching products:', error);
-    return [];
-  }
-};
-
-export const addProduct = async (storeId: string, productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
-  try {
-    const { db } = await getFirebaseInstances();
-    if (!db) throw new Error('Database not available');
-
-    const { collection, addDoc } = await import('firebase/firestore');
+    if (querySnapshot.empty) {
+      return true;
+    }
     
-    const productsRef = collection(db, 'stores', storeId, 'products');
+    if (excludeStoreId) {
+      const existingStore = querySnapshot.docs[0];
+      return existingStore.id === excludeStoreId;
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('Error checking slug availability:', error);
+    throw error;
+  }
+}
+
+// Product functions
+export async function getStoreProducts(storeId: string): Promise<Product[]> {
+  try {
+    const productsRef = collection(db, 'products');
+    const q = query(productsRef, where('storeId', '==', storeId));
+    const querySnapshot = await getDocs(q);
+    
+    const products = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as Product[];
+    
+    // Sort by createdAt in JavaScript instead of Firestore
+    return products.sort((a, b) => {
+      if (!a.createdAt || !b.createdAt) return 0;
+      return b.createdAt.toMillis() - a.createdAt.toMillis();
+    });
+  } catch (error) {
+    console.error('Error getting store products:', error);
+    throw error;
+  }
+}
+
+export async function addProduct(product: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+  try {
+    const productsRef = collection(db, 'products');
     const docRef = await addDoc(productsRef, {
-      ...productData,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      ...product,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
     });
     return docRef.id;
   } catch (error) {
     console.error('Error adding product:', error);
     throw error;
   }
-};
+}
 
-export const updateProduct = async (storeId: string, productId: string, productData: Partial<Product>) => {
+export async function updateProduct(productId: string, updates: Partial<Product>): Promise<void> {
   try {
-    const { db } = await getFirebaseInstances();
-    if (!db) throw new Error('Database not available');
-
-    const { doc, updateDoc } = await import('firebase/firestore');
-    
-    const productRef = doc(db, 'stores', storeId, 'products', productId);
+    const productRef = doc(db, 'products', productId);
     await updateDoc(productRef, {
-      ...productData,
-      updatedAt: new Date(),
+      ...updates,
+      updatedAt: serverTimestamp()
     });
-    return true;
   } catch (error) {
     console.error('Error updating product:', error);
     throw error;
   }
-};
+}
 
-export const deleteProduct = async (storeId: string, productId: string) => {
+export async function deleteProduct(productId: string): Promise<void> {
   try {
-    const { db } = await getFirebaseInstances();
-    if (!db) throw new Error('Database not available');
-
-    const { doc, deleteDoc } = await import('firebase/firestore');
-    
-    const productRef = doc(db, 'stores', storeId, 'products', productId);
+    const productRef = doc(db, 'products', productId);
     await deleteDoc(productRef);
-    return true;
   } catch (error) {
     console.error('Error deleting product:', error);
     throw error;
   }
-};
+}
 
-// Slide Management Functions
-export const getStoreSlides = async (storeId: string): Promise<Slide[]> => {
+// Slide functions
+export async function getStoreSlides(storeId: string): Promise<Slide[]> {
   try {
-    const { db } = await getFirebaseInstances();
-    if (!db) return [];
-
-    const { collection, query, orderBy, getDocs } = await import('firebase/firestore');
-    
-    const slidesRef = collection(db, 'stores', storeId, 'slides');
-    const q = query(slidesRef, orderBy('order', 'asc'));
+    const slidesRef = collection(db, 'slides');
+    const q = query(slidesRef, where('storeId', '==', storeId));
     const querySnapshot = await getDocs(q);
     
-    return querySnapshot.docs.map(doc => ({
+    const slides = querySnapshot.docs.map(doc => ({
       id: doc.id,
-      ...doc.data(),
-      createdAt: doc.data().createdAt?.toDate() || new Date(),
-      updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+      ...doc.data()
     })) as Slide[];
-  } catch (error) {
-    console.error('Error fetching slides:', error);
-    return [];
-  }
-};
-
-export const addSlide = async (storeId: string, slideData: Omit<Slide, 'id' | 'createdAt' | 'updatedAt'>) => {
-  try {
-    const { db } = await getFirebaseInstances();
-    if (!db) throw new Error('Database not available');
-
-    const { collection, addDoc } = await import('firebase/firestore');
     
-    const slidesRef = collection(db, 'stores', storeId, 'slides');
+    // Sort by order in JavaScript instead of Firestore
+    return slides.sort((a, b) => (a.order || 0) - (b.order || 0));
+  } catch (error) {
+    console.error('Error getting store slides:', error);
+    throw error;
+  }
+}
+
+export async function addSlide(slide: Omit<Slide, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+  try {
+    const slidesRef = collection(db, 'slides');
     const docRef = await addDoc(slidesRef, {
-      ...slideData,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      ...slide,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
     });
     return docRef.id;
   } catch (error) {
     console.error('Error adding slide:', error);
     throw error;
   }
-};
+}
 
-export const updateSlide = async (storeId: string, slideId: string, slideData: Partial<Slide>) => {
+export async function updateSlide(slideId: string, updates: Partial<Slide>): Promise<void> {
   try {
-    const { db } = await getFirebaseInstances();
-    if (!db) throw new Error('Database not available');
-
-    const { doc, updateDoc } = await import('firebase/firestore');
-    
-    const slideRef = doc(db, 'stores', storeId, 'slides', slideId);
+    const slideRef = doc(db, 'slides', slideId);
     await updateDoc(slideRef, {
-      ...slideData,
-      updatedAt: new Date(),
+      ...updates,
+      updatedAt: serverTimestamp()
     });
-    return true;
   } catch (error) {
     console.error('Error updating slide:', error);
     throw error;
   }
-};
+}
 
-export const deleteSlide = async (storeId: string, slideId: string) => {
+export async function deleteSlide(slideId: string): Promise<void> {
   try {
-    const { db } = await getFirebaseInstances();
-    if (!db) throw new Error('Database not available');
-
-    const { doc, deleteDoc } = await import('firebase/firestore');
-    
-    const slideRef = doc(db, 'stores', storeId, 'slides', slideId);
+    const slideRef = doc(db, 'slides', slideId);
     await deleteDoc(slideRef);
-    return true;
   } catch (error) {
     console.error('Error deleting slide:', error);
     throw error;
   }
-};
+}
 
-// File Upload Functions - Using placeholder URLs since Firebase Storage causes build issues
-export const uploadProductImages = async (storeId: string, productId: string, files: File[]): Promise<string[]> => {
-  // Return placeholder URLs since Firebase Storage causes build issues
-  return files.map((file, index) => 
-    `https://placehold.co/600x600/8b5cf6/ffffff?text=Product+${index + 1}`
-  );
-};
-
-export const uploadSlideImage = async (storeId: string, slideId: string, file: File): Promise<string> => {
-  // Return a placeholder URL since Firebase Storage causes build issues
-  return 'https://images.unsplash.com/photo-1542435503-956c469947f6?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
-};
-
-export const uploadStoreImage = async (storeId: string, file: File, type: 'avatar' | 'background'): Promise<string> => {
-  // Return placeholder URLs since Firebase Storage causes build issues
-  if (type === 'avatar') {
-    return 'https://placehold.co/300x300/6b7280/ffffff?text=Avatar';
-  } else {
-    return 'https://images.unsplash.com/photo-1542435503-956c469947f6?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D';
+// Image upload functions
+export async function uploadProductImages(storeId: string, files: File[], productId: string): Promise<string[]> {
+  try {
+    const uploadPromises = files.map(async (file, index) => {
+      const fileName = `${productId}_${index}_${Date.now()}`;
+      const imageRef = ref(storage, `products/${fileName}`);
+      await uploadBytes(imageRef, file);
+      return getDownloadURL(imageRef);
+    });
+    
+    return Promise.all(uploadPromises);
+  } catch (error) {
+    console.error('Error uploading product images:', error);
+    throw error;
   }
-};
+}
+
+export async function uploadSlideImage(storeId: string, file: File, slideId: string): Promise<string> {
+  try {
+    const fileName = `${slideId}_${Date.now()}`;
+    const imageRef = ref(storage, `slides/${fileName}`);
+    await uploadBytes(imageRef, file);
+    return getDownloadURL(imageRef);
+  } catch (error) {
+    console.error('Error uploading slide image:', error);
+    throw error;
+  }
+}
+
+export async function uploadStoreImage(storeId: string, file: File, type: 'avatar' | 'background'): Promise<string> {
+  try {
+    const fileName = `${storeId}_${type}_${Date.now()}`;
+    const imageRef = ref(storage, `stores/${fileName}`);
+    await uploadBytes(imageRef, file);
+    return getDownloadURL(imageRef);
+  } catch (error) {
+    console.error('Error uploading store image:', error);
+    throw error;
+  }
+}
+
+// Utility functions
+export async function generateCategoriesFromProducts(storeId: string): Promise<Array<{ id: string; name: string; image: string }>> {
+  try {
+    const products = await getStoreProducts(storeId);
+    const categoryMap = new Map<string, string>();
+    
+    products.forEach(product => {
+      if (product.category && !categoryMap.has(product.category)) {
+        categoryMap.set(product.category, product.images[0] || '');
+      }
+    });
+    
+    const categories = Array.from(categoryMap.entries()).map(([name, image]) => ({
+      id: name,
+      name,
+      image
+    }));
+    
+    // Add "all" category at the beginning
+    return [
+      { id: 'all', name: 'All', image: '' },
+      ...categories
+    ];
+  } catch (error) {
+    console.error('Error generating categories from products:', error);
+    return [{ id: 'all', name: 'All', image: '' }];
+  }
+}
+
+export function generateCategoriesFromProductsSync(products: Product[]): Array<{ id: string; name: string; image: string }> {
+  const categoryMap = new Map<string, string>();
+  
+  products.forEach(product => {
+    if (product.category && !categoryMap.has(product.category)) {
+      categoryMap.set(product.category, product.images[0] || '');
+    }
+  });
+  
+  const categories = Array.from(categoryMap.entries()).map(([name, image]) => ({
+    id: name,
+    name,
+    image
+  }));
+  
+  return [
+    { id: 'all', name: 'All', image: '' },
+    ...categories
+  ];
+}

@@ -3,23 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
-import { getStoreBySlug, getStoreProducts, getStoreSlides, Store, Product, Slide } from '@/lib/store';
+import { getStoreBySlug, getStoreProducts, getStoreSlides, generateCategoriesFromProducts, Store, Product, Slide } from '@/lib/store';
 
 // This ensures the page is dynamically rendered
 export const dynamic = 'force-dynamic';
 
-const categories = [
-  { id: 'all', name: 'All', color: 'bg-gray-200', placeholder: 'All' },
-  { id: 'electronics', name: 'Electronics', color: 'bg-indigo-200', placeholder: 'Tech' },
-  { id: 'clothing', name: 'Clothing', color: 'bg-red-200', placeholder: 'Style' },
-  { id: 'accessories', name: 'Accessories', color: 'bg-yellow-200', placeholder: 'Acc' },
-  { id: 'home', name: 'Home Goods', color: 'bg-green-200', placeholder: 'Home' },
-  { id: 'books', name: 'Books', color: 'bg-blue-200', placeholder: 'Books' },
-  { id: 'sports', name: 'Sports', color: 'bg-pink-200', placeholder: 'Sports' },
-  { id: 'beauty', name: 'Beauty', color: 'bg-purple-200', placeholder: 'Beauty' },
-  { id: 'toys', name: 'Toys', color: 'bg-cyan-200', placeholder: 'Toys' },
-  { id: 'outdoors', name: 'Outdoors', color: 'bg-lime-200', placeholder: 'Outd' },
-];
 
 export default function StorePage() {
   const params = useParams();
@@ -28,6 +16,7 @@ export default function StorePage() {
   const [store, setStore] = useState<Store | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [slides, setSlides] = useState<Slide[]>([]);
+  const [categories, setCategories] = useState<{ id: string; name: string; image: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   
@@ -54,14 +43,16 @@ export default function StorePage() {
         
         setStore(storeData);
         
-        // Fetch products and slides
-        const [productsData, slidesData] = await Promise.all([
+        // Fetch products, slides, and generate categories
+        const [productsData, slidesData, categoriesData] = await Promise.all([
           getStoreProducts(storeData.id),
-          getStoreSlides(storeData.id)
+          getStoreSlides(storeData.id),
+          generateCategoriesFromProducts(storeData.id)
         ]);
         
         setProducts(productsData.filter(p => p.isActive));
         setSlides(slidesData.filter(s => s.isActive).sort((a, b) => a.order - b.order));
+        setCategories(categoriesData);
         
       } catch (error) {
         console.error('Error fetching store data:', error);
@@ -130,18 +121,24 @@ export default function StorePage() {
         <header className="relative text-center text-white py-4 compact-section rounded-b-xl overflow-hidden">
           <div 
             className="absolute inset-0 bg-cover bg-center" 
-            style={{ backgroundImage: `url('${store.backgroundImage}')` }}
+            style={{ backgroundImage: store.backgroundImage ? `url('${store.backgroundImage}')` : 'none' }}
           ></div>
-          <div className="absolute inset-0 bg-black opacity-50"></div>
+          <div className={`absolute inset-0 ${store.backgroundImage ? 'bg-black opacity-50' : 'bg-gray-600'}`}></div>
           <div className="relative z-10 flex flex-col items-center justify-center">
-            <div className="w-32 h-32 rounded-full overflow-hidden mb-2 border-4 border-white shadow-lg relative">
-              <Image 
-                src={store.avatar || 'https://placehold.co/300x300/6b7280/ffffff?text=Avatar'} 
-                alt="Store Avatar" 
-                fill
-                className="object-cover"
-              />
-            </div>
+            {store.avatar ? (
+              <div className="w-32 h-32 rounded-full overflow-hidden mb-2 border-4 border-white shadow-lg relative">
+                <Image 
+                  src={store.avatar} 
+                  alt="Store Avatar" 
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            ) : (
+              <div className="w-32 h-32 rounded-full bg-gray-300 mb-2 border-4 border-white shadow-lg flex items-center justify-center">
+                <span className="text-gray-600 text-sm">No Avatar</span>
+              </div>
+            )}
             <h1 className="text-2xl font-extrabold text-white mb-1">{store.name}</h1>
             <p className="text-gray-200 max-w-xs mb-2 leading-snug">{store.description}</p>
             <div className="flex space-x-2">
@@ -165,27 +162,36 @@ export default function StorePage() {
         </header>
         
         {/* Categories */}
-        <section className="mt-4 pb-4 overflow-x-auto category-scroller">
-          <div className="flex space-x-4">
-            {categories.map((category) => (
-              <div 
-                key={category.id}
-                className="flex flex-col items-center cursor-pointer text-center text-gray-700"
-                onClick={() => handleCategoryFilter(category.id)}
-              >
-                <div className={`category-circle ${category.color} shadow-md`}>
-                  <Image 
-                    src={`https://placehold.co/100x100/${category.color.includes('gray') ? 'e5e7eb/4b5563' : 'current'}?text=${category.placeholder}`} 
-                    alt={category.name}
-                    width={100}
-                    height={100}
-                  />
+        {categories.length > 0 && (
+          <section className="mt-4 pb-4 overflow-x-auto category-scroller">
+            <div className="flex space-x-4">
+              {categories.map((category) => (
+                <div 
+                  key={category.id}
+                  className="flex flex-col items-center cursor-pointer text-center text-gray-700"
+                  onClick={() => handleCategoryFilter(category.id)}
+                >
+                  <div className="category-circle shadow-md overflow-hidden">
+                    {category.image ? (
+                      <Image 
+                        src={category.image} 
+                        alt={category.name}
+                        width={100}
+                        height={100}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <span className="text-gray-500 text-xs">No Image</span>
+                      </div>
+                    )}
+                  </div>
+                  <span className="text-xs font-semibold mt-1 whitespace-nowrap">{category.name}</span>
                 </div>
-                <span className="text-xs font-semibold mt-1 whitespace-nowrap">{category.name}</span>
-              </div>
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Products Grid */}
         <section className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: '5px' }}>
@@ -232,12 +238,18 @@ export default function StorePage() {
               onClick={() => handleProductClick(product.productLink)}
             >
               <div className="aspect-square overflow-hidden relative">
-                <Image 
-                  src={product.images[0] || 'https://placehold.co/600x600/8b5cf6/ffffff?text=Product'} 
-                  alt={product.name} 
-                  fill
-                  className="object-cover"
-                />
+                {product.images && product.images.length > 0 && product.images[0] ? (
+                  <Image 
+                    src={product.images[0]} 
+                    alt={product.name} 
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                    <span className="text-gray-500 text-sm">No Image</span>
+                  </div>
+                )}
               </div>
               <div className="p-2 flex flex-col items-start" style={{ height: '75px' }}>
                 <h2 className="font-bold text-gray-800 line-clamp-2-custom mb-1" style={{ fontSize: '0.8rem' }}>
@@ -259,12 +271,18 @@ export default function StorePage() {
               <div className="grid grid-cols-2 grid-rows-2 gap-2 p-2">
                 {products.slice(0, 4).map((product, index) => (
                   <div key={product.id} className="aspect-square overflow-hidden rounded-lg relative">
-                    <Image 
-                      src={product.images[0] || `https://placehold.co/300x300/e9d5ff/ffffff?text=${index + 1}`}
-                      fill
-                      className="object-cover"
-                      alt={product.name}
-                    />
+                    {product.images && product.images.length > 0 && product.images[0] ? (
+                      <Image 
+                        src={product.images[0]}
+                        fill
+                        className="object-cover"
+                        alt={product.name}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <span className="text-gray-500 text-xs">No Image</span>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

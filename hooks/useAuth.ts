@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import { getUserProfile, UserProfile } from '@/lib/auth';
 
 export const useAuth = () => {
@@ -16,16 +18,11 @@ export const useAuth = () => {
     
     const initAuth = async () => {
       try {
-        const { getFirebaseInstances } = await import('@/lib/firebase');
-        const { auth } = await getFirebaseInstances();
-        
         if (!auth) {
           setLoading(false);
           return;
         }
 
-        const { onAuthStateChanged } = await import('firebase/auth');
-        
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
           setUser(user);
           

@@ -1,4 +1,6 @@
-import { getFirebaseInstances } from './firebase';
+import { auth, db } from './firebase';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 export interface UserProfile {
   uid: string;
@@ -10,10 +12,8 @@ export interface UserProfile {
 
 export const signIn = async (email: string, password: string) => {
   try {
-    const { auth } = await getFirebaseInstances();
     if (!auth) throw new Error('Firebase not initialized');
 
-    const { signInWithEmailAndPassword } = await import('firebase/auth');
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     return userCredential.user;
   } catch (error: any) {
@@ -23,11 +23,7 @@ export const signIn = async (email: string, password: string) => {
 
 export const signUp = async (email: string, password: string, displayName?: string) => {
   try {
-    const { auth, db } = await getFirebaseInstances();
     if (!auth || !db) throw new Error('Firebase not initialized');
-
-    const { createUserWithEmailAndPassword } = await import('firebase/auth');
-    const { doc, setDoc } = await import('firebase/firestore');
 
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
@@ -65,7 +61,7 @@ export const signUp = async (email: string, password: string, displayName?: stri
       description: 'Welcome to my awesome store! Discover unique products curated just for you.',
       slug: storeSlug,
       avatar: '',
-      backgroundImage: 'https://images.unsplash.com/photo-1542435503-956c469947f6?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      backgroundImage: '',
       socialLinks: {
         instagram: '',
         twitter: '',
@@ -100,10 +96,8 @@ export const signUp = async (email: string, password: string, displayName?: stri
 
 export const logout = async () => {
   try {
-    const { auth } = await getFirebaseInstances();
     if (!auth) throw new Error('Firebase not initialized');
 
-    const { signOut } = await import('firebase/auth');
     await signOut(auth);
   } catch (error: any) {
     throw new Error(error.message);
@@ -112,10 +106,8 @@ export const logout = async () => {
 
 export const getUserProfile = async (uid: string): Promise<UserProfile | null> => {
   try {
-    const { db } = await getFirebaseInstances();
     if (!db) return null;
 
-    const { doc, getDoc } = await import('firebase/firestore');
     const docRef = doc(db, 'users', uid);
     const docSnap = await getDoc(docRef);
     

@@ -286,7 +286,7 @@ export default function StoreSettingsPage() {
               <div className="flex items-center space-x-4">
                 <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200">
                   <Image
-                    src={avatarPreview || 'https://placehold.co/300x300/6b7280/ffffff?text=Avatar'}
+                    src={avatarPreview || 'https://placehold.co/300x300/e5e7eb/9ca3af?text=No+Avatar'}
                     alt="Store Avatar"
                     width={80}
                     height={80}
@@ -307,15 +307,21 @@ export default function StoreSettingsPage() {
                 Background Image
               </label>
               <div className="space-y-2">
-                <div className="w-full h-32 rounded-lg overflow-hidden bg-gray-200">
-                  <Image
-                    src={backgroundPreview || 'https://images.unsplash.com/photo-1542435503-956c469947f6?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'}
-                    alt="Background"
-                    width={400}
-                    height={128}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+                {backgroundPreview ? (
+                  <div className="w-full h-32 rounded-lg overflow-hidden bg-gray-200">
+                    <Image
+                      src={backgroundPreview}
+                      alt="Background"
+                      width={400}
+                      height={128}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-full h-32 rounded-lg bg-gray-200 flex items-center justify-center">
+                    <span className="text-gray-500 text-sm">No Background Image</span>
+                  </div>
+                )}
                 <input
                   type="file"
                   accept="image/*"

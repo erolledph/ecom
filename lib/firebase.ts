@@ -1,8 +1,7 @@
-// Firebase configuration - only initialize on client side
-let auth: any = null;
-let db: any = null;
-let app: any = null;
-let initialized = false;
+import { initializeApp, getApps } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -10,48 +9,15 @@ const firebaseConfig = {
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
-// Initialize Firebase only on client side
-const initializeFirebase = async () => {
-  if (typeof window === 'undefined') {
-    // Return mock objects for server-side rendering
-    return {
-      auth: null,
-      db: null,
-      app: null
-    };
-  }
+// Initialize Firebase only if it hasn't been initialized
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
-  if (initialized && app) {
-    return { auth, db, app };
-  }
+// Initialize services
+export const db = getFirestore(app);
+export const auth = getAuth(app);
+export const storage = getStorage(app);
 
-  try {
-    // Use dynamic imports
-    const { initializeApp } = await import('firebase/app');
-    const { getAuth } = await import('firebase/auth');
-    const { getFirestore } = await import('firebase/firestore');
-
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
-    initialized = true;
-
-    return { auth, db, app };
-  } catch (error) {
-    console.error('Failed to initialize Firebase:', error);
-    return { auth: null, db: null, app: null };
-  }
-};
-
-// Export a function that returns the initialized Firebase instances
-export const getFirebaseInstances = async () => {
-  return await initializeFirebase();
-};
-
-// For backward compatibility, export individual instances
-export { auth, db };
 export default app;
