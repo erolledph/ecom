@@ -5,8 +5,8 @@ import { Inter } from 'next/font/google';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Affiliate Store Builder',
-  description: 'Create and manage your affiliate store',
+  title: 'Affiliate Store Builder - Create Your Online Affiliate Store',
+  description: 'Build and customize your own affiliate store. Add products, create promotional slides, and start earning commissions through affiliate marketing.',
 };
 
 export default function RootLayout({

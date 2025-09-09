@@ -73,7 +73,7 @@ export default function DashboardOverview() {
           Welcome back, {userProfile?.displayName || 'User'}!
         </h1>
         <p className="mt-2 text-gray-600">
-          Manage your affiliate store from this dashboard.
+          Manage your affiliate store and start earning commissions.
         </p>
       </div>
 
@@ -86,7 +86,7 @@ export default function DashboardOverview() {
             </div>
             <div className="ml-4">
               <h3 className="text-lg font-semibold text-gray-900">{store?.name || 'Your Store'}</h3>
-              <p className="text-gray-600">{store?.isActive ? "Store is live" : "Set up your store details"}</p>
+              <p className="text-gray-600">{store?.isActive ? "Store is live and ready for visitors" : "Set up your store details"}</p>
             </div>
           </div>
         </div>
@@ -98,7 +98,7 @@ export default function DashboardOverview() {
             </div>
             <div className="ml-4">
               <h3 className="text-lg font-semibold text-gray-900">Products</h3>
-              <p className="text-gray-600">{stats.products} products added</p>
+              <p className="text-gray-600">{stats.products} affiliate products added</p>
             </div>
           </div>
         </div>
@@ -110,7 +110,7 @@ export default function DashboardOverview() {
             </div>
             <div className="ml-4">
               <h3 className="text-lg font-semibold text-gray-900">Slides</h3>
-              <p className="text-gray-600">{stats.slides} slides created</p>
+              <p className="text-gray-600">{stats.slides} promotional slides created</p>
             </div>
           </div>
         </div>
@@ -125,7 +125,7 @@ export default function DashboardOverview() {
               Set Up Your Store
             </h3>
             <p className="text-gray-600 mb-4">
-              Add your store name, description, and branding to get started.
+              Customize your store appearance and branding to attract more visitors.
             </p>
             <a 
               href="/dashboard/store"
@@ -140,7 +140,7 @@ export default function DashboardOverview() {
               Add Your First Product
             </h3>
             <p className="text-gray-600 mb-4">
-              Start adding products to your affiliate store.
+              Add affiliate products and start earning commissions from sales.
             </p>
             <a 
               href="/dashboard/products"
@@ -148,6 +148,46 @@ export default function DashboardOverview() {
             >
               Add Product
             </a>
+          </div>
+
+          <div className="bg-white rounded-lg shadow p-6 border-l-4 border-purple-500">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Create Promotional Slides
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Design eye-catching slides to promote your best affiliate products.
+            </p>
+            <a 
+              href="/dashboard/slides"
+              className="inline-block bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors"
+            >
+              Manage Slides
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Affiliate Marketing Tips */}
+      <div className="mt-8">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Affiliate Marketing Tips</h2>
+        <div className="bg-blue-50 rounded-lg p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h4 className="font-semibold text-blue-900 mb-2">📈 Maximize Your Earnings</h4>
+              <ul className="text-sm text-blue-800 space-y-1">
+                <li>• Choose products relevant to your audience</li>
+                <li>• Write compelling product descriptions</li>
+                <li>• Use high-quality product images</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-blue-900 mb-2">🎯 Drive More Traffic</h4>
+              <ul className="text-sm text-blue-800 space-y-1">
+                <li>• Share your store on social media</li>
+                <li>• Create engaging promotional slides</li>
+                <li>• Optimize your store for search engines</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>

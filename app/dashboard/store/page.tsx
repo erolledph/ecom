@@ -200,11 +200,11 @@ export default function StoreSettingsPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Store Settings</h1>
         <p className="mt-2 text-gray-600">
-          Customize your store&apos;s appearance and information.
+          Customize your affiliate store&apos;s appearance and information to attract more visitors.
         </p>
         {store && (
           <p className="mt-2 text-sm text-indigo-600">
-            Your store URL: <strong>{typeof window !== "undefined" ? window.location.origin : ""}/{store.slug}</strong>
+            Your affiliate store URL: <strong>{typeof window !== "undefined" ? window.location.origin : ""}/{store.slug}</strong>
           </p>
         )}
       </div>
@@ -269,7 +269,7 @@ export default function StoreSettingsPage() {
               value={formData.description}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Welcome to my awesome store! Discover unique products curated just for you."
+              placeholder="Welcome to my affiliate store! Discover amazing products and deals curated just for you."
             />
           </div>
         </div>

@@ -40,7 +40,7 @@ export interface Product {
   id: string;
   name: string;
   description: string;
-  price: number;
+  price: string;
   category: string;
   images: string[];
   storeId: string;
@@ -277,6 +277,38 @@ export async function uploadProductImages(storeId: string, files: File[], produc
   }
 }
 
+export async function uploadBase64Images(storeId: string, base64Images: string[], productId: string): Promise<string[]> {
+  try {
+    const uploadPromises = base64Images.map(async (base64Image, index) => {
+      // Extract the data and content type from base64 string
+      const matches = base64Image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+      if (!matches || matches.length !== 3) {
+        throw new Error('Invalid base64 image format');
+      }
+      
+      const contentType = matches[1];
+      const base64Data = matches[2];
+      const buffer = Buffer.from(base64Data, 'base64');
+      
+      // Create a blob-like object for upload
+      const uint8Array = new Uint8Array(buffer);
+      
+      const fileName = `${productId}_scraped_${index}_${Date.now()}`;
+      const imageRef = ref(storage, `products/${fileName}`);
+      
+      await uploadBytes(imageRef, uint8Array, {
+        contentType: contentType
+      });
+      
+      return getDownloadURL(imageRef);
+    });
+    
+    return Promise.all(uploadPromises);
+  } catch (error) {
+    console.error('Error uploading base64 images:', error);
+    throw error;
+  }
+}
 export async function uploadSlideImage(storeId: string, file: File, slideId: string): Promise<string> {
   try {
     const fileName = `${slideId}_${Date.now()}`;

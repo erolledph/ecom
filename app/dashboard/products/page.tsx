@@ -39,28 +39,18 @@ export default function ProductsPage() {
   }, [user, fetchProducts]);
 
   const handleAddProduct = async (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
-    if (!user) return;
-    
-    try {
-      await addProduct(user.uid, productData);
-      fetchProducts();
-      setShowForm(false);
-    } catch (error) {
-      console.error('Error adding product:', error);
-    }
+    // This function is now handled entirely by the ProductForm component
+    // The form manages the product creation and image upload process
+    fetchProducts();
+    setShowForm(false);
   };
 
   const handleEditProduct = async (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
-    if (!editingProduct || !user) return;
-    
-    try {
-      await updateProduct(user.uid, editingProduct.id, productData);
-      fetchProducts();
-      setEditingProduct(null);
-      setShowForm(false);
-    } catch (error) {
-      console.error('Error updating product:', error);
-    }
+    // This function is now handled entirely by the ProductForm component
+    // The form manages the product update and image upload process
+    fetchProducts();
+    setEditingProduct(null);
+    setShowForm(false);
   };
 
   const handleDeleteProduct = async (productId: string) => {
@@ -68,7 +58,7 @@ export default function ProductsPage() {
     
     if (confirm('Are you sure you want to delete this product?')) {
       try {
-        await deleteProduct(user.uid, productId);
+        await deleteProduct(productId);
         fetchProducts();
       } catch (error) {
         console.error('Error deleting product:', error);
@@ -87,7 +77,12 @@ export default function ProductsPage() {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Products</h1>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Affiliate Products</h1>
+          <p className="mt-2 text-gray-600">
+            Manage your affiliate products and earn commissions from each sale.
+          </p>
+        </div>
         <button
           onClick={() => {
             setEditingProduct(null);
@@ -95,7 +90,7 @@ export default function ProductsPage() {
           }}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
         >
-          Add Product
+          Add Affiliate Product
         </button>
       </div>
 
@@ -167,7 +162,24 @@ export default function ProductsPage() {
 
       {products.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">No products found. Add your first product to get started!</p>
+          <div className="bg-white rounded-lg shadow p-8">
+            <span className="text-6xl mb-4 block">🛍️</span>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              No affiliate products yet
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Add your first affiliate product to start earning commissions from sales.
+            </p>
+            <button 
+              onClick={() => {
+                setEditingProduct(null);
+                setShowForm(true);
+              }}
+              className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Add Your First Product
+            </button>
+          </div>
         </div>
       )}
     </div>

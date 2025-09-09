@@ -1,4 +1,15 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Affiliate Store Builder
+
+This is a [Next.js](https://nextjs.org/) project for building affiliate stores. Users can create and customize their own affiliate stores to showcase products and earn commissions through affiliate links.
+
+## Features
+
+- **Store Customization**: Personalize your store with custom branding, colors, and layouts
+- **Product Management**: Add affiliate products with images, descriptions, and affiliate links
+- **Slider Management**: Create promotional slides to highlight featured products or offers
+- **Responsive Design**: Mobile-friendly stores that work on all devices
+- **Social Integration**: Connect your social media accounts to drive traffic
+- **SEO Friendly**: Optimized for search engines to increase visibility
 
 ## Getting Started
 
@@ -16,9 +27,25 @@ bun run dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How It Works
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+1. **Sign Up**: Create your account to get started
+2. **Customize Store**: Set up your store name, description, and branding
+3. **Add Products**: Add affiliate products with their affiliate links
+4. **Create Slides**: Design promotional slides for your homepage
+5. **Share Your Store**: Share your unique store URL to start earning commissions
+
+## Store Structure
+
+Each store gets a unique URL: `yourdomain.com/your-store-slug`
+
+When visitors click on products, they're redirected to the affiliate links where you earn commissions.
+
+## Tech Stack
+
+- **Frontend**: Next.js, React, TypeScript, Tailwind CSS
+- **Backend**: Firebase (Firestore, Authentication, Storage)
+- **Deployment**: Netlify
 
 ## Learn More
 
@@ -29,8 +56,8 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Deploy on Netlify
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The easiest way to deploy your affiliate store builder is to use Netlify. The project is already configured for Netlify deployment.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Check out the [Netlify deployment documentation](https://docs.netlify.com/) for more details.

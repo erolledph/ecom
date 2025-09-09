@@ -9,8 +9,8 @@ import { useAuth } from '@/hooks/useAuth';
 const navigation = [
   { name: 'Overview', href: '/dashboard', icon: '📊' },
   { name: 'Store Settings', href: '/dashboard/store', icon: '🏪' },
-  { name: 'Slides', href: '/dashboard/slides', icon: '🖼️' },
-  { name: 'Products', href: '/dashboard/products', icon: '📦' },
+  { name: 'Promotional Slides', href: '/dashboard/slides', icon: '🖼️' },
+  { name: 'Affiliate Products', href: '/dashboard/products', icon: '📦' },
 ];
 
 export default function DashboardNav() {
@@ -35,7 +35,7 @@ export default function DashboardNav() {
     <div className="flex flex-col w-64 bg-white shadow-lg h-full">
       {/* Header */}
       <div className="flex items-center justify-center h-16 px-4 bg-indigo-600">
-        <h1 className="text-xl font-bold text-white">Store Dashboard</h1>
+        <h1 className="text-xl font-bold text-white">Affiliate Store</h1>
       </div>
 
       {/* User Info */}

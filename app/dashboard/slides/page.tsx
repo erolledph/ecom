@@ -170,7 +170,7 @@ export default function SlidesPage() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Manage Slides</h1>
             <p className="mt-2 text-gray-600">
-              Create and manage your store&apos;s hero slider images.
+              Create promotional slides to showcase your best affiliate products and offers.
             </p>
           </div>
           <button
@@ -217,6 +217,9 @@ export default function SlidesPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     placeholder="New Summer Collection!"
                   />
+                  <p className="mt-1 text-xs text-gray-500">
+                    Create catchy titles to grab visitor attention
+                  </p>
                 </div>
 
                 <div>
@@ -230,13 +233,13 @@ export default function SlidesPage() {
                     value={formData.description}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    placeholder="Optional description for the slide"
+                    placeholder="Promote your best affiliate products or special offers"
                   />
                 </div>
 
                 <div>
                   <label htmlFor="link" className="block text-sm font-medium text-gray-700 mb-2">
-                    Link (Optional)
+                    Affiliate Link (Optional)
                   </label>
                   <input
                     type="url"
@@ -245,8 +248,11 @@ export default function SlidesPage() {
                     value={formData.link}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    placeholder="https://example.com"
+                    placeholder="https://affiliate-link.com/product"
                   />
+                  <p className="mt-1 text-xs text-gray-500">
+                    Link to your affiliate product or landing page
+                  </p>
                 </div>
 
                 <div>
@@ -383,7 +389,7 @@ export default function SlidesPage() {
           ))}
         </div>
       ) : (
-        <p className="mt-2 text-gray-600">
+        <div className="mt-2 text-gray-600">
           <div className="bg-white rounded-lg shadow p-6">
             <div className="text-center py-12">
               <span className="text-6xl mb-4 block">🖼️</span>
@@ -391,7 +397,7 @@ export default function SlidesPage() {
                 No slides yet
               </h3>
               <p className="text-gray-600 mb-6">
-                Create your first slide to showcase your products and promotions.
+                Create your first promotional slide to showcase your affiliate products and special offers.
               </p>
               <button 
                 onClick={() => setShowForm(true)}
@@ -401,7 +407,7 @@ export default function SlidesPage() {
               </button>
             </div>
           </div>
-        </p>
+        </div>
       )}
     </div>
   );

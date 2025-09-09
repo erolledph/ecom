@@ -53,7 +53,6 @@ const nextConfig = {
       // Exclude problematic modules from bundling
       config.externals = config.externals || [];
       config.externals.push({
-        undici: 'undici',
         'node:crypto': 'crypto',
         'node:fs': 'fs',
         'node:http': 'http',
@@ -63,6 +62,9 @@ const nextConfig = {
         'node:stream': 'stream',
         'node:url': 'url',
         'node:util': 'util',
+        'cheerio': 'cheerio',
+        'node-fetch': 'node-fetch',
+        'undici': 'undici',
       });
     }
 
