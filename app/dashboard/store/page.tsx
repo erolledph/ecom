@@ -28,6 +28,17 @@ export default function StoreSettingsPage() {
   const [avatarPreview, setAvatarPreview] = useState('');
   const [backgroundPreview, setBackgroundPreview] = useState('');
 
+  // Auto-clear success messages after 3 seconds
+  useEffect(() => {
+    if (message && message.includes('success')) {
+      const timer = setTimeout(() => {
+        setMessage('');
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
+
   useEffect(() => {
     const fetchStore = async () => {
       if (!user) return;
@@ -145,6 +156,10 @@ export default function StoreSettingsPage() {
       });
 
       setMessage('Store settings updated successfully!');
+      
+      // Reset file states after successful save
+      setAvatarFile(null);
+      setBackgroundFile(null);
       
       // Update local store state
       setStore(prev => prev ? {
@@ -369,19 +384,53 @@ export default function StoreSettingsPage() {
 
         {/* Message */}
         {message && (
-          <div className={`p-4 rounded-md ${message.includes('success') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-            {message}
+          <div className={`p-4 rounded-md transition-all duration-300 ${
+            message.includes('success') 
+              ? 'bg-green-50 text-green-700 border border-green-200' 
+              : 'bg-red-50 text-red-700 border border-red-200'
+          }`}>
+            <div className="flex items-center">
+              {message.includes('success') ? (
+                <svg className="w-5 h-5 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5 mr-2 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              )}
+              <span className="font-medium">{message}</span>
+            </div>
           </div>
         )}
 
         {/* Submit Button */}
-        <div className="flex justify-end">
+        <div className="flex justify-end space-x-3">
+          {message && !message.includes('success') && (
+            <button
+              type="button"
+              onClick={() => setMessage('')}
+              className="px-4 py-2 text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+            >
+              Dismiss
+            </button>
+          )}
           <button
             type="submit"
             disabled={saving}
-            className="px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center"
           >
-            {saving ? 'Saving...' : 'Save Changes'}
+            {saving ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Saving Changes...
+              </>
+            ) : (
+              'Save Changes'
+            )}
           </button>
         </div>
       </form>
