@@ -1,0 +1,5 @@
+# Netlify redirects for SPA routing
+/*    /index.html   200
+
+# Store page redirects - handle dynamic routes
+/[storeSlug]/*    /[storeSlug]/index.html   200

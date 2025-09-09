@@ -1,0 +1,408 @@
+'use client';
+
+import Image from 'next/image';
+import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { getStoreSlides, addSlide, updateSlide, deleteSlide, uploadSlideImage, Slide } from '@/lib/store';
+
+export default function SlidesPage() {
+  const { user } = useAuth();
+  const [slides, setSlides] = useState<Slide[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editingSlide, setEditingSlide] = useState<Slide | null>(null);
+  const [saving, setSaving] = useState(false);
+  
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    link: '',
+    order: 0,
+    isActive: true
+  });
+  
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState('');
+
+  const fetchSlides = useCallback(async () => {
+    if (!user) return;
+    
+    try {
+      const slidesData = await getStoreSlides(user.uid);
+      setSlides(slidesData);
+    } catch (error) {
+      console.error('Error fetching slides:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      fetchSlides();
+    }
+  }, [user, fetchSlides]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'number' ? parseInt(value) : value
+    }));
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      description: '',
+      link: '',
+      order: slides.length,
+      isActive: true
+    });
+    setImageFile(null);
+    setImagePreview('');
+    setEditingSlide(null);
+    setShowForm(false);
+  };
+
+  const handleEdit = (slide: Slide) => {
+    setEditingSlide(slide);
+    setFormData({
+      title: slide.title,
+      description: slide.description || '',
+      link: slide.link || '',
+      order: slide.order,
+      isActive: slide.isActive
+    });
+    setImagePreview(slide.image);
+    setShowForm(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+
+    if (!imageFile && !editingSlide) {
+      alert('Please select an image for the slide.');
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      let imageUrl = editingSlide?.image || '';
+      
+      if (imageFile) {
+        const slideId = editingSlide?.id || `temp_${Date.now()}`;
+        imageUrl = await uploadSlideImage(user.uid, slideId, imageFile);
+      }
+
+      const slideData = {
+        title: formData.title,
+        description: formData.description,
+        image: imageUrl,
+        link: formData.link,
+        order: formData.order,
+        isActive: formData.isActive
+      };
+
+      if (editingSlide) {
+        await updateSlide(user.uid, editingSlide.id, slideData);
+      } else {
+        await addSlide(user.uid, slideData);
+      }
+
+      await fetchSlides();
+      resetForm();
+    } catch (error) {
+      console.error('Error saving slide:', error);
+      alert('Failed to save slide. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (slideId: string) => {
+    if (!user) return;
+    
+    if (confirm('Are you sure you want to delete this slide?')) {
+      try {
+        await deleteSlide(user.uid, slideId);
+        await fetchSlides();
+      } catch (error) {
+        console.error('Error deleting slide:', error);
+        alert('Failed to delete slide. Please try again.');
+      }
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-lg shadow p-6">
+                <div className="h-32 bg-gray-200 rounded mb-4"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto">
+      <div className="mb-8">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Manage Slides</h1>
+            <p className="mt-2 text-gray-600">
+              Create and manage your store&apos;s hero slider images.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowForm(true)}
+            className="bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 transition-colors"
+          >
+            Add New Slide
+          </button>
+        </div>
+      </div>
+
+      {/* Form Modal */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  {editingSlide ? 'Edit Slide' : 'Add New Slide'}
+                </h2>
+                <button
+                  onClick={resetForm}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <span className="sr-only">Close</span>
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+                    Title *
+                  </label>
+                  <input
+                    type="text"
+                    id="title"
+                    name="title"
+                    required
+                    value={formData.title}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="New Summer Collection!"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    id="description"
+                    name="description"
+                    rows={2}
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="Optional description for the slide"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="link" className="block text-sm font-medium text-gray-700 mb-2">
+                    Link (Optional)
+                  </label>
+                  <input
+                    type="url"
+                    id="link"
+                    name="link"
+                    value={formData.link}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="https://example.com"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="order" className="block text-sm font-medium text-gray-700 mb-2">
+                    Order
+                  </label>
+                  <input
+                    type="number"
+                    id="order"
+                    name="order"
+                    min="0"
+                    value={formData.order}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Slide Image *
+                  </label>
+                  {imagePreview && (
+                    <div className="mb-2">
+                      <Image
+                        src={imagePreview}
+                        alt="Preview"
+                        width={400}
+                        height={128}
+                        className="w-full h-32 object-cover rounded-md"
+                      />
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                  />
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="isActive"
+                    name="isActive"
+                    checked={formData.isActive}
+                    onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
+                    Active (visible on store)
+                  </label>
+                </div>
+
+                <div className="flex justify-end space-x-3 pt-4 border-t">
+                  <button
+                    type="button"
+                    onClick={resetForm}
+                    className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {saving ? 'Saving...' : (editingSlide ? 'Update Slide' : 'Create Slide')}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Slides Grid */}
+      {slides.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {slides.map((slide) => (
+            <div key={slide.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div className="aspect-video overflow-hidden">
+                <Image
+                  src={slide.image}
+                  alt={slide.title}
+                  width={400}
+                  height={225}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
+                    {slide.title}
+                  </h3>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    slide.isActive 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {slide.isActive ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+                
+                {slide.description && (
+                  <p className="text-gray-600 text-sm mb-2 line-clamp-2">
+                    {slide.description}
+                  </p>
+                )}
+                
+                <p className="text-xs text-gray-500 mb-4">
+                  Order: {slide.order}
+                  {slide.link && (
+                    <span className="ml-2">• Has link</span>
+                  )}
+                </p>
+                
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => handleEdit(slide)}
+                    className="flex-1 bg-gray-100 text-gray-700 px-3 py-2 rounded hover:bg-gray-200 transition-colors text-sm"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(slide.id)}
+                    className="flex-1 bg-red-100 text-red-700 px-3 py-2 rounded hover:bg-red-200 transition-colors text-sm"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="mt-2 text-gray-600">
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="text-center py-12">
+              <span className="text-6xl mb-4 block">🖼️</span>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                No slides yet
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Create your first slide to showcase your products and promotions.
+              </p>
+              <button 
+                onClick={() => setShowForm(true)}
+                className="bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 transition-colors"
+              >
+                Create First Slide
+              </button>
+            </div>
+          </div>
+        </p>
+      )}
+    </div>
+  );
+}

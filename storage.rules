@@ -1,0 +1,31 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Allow public read for all images
+    match /{allPaths=**} {
+      allow read;
+    }
+
+    // User-specific uploads: Only authenticated users can write to their own folders
+    // Using userId as the folder name ensures complete isolation
+    match /store_images/{storeId}/{fileName} {
+      allow write, delete: if request.auth != null && request.auth.uid == storeId;
+    }
+
+    // Product images: Only authenticated users can write to their own product folders
+    match /product_images/{storeId}/{productId}/{fileName} {
+      allow write, delete: if request.auth != null && request.auth.uid == storeId;
+    }
+
+    // Slider images: Only authenticated users can write to their own slider folders
+    match /slider_images/{storeId}/{slideId}/{fileName} {
+      allow write, delete: if request.auth != null && request.auth.uid == storeId;
+    }
+
+    // User avatar images: Only authenticated users can write to their own avatar folder
+    match /user_avatars/{userId}/{fileName} {
+      allow write, delete: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
