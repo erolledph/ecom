@@ -115,9 +115,12 @@ export default function SlidesPage() {
       };
 
       if (editingSlide) {
-        await updateSlide(user.uid, editingSlide.id, slideData);
+        await updateSlide(editingSlide.id, slideData);
       } else {
-        await addSlide(user.uid, slideData);
+        await addSlide({
+          ...slideData,
+          storeId: user.uid
+        });
       }
 
       await fetchSlides();
@@ -135,7 +138,7 @@ export default function SlidesPage() {
     
     if (confirm('Are you sure you want to delete this slide?')) {
       try {
-        await deleteSlide(user.uid, slideId);
+        await deleteSlide(slideId);
         await fetchSlides();
       } catch (error) {
         console.error('Error deleting slide:', error);
