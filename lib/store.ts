@@ -259,11 +259,18 @@ export const deleteSlide = async (storeId: string, slideId: string) => {
 // File Upload Functions
 export const uploadProductImages = async (storeId: string, productId: string, files: File[]): Promise<string[]> => {
   try {
+    const storageRef = await getStorageRef();
+    const storageUpload = await getStorageUpload();
+    
+    if (!storageRef || !storageUpload) {
+      throw new Error('Storage not available');
+    }
+    
     const uploadPromises = files.map(async (file, index) => {
       const fileName = `${Date.now()}_${index}_${file.name}`;
-      const storageRef = ref(storage, `product_images/${storeId}/${productId}/${fileName}`);
-      const snapshot = await uploadBytes(storageRef, file);
-      return await getDownloadURL(snapshot.ref);
+      const fileRef = storageRef.ref(storageRef.storage, `product_images/${storeId}/${productId}/${fileName}`);
+      const snapshot = await storageUpload.uploadBytes(fileRef, file);
+      return await storageUpload.getDownloadURL(snapshot.ref);
     });
     
     return await Promise.all(uploadPromises);
@@ -275,10 +282,17 @@ export const uploadProductImages = async (storeId: string, productId: string, fi
 
 export const uploadSlideImage = async (storeId: string, slideId: string, file: File): Promise<string> => {
   try {
+    const storageRef = await getStorageRef();
+    const storageUpload = await getStorageUpload();
+    
+    if (!storageRef || !storageUpload) {
+      throw new Error('Storage not available');
+    }
+    
     const fileName = `${Date.now()}_${file.name}`;
-    const storageRef = ref(storage, `slider_images/${storeId}/${slideId}/${fileName}`);
-    const snapshot = await uploadBytes(storageRef, file);
-    return await getDownloadURL(snapshot.ref);
+    const fileRef = storageRef.ref(storageRef.storage, `slider_images/${storeId}/${slideId}/${fileName}`);
+    const snapshot = await storageUpload.uploadBytes(fileRef, file);
+    return await storageUpload.getDownloadURL(snapshot.ref);
   } catch (error) {
     console.error('Error uploading slide image:', error);
     throw error;
@@ -287,10 +301,17 @@ export const uploadSlideImage = async (storeId: string, slideId: string, file: F
 
 export const uploadStoreImage = async (storeId: string, file: File, type: 'avatar' | 'background'): Promise<string> => {
   try {
+    const storageRef = await getStorageRef();
+    const storageUpload = await getStorageUpload();
+    
+    if (!storageRef || !storageUpload) {
+      throw new Error('Storage not available');
+    }
+    
     const fileName = `${type}_${Date.now()}_${file.name}`;
-    const storageRef = ref(storage, `store_images/${storeId}/${fileName}`);
-    const snapshot = await uploadBytes(storageRef, file);
-    return await getDownloadURL(snapshot.ref);
+    const fileRef = storageRef.ref(storageRef.storage, `store_images/${storeId}/${fileName}`);
+    const snapshot = await storageUpload.uploadBytes(fileRef, file);
+    return await storageUpload.getDownloadURL(snapshot.ref);
   } catch (error) {
     console.error('Error uploading store image:', error);
     throw error;
