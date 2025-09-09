@@ -2,6 +2,7 @@
 let auth: any = null;
 let db: any = null;
 let app: any = null;
+let initialized = false;
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -24,18 +25,20 @@ const initializeFirebase = async () => {
     };
   }
 
-  if (app) {
+  if (initialized && app) {
     return { auth, db, app };
   }
 
   try {
-    const { initializeApp } = await import('firebase/app');
-    const { getAuth } = await import('firebase/auth');
-    const { getFirestore } = await import('firebase/firestore');
+    // Use dynamic imports with explicit paths to ensure browser builds
+    const { initializeApp } = await import('firebase/app/dist/esm/index.js');
+    const { getAuth } = await import('firebase/auth/dist/esm/index.js');
+    const { getFirestore } = await import('firebase/firestore/dist/esm/index.js');
 
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
     db = getFirestore(app);
+    initialized = true;
 
     return { auth, db, app };
   } catch (error) {

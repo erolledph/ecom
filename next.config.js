@@ -8,7 +8,7 @@ const nextConfig = {
   },
   assetPrefix: '',
   basePath: '',
-  transpilePackages: ['firebase', '@firebase/auth'],
+  transpilePackages: ['firebase', '@firebase/auth', '@firebase/firestore', '@firebase/app'],
   experimental: {
     esmExternals: 'loose'
   },
@@ -17,14 +17,22 @@ const nextConfig = {
     config.ignoreWarnings = [
       /Critical dependency: the request of a dependency is an expression/,
       /Module not found: Can't resolve 'encoding'/,
+      /Module parse failed: Unexpected token/,
     ];
 
     if (!isServer) {
-      // Client-side configuration
+      // Client-side configuration - force browser builds
       config.resolve.alias = {
         ...config.resolve.alias,
-        '@firebase/auth': '@firebase/auth/dist/esm/index.js',
+        // Force browser-compatible Firebase builds
+        'firebase/auth': 'firebase/auth/dist/esm/index.js',
+        '@firebase/auth': 'firebase/auth/dist/esm/index.js',
+        'firebase/firestore': 'firebase/firestore/dist/esm/index.js',
+        '@firebase/firestore': 'firebase/firestore/dist/esm/index.js',
+        'firebase/app': 'firebase/app/dist/esm/index.js',
+        '@firebase/app': 'firebase/app/dist/esm/index.js',
       };
+      
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
@@ -39,7 +47,35 @@ const nextConfig = {
         assert: false,
         os: false,
         path: false,
+        util: false,
+        querystring: false,
+        // Explicitly exclude undici and other Node.js modules
+        undici: false,
+        'node:crypto': false,
+        'node:fs': false,
+        'node:http': false,
+        'node:https': false,
+        'node:net': false,
+        'node:path': false,
+        'node:stream': false,
+        'node:url': false,
+        'node:util': false,
       };
+
+      // Exclude problematic modules from bundling
+      config.externals = config.externals || [];
+      config.externals.push({
+        undici: 'undici',
+        'node:crypto': 'crypto',
+        'node:fs': 'fs',
+        'node:http': 'http',
+        'node:https': 'https',
+        'node:net': 'net',
+        'node:path': 'path',
+        'node:stream': 'stream',
+        'node:url': 'url',
+        'node:util': 'util',
+      });
     }
 
     return config;
