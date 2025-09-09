@@ -48,6 +48,8 @@ export interface Product {
   isActive?: boolean;
   // add optional productLink field
   productLink?: string;
+  createdAt?: any;
+  updatedAt?: any;
 }
 
 export interface Slide {
