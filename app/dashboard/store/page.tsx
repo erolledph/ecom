@@ -179,11 +179,11 @@ export default function StoreSettingsPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Store Settings</h1>
         <p className="mt-2 text-gray-600">
-          Customize your store's appearance and information.
+          Customize your store&apos;s appearance and information.
         </p>
         {store && (
           <p className="mt-2 text-sm text-indigo-600">
-            Your store URL: <strong>{typeof window !== 'undefined' ? window.location.origin : 'https://yoursite.com'}/{store.slug}</strong>
+            Your store URL: <strong>{typeof window !== &quot;undefined&quot; ? window.location.origin : &quot;&quot;}/{store.slug}</strong>
           </p>
         )}
       </div>
@@ -216,7 +216,7 @@ export default function StoreSettingsPage() {
               </label>
               <div className="flex">
                 <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                  {typeof window !== 'undefined' ? window.location.origin : 'https://yoursite.com'}/
+                  {typeof window !== &quot;undefined&quot; ? window.location.origin : &quot;&quot;}/
                 </span>
                 <input
                   type="text"
