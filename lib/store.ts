@@ -12,7 +12,7 @@ import {
   orderBy,
   Timestamp 
 } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage/lite';
 import { db, storage } from './firebase';
 
 export interface Store {
