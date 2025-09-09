@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { addProduct, uploadProductImages } from '@/lib/store';
+import { Product } from '@/lib/store';
 
 interface ProductFormProps {
+  product?: Product | null;
   onCancel: () => void;
   onSuccess?: () => void;
 }
@@ -18,7 +20,7 @@ interface ProductData {
   images: File[];
 }
 
-export default function ProductForm({ onCancel, onSuccess }: ProductFormProps) {
+export default function ProductForm({ product, onCancel, onSuccess }: ProductFormProps) {
   const { user } = useAuth();
   const [productData, setProductData] = useState<ProductData>({
     name: '',
