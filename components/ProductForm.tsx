@@ -53,7 +53,7 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
         name: product.name,
         description: product.description,
         price: product.price,
-        productLink: product.productLink,
+        productLink: (product as any).productLink,
         category: product.category,
         images: [], // Reset images for editing
       });
