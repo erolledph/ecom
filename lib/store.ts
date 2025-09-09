@@ -38,16 +38,16 @@ export interface Store {
 }
 
 export interface Product {
-  id: string;
-  name: string;
+  id?: string;
+  title: string;
   description: string;
-  price: string;
+  price: number;
   category: string;
-  images: string[];
-  storeId: string;
-  isActive: boolean;
-  createdAt: any;
-  updatedAt: any;
+  images?: string[];
+  storeId?: string;
+  isActive?: boolean;
+  // add optional productLink field
+  productLink?: string;
 }
 
 export interface Slide {
