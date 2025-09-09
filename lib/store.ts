@@ -44,6 +44,7 @@ export interface Product {
   category: string;
   images: string[];
   storeId: string;
+  isActive: boolean;
   createdAt: any;
   updatedAt: any;
 }
@@ -57,6 +58,7 @@ export interface Slide {
   buttonLink: string;
   storeId: string;
   order: number;
+  isActive: boolean;
   createdAt: any;
   updatedAt: any;
 }
