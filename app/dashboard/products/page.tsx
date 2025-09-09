@@ -117,7 +117,7 @@ export default function ProductsPage() {
               <div className="mb-4 aspect-square overflow-hidden rounded-lg">
                 <Image
                   src={product.images[0]}
-                  alt={product.name}
+                  alt={product.title}
                   width={300}
                   height={300}
                   className="w-full h-full object-cover"
@@ -125,7 +125,7 @@ export default function ProductsPage() {
               </div>
             )}
             <div className="flex justify-between items-start mb-4">
-              <h3 className="text-xl font-semibold text-gray-900">{product.name}</h3>
+              <h3 className="text-xl font-semibold text-gray-900">{product.title}</h3>
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                 product.isActive 
                   ? 'bg-green-100 text-green-800' 
