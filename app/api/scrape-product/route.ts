@@ -6,7 +6,7 @@ interface ScrapedProduct {
   name: string;
   description: string;
   price: string;
-  images: string[];
+  images: string[]; // Now contains URLs instead of base64 strings
 }
 
 export async function POST(request: NextRequest) {
@@ -179,35 +179,8 @@ export async function POST(request: NextRequest) {
       if (imageUrls.size >= 5) break;
     }
 
-    // Convert image URLs to base64
-    const base64Images: string[] = [];
-    for (const imageUrl of Array.from(imageUrls).slice(0, 5)) {
-      try {
-        console.log('Fetching image:', imageUrl);
-        const imageResponse = await fetch(imageUrl, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          },
-          signal: AbortSignal.timeout(5000),
-        });
-        
-        if (imageResponse.ok) {
-          const buffer = await imageResponse.buffer();
-          const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
-          
-          // Only process images under 5MB
-          if (buffer.length < 5 * 1024 * 1024) {
-            const base64 = `data:${contentType};base64,${buffer.toString('base64')}`;
-            base64Images.push(base64);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching image:', imageUrl, error);
-        // Continue with other images
-      }
-    }
-
-    scrapedData.images = base64Images;
+    // Return image URLs directly (limit to 5)
+    scrapedData.images = Array.from(imageUrls).slice(0, 5);
 
     // Fallback values if scraping failed
     if (!scrapedData.name) {
