@@ -7,6 +7,7 @@ import { addProduct, updateProduct, Product, uploadProductImages, uploadBase64Im
 import Image from 'next/image';
 import { addDoc, collection, updateDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { uploadImagesFromUrls } from '@/lib/store';
 
 interface ProductFormProps {
   product?: Product | null;
@@ -28,7 +29,7 @@ interface ScrapedData {
   name: string;
   description: string;
   price: string;
-  images: string[]; // base64 images
+  images: string[]; // image URLs
 }
 
 export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: ProductFormProps) {
@@ -147,11 +148,12 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
         alert(`Product details scraped successfully! Found ${scrapedData.images?.length || 0} images.`);
       } else {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to scrape product details');
+        throw new Error(errorData.error || `Server error: ${response.status}`);
       }
     } catch (error) {
       console.error('Scraping error:', error);
-      alert(`Failed to scrape product details: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      alert(`Failed to scrape product details: ${errorMessage}`);
     } finally {
       setIsScraping(false);
     }
@@ -212,8 +214,8 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
         const manualImageUrls = await uploadProductImages(user.uid, productData.images, productId);
         finalImageUrls = manualImageUrls;
       } else if (hasScrapedImages) {
-        // Upload scraped images
-        const scrapedImageUrls = await uploadBase64Images(user.uid, scrapedImages, productId);
+        // Upload scraped images from URLs
+        const scrapedImageUrls = await uploadImagesFromUrls(user.uid, scrapedImages, productId);
         finalImageUrls = scrapedImageUrls;
       }
       
