@@ -19,10 +19,26 @@ const nextConfig = {
       /Module parse failed: Unexpected token/,
     ];
 
+    // Always exclude server-only packages from bundling
+    config.externals = config.externals || [];
+    
+    // Add server-only packages to externals
+    const serverOnlyPackages = [
+      'cheerio',
+      'node-fetch',
+      'undici',
+      '@types/cheerio',
+      '@types/node-fetch'
+    ];
+
     if (!isServer) {
-      // Client-side configuration - force browser builds
+      // Client-side: completely exclude server-only packages
       config.resolve.fallback = {
         ...config.resolve.fallback,
+        ...serverOnlyPackages.reduce((acc, pkg) => {
+          acc[pkg] = false;
+          return acc;
+        }, {}),
         fs: false,
         net: false,
         tls: false,
@@ -37,34 +53,16 @@ const nextConfig = {
         path: false,
         util: false,
         querystring: false,
-        // Explicitly exclude undici and other Node.js modules
-        undici: false,
-        'node:crypto': false,
-        'node:fs': false,
-        'node:http': false,
-        'node:https': false,
-        'node:net': false,
-        'node:path': false,
-        'node:stream': false,
-        'node:url': false,
-        'node:util': false,
       };
-
-      // Exclude problematic modules from bundling
-      config.externals = config.externals || [];
+      
+      // Add to externals for client-side
+      config.externals.push(...serverOnlyPackages);
+    } else {
+      // Server-side: allow these packages but mark them as external for edge runtime
       config.externals.push({
-        'node:crypto': 'crypto',
-        'node:fs': 'fs',
-        'node:http': 'http',
-        'node:https': 'https',
-        'node:net': 'net',
-        'node:path': 'path',
-        'node:stream': 'stream',
-        'node:url': 'url',
-        'node:util': 'util',
-        'cheerio': 'cheerio',
-        'node-fetch': 'node-fetch',
-        'undici': 'undici',
+        'cheerio': 'commonjs cheerio',
+        'node-fetch': 'commonjs node-fetch',
+        'undici': 'commonjs undici',
       });
     }
 
