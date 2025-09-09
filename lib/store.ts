@@ -47,17 +47,23 @@ export interface Slide {
 export const getStoreBySlug = async (slug: string): Promise<Store | null> => {
   try {
     const { db } = await getFirebaseInstances();
-    if (!db) return null;
+    if (!db) {
+      console.log('getStoreBySlug: Database not available');
+      return null;
+    }
 
     const { collection, query, where, getDocs } = await import('firebase/firestore');
     
+    console.log('getStoreBySlug: Searching for store with slug:', slug);
     const storesRef = collection(db, 'stores');
     const q = query(storesRef, where('slug', '==', slug));
     const querySnapshot = await getDocs(q);
+    console.log('getStoreBySlug: Query returned', querySnapshot.size, 'documents');
     
     if (!querySnapshot.empty) {
       const doc = querySnapshot.docs[0];
       const data = doc.data();
+      console.log('getStoreBySlug: Found store data:', data);
       return {
         id: doc.id,
         ...data,
@@ -65,9 +71,10 @@ export const getStoreBySlug = async (slug: string): Promise<Store | null> => {
         updatedAt: data.updatedAt?.toDate() || new Date(),
       } as Store;
     }
+    console.log('getStoreBySlug: No store found with slug:', slug);
     return null;
   } catch (error) {
-    console.error('Error fetching store by slug:', error);
+    console.error('getStoreBySlug: Error fetching store by slug:', slug, 'Error:', error);
     return null;
   }
 };
@@ -103,17 +110,27 @@ export const checkSlugAvailability = async (slug: string, excludeStoreId?: strin
 export const getUserStore = async (userId: string): Promise<Store | null> => {
   try {
     const { db } = await getFirebaseInstances();
-    if (!db) return null;
+    if (!db) {
+      console.log('Database not available in getUserStore');
+      return null;
+    }
 
     const { doc, getDoc } = await import('firebase/firestore');
     
-    console.log('Getting store document for userId:', userId);
+    console.log('getUserStore: Fetching store for userId:', userId);
     const storeDoc = await getDoc(doc(db, 'stores', userId));
-    console.log('Store document exists:', storeDoc.exists());
+    console.log('getUserStore: Store document exists:', storeDoc.exists());
     
     if (storeDoc.exists()) {
       const data = storeDoc.data();
-      console.log('Store data:', data);
+      console.log('getUserStore: Raw store data:', data);
+      const storeData = {
+        id: storeDoc.id,
+        ...data,
+        createdAt: data.createdAt?.toDate() || new Date(),
+        updatedAt: data.updatedAt?.toDate() || new Date(),
+      } as Store;
+      console.log('getUserStore: Processed store data:', storeData);
       return {
         id: storeDoc.id,
         ...data,
@@ -121,10 +138,10 @@ export const getUserStore = async (userId: string): Promise<Store | null> => {
         updatedAt: data.updatedAt?.toDate() || new Date(),
       } as Store;
     }
-    console.log('No store document found for userId:', userId);
+    console.log('getUserStore: No store document found for userId:', userId);
     return null;
   } catch (error) {
-    console.error('Error fetching store:', error);
+    console.error('getUserStore: Error fetching store for userId:', userId, 'Error:', error);
     return null;
   }
 };
@@ -132,18 +149,23 @@ export const getUserStore = async (userId: string): Promise<Store | null> => {
 export const updateStore = async (userId: string, storeData: Partial<Store>) => {
   try {
     const { db } = await getFirebaseInstances();
-    if (!db) throw new Error('Database not available');
+    if (!db) {
+      console.log('updateStore: Database not available');
+      throw new Error('Database not available');
+    }
 
     const { doc, updateDoc } = await import('firebase/firestore');
     
+    console.log('updateStore: Updating store for userId:', userId, 'with data:', storeData);
     const storeRef = doc(db, 'stores', userId);
     await updateDoc(storeRef, {
       ...storeData,
       updatedAt: new Date(),
     });
+    console.log('updateStore: Store updated successfully for userId:', userId);
     return true;
   } catch (error) {
-    console.error('Error updating store:', error);
+    console.error('updateStore: Error updating store for userId:', userId, 'Error:', error);
     throw error;
   }
 };

@@ -44,6 +44,7 @@ export const signUp = async (email: string, password: string, displayName?: stri
     };
     
     const storeSlug = generateSlug(displayName || 'mystore', user.uid);
+    console.log('Generated store slug:', storeSlug);
     
     // Create user profile and store in Firestore
     const userProfile: UserProfile = {
@@ -53,7 +54,9 @@ export const signUp = async (email: string, password: string, displayName?: stri
       createdAt: new Date(),
     };
     
+    console.log('Creating user profile:', userProfile);
     await setDoc(doc(db, 'users', user.uid), userProfile);
+    console.log('User profile created successfully');
     
     // Create a default store for the user
     const defaultStore = {
@@ -73,11 +76,12 @@ export const signUp = async (email: string, password: string, displayName?: stri
       isActive: true
     };
     
+    console.log('Creating default store with data:', defaultStore);
     // Create store document with user's UID as the store ID for easy access
     const storeRef = doc(db, 'stores', user.uid);
     await setDoc(storeRef, defaultStore);
     
-    console.log('Store created successfully:', storeSlug);
+    console.log('Store created successfully with slug:', storeSlug, 'and ID:', user.uid);
     
     // Update user profile with store reference
     const userRef = doc(db, 'users', user.uid);
@@ -86,7 +90,7 @@ export const signUp = async (email: string, password: string, displayName?: stri
       storeId: user.uid
     }, { merge: true });
     
-    console.log('User profile updated with store reference');
+    console.log('User profile updated with store reference. Store ID:', user.uid);
     
     return user;
   } catch (error: any) {
