@@ -19,27 +19,4 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Storage instance - only available on client side
-let storageInstance: any = null;
-
-export const getStorageInstance = async () => {
-  if (typeof window === 'undefined') {
-    // Server-side: return null to avoid import issues
-    return null;
-  }
-  
-  if (!storageInstance) {
-    try {
-      // Dynamic import to avoid build issues
-      const storageModule = await import('firebase/storage');
-      storageInstance = storageModule.getStorage(app);
-    } catch (error) {
-      console.warn('Firebase Storage not available:', error);
-      return null;
-    }
-  }
-  
-  return storageInstance;
-};
-
 export default app;
