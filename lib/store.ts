@@ -27,6 +27,7 @@ export interface Store {
   avatar: string;
   backgroundImage: string;
   ownerId: string;
+  isActive: boolean;
   socialLinks: {
     instagram: string;
     twitter: string;

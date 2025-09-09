@@ -86,7 +86,7 @@ export default function DashboardOverview() {
             </div>
             <div className="ml-4">
               <h3 className="text-lg font-semibold text-gray-900">{store?.name || 'Your Store'}</h3>
-              <p className="text-gray-600">{store?.isActive ? "Store is live and ready for visitors" : "Set up your store details"}</p>
+              <p className="text-gray-600">{store ? "Store is live and ready for visitors" : "Set up your store details"}</p>
             </div>
           </div>
         </div>
