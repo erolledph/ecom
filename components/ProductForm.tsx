@@ -5,6 +5,8 @@ import { useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { addProduct, updateProduct, Product, uploadProductImages, uploadBase64Images } from '@/lib/store';
 import Image from 'next/image';
+import { addDoc, collection, updateDoc, doc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 interface ProductFormProps {
   product?: Product | null;
@@ -180,29 +182,25 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
       
       if (product) {
         // Update existing product
-        await updateProduct(product.id, {
-          name: productData.name,
+        await updateDoc(doc(db, 'products', product.id), ({
+          title: productData.title,
           description: productData.description,
           price: productData.price,
-          productLink: productData.productLink,
+          productLink: (productData as any).productLink,
           category: productData.category,
-          storeId: user.uid,
-          isActive: true,
-          images: product.images, // Keep existing images initially
-        });
+        } as any));
         productId = product.id;
       } else {
         // Create new product
-        productId = await addProduct({
-          name: productData.name,
+        productId = await addDoc(collection(db, 'products'), ({
+          title: productData.title,
           description: productData.description,
           price: productData.price,
-          productLink: productData.productLink,
+          productLink: (productData as any).productLink,
           category: productData.category,
           storeId: user.uid,
           isActive: true,
-          images: [], // Will be updated after image upload
-        });
+        } as any));
       }
       
       // Now handle image uploads
