@@ -102,7 +102,7 @@ export default function SlidesPage() {
       
       if (imageFile) {
         const slideId = editingSlide?.id || `temp_${Date.now()}`;
-        imageUrl = await uploadSlideImage(user.uid, slideId, imageFile);
+        imageUrl = await uploadSlideImage(user.uid, imageFile, slideId);
       }
 
       const slideData = {
