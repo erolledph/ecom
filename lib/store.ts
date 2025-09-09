@@ -343,7 +343,7 @@ export async function generateCategoriesFromProducts(storeId: string): Promise<A
     
     products.forEach(product => {
       if (product.category && !categoryMap.has(product.category)) {
-        categoryMap.set(product.category, product.images[0] || '');
+        categoryMap.set(product.category, product.images?.[0] || '');
       }
     });
     
