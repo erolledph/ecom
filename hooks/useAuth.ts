@@ -24,7 +24,7 @@ export const useAuth = () => {
           return;
         }
 
-        const { onAuthStateChanged } = await import('firebase/auth/dist/esm/index.js');
+        const { onAuthStateChanged } = await import('firebase/auth');
         
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
           setUser(user);

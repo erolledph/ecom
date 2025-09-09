@@ -49,7 +49,7 @@ export const getStoreBySlug = async (slug: string): Promise<Store | null> => {
     const { db } = await getFirebaseInstances();
     if (!db) return null;
 
-    const { collection, query, where, getDocs } = await import('firebase/firestore/dist/esm/index.js');
+    const { collection, query, where, getDocs } = await import('firebase/firestore');
     
     const storesRef = collection(db, 'stores');
     const q = query(storesRef, where('slug', '==', slug));
@@ -77,7 +77,7 @@ export const checkSlugAvailability = async (slug: string, excludeStoreId?: strin
     const { db } = await getFirebaseInstances();
     if (!db) return false;
 
-    const { collection, query, where, getDocs } = await import('firebase/firestore/dist/esm/index.js');
+    const { collection, query, where, getDocs } = await import('firebase/firestore');
     
     const storesRef = collection(db, 'stores');
     const q = query(storesRef, where('slug', '==', slug));
@@ -105,7 +105,7 @@ export const getUserStore = async (userId: string): Promise<Store | null> => {
     const { db } = await getFirebaseInstances();
     if (!db) return null;
 
-    const { doc, getDoc } = await import('firebase/firestore/dist/esm/index.js');
+    const { doc, getDoc } = await import('firebase/firestore');
     
     const storeDoc = await getDoc(doc(db, 'stores', userId));
     if (storeDoc.exists()) {
@@ -129,7 +129,7 @@ export const updateStore = async (userId: string, storeData: Partial<Store>) => 
     const { db } = await getFirebaseInstances();
     if (!db) throw new Error('Database not available');
 
-    const { doc, updateDoc } = await import('firebase/firestore/dist/esm/index.js');
+    const { doc, updateDoc } = await import('firebase/firestore');
     
     const storeRef = doc(db, 'stores', userId);
     await updateDoc(storeRef, {
@@ -149,7 +149,7 @@ export const getStoreProducts = async (storeId: string): Promise<Product[]> => {
     const { db } = await getFirebaseInstances();
     if (!db) return [];
 
-    const { collection, query, orderBy, getDocs } = await import('firebase/firestore/dist/esm/index.js');
+    const { collection, query, orderBy, getDocs } = await import('firebase/firestore');
     
     const productsRef = collection(db, 'stores', storeId, 'products');
     const q = query(productsRef, orderBy('createdAt', 'desc'));
@@ -172,7 +172,7 @@ export const addProduct = async (storeId: string, productData: Omit<Product, 'id
     const { db } = await getFirebaseInstances();
     if (!db) throw new Error('Database not available');
 
-    const { collection, addDoc } = await import('firebase/firestore/dist/esm/index.js');
+    const { collection, addDoc } = await import('firebase/firestore');
     
     const productsRef = collection(db, 'stores', storeId, 'products');
     const docRef = await addDoc(productsRef, {
@@ -192,7 +192,7 @@ export const updateProduct = async (storeId: string, productId: string, productD
     const { db } = await getFirebaseInstances();
     if (!db) throw new Error('Database not available');
 
-    const { doc, updateDoc } = await import('firebase/firestore/dist/esm/index.js');
+    const { doc, updateDoc } = await import('firebase/firestore');
     
     const productRef = doc(db, 'stores', storeId, 'products', productId);
     await updateDoc(productRef, {
@@ -211,7 +211,7 @@ export const deleteProduct = async (storeId: string, productId: string) => {
     const { db } = await getFirebaseInstances();
     if (!db) throw new Error('Database not available');
 
-    const { doc, deleteDoc } = await import('firebase/firestore/dist/esm/index.js');
+    const { doc, deleteDoc } = await import('firebase/firestore');
     
     const productRef = doc(db, 'stores', storeId, 'products', productId);
     await deleteDoc(productRef);
@@ -228,7 +228,7 @@ export const getStoreSlides = async (storeId: string): Promise<Slide[]> => {
     const { db } = await getFirebaseInstances();
     if (!db) return [];
 
-    const { collection, query, orderBy, getDocs } = await import('firebase/firestore/dist/esm/index.js');
+    const { collection, query, orderBy, getDocs } = await import('firebase/firestore');
     
     const slidesRef = collection(db, 'stores', storeId, 'slides');
     const q = query(slidesRef, orderBy('order', 'asc'));
@@ -251,7 +251,7 @@ export const addSlide = async (storeId: string, slideData: Omit<Slide, 'id' | 'c
     const { db } = await getFirebaseInstances();
     if (!db) throw new Error('Database not available');
 
-    const { collection, addDoc } = await import('firebase/firestore/dist/esm/index.js');
+    const { collection, addDoc } = await import('firebase/firestore');
     
     const slidesRef = collection(db, 'stores', storeId, 'slides');
     const docRef = await addDoc(slidesRef, {
@@ -271,7 +271,7 @@ export const updateSlide = async (storeId: string, slideId: string, slideData: P
     const { db } = await getFirebaseInstances();
     if (!db) throw new Error('Database not available');
 
-    const { doc, updateDoc } = await import('firebase/firestore/dist/esm/index.js');
+    const { doc, updateDoc } = await import('firebase/firestore');
     
     const slideRef = doc(db, 'stores', storeId, 'slides', slideId);
     await updateDoc(slideRef, {
@@ -290,7 +290,7 @@ export const deleteSlide = async (storeId: string, slideId: string) => {
     const { db } = await getFirebaseInstances();
     if (!db) throw new Error('Database not available');
 
-    const { doc, deleteDoc } = await import('firebase/firestore/dist/esm/index.js');
+    const { doc, deleteDoc } = await import('firebase/firestore');
     
     const slideRef = doc(db, 'stores', storeId, 'slides', slideId);
     await deleteDoc(slideRef);

@@ -30,10 +30,10 @@ const initializeFirebase = async () => {
   }
 
   try {
-    // Use dynamic imports with explicit paths to ensure browser builds
-    const { initializeApp } = await import('firebase/app/dist/esm/index.js');
-    const { getAuth } = await import('firebase/auth/dist/esm/index.js');
-    const { getFirestore } = await import('firebase/firestore/dist/esm/index.js');
+    // Use dynamic imports
+    const { initializeApp } = await import('firebase/app');
+    const { getAuth } = await import('firebase/auth');
+    const { getFirestore } = await import('firebase/firestore');
 
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
