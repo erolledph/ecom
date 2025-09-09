@@ -52,7 +52,7 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
   useEffect(() => {
     if (product) {
       setProductData({
-        name: product.title,
+        title: product.title,
         description: product.description,
         price: product.price.toString(),
         productLink: product.productLink || '',
