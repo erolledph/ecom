@@ -312,7 +312,7 @@ export async function uploadBase64Images(storeId: string, base64Images: string[]
 export async function uploadSlideImage(storeId: string, file: File, slideId: string): Promise<string> {
   try {
     const fileName = `${slideId}_${Date.now()}`;
-    const imageRef = ref(storage, `slides/${fileName}`);
+    const imageRef = ref(storage, `slider_images/${storeId}/${slideId}/${fileName}`);
     await uploadBytes(imageRef, file);
     return getDownloadURL(imageRef);
   } catch (error) {
