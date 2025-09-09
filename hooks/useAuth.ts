@@ -7,8 +7,15 @@ export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
       
@@ -23,7 +30,7 @@ export const useAuth = () => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [mounted]);
 
-  return { user, userProfile, loading };
+  return { user, userProfile, loading: loading || !mounted };
 };
