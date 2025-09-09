@@ -52,10 +52,10 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
   useEffect(() => {
     if (product) {
       setProductData({
-        name: product.name,
+        name: product.title,
         description: product.description,
-        price: product.price,
-        productLink: (product as any).productLink,
+        price: product.price.toString(),
+        productLink: product.productLink || '',
         category: product.category,
         images: [], // Reset images for editing
       });
@@ -182,25 +182,26 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
       
       if (product) {
         // Update existing product
-        await updateDoc(doc(db, 'products', product.id), ({
+        await updateDoc(doc(db, 'products', product.id!), {
           title: productData.title,
           description: productData.description,
-          price: productData.price,
-          productLink: (productData as any).productLink,
+         price: parseFloat(productData.price),
+         productLink: productData.productLink,
           category: productData.category,
-        } as any));
-        productId = product.id;
+        });
+        productId = product.id!;
       } else {
         // Create new product
-        productId = await addDoc(collection(db, 'products'), ({
+        const docRef = await addDoc(collection(db, 'products'), {
           title: productData.title,
           description: productData.description,
-          price: productData.price,
-          productLink: (productData as any).productLink,
+         price: parseFloat(productData.price),
+         productLink: productData.productLink,
           category: productData.category,
           storeId: user.uid,
           isActive: true,
-        } as any));
+        });
+        productId = docRef.id;
       }
       
       // Now handle image uploads
