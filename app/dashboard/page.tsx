@@ -20,8 +20,10 @@ export default function DashboardOverview() {
       try {
         setLoading(true);
         
+        console.log('Loading dashboard data for user:', user.uid);
         // Load store data
         const storeData = await getUserStore(user.uid);
+        console.log('Dashboard store data:', storeData);
         setStore(storeData);
         
         // Load stats

@@ -107,9 +107,13 @@ export const getUserStore = async (userId: string): Promise<Store | null> => {
 
     const { doc, getDoc } = await import('firebase/firestore');
     
+    console.log('Getting store document for userId:', userId);
     const storeDoc = await getDoc(doc(db, 'stores', userId));
+    console.log('Store document exists:', storeDoc.exists());
+    
     if (storeDoc.exists()) {
       const data = storeDoc.data();
+      console.log('Store data:', data);
       return {
         id: storeDoc.id,
         ...data,
@@ -117,6 +121,7 @@ export const getUserStore = async (userId: string): Promise<Store | null> => {
         updatedAt: data.updatedAt?.toDate() || new Date(),
       } as Store;
     }
+    console.log('No store document found for userId:', userId);
     return null;
   } catch (error) {
     console.error('Error fetching store:', error);

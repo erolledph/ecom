@@ -33,7 +33,9 @@ export default function StoreSettingsPage() {
       if (!user) return;
       
       try {
+        console.log('Fetching store for user:', user.uid);
         const storeData = await getUserStore(user.uid);
+        console.log('Store data received:', storeData);
         if (storeData) {
           setStore(storeData);
           setFormData({
@@ -44,9 +46,13 @@ export default function StoreSettingsPage() {
           });
           setAvatarPreview(storeData.avatar);
           setBackgroundPreview(storeData.backgroundImage);
+        } else {
+          console.log('No store found for user:', user.uid);
+          setMessage('No store found. Please contact support if this issue persists.');
         }
       } catch (error) {
         console.error('Error fetching store:', error);
+        setMessage('Error loading store data. Please refresh the page.');
       } finally {
         setLoading(false);
       }

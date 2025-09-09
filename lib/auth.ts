@@ -74,13 +74,19 @@ export const signUp = async (email: string, password: string, displayName?: stri
     };
     
     // Create store document with user's UID as the store ID for easy access
-    await setDoc(doc(db, 'stores', user.uid), defaultStore);
+    const storeRef = doc(db, 'stores', user.uid);
+    await setDoc(storeRef, defaultStore);
+    
+    console.log('Store created successfully:', storeSlug);
     
     // Update user profile with store reference
-    await setDoc(doc(db, 'users', user.uid), {
+    const userRef = doc(db, 'users', user.uid);
+    await setDoc(userRef, {
       ...userProfile,
       storeId: user.uid
-    });
+    }, { merge: true });
+    
+    console.log('User profile updated with store reference');
     
     return user;
   } catch (error: any) {
