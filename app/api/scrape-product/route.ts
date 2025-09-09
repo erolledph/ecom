@@ -32,6 +32,10 @@ export async function POST(request: NextRequest) {
 
     console.log('Scraping product from URL:', url);
 
+    // Create AbortController for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
     // Fetch the webpage
     const response = await fetch(url, {
       headers: {
@@ -41,8 +45,11 @@ export async function POST(request: NextRequest) {
         'Accept-Encoding': 'gzip, deflate',
         'Connection': 'keep-alive',
       },
-      timeout: 10000, // 10 second timeout
+      signal: controller.signal,
     });
+
+    // Clear the timeout since the request completed
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -181,7 +188,7 @@ export async function POST(request: NextRequest) {
           headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
           },
-          timeout: 5000,
+          signal: AbortSignal.timeout(5000),
         });
         
         if (imageResponse.ok) {
