@@ -16,7 +16,7 @@ interface ProductFormProps {
 }
 
 interface ProductData {
-  name: string;
+  title: string;
   description: string;
   price: string;
   productLink: string;
@@ -34,7 +34,7 @@ interface ScrapedData {
 export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: ProductFormProps) {
   const { user } = useAuth();
   const [productData, setProductData] = useState<ProductData>({
-    name: '',
+    title: '',
     description: '',
     price: '',
     productLink: '',
@@ -130,7 +130,7 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
         // Update form data with scraped information
         setProductData(prev => ({
           ...prev,
-          name: scrapedData.name || prev.name,
+          title: scrapedData.name || prev.title,
           description: scrapedData.description || prev.description,
           price: scrapedData.price || prev.price,
           productLink: scrapeUrl,
@@ -371,15 +371,15 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
 
         {/* Product Name */}
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
             Product Name *
           </label>
           <input
             type="text"
-            id="name"
-            name="name"
+            id="title"
+            name="title"
             required
-            value={productData.name}
+            value={productData.title}
             onChange={handleInputChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
             placeholder="Enter product name"
