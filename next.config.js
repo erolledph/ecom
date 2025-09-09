@@ -22,17 +22,6 @@ const nextConfig = {
 
     if (!isServer) {
       // Client-side configuration - force browser builds
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        // Force browser-compatible Firebase builds
-        'firebase/auth': 'firebase/auth/dist/esm/index.js',
-        '@firebase/auth': 'firebase/auth/dist/esm/index.js',
-        'firebase/firestore': 'firebase/firestore/dist/esm/index.js',
-        '@firebase/firestore': 'firebase/firestore/dist/esm/index.js',
-        'firebase/app': 'firebase/app/dist/esm/index.js',
-        '@firebase/app': 'firebase/app/dist/esm/index.js',
-      };
-      
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
