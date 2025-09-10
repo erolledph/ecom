@@ -239,7 +239,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
             
             {/* Image Type Selection */}
             <div className="flex space-x-4 mb-4">
-              <label className="flex items-center">
+              <label className="flex items-center border border-gray-300 rounded-md px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors">
                 <input
                   type="radio"
                   name="imageType"
@@ -250,7 +250,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
                 />
                 Upload Image
               </label>
-              <label className="flex items-center">
+              <label className="flex items-center border border-gray-300 rounded-md px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors">
                 <input
                   type="radio"
                   name="imageType"

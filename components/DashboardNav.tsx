@@ -87,7 +87,7 @@ export default function DashboardNav({ isCollapsed, toggleCollapse }: DashboardN
       {/* Sidebar */}
       <div
         className={`
-          fixed top-0 left-0 h-screen bg-white shadow-xl border-r border-gray-200 z-40
+          fixed top-0 left-0 h-screen bg-white shadow-xl border-r border-gray-200 z-40 flex flex-col
           transition-all duration-300 ease-in-out overflow-y-auto
           ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
           ${isCollapsed ? 'md:w-16' : 'md:w-72'}
