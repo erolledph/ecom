@@ -263,7 +263,7 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
                   type="url"
                   value={productData.imageUrl}
                   onChange={handleImageUrlChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
                   placeholder="https://example.com/image.jpg"
                 />
                 <p className="mt-1 text-xs text-gray-500">
@@ -298,7 +298,7 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
             required
             value={productData.title}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
             placeholder="Enter product name"
           />
         </div>
@@ -315,7 +315,7 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
             rows={4}
             value={productData.description}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
             placeholder="Enter product description"
           />
         </div>
@@ -333,7 +333,7 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
               required
               value={productData.price}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
               placeholder="$0.00"
             />
           </div>
@@ -349,7 +349,7 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
               required
               value={productData.category}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
               placeholder="Enter category (e.g., Electronics, Fashion)"
             />
             <p className="mt-1 text-xs text-gray-500">
@@ -370,7 +370,7 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
             required
             value={productData.productLink}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
             placeholder="https://affiliate-link.com/product"
           />
           <p className="mt-1 text-sm text-gray-500">
@@ -390,7 +390,7 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
           <button
             type="submit"
             disabled={isLoading}
-            className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
+           className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center font-medium"
           >
             {isLoading ? (
               <>

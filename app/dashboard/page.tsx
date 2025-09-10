@@ -226,7 +226,7 @@ export default function DashboardOverview() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <div className="p-2 bg-purple-100 rounded-lg mr-3">
-                    <Image className="w-5 h-5 text-purple-600" alt="" />
+                    <Image className="w-5 h-5 text-purple-600" />
                   </div>
                   <div>
                     <h3 className="font-medium text-gray-900 group-hover:text-purple-600 transition-colors">

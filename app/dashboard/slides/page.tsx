@@ -220,7 +220,7 @@ export default function SlidesPage() {
                     required
                     value={formData.title}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
                     placeholder="New Summer Collection!"
                   />
                   <p className="mt-1 text-xs text-gray-500">
@@ -238,7 +238,7 @@ export default function SlidesPage() {
                     rows={2}
                     value={formData.description}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
                     placeholder="Promote your best affiliate products or special offers"
                   />
                 </div>
@@ -253,7 +253,7 @@ export default function SlidesPage() {
                     name="link"
                     value={formData.link}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
                     placeholder="https://affiliate-link.com/product"
                   />
                   <p className="mt-1 text-xs text-gray-500">
@@ -272,7 +272,7 @@ export default function SlidesPage() {
                     min="0"
                     value={formData.order}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
                   />
                 </div>
 
@@ -324,7 +324,7 @@ export default function SlidesPage() {
                   <button
                     type="submit"
                     disabled={saving}
-                    className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
                   >
                     {saving ? 'Saving...' : (editingSlide ? 'Update Slide' : 'Create Slide')}
                   </button>

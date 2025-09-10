@@ -262,7 +262,7 @@ export default function StoreSettingsPage() {
                 required
                 value={formData.name}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors text-gray-900"
                 placeholder="My Awesome Store"
               />
             </div>
@@ -282,7 +282,7 @@ export default function StoreSettingsPage() {
                   required
                   value={formData.slug}
                   onChange={handleInputChange}
-                  className="flex-1 px-4 py-3 rounded-r-lg focus:outline-none"
+                  className="flex-1 px-4 py-3 rounded-r-lg focus:outline-none text-gray-900"
                   placeholder="mystore123"
                   pattern="[a-z0-9]{3,20}"
                 />
@@ -304,7 +304,7 @@ export default function StoreSettingsPage() {
               rows={4}
               value={formData.description}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors resize-none"
+             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors resize-none text-gray-900"
               placeholder="Welcome to my affiliate store! Discover amazing products and deals curated just for you."
             />
           </div>
@@ -403,7 +403,7 @@ export default function StoreSettingsPage() {
                 name="socialLinks.instagram"
                 value={formData.socialLinks.instagram}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors text-gray-900"
                 placeholder="https://instagram.com/yourstore"
               />
             </div>
@@ -419,7 +419,7 @@ export default function StoreSettingsPage() {
                 name="socialLinks.twitter"
                 value={formData.socialLinks.twitter}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors text-gray-900"
                 placeholder="https://twitter.com/yourstore"
               />
             </div>
@@ -435,7 +435,7 @@ export default function StoreSettingsPage() {
                 name="socialLinks.facebook"
                 value={formData.socialLinks.facebook}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors text-gray-900"
                 placeholder="https://facebook.com/yourstore"
               />
             </div>
@@ -465,7 +465,7 @@ export default function StoreSettingsPage() {
           <button
             type="submit"
             disabled={saving}
-            className="flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 min-h-11"
+           className="flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 min-h-11 font-medium"
           >
             {saving ? (
               <>
