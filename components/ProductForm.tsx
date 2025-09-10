@@ -248,7 +248,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
                   onChange={() => handleImageTypeChange('upload')}
                   className="mr-2"
                 />
-                Upload Image
+                <span className="text-gray-700">Upload Image</span>
               </label>
               <label className="flex items-center border border-gray-300 rounded-md px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors">
                 <input
@@ -259,7 +259,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
                   onChange={() => handleImageTypeChange('url')}
                   className="mr-2"
                 />
-                Image URL
+                <span className="text-gray-700">Image URL</span>
               </label>
             </div>
             

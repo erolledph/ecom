@@ -142,7 +142,7 @@ export default function DashboardNav({ isCollapsed, toggleCollapse }: DashboardN
                   min-h-11 relative
                   ${isActive
                     ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                   }
                   ${isCollapsed ? 'md:px-2 md:justify-center' : ''}
                 `}
@@ -151,7 +151,7 @@ export default function DashboardNav({ isCollapsed, toggleCollapse }: DashboardN
                 <IconComponent 
                   className={`
                     flex-shrink-0 transition-colors
-                    ${isActive ? 'text-primary-600' : 'text-gray-400 group-hover:text-gray-600'}
+                    ${isActive ? 'text-primary-600' : 'text-gray-500 group-hover:text-gray-700'}
                     ${isCollapsed ? 'w-6 h-6' : 'w-5 h-5'}
                   `} 
                 />
@@ -185,12 +185,12 @@ export default function DashboardNav({ isCollapsed, toggleCollapse }: DashboardN
           >
             <LogOut 
               className={`
-                flex-shrink-0 text-gray-400 group-hover:text-danger-600 transition-colors
+                flex-shrink-0 text-gray-500 group-hover:text-danger-600 transition-colors
                 ${isCollapsed ? 'w-6 h-6' : 'w-5 h-5'}
               `} 
             />
             {!isCollapsed && (
-              <span className="ml-3 truncate">
+              <span className="ml-3 truncate text-gray-700 group-hover:text-danger-700">
                 {isLoggingOut ? 'Logging out...' : 'Logout'}
               </span>
             )}

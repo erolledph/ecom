@@ -173,14 +173,12 @@ export default function ProductsPage() {
                           className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 transition-colors"
                         >
                           <Edit className="w-3 h-3 mr-1" />
-                          Edit
                         </button>
                         <button
                           onClick={() => product.id && handleDeleteProduct(product.id)}
                           className="inline-flex items-center px-3 py-1.5 border border-danger-300 shadow-sm text-xs font-medium rounded text-danger-700 bg-danger-50 hover:bg-danger-100 transition-colors"
                         >
                           <Trash2 className="w-3 h-3 mr-1" />
-                          Delete
                         </button>
                       </div>
                     </td>
