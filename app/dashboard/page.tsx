@@ -140,7 +140,7 @@ export default function DashboardOverview() {
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
             <div className="p-3 bg-purple-100 rounded-lg">
-              <Image className="w-6 h-6 text-purple-600" />
+              <Image className="w-6 h-6 text-purple-600" alt="" />
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold text-gray-900">{stats.slides}</div>
@@ -226,7 +226,7 @@ export default function DashboardOverview() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <div className="p-2 bg-purple-100 rounded-lg mr-3">
-                    <Image className="w-5 h-5 text-purple-600" />
+                    <Image className="w-5 h-5 text-purple-600" alt="" />
                   </div>
                   <div>
                     <h3 className="font-medium text-gray-900 group-hover:text-purple-600 transition-colors">
