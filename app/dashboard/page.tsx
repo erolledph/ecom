@@ -140,7 +140,7 @@ export default function DashboardOverview() {
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
             <div className="p-3 bg-purple-100 rounded-lg">
-              <Image className="w-6 h-6 text-purple-600"/>
+              <Image className="w-6 h-6 text-purple-600" />
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold text-gray-900">{stats.slides}</div>
