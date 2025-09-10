@@ -1,4 +1,6 @@
 import { notFound } from 'next/navigation';
+import { getStoreBySlug, getStoreProducts, getStoreSlides, generateCategoriesFromProductsSync } from '@/lib/store';
+import StoreTemplate from '@/components/StoreTemplate';
 
 interface StorePageProps {
   params: {
@@ -6,21 +8,36 @@ interface StorePageProps {
   };
 }
 
-export default function StorePage({ params }: StorePageProps) {
+export default async function StorePage({ params }: StorePageProps) {
   const { storeSlug } = params;
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">
-          Store: {storeSlug}
-        </h1>
-        <div className="bg-white rounded-lg shadow p-6">
-          <p className="text-gray-600">
-            This is the store page for &quot;{storeSlug}&quot;. Content will be implemented here.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+  try {
+    // Fetch store data
+    const store = await getStoreBySlug(storeSlug);
+    
+    if (!store || !store.isActive) {
+      notFound();
+    }
+
+    // Fetch products and slides
+    const [products, slides] = await Promise.all([
+      getStoreProducts(store.id),
+      getStoreSlides(store.id)
+    ]);
+
+    // Generate categories from products
+    const categories = generateCategoriesFromProductsSync(products);
+
+    return (
+      <StoreTemplate 
+        store={store}
+        products={products}
+        slides={slides.filter(slide => slide.isActive)}
+        categories={categories}
+      />
+    );
+  } catch (error) {
+    console.error('Error loading store:', error);
+    notFound();
+  }
 }
