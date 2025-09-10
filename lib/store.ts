@@ -263,98 +263,14 @@ export async function deleteSlide(slideId: string): Promise<void> {
 }
 
 // Image upload functions
-export async function uploadProductImages(storeId: string, files: File[], productId: string): Promise<string[]> {
+export async function uploadProductImage(storeId: string, file: File, productId: string): Promise<string> {
   try {
-    const uploadPromises = files.map(async (file, index) => {
-      const fileName = `${productId}_${index}_${Date.now()}`;
-      const imageRef = ref(storage, `products/${fileName}`);
-      await uploadBytes(imageRef, file);
-      return getDownloadURL(imageRef);
-    });
-    
-    return Promise.all(uploadPromises);
+    const fileName = `${productId}_${Date.now()}`;
+    const imageRef = ref(storage, `product_images/${storeId}/${productId}/${fileName}`);
+    await uploadBytes(imageRef, file);
+    return getDownloadURL(imageRef);
   } catch (error) {
-    console.error('Error uploading product images:', error);
-    throw error;
-  }
-}
-
-export async function uploadImagesFromUrls(storeId: string, imageUrls: string[], productId: string): Promise<string[]> {
-  try {
-    const uploadPromises = imageUrls.map(async (imageUrl, index) => {
-      try {
-        console.log('Fetching image for upload:', imageUrl);
-        
-        // Fetch the image
-        const response = await fetch(imageUrl, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          },
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch image: ${response.status}`);
-        }
-        
-        const blob = await response.blob();
-        
-        // Skip images larger than 5MB
-        if (blob.size > 5 * 1024 * 1024) {
-          console.warn('Skipping large image:', imageUrl);
-          return null;
-        }
-        
-        const fileName = `${productId}_scraped_${index}_${Date.now()}`;
-        const imageRef = ref(storage, `products/${fileName}`);
-        
-        await uploadBytes(imageRef, blob);
-        return getDownloadURL(imageRef);
-        
-      } catch (error) {
-        console.error('Error uploading image:', imageUrl, error);
-        return null;
-      }
-    });
-    
-    const results = await Promise.all(uploadPromises);
-    // Filter out null results (failed uploads)
-    return results.filter((url): url is string => url !== null);
-  } catch (error) {
-    console.error('Error uploading images from URLs:', error);
-    throw error;
-  }
-}
-
-// Keep the old function for backward compatibility but mark as deprecated
-export async function uploadBase64Images(storeId: string, base64Images: string[], productId: string): Promise<string[]> {
-  try {
-    const uploadPromises = base64Images.map(async (base64Image, index) => {
-      // Extract the data and content type from base64 string
-      const matches = base64Image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-      if (!matches || matches.length !== 3) {
-        throw new Error('Invalid base64 image format');
-      }
-      
-      const contentType = matches[1];
-      const base64Data = matches[2];
-      const buffer = Buffer.from(base64Data, 'base64');
-      
-      // Create a blob-like object for upload
-      const uint8Array = new Uint8Array(buffer);
-      
-      const fileName = `${productId}_scraped_${index}_${Date.now()}`;
-      const imageRef = ref(storage, `products/${fileName}`);
-      
-      await uploadBytes(imageRef, uint8Array, {
-        contentType: contentType
-      });
-      
-      return getDownloadURL(imageRef);
-    });
-    
-    return Promise.all(uploadPromises);
-  } catch (error) {
-    console.error('Error uploading base64 images:', error);
+    console.error('Error uploading product image:', error);
     throw error;
   }
 }

@@ -17,19 +17,22 @@ service cloud.firestore {
     // Products collection: Public read, owner write
     match /products/{productId} {
       allow read; // Anyone can read products from any store
-      allow create, update, delete: if request.auth != null && request.auth.uid == resource.data.storeId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.storeId;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.storeId;
     }
 
     // Slides collection: Public read, owner write
     match /slides/{slideId} {
       allow read; // Anyone can read slides from any store
-      allow create, update, delete: if request.auth != null && request.auth.uid == resource.data.storeId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.storeId;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.storeId;
     }
 
     // Categories collection: Public read, owner write
     match /categories/{categoryId} {
       allow read; // Anyone can read categories from any store
-      allow create, update, delete: if request.auth != null && request.auth.uid == resource.data.storeId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.storeId;
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.storeId;
     }
   }
 }

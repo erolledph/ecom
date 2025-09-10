@@ -3,11 +3,12 @@
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { addProduct, updateProduct, Product, uploadProductImages, uploadBase64Images } from '@/lib/store';
+import { addProduct, updateProduct, Product } from '@/lib/store';
 import Image from 'next/image';
 import { addDoc, collection, updateDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { uploadImagesFromUrls } from '@/lib/store';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { storage } from '@/lib/firebase';
 
 interface ProductFormProps {
   product?: Product | null;
@@ -22,14 +23,9 @@ interface ProductData {
   price: string;
   productLink: string;
   category: string;
-  images: File[];
-}
-
-interface ScrapedData {
-  name: string;
-  description: string;
-  price: string;
-  images: string[]; // image URLs
+  imageType: 'upload' | 'url';
+  imageFile: File | null;
+  imageUrl: string;
 }
 
 export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: ProductFormProps) {
@@ -39,15 +35,13 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
     description: '',
     price: '',
     productLink: '',
-    category: 'electronics',
-    images: [],
+    category: '',
+    imageType: 'upload',
+    imageFile: null,
+    imageUrl: '',
   });
-  const [scrapeUrl, setScrapeUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isScraping, setIsScraping] = useState(false);
-  const [scrapedImages, setScrapedImages] = useState<string[]>([]);
-  const [useScrapedImages, setUseScrapedImages] = useState(true);
-  const [manualImagePreviews, setManualImagePreviews] = useState<string[]>([]);
+  const [imagePreview, setImagePreview] = useState<string>('');
 
   // Initialize form with product data if editing
   useEffect(() => {
@@ -58,24 +52,13 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
         price: product.price.toString(),
         productLink: product.productLink || '',
         category: product.category,
-        images: [], // Reset images for editing
+        imageType: 'url',
+        imageFile: null,
+        imageUrl: product.images?.[0] || '',
       });
-      setScrapedImages([]);
-      setUseScrapedImages(false);
+      setImagePreview(product.images?.[0] || '');
     }
   }, [product]);
-
-  const categories = [
-    'electronics',
-    'clothing',
-    'accessories',
-    'home',
-    'books',
-    'sports',
-    'beauty',
-    'toys',
-    'outdoors',
-  ];
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -87,75 +70,45 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
     }));
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length > 5) {
-      alert('You can only upload up to 5 images');
-      return;
-    }
-    
+  const handleImageTypeChange = (type: 'upload' | 'url') => {
     setProductData(prev => ({
       ...prev,
-      images: files,
+      imageType: type,
+      imageFile: null,
+      imageUrl: '',
     }));
+    setImagePreview('');
+  };
 
-    // Create previews for manual images
-    const previews = files.map(file => URL.createObjectURL(file));
-    setManualImagePreviews(previews);
-    
-    // If user selects manual images, prefer them over scraped images
-    if (files.length > 0) {
-      setUseScrapedImages(false);
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setProductData(prev => ({
+        ...prev,
+        imageFile: file,
+      }));
+      setImagePreview(URL.createObjectURL(file));
     }
   };
 
-  const handleScrapeProduct = async () => {
-    if (!scrapeUrl.trim()) {
-      alert('Please enter a product URL');
-      return;
-    }
+  const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const url = e.target.value;
+    setProductData(prev => ({
+      ...prev,
+      imageUrl: url,
+    }));
+    setImagePreview(url);
+  };
 
-    setIsScraping(true);
+  const uploadSingleImage = async (file: File, productId: string): Promise<string> => {
     try {
-      const response = await fetch('/api/scrape-product', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url: scrapeUrl }),
-      });
-      
-      if (response.ok) {
-        const scrapedData: ScrapedData = await response.json();
-        
-        // Update form data with scraped information
-        setProductData(prev => ({
-          ...prev,
-          title: scrapedData.name || prev.title,
-          description: scrapedData.description || prev.description,
-          price: scrapedData.price || prev.price,
-          productLink: scrapeUrl,
-        }));
-        
-        // Set scraped images
-        setScrapedImages(scrapedData.images || []);
-        
-        // If no manual images are selected, use scraped images
-        if (productData.images.length === 0) {
-          setUseScrapedImages(true);
-        }
-        
-        alert(`Product details scraped successfully! Found ${scrapedData.images?.length || 0} images.`);
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Server error: ${response.status}`);
-      }
+      const fileName = `${productId}_${Date.now()}`;
+      const imageRef = ref(storage, `product_images/${user!.uid}/${productId}/${fileName}`);
+      await uploadBytes(imageRef, file);
+      return getDownloadURL(imageRef);
     } catch (error) {
-      console.error('Scraping error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      alert(`Failed to scrape product details: ${errorMessage}`);
-    } finally {
-      setIsScraping(false);
+      console.error('Error uploading image:', error);
+      throw error;
     }
   };
 
@@ -167,12 +120,19 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
       return;
     }
     
-    // Validate that we have either manual images or scraped images
-    const hasManualImages = productData.images.length > 0;
-    const hasScrapedImages = scrapedImages.length > 0 && useScrapedImages;
+    // Validate that we have an image
+    if (productData.imageType === 'upload' && !productData.imageFile && !product) {
+      alert('Please upload a product image');
+      return;
+    }
     
-    if (!hasManualImages && !hasScrapedImages && !product) {
-      alert('Please either upload images manually or scrape images from a URL');
+    if (productData.imageType === 'url' && !productData.imageUrl.trim()) {
+      alert('Please provide an image URL');
+      return;
+    }
+    
+    if (!productData.category.trim()) {
+      alert('Please enter a category name');
       return;
     }
     
@@ -187,9 +147,9 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
         await updateDoc(doc(db, 'products', product.id!), {
           title: productData.title,
           description: productData.description,
-         price: parseFloat(productData.price),
-         productLink: productData.productLink,
-          category: productData.category,
+          price: parseFloat(productData.price),
+          productLink: productData.productLink,
+          category: productData.category.trim(),
         });
         productId = product.id!;
       } else {
@@ -197,32 +157,32 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
         const docRef = await addDoc(collection(db, 'products'), {
           title: productData.title,
           description: productData.description,
-         price: parseFloat(productData.price),
-         productLink: productData.productLink,
-          category: productData.category,
+          price: parseFloat(productData.price),
+          productLink: productData.productLink,
+          category: productData.category.trim(),
           storeId: user.uid,
           isActive: true,
         });
         productId = docRef.id;
       }
       
-      // Now handle image uploads
-      let finalImageUrls: string[] = product?.images || [];
+      // Handle image
+      let finalImageUrl = product?.images?.[0] || '';
       
-      if (hasManualImages) {
-        // Upload manual images
-        const manualImageUrls = await uploadProductImages(user.uid, productData.images, productId);
-        finalImageUrls = manualImageUrls;
-      } else if (hasScrapedImages) {
-        // Upload scraped images from URLs
-        const scrapedImageUrls = await uploadImagesFromUrls(user.uid, scrapedImages, productId);
-        finalImageUrls = scrapedImageUrls;
+      if (productData.imageType === 'upload' && productData.imageFile) {
+        // Upload new image file
+        finalImageUrl = await uploadSingleImage(productData.imageFile, productId);
+      } else if (productData.imageType === 'url' && productData.imageUrl.trim()) {
+        // Use provided URL
+        finalImageUrl = productData.imageUrl.trim();
       }
       
-      // Update the product with the final image URLs
-      await updateProduct(productId, {
-        images: finalImageUrls
-      });
+      // Update the product with the final image URL
+      if (finalImageUrl) {
+        await updateProduct(productId, {
+          images: [finalImageUrl]
+        });
+      }
       
       alert('Product saved successfully!');
       onSuccess?.();
@@ -238,9 +198,11 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
   // Clean up object URLs when component unmounts
   useEffect(() => {
     return () => {
-      manualImagePreviews.forEach(url => URL.revokeObjectURL(url));
+      if (imagePreview && imagePreview.startsWith('blob:')) {
+        URL.revokeObjectURL(imagePreview);
+      }
     };
-  }, [manualImagePreviews]);
+  }, [imagePreview]);
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
@@ -249,123 +211,76 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
       </h2>
       
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* URL Scraping Section */}
-        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-          <h3 className="text-lg font-medium text-blue-900 mb-3">
-            🔍 Auto-fill from Product URL
-          </h3>
-          <p className="text-sm text-blue-700 mb-3">
-            Paste any product URL to automatically extract product details and images
-          </p>
-          <div className="flex gap-3">
-            <input
-              type="url"
-              value={scrapeUrl}
-              onChange={(e) => setScrapeUrl(e.target.value)}
-              placeholder="https://example.com/product-page"
-              className="flex-1 px-3 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-            />
-            <button
-              type="button"
-              onClick={handleScrapeProduct}
-              disabled={isScraping}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-            >
-              {isScraping ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Scraping...
-                </>
-              ) : (
-                'Scrape Product'
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Product Images Section */}
+        {/* Product Image Section */}
         <div className="space-y-4">
-          <h3 className="text-lg font-medium text-gray-900">Product Images</h3>
+          <h3 className="text-lg font-medium text-gray-900">Product Image</h3>
           
-          {/* Image Source Selection */}
-          <div className="flex flex-col space-y-4">
-            {/* Manual Upload Option */}
-            <div className="border border-gray-300 rounded-lg p-4">
-              <div className="flex items-center mb-3">
-                <input
-                  type="radio"
-                  id="manual-images"
-                  name="image-source"
-                  checked={!useScrapedImages || productData.images.length > 0}
-                  onChange={() => setUseScrapedImages(false)}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
-                />
-                <label htmlFor="manual-images" className="ml-2 text-sm font-medium text-gray-700">
-                  Upload Images Manually (Max 5)
-                </label>
-              </div>
+          {/* Image Type Selection */}
+          <div className="flex space-x-4 mb-4">
+            <label className="flex items-center">
               <input
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={handleImageChange}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                type="radio"
+                name="imageType"
+                value="upload"
+                checked={productData.imageType === 'upload'}
+                onChange={() => handleImageTypeChange('upload')}
+                className="mr-2"
               />
-              {manualImagePreviews.length > 0 && (
-                <div className="mt-3 grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {manualImagePreviews.map((preview, index) => (
-                    <div key={index} className="relative">
-                      <Image
-                        src={preview}
-                        alt={`Manual upload ${index + 1}`}
-                        width={150}
-                        height={150}
-                        className="w-full h-24 object-cover rounded-md border"
-                      />
-                      <span className="absolute top-1 right-1 bg-blue-600 text-white text-xs px-1 rounded">
-                        {index + 1}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Scraped Images Option */}
-            {scrapedImages.length > 0 && (
-              <div className="border border-gray-300 rounded-lg p-4">
-                <div className="flex items-center mb-3">
-                  <input
-                    type="radio"
-                    id="scraped-images"
-                    name="image-source"
-                    checked={useScrapedImages && productData.images.length === 0}
-                    onChange={() => setUseScrapedImages(true)}
-                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
-                  />
-                  <label htmlFor="scraped-images" className="ml-2 text-sm font-medium text-gray-700">
-                    Use Scraped Images ({scrapedImages.length} found)
-                  </label>
-                </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {scrapedImages.map((image, index) => (
-                    <div key={index} className="relative">
-                      <Image
-                        src={image}
-                        alt={`Scraped image ${index + 1}`}
-                        width={150}
-                        height={150}
-                        className="w-full h-24 object-cover rounded-md border"
-                      />
-                      <span className="absolute top-1 right-1 bg-green-600 text-white text-xs px-1 rounded">
-                        {index + 1}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+              Upload Image
+            </label>
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="imageType"
+                value="url"
+                checked={productData.imageType === 'url'}
+                onChange={() => handleImageTypeChange('url')}
+                className="mr-2"
+              />
+              Image URL
+            </label>
+          </div>
+          
+          <div className="border border-gray-300 rounded-lg p-4">
+            {productData.imageType === 'upload' ? (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Upload Image *
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageFileChange}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                />
+              </div>
+            ) : (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Image URL *
+                </label>
+                <input
+                  type="url"
+                  value={productData.imageUrl}
+                  onChange={handleImageUrlChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="https://example.com/image.jpg"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  Paste a direct link to an image to save storage space
+                </p>
+              </div>
+            )}
+            
+            {imagePreview && (
+              <div className="mt-3">
+                <Image
+                  src={imagePreview}
+                  alt="Preview"
+                  width={200}
+                  height={200}
+                  className="w-32 h-32 object-cover rounded-md border"
+                />
               </div>
             )}
           </div>
@@ -425,22 +340,21 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
 
           <div>
             <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-              Category *
+              Category Name *
             </label>
-            <select
+            <input
+              type="text"
               id="category"
               name="category"
               required
               value={productData.category}
               onChange={handleInputChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
-            >
-              {categories.map(category => (
-                <option key={category} value={category}>
-                  {category.charAt(0).toUpperCase() + category.slice(1)}
-                </option>
-              ))}
-            </select>
+              placeholder="Enter category (e.g., Electronics, Fashion)"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              Create your own category name for better organization
+            </p>
           </div>
         </div>
 
