@@ -2,26 +2,22 @@
 
 import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { 
   getStoreProducts, 
-  addProduct, 
-  updateProduct, 
   deleteProduct,
   Product,
   getUserStore
 } from '@/lib/store';
-import ProductForm from '@/components/ProductForm';
-import { Copy, Check, Edit, Trash2, Plus } from 'lucide-react';
+import { Edit, Trash2, Plus } from 'lucide-react';
 
 export default function ProductsPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [storeSlug, setStoreSlug] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [copiedUrl, setCopiedUrl] = useState(false);
 
   const fetchProducts = useCallback(async () => {
     if (!user) return;
@@ -47,34 +43,6 @@ export default function ProductsPage() {
       fetchProducts();
     }
   }, [user, fetchProducts]);
-
-  const copyStoreUrl = async () => {
-    if (!storeSlug) return;
-    
-    const storeUrl = `${window.location.origin}/${storeSlug}`;
-    try {
-      await navigator.clipboard.writeText(storeUrl);
-      setCopiedUrl(true);
-      setTimeout(() => setCopiedUrl(false), 2000);
-    } catch (error) {
-      console.error('Failed to copy URL:', error);
-    }
-  };
-
-  const handleAddProduct = async (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
-    // This function is now handled entirely by the ProductForm component
-    // The form manages the product creation and image upload process
-    fetchProducts();
-    setShowForm(false);
-  };
-
-  const handleEditProduct = async (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
-    // This function is now handled entirely by the ProductForm component
-    // The form manages the product update and image upload process
-    fetchProducts();
-    setEditingProduct(null);
-    setShowForm(false);
-  };
 
   const handleDeleteProduct = async (productId: string) => {
     if (!user) return;
@@ -114,19 +82,13 @@ export default function ProductsPage() {
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Affiliate Products</h1>
-            <p className="mt-2 text-gray-600 text-sm md:text-base">
-              Manage your affiliate products and earn commissions from each sale.
-            </p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Manage Products</h1>
           </div>
           
           <div>
             <button
-              onClick={() => {
-                setEditingProduct(null);
-                setShowForm(true);
-              }}
-              className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              onClick={() => router.push('/dashboard/products/add')}
+              className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Product
@@ -134,27 +96,6 @@ export default function ProductsPage() {
           </div>
         </div>
       </div>
-
-      {/* Form Modal */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <ProductForm
-                product={editingProduct}
-                onSubmit={editingProduct ? handleEditProduct : handleAddProduct}
-                onCancel={() => {
-                  setShowForm(false);
-                  setEditingProduct(null);
-                }}
-                onSuccess={() => {
-                  fetchProducts();
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Products Table */}
       {products.length > 0 ? (
@@ -209,7 +150,7 @@ export default function ProductsPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary-100 text-secondary-800">
                         {product.category}
                       </span>
                     </td>
@@ -219,8 +160,8 @@ export default function ProductsPage() {
                     <td className="px-4 py-3 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         product.isActive 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
+                          ? 'bg-primary-100 text-primary-800' 
+                          : 'bg-danger-100 text-danger-800'
                       }`}>
                         {product.isActive ? 'Active' : 'Inactive'}
                       </span>
@@ -228,10 +169,7 @@ export default function ProductsPage() {
                     <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
                         <button
-                          onClick={() => {
-                            setEditingProduct(product);
-                            setShowForm(true);
-                          }}
+                          onClick={() => router.push(`/dashboard/products/edit/${product.id}`)}
                           className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 transition-colors"
                         >
                           <Edit className="w-3 h-3 mr-1" />
@@ -239,7 +177,7 @@ export default function ProductsPage() {
                         </button>
                         <button
                           onClick={() => product.id && handleDeleteProduct(product.id)}
-                          className="inline-flex items-center px-3 py-1.5 border border-red-300 shadow-sm text-xs font-medium rounded text-red-700 bg-red-50 hover:bg-red-100 transition-colors"
+                          className="inline-flex items-center px-3 py-1.5 border border-danger-300 shadow-sm text-xs font-medium rounded text-danger-700 bg-danger-50 hover:bg-danger-100 transition-colors"
                         >
                           <Trash2 className="w-3 h-3 mr-1" />
                           Delete
@@ -263,11 +201,8 @@ export default function ProductsPage() {
               Add your first affiliate product to start earning commissions from sales.
             </p>
             <button 
-              onClick={() => {
-                setEditingProduct(null);
-                setShowForm(true);
-              }}
-              className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              onClick={() => router.push('/dashboard/products/add')}
+              className="inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Your First Product

@@ -15,23 +15,31 @@ import {
   X, 
   User,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  PlusCircle,
+  PlusSquare
 } from 'lucide-react';
 
 const navigation = [
   { name: 'Overview', href: '/dashboard', icon: BarChart3 },
   { name: 'Store Settings', href: '/dashboard/store', icon: Store },
-  { name: 'Promotional Slides', href: '/dashboard/slides', icon: Image },
-  { name: 'Affiliate Products', href: '/dashboard/products', icon: Package },
+  { name: 'Add Slide', href: '/dashboard/slides/add', icon: PlusSquare },
+  { name: 'Manage Slides', href: '/dashboard/slides', icon: Image },
+  { name: 'Add Product', href: '/dashboard/products/add', icon: PlusCircle },
+  { name: 'Manage Products', href: '/dashboard/products', icon: Package },
 ];
 
-export default function DashboardNav() {
+interface DashboardNavProps {
+  isCollapsed: boolean;
+  toggleCollapse: () => void;
+}
+
+export default function DashboardNav({ isCollapsed, toggleCollapse }: DashboardNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { userProfile } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -47,10 +55,6 @@ export default function DashboardNav() {
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const toggleCollapse = () => {
-    setIsCollapsed(!isCollapsed);
   };
 
   const closeMobileMenu = () => {
@@ -91,15 +95,20 @@ export default function DashboardNav() {
         `}
       >
         {/* Header */}
-        <div className={`flex items-center justify-between h-16 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 ${isCollapsed ? 'md:px-2' : ''}`}>
+        <div className={`flex items-center justify-between h-16 px-4 bg-gradient-to-r from-primary-500 to-secondary-500 ${isCollapsed ? 'md:px-2' : ''}`}>
           <div className={`flex items-center ${isCollapsed ? 'md:justify-center' : ''}`}>
             <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-              <Store className="w-5 h-5 text-indigo-600" />
+              <Store className="w-5 h-5 text-primary-600" />
             </div>
             {!isCollapsed && (
-              <h1 className="ml-3 text-lg font-bold text-white truncate">
-                Affiliate Store
-              </h1>
+              <div className="ml-3 min-w-0 flex-1">
+                <p className="text-sm font-bold text-white truncate">
+                  {userProfile?.displayName || 'User'}
+                </p>
+                <p className="text-xs text-white text-opacity-80 truncate">
+                  {userProfile?.email}
+                </p>
+              </div>
             )}
           </div>
           
@@ -117,27 +126,8 @@ export default function DashboardNav() {
           </button>
         </div>
 
-        {/* User Info */}
-        <div className={`p-4 border-b border-gray-200 ${isCollapsed ? 'md:px-2' : ''}`}>
-          <div className={`flex items-center ${isCollapsed ? 'md:justify-center' : ''}`}>
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
-              <User className="w-5 h-5 text-white" />
-            </div>
-            {!isCollapsed && (
-              <div className="ml-3 min-w-0 flex-1">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  {userProfile?.displayName || 'User'}
-                </p>
-                <p className="text-xs text-gray-500 truncate">
-                  {userProfile?.email}
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-
         {/* Navigation */}
-        <nav className={`flex-1 px-2 py-4 space-y-1 ${isCollapsed ? 'md:px-1' : ''}`}>
+        <nav className={`flex-1 px-2 py-4 space-y-1 border-t border-gray-200 ${isCollapsed ? 'md:px-1' : ''}`}>
           {navigation.map((item) => {
             const isActive = pathname === item.href;
             const IconComponent = item.icon;
@@ -151,7 +141,7 @@ export default function DashboardNav() {
                   group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200
                   min-h-11 relative
                   ${isActive
-                    ? 'bg-indigo-50 text-indigo-700 border-r-2 border-indigo-600'
+                    ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }
                   ${isCollapsed ? 'md:px-2 md:justify-center' : ''}
@@ -161,7 +151,7 @@ export default function DashboardNav() {
                 <IconComponent 
                   className={`
                     flex-shrink-0 transition-colors
-                    ${isActive ? 'text-indigo-600' : 'text-gray-400 group-hover:text-gray-600'}
+                    ${isActive ? 'text-primary-600' : 'text-gray-400 group-hover:text-gray-600'}
                     ${isCollapsed ? 'w-6 h-6' : 'w-5 h-5'}
                   `} 
                 />
@@ -187,7 +177,7 @@ export default function DashboardNav() {
             disabled={isLoggingOut}
             className={`
               group flex items-center w-full px-3 py-3 text-sm font-medium text-gray-600 rounded-lg 
-              hover:bg-red-50 hover:text-red-700 transition-all duration-200 disabled:opacity-50
+              hover:bg-danger-50 hover:text-danger-700 transition-all duration-200 disabled:opacity-50
               min-h-11 relative
               ${isCollapsed ? 'md:px-2 md:justify-center' : ''}
             `}
@@ -195,7 +185,7 @@ export default function DashboardNav() {
           >
             <LogOut 
               className={`
-                flex-shrink-0 text-gray-400 group-hover:text-red-600 transition-colors
+                flex-shrink-0 text-gray-400 group-hover:text-danger-600 transition-colors
                 ${isCollapsed ? 'w-6 h-6' : 'w-5 h-5'}
               `} 
             />

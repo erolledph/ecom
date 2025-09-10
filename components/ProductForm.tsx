@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { addProduct, updateProduct, Product } from '@/lib/store';
 import Image from 'next/image';
@@ -9,12 +10,11 @@ import { addDoc, collection, updateDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
+import { ArrowLeft, Save } from 'lucide-react';
 
 interface ProductFormProps {
   product?: Product | null;
-  onCancel: () => void;
-  onSubmit: (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
-  onSuccess?: () => void;
+  mode: 'add' | 'edit';
 }
 
 interface ProductData {
@@ -28,8 +28,9 @@ interface ProductData {
   imageUrl: string;
 }
 
-export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: ProductFormProps) {
+export default function ProductForm({ product, mode }: ProductFormProps) {
   const { user } = useAuth();
+  const router = useRouter();
   const [productData, setProductData] = useState<ProductData>({
     title: '',
     description: '',
@@ -45,7 +46,7 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
 
   // Initialize form with product data if editing
   useEffect(() => {
-    if (product) {
+    if (product && mode === 'edit') {
       setProductData({
         title: product.title,
         description: product.description,
@@ -58,7 +59,7 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
       });
       setImagePreview(product.images?.[0] || '');
     }
-  }, [product]);
+  }, [product, mode]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -121,7 +122,7 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
     }
     
     // Validate that we have an image
-    if (productData.imageType === 'upload' && !productData.imageFile && !product) {
+    if (productData.imageType === 'upload' && !productData.imageFile && mode === 'add') {
       alert('Please upload a product image');
       return;
     }
@@ -142,7 +143,7 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
       // First, create/update the product to get the product ID
       let productId: string;
       
-      if (product) {
+      if (mode === 'edit' && product) {
         // Update existing product
         await updateDoc(doc(db, 'products', product.id!), {
           title: productData.title,
@@ -185,8 +186,7 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
       }
       
       alert('Product saved successfully!');
-      onSuccess?.();
-      onCancel();
+      router.push('/dashboard/products');
     } catch (error) {
       console.error('Save error:', error);
       alert('Failed to save product. Please try again.');
@@ -204,208 +204,231 @@ export default function ProductForm({ product, onCancel, onSubmit, onSuccess }: 
     };
   }, [imagePreview]);
 
+  const handleCancel = () => {
+    router.push('/dashboard/products');
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">
-        {product ? 'Edit Product' : 'Add New Affiliate Product'}
-      </h2>
-      
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Product Image Section */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-gray-900">Product Image</h3>
-          
-          {/* Image Type Selection */}
-          <div className="flex space-x-4 mb-4">
-            <label className="flex items-center">
-              <input
-                type="radio"
-                name="imageType"
-                value="upload"
-                checked={productData.imageType === 'upload'}
-                onChange={() => handleImageTypeChange('upload')}
-                className="mr-2"
-              />
-              Upload Image
-            </label>
-            <label className="flex items-center">
-              <input
-                type="radio"
-                name="imageType"
-                value="url"
-                checked={productData.imageType === 'url'}
-                onChange={() => handleImageTypeChange('url')}
-                className="mr-2"
-              />
-              Image URL
-            </label>
-          </div>
-          
-          <div className="border border-gray-300 rounded-lg p-4">
-            {productData.imageType === 'upload' ? (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Upload Image *
-                </label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageFileChange}
-                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                />
-              </div>
-            ) : (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Image URL *
-                </label>
-                <input
-                  type="url"
-                  value={productData.imageUrl}
-                  onChange={handleImageUrlChange}
-                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
-                  placeholder="https://example.com/image.jpg"
-                />
-                <p className="mt-1 text-xs text-gray-500">
-                  Paste a direct link to an image to save storage space
-                </p>
-              </div>
-            )}
-            
-            {imagePreview && (
-              <div className="mt-3">
-                <Image
-                  src={imagePreview}
-                  alt="Preview"
-                  width={200}
-                  height={200}
-                  className="w-32 h-32 object-cover rounded-md border"
-                />
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Product Name */}
-        <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-            Product Name *
-          </label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            required
-            value={productData.title}
-            onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
-            placeholder="Enter product name"
-          />
-        </div>
-
-        {/* Description */}
-        <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-            Description *
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            required
-            rows={4}
-            value={productData.description}
-            onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
-            placeholder="Enter product description"
-          />
-        </div>
-
-        {/* Price and Category */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="space-y-6 md:space-y-8">
+      {/* Header */}
+      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="flex items-center mb-4">
+          <button
+            onClick={handleCancel}
+            className="mr-4 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
           <div>
-            <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
-              Price *
-            </label>
-            <input
-              type="text"
-              id="price"
-              name="price"
-              required
-              value={productData.price}
-              onChange={handleInputChange}
-             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
-              placeholder="$0.00"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-              Category Name *
-            </label>
-            <input
-              type="text"
-              id="category"
-              name="category"
-              required
-              value={productData.category}
-              onChange={handleInputChange}
-             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
-              placeholder="Enter category (e.g., Electronics, Fashion)"
-            />
-            <p className="mt-1 text-xs text-gray-500">
-              Create your own category name for better organization
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+              {mode === 'edit' ? 'Edit Product' : 'Add New Product'}
+            </h1>
+            <p className="text-gray-600 mt-1">
+              {mode === 'edit' ? 'Update your affiliate product' : 'Add a new affiliate product to your store'}
             </p>
           </div>
         </div>
+      </div>
+      
+      {/* Form */}
+      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Product Image Section */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-gray-900">Product Image</h3>
+            
+            {/* Image Type Selection */}
+            <div className="flex space-x-4 mb-4">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="imageType"
+                  value="upload"
+                  checked={productData.imageType === 'upload'}
+                  onChange={() => handleImageTypeChange('upload')}
+                  className="mr-2"
+                />
+                Upload Image
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="imageType"
+                  value="url"
+                  checked={productData.imageType === 'url'}
+                  onChange={() => handleImageTypeChange('url')}
+                  className="mr-2"
+                />
+                Image URL
+              </label>
+            </div>
+            
+            <div className="border border-gray-300 rounded-lg p-4">
+              {productData.imageType === 'upload' ? (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Upload Image *
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageFileChange}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+                  />
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Image URL *
+                  </label>
+                  <input
+                    type="url"
+                    value={productData.imageUrl}
+                    onChange={handleImageUrlChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 bg-white"
+                    placeholder="https://example.com/image.jpg"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    Paste a direct link to an image to save storage space
+                  </p>
+                </div>
+              )}
+              
+              {imagePreview && (
+                <div className="mt-3">
+                  <Image
+                    src={imagePreview}
+                    alt="Preview"
+                    width={200}
+                    height={200}
+                    className="w-32 h-32 object-cover rounded-lg border border-gray-200"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
 
-        {/* Product Link */}
-        <div>
-          <label htmlFor="productLink" className="block text-sm font-medium text-gray-700 mb-2">
-            Affiliate Product Link *
-          </label>
-          <input
-            type="url"
-            id="productLink"
-            name="productLink"
-            required
-            value={productData.productLink}
-            onChange={handleInputChange}
-           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
-            placeholder="https://affiliate-link.com/product"
-          />
-          <p className="mt-1 text-sm text-gray-500">
-            Visitors will be redirected to this affiliate URL when they click on the product
-          </p>
-        </div>
+          {/* Product Name */}
+          <div>
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+              Product Name *
+            </label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              required
+              value={productData.title}
+              onChange={handleInputChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 bg-white"
+              placeholder="Enter product name"
+            />
+          </div>
 
-        {/* Form Actions */}
-        <div className="flex justify-end space-x-3 pt-6 border-t">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={isLoading}
-           className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center font-medium"
-          >
-            {isLoading ? (
-              <>
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Saving...
-              </>
-            ) : (
-              'Save Product'
-            )}
-          </button>
-        </div>
-      </form>
+          {/* Description */}
+          <div>
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+              Description *
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              required
+              rows={4}
+              value={productData.description}
+              onChange={handleInputChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors resize-none text-gray-900 bg-white"
+              placeholder="Enter product description"
+            />
+          </div>
+
+          {/* Price and Category */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
+                Price *
+              </label>
+              <input
+                type="text"
+                id="price"
+                name="price"
+                required
+                value={productData.price}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 bg-white"
+                placeholder="$0.00"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+                Category Name *
+              </label>
+              <input
+                type="text"
+                id="category"
+                name="category"
+                required
+                value={productData.category}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 bg-white"
+                placeholder="Enter category (e.g., Electronics, Fashion)"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Create your own category name for better organization
+              </p>
+            </div>
+          </div>
+
+          {/* Product Link */}
+          <div>
+            <label htmlFor="productLink" className="block text-sm font-medium text-gray-700 mb-2">
+              Affiliate Product Link *
+            </label>
+            <input
+              type="url"
+              id="productLink"
+              name="productLink"
+              required
+              value={productData.productLink}
+              onChange={handleInputChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 bg-white"
+              placeholder="https://affiliate-link.com/product"
+            />
+            <p className="mt-1 text-sm text-gray-500">
+              Visitors will be redirected to this affiliate URL when they click on the product
+            </p>
+          </div>
+
+          {/* Form Actions */}
+          <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="px-6 py-3 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+            >
+              {isLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="w-5 h-5 mr-2" />
+                  {mode === 'edit' ? 'Update Product' : 'Save Product'}
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

@@ -262,6 +262,42 @@ export async function deleteSlide(slideId: string): Promise<void> {
   }
 }
 
+export async function getSlideById(slideId: string): Promise<Slide | null> {
+  try {
+    const slideRef = doc(db, 'slides', slideId);
+    const slideSnap = await getDoc(slideRef);
+    
+    if (slideSnap.exists()) {
+      return {
+        id: slideSnap.id,
+        ...slideSnap.data()
+      } as Slide;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error getting slide by ID:', error);
+    throw error;
+  }
+}
+
+export async function getProductById(productId: string): Promise<Product | null> {
+  try {
+    const productRef = doc(db, 'products', productId);
+    const productSnap = await getDoc(productRef);
+    
+    if (productSnap.exists()) {
+      return {
+        id: productSnap.id,
+        ...productSnap.data()
+      } as Product;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error getting product by ID:', error);
+    throw error;
+  }
+}
+
 // Image upload functions
 export async function uploadProductImage(storeId: string, file: File, productId: string): Promise<string> {
   try {

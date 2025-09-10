@@ -2,30 +2,17 @@
 
 import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { getStoreSlides, addSlide, updateSlide, deleteSlide, uploadSlideImage, Slide, getUserStore } from '@/lib/store';
-import { Copy, Check, Edit, Trash2, Plus, ExternalLink } from 'lucide-react';
+import { getStoreSlides, deleteSlide, Slide, getUserStore } from '@/lib/store';
+import { Edit, Trash2, Plus, ExternalLink } from 'lucide-react';
 
 export default function SlidesPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [slides, setSlides] = useState<Slide[]>([]);
   const [storeSlug, setStoreSlug] = useState<string>('');
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editingSlide, setEditingSlide] = useState<Slide | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [copiedUrl, setCopiedUrl] = useState(false);
-  
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    link: '',
-    order: 0,
-    isActive: true
-  });
-  
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState('');
 
   const fetchSlides = useCallback(async () => {
     if (!user) return;
@@ -51,108 +38,6 @@ export default function SlidesPage() {
       fetchSlides();
     }
   }, [user, fetchSlides]);
-
-  const copyStoreUrl = async () => {
-    if (!storeSlug) return;
-    
-    const storeUrl = `${window.location.origin}/${storeSlug}`;
-    try {
-      await navigator.clipboard.writeText(storeUrl);
-      setCopiedUrl(true);
-      setTimeout(() => setCopiedUrl(false), 2000);
-    } catch (error) {
-      console.error('Failed to copy URL:', error);
-    }
-  };
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'number' ? parseInt(value) : value
-    }));
-  };
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
-    }
-  };
-
-  const resetForm = () => {
-    setFormData({
-      title: '',
-      description: '',
-      link: '',
-      order: slides.length,
-      isActive: true
-    });
-    setImageFile(null);
-    setImagePreview('');
-    setEditingSlide(null);
-    setShowForm(false);
-  };
-
-  const handleEdit = (slide: Slide) => {
-    setEditingSlide(slide);
-    setFormData({
-      title: slide.title,
-      description: slide.description || '',
-      link: slide.link || '',
-      order: slide.order,
-      isActive: slide.isActive
-    });
-    setImagePreview(slide.image);
-    setShowForm(true);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
-
-    if (!imageFile && !editingSlide) {
-      alert('Please select an image for the slide.');
-      return;
-    }
-
-    setSaving(true);
-
-    try {
-      let imageUrl = editingSlide?.image || '';
-      
-      if (imageFile) {
-        const slideId = editingSlide?.id || `temp_${Date.now()}`;
-        imageUrl = await uploadSlideImage(user.uid, imageFile, slideId);
-      }
-
-      const slideData = {
-        title: formData.title,
-        description: formData.description,
-        image: imageUrl,
-        link: formData.link,
-        order: formData.order,
-        isActive: formData.isActive
-      };
-
-      if (editingSlide) {
-        await updateSlide(editingSlide.id, slideData);
-      } else {
-        await addSlide({
-          ...slideData,
-          storeId: user.uid
-        });
-      }
-
-      await fetchSlides();
-      resetForm();
-    } catch (error) {
-      console.error('Error saving slide:', error);
-      alert('Failed to save slide. Please try again.');
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const handleDelete = async (slideId: string) => {
     if (!user) return;
@@ -192,19 +77,13 @@ export default function SlidesPage() {
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Promotional Slides</h1>
-            <p className="mt-2 text-gray-600 text-sm md:text-base">
-              Create promotional slides to showcase your best affiliate products and offers.
-            </p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Manage Slides</h1>
           </div>
           
           <div>
             <button
-              onClick={() => {
-                resetForm();
-                setShowForm(true);
-              }}
-              className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              onClick={() => router.push('/dashboard/slides/add')}
+              className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Slide
@@ -212,153 +91,6 @@ export default function SlidesPage() {
           </div>
         </div>
       </div>
-
-      {/* Form Modal */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  {editingSlide ? 'Edit Slide' : 'Add New Slide'}
-                </h2>
-                <button
-                  onClick={resetForm}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <span className="sr-only">Close</span>
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-                    Title *
-                  </label>
-                  <input
-                    type="text"
-                    id="title"
-                    name="title"
-                    required
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
-                    placeholder="New Summer Collection!"
-                  />
-                  <p className="mt-1 text-xs text-gray-500">
-                    Create catchy titles to grab visitor attention
-                  </p>
-                </div>
-
-                <div>
-                  <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-                    Description
-                  </label>
-                  <textarea
-                    id="description"
-                    name="description"
-                    rows={2}
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
-                    placeholder="Promote your best affiliate products or special offers"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="link" className="block text-sm font-medium text-gray-700 mb-2">
-                    Affiliate Link (Optional)
-                  </label>
-                  <input
-                    type="url"
-                    id="link"
-                    name="link"
-                    value={formData.link}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
-                    placeholder="https://affiliate-link.com/product"
-                  />
-                  <p className="mt-1 text-xs text-gray-500">
-                    Link to your affiliate product or landing page
-                  </p>
-                </div>
-
-                <div>
-                  <label htmlFor="order" className="block text-sm font-medium text-gray-700 mb-2">
-                    Order
-                  </label>
-                  <input
-                    type="number"
-                    id="order"
-                    name="order"
-                    min="0"
-                    value={formData.order}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 bg-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Slide Image *
-                  </label>
-                  {imagePreview && (
-                    <div className="mb-2">
-                      <Image
-                        src={imagePreview}
-                        alt="Preview"
-                        width={400}
-                        height={128}
-                        className="w-full h-32 object-cover rounded-md"
-                      />
-                    </div>
-                  )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                  />
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="isActive"
-                    name="isActive"
-                    checked={formData.isActive}
-                    onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
-                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                  />
-                  <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
-                    Active (visible on store)
-                  </label>
-                </div>
-
-                <div className="flex justify-end space-x-3 pt-4 border-t">
-                  <button
-                    type="button"
-                    onClick={resetForm}
-                    className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={saving}
-                    className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-                  >
-                    {saving ? 'Saving...' : (editingSlide ? 'Update Slide' : 'Create Slide')}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Slides Table */}
       {slides.length > 0 ? (
@@ -417,7 +149,7 @@ export default function SlidesPage() {
                           href={slide.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center text-indigo-600 hover:text-indigo-900 text-sm"
+                          className="inline-flex items-center text-primary-600 hover:text-primary-900 text-sm"
                         >
                           <ExternalLink className="w-3 h-3 mr-1" />
                           Link
@@ -429,8 +161,8 @@ export default function SlidesPage() {
                     <td className="px-4 py-3 whitespace-nowrap">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         slide.isActive 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
+                          ? 'bg-primary-100 text-primary-800' 
+                          : 'bg-danger-100 text-danger-800'
                       }`}>
                         {slide.isActive ? 'Active' : 'Inactive'}
                       </span>
@@ -438,18 +170,18 @@ export default function SlidesPage() {
                     <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
                         <button
-                          onClick={() => handleEdit(slide)}
+                          onClick={() => router.push(`/dashboard/slides/edit/${slide.id}`)}
                           className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                          title="Edit slide"
                         >
-                          <Edit className="w-3 h-3 mr-1" />
-                          Edit
+                          <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(slide.id)}
-                          className="inline-flex items-center px-3 py-1.5 border border-red-300 shadow-sm text-xs font-medium rounded text-red-700 bg-red-50 hover:bg-red-100 transition-colors"
+                          className="inline-flex items-center px-3 py-1.5 border border-danger-300 shadow-sm text-xs font-medium rounded text-danger-700 bg-danger-50 hover:bg-danger-100 transition-colors"
+                          title="Delete slide"
                         >
-                          <Trash2 className="w-3 h-3 mr-1" />
-                          Delete
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </td>
@@ -470,8 +202,8 @@ export default function SlidesPage() {
               Create your first promotional slide to showcase your affiliate products and special offers.
             </p>
             <button 
-              onClick={() => setShowForm(true)}
-              className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              onClick={() => router.push('/dashboard/slides/add')}
+              className="inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
             >
               <Plus className="w-4 h-4 mr-2" />
               Create First Slide

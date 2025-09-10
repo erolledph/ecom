@@ -14,7 +14,8 @@ import {
   Link as LinkIcon,
   Instagram,
   Twitter,
-  Facebook
+  Facebook,
+  Copy
 } from 'lucide-react';
 
 export default function StoreSettingsPage() {
@@ -39,6 +40,7 @@ export default function StoreSettingsPage() {
   const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState('');
   const [backgroundPreview, setBackgroundPreview] = useState('');
+  const [copySuccess, setCopySuccess] = useState(false);
 
   // Auto-clear success messages after 3 seconds
   useEffect(() => {
@@ -114,6 +116,29 @@ export default function StoreSettingsPage() {
     } else {
       setBackgroundFile(file);
       setBackgroundPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const copyStoreUrl = async () => {
+    if (!store) return;
+    
+    const storeUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/${store.slug}`;
+    
+    try {
+      await navigator.clipboard.writeText(storeUrl);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy URL:', error);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = storeUrl;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
     }
   };
 
@@ -219,34 +244,20 @@ export default function StoreSettingsPage() {
       {/* Header */}
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <div className="flex items-center mb-4">
-          <div className="p-2 bg-indigo-100 rounded-lg mr-3">
-            <StoreIcon className="w-6 h-6 text-indigo-600" />
+          <div className="p-2 bg-primary-100 rounded-lg mr-3">
+            <StoreIcon className="w-6 h-6 text-primary-600" />
           </div>
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Store Settings</h1>
-            <p className="text-gray-600 text-sm md:text-base">
-              3-20 characters, lowercase letters and numbers only
-            </p>
           </div>
         </div>
-        
-        {store && (
-          <div className="bg-indigo-50 rounded-lg p-4 border border-indigo-200">
-            <div className="flex items-center">
-              <LinkIcon className="w-4 h-4 text-indigo-600 mr-2" />
-              <span className="text-sm text-indigo-800">
-                Your store URL: <span className="font-mono font-medium">{typeof window !== "undefined" ? window.location.origin : ""}/{store.slug}</span>
-              </span>
-            </div>
-          </div>
-        )}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Information */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-            <StoreIcon className="w-5 h-5 mr-2 text-indigo-600" />
+            <StoreIcon className="w-5 h-5 mr-2 text-primary-600" />
             Basic Information
           </h2>
           
@@ -262,7 +273,7 @@ export default function StoreSettingsPage() {
                 required
                 value={formData.name}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors text-gray-900"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
                 placeholder="My Awesome Store"
               />
             </div>
@@ -270,8 +281,19 @@ export default function StoreSettingsPage() {
             <div>
               <label htmlFor="slug" className="block text-sm font-medium text-gray-700 mb-2">
                 Store URL (Slug) *
+                {store && (
+                  <button
+                    type="button"
+                    onClick={copyStoreUrl}
+                    className="ml-2 inline-flex items-center text-xs text-primary-600 hover:text-primary-700 transition-colors"
+                    title="Copy store URL"
+                  >
+                    <Copy className="w-3 h-3 mr-1" />
+                    {copySuccess ? 'Copied!' : 'Copy URL'}
+                  </button>
+                )}
               </label>
-              <div className="flex rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent">
+              <div className="flex rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-transparent">
                 <span className="inline-flex items-center px-3 rounded-l-lg border-r border-gray-300 bg-gray-50 text-gray-500 text-sm">
                   {typeof window !== "undefined" ? window.location.origin.replace(/^https?:\/\//, '') : ""}/
                 </span>
@@ -304,7 +326,7 @@ export default function StoreSettingsPage() {
               rows={4}
               value={formData.description}
               onChange={handleInputChange}
-             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors resize-none text-gray-900"
+             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors resize-none text-gray-900"
               placeholder="Welcome to my affiliate store! Discover amazing products and deals curated just for you."
             />
           </div>
@@ -313,7 +335,7 @@ export default function StoreSettingsPage() {
         {/* Images */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-            <ImageIcon className="w-5 h-5 mr-2 text-indigo-600" />
+            <ImageIcon className="w-5 h-5 mr-2 text-primary-600" />
             Store Images
           </h2>
           
@@ -334,7 +356,7 @@ export default function StoreSettingsPage() {
                   />
                 </div>
                 <div className="w-full">
-                  <label className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-colors">
+                  <label className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
                     <Upload className="w-5 h-5 text-gray-400 mr-2" />
                     <span className="text-sm text-gray-600">Upload Avatar</span>
                     <input
@@ -369,7 +391,7 @@ export default function StoreSettingsPage() {
                     </div>
                   )}
                 </div>
-                <label className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-colors">
+                <label className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
                   <Upload className="w-5 h-5 text-gray-400 mr-2" />
                   <span className="text-sm text-gray-600">Upload Background</span>
                   <input
@@ -387,7 +409,7 @@ export default function StoreSettingsPage() {
         {/* Social Links */}
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-            <LinkIcon className="w-5 h-5 mr-2 text-indigo-600" />
+            <LinkIcon className="w-5 h-5 mr-2 text-primary-600" />
             Social Media Links
           </h2>
           
@@ -403,7 +425,7 @@ export default function StoreSettingsPage() {
                 name="socialLinks.instagram"
                 value={formData.socialLinks.instagram}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors text-gray-900"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
                 placeholder="https://instagram.com/yourstore"
               />
             </div>
@@ -419,7 +441,7 @@ export default function StoreSettingsPage() {
                 name="socialLinks.twitter"
                 value={formData.socialLinks.twitter}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors text-gray-900"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
                 placeholder="https://twitter.com/yourstore"
               />
             </div>
@@ -435,7 +457,7 @@ export default function StoreSettingsPage() {
                 name="socialLinks.facebook"
                 value={formData.socialLinks.facebook}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors text-gray-900"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
                 placeholder="https://facebook.com/yourstore"
               />
             </div>
@@ -446,14 +468,14 @@ export default function StoreSettingsPage() {
         {message && (
           <div className={`p-4 rounded-lg border transition-all duration-300 ${
             message.includes('success') 
-              ? 'bg-green-50 text-green-700 border-green-200' 
-              : 'bg-red-50 text-red-700 border-red-200'
+              ? 'bg-primary-50 text-primary-700 border-primary-200' 
+              : 'bg-danger-50 text-danger-700 border-danger-200'
           }`}>
             <div className="flex items-center">
               {message.includes('success') ? (
-                <CheckCircle className="w-5 h-5 mr-2 text-green-500" />
+                <CheckCircle className="w-5 h-5 mr-2 text-primary-500" />
               ) : (
-                <AlertCircle className="w-5 h-5 mr-2 text-red-500" />
+                <AlertCircle className="w-5 h-5 mr-2 text-danger-500" />
               )}
               <span className="font-medium">{message}</span>
             </div>
@@ -465,7 +487,7 @@ export default function StoreSettingsPage() {
           <button
             type="submit"
             disabled={saving}
-           className="flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 min-h-11 font-medium"
+           className="flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 min-h-11 font-medium"
           >
             {saving ? (
               <>
