@@ -225,7 +225,7 @@ export default function StoreSettingsPage() {
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Store Settings</h1>
             <p className="text-gray-600 text-sm md:text-base">
-              Customize your affiliate store's appearance and information
+              3-20 characters, lowercase letters and numbers only
             </p>
           </div>
         </div>
