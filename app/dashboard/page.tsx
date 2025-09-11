@@ -114,7 +114,9 @@ export default function StoreSettingsPage() {
     fetchStore();
   }, [user]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     
     if (name.startsWith('socialLinks.')) {
@@ -133,26 +135,6 @@ export default function StoreSettingsPage() {
         customization: {
           ...prev.customization,
           [customKey]: customKey === 'slideOverlayOpacity' ? parseFloat(value) : value
-        }
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
-  };
-
-  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    
-    if (name.startsWith('customization.')) {
-      const customKey = name.split('.')[1];
-      setFormData(prev => ({
-        ...prev,
-        customization: {
-          ...prev.customization,
-          [customKey]: value
         }
       }));
     } else {
@@ -398,7 +380,7 @@ export default function StoreSettingsPage() {
               rows={4}
               value={formData.description}
               onChange={handleInputChange}
-             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors resize-none text-gray-900"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors resize-none text-gray-900"
               placeholder="Welcome to my affiliate store! Discover amazing products and deals curated just for you."
             />
           </div>
@@ -669,7 +651,7 @@ export default function StoreSettingsPage() {
                 id="fontFamily"
                 name="customization.fontFamily"
                 value={formData.customization.fontFamily}
-                onChange={handleSelectChange}
+                onChange={handleInputChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
               >
                 <option value="Inter">Inter</option>
@@ -722,7 +704,7 @@ export default function StoreSettingsPage() {
                 id="currencySymbol"
                 name="customization.currencySymbol"
                 value={formData.customization.currencySymbol}
-                onChange={handleSelectChange}
+                onChange={handleInputChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
               >
                 <option value="$">$ - US Dollar</option>
@@ -928,7 +910,7 @@ export default function StoreSettingsPage() {
           <button
             type="submit"
             disabled={saving}
-           className="flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 min-h-11 font-medium"
+            className="flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 min-h-11 font-medium"
           >
             {saving ? (
               <>
