@@ -56,6 +56,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
 
   const activeCategoryBorderColor = store.customization?.activeCategoryBorderColor || '#6366f1';
   const currencySymbol = store.customization?.currencySymbol || '$';
+  const storeNameColor = store.customization?.storeNameFontColor || '#ffffff';
 
   const handleCategoryChange = (categoryId: string) => {
     setSelectedCategory(categoryId);
@@ -67,13 +68,6 @@ export default function StoreTemplate({ store, products, slides, categories, ini
     }
     const newUrl = params.toString() ? `?${params.toString()}` : '';
     router.push(newUrl, { scroll: false });
-  };
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
   };
 
   const goToSlide = (index: number) => {
@@ -193,7 +187,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
             <h1 
               className="text-2xl font-extrabold mb-2"
               style={{
-                color: store.customization?.storeNameFontColor || '#ffffff'
+                color: storeNameColor
               }}
             >
               {store.name}
@@ -265,28 +259,6 @@ export default function StoreTemplate({ store, products, slides, categories, ini
               ))}
             </div>
             
-            {/* Navigation Arrows */}
-            {slides.length > 1 && (
-              <>
-                <button
-                  onClick={prevSlide}
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <button
-                  onClick={nextSlide}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </>
-            )}
-            
             {/* Pagination Dots */}
             {slides.length > 1 && (
               <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-[5px]">
@@ -294,8 +266,8 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                   <button
                     key={index}
                     onClick={() => goToSlide(index)}
-                    className={`w-3 h-3 rounded-full transition-all ${
-                      index === currentSlide ? 'w-8 bg-white' : 'bg-white/50'
+                    className={`w-3 h-3 rounded-full transition-all store-name-color ${
+                      index === currentSlide ? 'w-8' : 'opacity-50'
                     }`}
                   />
                 ))}
@@ -313,7 +285,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
               <div
                 key={category.id}
                 onClick={() => handleCategoryChange(category.id)}
-                className="flex flex-col items-center cursor-pointer text-center text-gray-700"
+                className="flex flex-col items-center cursor-pointer text-center"
               >
                 <div
                   className={`w-20 h-20 rounded-full shadow-md overflow-hidden ${
@@ -352,12 +324,20 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <span className="text-[0.8rem] font-semibold text-gray-700">
+                    <span 
+                      className="text-[0.8rem] font-semibold"
+                      style={{ color: storeNameColor }}
+                    >
                       {category.id === 'all' ? 'All' : category.name}
                     </span>
                   )}
                 </div>
-                <span className="text-[0.8rem] font-semibold mt-1 whitespace-nowrap">{category.name}</span>
+                <span 
+                  className="text-[0.8rem] font-semibold mt-1 whitespace-nowrap"
+                  style={{ color: storeNameColor }}
+                >
+                  {category.name}
+                </span>
               </div>
             ))}
           </div>
@@ -367,7 +347,10 @@ export default function StoreTemplate({ store, products, slides, categories, ini
       {/* All Products Section */}
       <section className="container mx-auto px-4 py-6" id="products">
         <div className="mb-6">
-          <h2 className="text-[0.8rem] font-bold text-gray-900 mb-2">
+          <h2 
+            className="text-[0.8rem] font-bold mb-2"
+            style={{ color: storeNameColor }}
+          >
             {selectedCategory === 'all' ? 'All Products' : categories.find(c => c.id === selectedCategory)?.name || 'Products'}
           </h2>
           <p className="text-[0.8rem] text-gray-600">Browse our complete collection</p>
@@ -416,7 +399,12 @@ export default function StoreTemplate({ store, products, slides, categories, ini
               <div className="p-[5px]">
                 <h3 className="font-semibold text-gray-800 line-clamp-2 text-[0.8rem] mb-[5px] min-h-[2.4rem]">{product.title}</h3>
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-primary-600 text-[0.8rem]">{currencySymbol}{product.price}</span>
+                  <span 
+                    className="font-bold text-[0.8rem]"
+                    style={{ color: storeNameColor }}
+                  >
+                    {currencySymbol}{product.price}
+                  </span>
                 </div>
               </div>
             </div>
@@ -543,6 +531,9 @@ export default function StoreTemplate({ store, products, slides, categories, ini
           50% {
             transform: scale(1.1);
           }
+        }
+        .store-name-color {
+          background-color: ${storeNameColor};
         }
       `}</style>
     </div>
