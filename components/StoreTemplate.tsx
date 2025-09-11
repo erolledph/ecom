@@ -261,8 +261,40 @@ export default function StoreTemplate({ store, products, slides, categories }: S
       </section>
 
       {/* Footer */}
-      <footer className="bg-white shadow-inner rounded-t-lg mt-2 p-4 md:p-6 text-center text-gray-500">
-        <p className="text-sm">&copy; 2025 {store.name}. All rights reserved.</p>
+      <footer className="bg-white shadow-inner rounded-t-lg mt-4 p-4 md:p-6 text-center text-gray-600">
+        <div className="flex justify-center space-x-4 mb-4">
+          {store.socialLinks.instagram && (
+            <a
+              href={store.socialLinks.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 hover:text-pink-500 transition-colors"
+            >
+              <Instagram className="w-6 h-6" />
+            </a>
+          )}
+          {store.socialLinks.twitter && (
+            <a
+              href={store.socialLinks.twitter}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 hover:text-blue-400 transition-colors"
+            >
+              <Twitter className="w-6 h-6" />
+            </a>
+          )}
+          {store.socialLinks.facebook && (
+            <a
+              href={store.socialLinks.facebook}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 hover:text-blue-600 transition-colors"
+            >
+              <Facebook className="w-6 h-6" />
+            </a>
+          )}
+        </div>
+        <p className="text-sm">&copy; {new Date().getFullYear()} {store.name}. All rights reserved.</p>
       </footer>
 
       {/* Floating Widget */}
