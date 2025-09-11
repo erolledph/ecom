@@ -257,9 +257,6 @@ export default function StoreTemplate({ store, products, slides, categories }: S
                   <h3 className="font-semibold text-gray-800 line-clamp-2 text-sm mb-2">{product.title}</h3>
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-primary-600 text-lg">${product.price}</span>
-                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                      {product.category}
-                    </span>
                   </div>
                 </div>
               </div>
@@ -296,9 +293,6 @@ export default function StoreTemplate({ store, products, slides, categories }: S
                 <h3 className="font-semibold text-gray-800 line-clamp-2 text-sm mb-2">{product.title}</h3>
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-primary-600 text-lg">${product.price}</span>
-                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                    {product.category}
-                  </span>
                 </div>
               </div>
             </div>
