@@ -107,17 +107,35 @@ export default function StoreTemplate({ store, products, slides, categories, ini
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 font-sans max-w-md mx-auto">
+    <div 
+      className="min-h-screen bg-gray-100 max-w-md mx-auto"
+      style={{
+        fontFamily: store.customization?.fontFamily || 'Inter, system-ui, -apple-system, sans-serif'
+      }}
+    >
       {/* Header */}
-      <header className="relative text-center text-white py-4 rounded-b-xl overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center" 
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1542435503-956c469947f6?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')" }}
-        ></div>
-        <div className="absolute inset-0 bg-black opacity-50"></div>
+      <header 
+        className="relative text-center text-white py-4 rounded-b-xl overflow-hidden"
+        style={{
+          background: store.customization?.backgroundGradientStartColor && store.customization?.backgroundGradientEndColor
+            ? `linear-gradient(135deg, ${store.customization.backgroundGradientStartColor}, ${store.customization.backgroundGradientEndColor})`
+            : store.backgroundImage
+            ? `url('${store.backgroundImage}') center/cover, linear-gradient(135deg, #667eea 0%, #764ba2 100%)`
+            : "url('https://images.unsplash.com/photo-1542435503-956c469947f6?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') center/cover, rgba(0,0,0,0.5)"
+        }}
+      >
+        {/* Overlay for better text readability when using background image */}
+        {store.backgroundImage && !store.customization?.backgroundGradientStartColor && (
+          <div className="absolute inset-0 bg-black opacity-50"></div>
+        )}
         <div className="relative z-10 flex flex-col items-center justify-center">
           {store.avatar && (
-            <div className="w-32 h-32 rounded-full overflow-hidden mb-2 border-4 border-white shadow-lg">
+            <div 
+              className="w-32 h-32 rounded-full overflow-hidden mb-2 border-4 shadow-lg"
+              style={{
+                borderColor: store.customization?.avatarBorderColor || '#ffffff'
+              }}
+            >
               <Image
                 src={store.avatar}
                 alt={store.name}
@@ -127,8 +145,22 @@ export default function StoreTemplate({ store, products, slides, categories, ini
               />
             </div>
           )}
-          <h1 className="text-[0.8rem] font-extrabold text-white mb-1">{store.name}</h1>
-          <p className="text-[0.8rem] text-gray-200 max-w-xs mb-2 leading-snug">{store.description}</p>
+          <h1 
+            className="text-[0.8rem] font-extrabold mb-1"
+            style={{
+              color: store.customization?.storeNameFontColor || '#ffffff'
+            }}
+          >
+            {store.name}
+          </h1>
+          <p 
+            className="text-[0.8rem] max-w-xs mb-2 leading-snug"
+            style={{
+              color: store.customization?.storeBioFontColor || '#e5e7eb'
+            }}
+          >
+            {store.description}
+          </p>
           <div className="flex space-x-[5px]">
             {store.socialLinks.instagram && (
               <a
