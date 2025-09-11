@@ -88,7 +88,7 @@ export default function DashboardOverview() {
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
             <div className="p-3 bg-primary-100 rounded-lg">
-              <StoreIcon className="w-6 h-6 text-primary-600" alt="Store status icon" />
+              <StoreIcon className="w-6 h-6 text-primary-600" />
             </div>
             <span className={`px-2 py-1 rounded-full text-xs font-medium ${
               store ? 'bg-primary-100 text-primary-800' : 'bg-accent-100 text-accent-800'
