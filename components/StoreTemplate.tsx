@@ -55,9 +55,9 @@ export default function StoreTemplate({ store, products, slides, categories }: S
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+    <div className="min-h-screen bg-gray-100 font-sans">
+      {/* Sticky Header */}
+      <header className="bg-white shadow-md fixed top-0 left-0 w-full z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
@@ -70,12 +70,9 @@ export default function StoreTemplate({ store, products, slides, categories }: S
                   className="w-10 h-10 rounded-full object-cover"
                 />
               )}
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">{store.name}</h1>
-              </div>
+              <h1 className="text-xl font-extrabold text-gray-900 tracking-tight">{store.name}</h1>
             </div>
-            
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-6">
               {store.socialLinks.instagram && (
                 <a
                   href={store.socialLinks.instagram}
@@ -111,19 +108,19 @@ export default function StoreTemplate({ store, products, slides, categories }: S
         </div>
       </header>
 
-      {/* Hero Section with New Arrivals and Slider */}
-      <section className="bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Hero Section */}
+      <section className="bg-white pt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* New Arrivals - Left Column */}
+            {/* New Arrivals */}
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">New Arrivals</h2>
-              <div className="grid grid-cols-2 gap-4">
+              <h2 className="text-3xl font-extrabold text-gray-900 mb-6">New Arrivals</h2>
+              <div className="grid grid-cols-2 gap-4 sm:gap-6">
                 {products.slice(0, 4).map((product) => (
                   <div
                     key={product.id}
                     onClick={() => handleProductClick(product.productLink)}
-                    className="bg-white rounded-lg border border-gray-200 overflow-hidden cursor-pointer group hover:shadow-md transition-all duration-200"
+                    className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden cursor-pointer"
                   >
                     <div className="relative aspect-square overflow-hidden">
                       {product.images && product.images[0] && (
@@ -132,39 +129,33 @@ export default function StoreTemplate({ store, products, slides, categories }: S
                           alt={product.title}
                           width={200}
                           height={200}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                          className="w-full h-full object-cover"
                         />
                       )}
-                      {/* Centered hover overlay */}
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                        <ExternalLink className="w-8 h-8 text-white" />
-                      </div>
                     </div>
-                    <div className="p-3">
-                      <h3 className="font-medium text-gray-900 text-sm line-clamp-2 mb-1">
+                    <div className="p-4">
+                      <h3 className="font-semibold text-gray-900 text-sm line-clamp-2 mb-1">
                         {product.title}
                       </h3>
-                      <p className="text-primary-600 font-semibold text-sm">
-                        ${product.price}
-                      </p>
+                      <p className="text-blue-600 font-bold text-sm">${product.price}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Hero Slider - Right Column */}
-            <div>
+            {/* Hero Slider */}
+            <div className="relative">
               {slides.length > 0 && (
-                <div className="slider-container relative">
+                <div className="relative overflow-hidden rounded-xl">
                   <div 
-                    className="slider-content"
+                    className="flex transition-transform duration-500 ease-in-out"
                     style={{ transform: `translateX(-${currentSlide * 100}%)` }}
                   >
                     {slides.map((slide, index) => (
                       <div
                         key={slide.id}
-                        className="slider-slide cursor-pointer"
+                        className="min-w-full cursor-pointer"
                         onClick={() => handleSlideClick(slide.link)}
                       >
                         <Image
@@ -172,23 +163,19 @@ export default function StoreTemplate({ store, products, slides, categories }: S
                           alt={slide.title}
                           width={600}
                           height={400}
-                          className="w-full h-full object-cover"
+                          className="w-full h-96 object-cover"
                           priority={index === 0}
                         />
-                        <div className="slider-overlay">
-                          <h2 className="text-2xl md:text-3xl font-bold mb-2">
-                            {slide.title}
-                          </h2>
+                        <div className="absolute bottom-6 left-6 bg-black/50 text-white p-4 rounded-lg">
+                          <h2 className="text-xl md:text-2xl font-bold mb-2">{slide.title}</h2>
                           {slide.description && (
-                            <p className="text-lg opacity-90 mb-4">
-                              {slide.description}
-                            </p>
+                            <p className="text-sm opacity-90 mb-4">{slide.description}</p>
                           )}
                           {slide.link && (
-                            <div className="inline-flex items-center px-6 py-3 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                            <button className="inline-flex items-center px-4 py-2 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100 transition-colors">
                               Shop Now
                               <ExternalLink className="w-4 h-4 ml-2" />
-                            </div>
+                            </button>
                           )}
                         </div>
                       </div>
@@ -199,23 +186,24 @@ export default function StoreTemplate({ store, products, slides, categories }: S
                     <>
                       <button
                         onClick={prevSlide}
-                        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all"
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-3 rounded-full shadow-lg transition-all hover:scale-105"
                       >
-                        <ChevronLeft className="w-5 h-5" />
+                        <ChevronLeft className="w-6 h-6" />
                       </button>
                       <button
                         onClick={nextSlide}
-                        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-lg transition-all"
+                        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-3 rounded-full shadow-lg transition-all hover:scale-105"
                       >
-                        <ChevronRight className="w-5 h-5" />
+                        <ChevronRight className="w-6 h-6" />
                       </button>
-                      
-                      <div className="slider-dots">
+                      <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
                         {slides.map((_, index) => (
                           <button
                             key={index}
                             onClick={() => goToSlide(index)}
-                            className={`dot ${index === currentSlide ? 'active' : ''}`}
+                            className={`w-3 h-3 rounded-full transition-all ${
+                              index === currentSlide ? 'bg-white scale-125' : 'bg-white/50'
+                            }`}
                           />
                         ))}
                       </div>
@@ -229,68 +217,61 @@ export default function StoreTemplate({ store, products, slides, categories }: S
       </section>
 
       {/* Store Description */}
-      <section className="bg-gray-50 compact-section">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <p className="text-center text-gray-600 text-lg max-w-3xl mx-auto">
-            {store.description}
-          </p>
+      <section className="bg-gray-50 py-12">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-center text-gray-600 text-lg leading-relaxed">{store.description}</p>
         </div>
       </section>
 
       {/* Categories */}
       {categories.length > 1 && (
-        <section className="bg-white compact-section">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4 text-center">
-              Shop by Category
-            </h2>
-            <div className="flex justify-center">
-              <div className="category-scroller flex space-x-4 overflow-x-auto pb-2">
-                {categories.map((category) => (
-                  <button
-                    key={category.id}
-                    onClick={() => setSelectedCategory(category.id)}
-                    className={`category-circle ${
-                      selectedCategory === category.id
-                        ? 'border-primary-500 bg-primary-50'
-                        : 'border-gray-300 bg-gray-50 hover:border-gray-400'
-                    }`}
-                  >
-                    {category.image && category.id !== 'all' ? (
-                      <Image
-                        src={category.image}
-                        alt={category.name}
-                        width={80}
-                        height={80}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-xs font-medium text-gray-700 text-center px-2">
-                        {category.name}
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
+        <section className="bg-white py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl font-extrabold text-gray-900 mb-6 text-center">Shop by Category</h2>
+            <div className="flex justify-center overflow-x-auto space-x-4 pb-4">
+              {categories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`flex-shrink-0 w-24 h-24 rounded-full border-2 transition-all duration-200 ${
+                    selectedCategory === category.id
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-400 bg-gray-50'
+                  } flex items-center justify-center`}
+                >
+                  {category.image && category.id !== 'all' ? (
+                    <Image
+                      src={category.image}
+                      alt={category.name}
+                      width={80}
+                      height={80}
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  ) : (
+                    <span className="text-sm font-medium text-gray-700 text-center px-2">
+                      {category.name}
+                    </span>
+                  )}
+                </button>
+              ))}
             </div>
           </div>
         </section>
       )}
 
       {/* Products Grid */}
-      <section className="bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+      <section className="bg-gray-50 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-extrabold text-gray-900 mb-8 text-center">
             {selectedCategory === 'all' ? 'All Products' : `${selectedCategory} Products`}
           </h2>
-          
           {filteredProducts.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
               {filteredProducts.map((product) => (
                 <div
                   key={product.id}
                   onClick={() => handleProductClick(product.productLink)}
-                  className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden cursor-pointer group hover:shadow-md transition-all duration-200"
+                  className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden cursor-pointer"
                 >
                   <div className="relative aspect-square overflow-hidden">
                     {product.images && product.images[0] && (
@@ -299,30 +280,20 @@ export default function StoreTemplate({ store, products, slides, categories }: S
                         alt={product.title}
                         width={300}
                         height={300}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                        className="w-full h-full object-cover"
                       />
                     )}
-                    {/* Centered hover overlay */}
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                      <ExternalLink className="w-8 h-8 text-white" />
-                    </div>
                   </div>
                   <div className="p-4">
-                    <h3 className="font-medium text-gray-900 line-clamp-2 mb-2">
-                      {product.title}
-                    </h3>
-                    <p className="text-primary-600 font-semibold text-lg">
-                      ${product.price}
-                    </p>
+                    <h3 className="font-semibold text-gray-900 line-clamp-2 mb-2">{product.title}</h3>
+                    <p className="text-blue-600 font-bold text-lg">${product.price}</p>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">
-                No products found in this category.
-              </p>
+              <p className="text-gray-500 text-lg">No products found in this category.</p>
             </div>
           )}
         </div>
@@ -330,13 +301,13 @@ export default function StoreTemplate({ store, products, slides, categories }: S
 
       {/* Floating Widget */}
       {store.avatar && (
-        <div className="floating-widget">
+        <div className="fixed bottom-6 right-6 z-50">
           <Image
             src={store.avatar}
             alt={`${store.name} Store`}
             width={60}
             height={60}
-            className="w-15 h-15"
+            className="w-16 h-16 rounded-full shadow-lg"
           />
         </div>
       )}
