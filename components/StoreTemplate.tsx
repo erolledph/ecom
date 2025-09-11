@@ -63,7 +63,7 @@ export default function StoreTemplate({ store, products, slides, categories }: S
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 font-sans">
+    <div className="min-h-screen bg-gray-100 font-sans max-w-md mx-auto lg:max-w-full lg:mx-0">
       {/* Header */}
       <header className="relative text-center text-white py-4 rounded-b-xl overflow-hidden">
         <div 
@@ -235,7 +235,7 @@ export default function StoreTemplate({ store, products, slides, categories }: S
             <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Featured Products</h2>
             <p className="text-gray-600">Discover our handpicked selection of amazing products</p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-3 lg:grid-cols-4 gap-4">
             {products.slice(0, 4).map((product) => (
               <div
                 key={product.id}
@@ -254,7 +254,7 @@ export default function StoreTemplate({ store, products, slides, categories }: S
                   )}
                 </div>
                 <div className="p-3">
-                  <h3 className="font-semibold text-gray-800 line-clamp-2 text-sm mb-2">{product.title}</h3>
+                  <h3 className="font-semibold text-gray-800 line-clamp-2 text-sm mb-2 min-h-10">{product.title}</h3>
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-primary-600 text-lg">${product.price}</span>
                   </div>
@@ -271,7 +271,7 @@ export default function StoreTemplate({ store, products, slides, categories }: S
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">All Products</h2>
           <p className="text-gray-600">Browse our complete collection</p>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-3 lg:grid-cols-4 gap-4">
           {filteredProducts.map((product) => (
             <div
               key={product.id}
@@ -290,7 +290,7 @@ export default function StoreTemplate({ store, products, slides, categories }: S
                 )}
               </div>
               <div className="p-3">
-                <h3 className="font-semibold text-gray-800 line-clamp-2 text-sm mb-2">{product.title}</h3>
+                <h3 className="font-semibold text-gray-800 line-clamp-2 text-sm mb-2 min-h-10">{product.title}</h3>
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-primary-600 text-lg">${product.price}</span>
                 </div>
