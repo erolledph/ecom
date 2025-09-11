@@ -7,9 +7,12 @@ interface StorePageProps {
   params: {
     storeSlug: string;
   };
+  searchParams: {
+    category?: string;
+  };
 }
 
-export async function generateMetadata({ params }: StorePageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: StorePageProps): Promise<Metadata> {
   const { storeSlug } = params;
 
   try {
@@ -67,7 +70,7 @@ export async function generateMetadata({ params }: StorePageProps): Promise<Meta
   }
 }
 
-export default async function StorePage({ params }: StorePageProps) {
+export default async function StorePage({ params, searchParams }: StorePageProps) {
   const { storeSlug } = params;
 
   try {
@@ -93,6 +96,7 @@ export default async function StorePage({ params }: StorePageProps) {
         products={products}
         slides={slides.filter(slide => slide.isActive)}
         categories={categories}
+        initialCategory={searchParams.category}
       />
     );
   } catch (error) {

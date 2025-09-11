@@ -26,6 +26,8 @@ export interface Store {
   description: string;
   avatar: string;
   backgroundImage: string;
+  widgetImage?: string;
+  widgetLink?: string;
   ownerId: string;
   isActive: boolean;
   socialLinks: {
@@ -331,6 +333,18 @@ export async function uploadStoreImage(storeId: string, file: File, type: 'avata
     return getDownloadURL(imageRef);
   } catch (error) {
     console.error('Error uploading store image:', error);
+    throw error;
+  }
+}
+
+export async function uploadWidgetImage(storeId: string, file: File): Promise<string> {
+  try {
+    const fileName = `${storeId}_widget_${Date.now()}`;
+    const imageRef = ref(storage, `stores/${fileName}`);
+    await uploadBytes(imageRef, file);
+    return getDownloadURL(imageRef);
+  } catch (error) {
+    console.error('Error uploading widget image:', error);
     throw error;
   }
 }

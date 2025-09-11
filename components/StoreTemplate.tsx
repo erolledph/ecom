@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Store, Product, Slide } from '@/lib/store';
 import { Instagram, Twitter, Facebook } from 'lucide-react';
@@ -10,11 +11,14 @@ interface StoreTemplateProps {
   products: Product[];
   slides: Slide[];
   categories: Array<{ id: string; name: string; image: string; count?: number }>;
+  initialCategory?: string;
 }
 
-export default function StoreTemplate({ store, products, slides, categories }: StoreTemplateProps) {
+export default function StoreTemplate({ store, products, slides, categories, initialCategory }: StoreTemplateProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory || 'all');
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [visibleProductsCount, setVisibleProductsCount] = useState(9);
 
@@ -32,6 +36,18 @@ export default function StoreTemplate({ store, products, slides, categories }: S
   useEffect(() => {
     setVisibleProductsCount(9);
   }, [selectedCategory]);
+
+  const handleCategoryChange = (categoryId: string) => {
+    setSelectedCategory(categoryId);
+    const params = new URLSearchParams(searchParams.toString());
+    if (categoryId === 'all') {
+      params.delete('category');
+    } else {
+      params.set('category', categoryId);
+    }
+    const newUrl = params.toString() ? `?${params.toString()}` : '';
+    router.push(newUrl, { scroll: false });
+  };
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
   };
@@ -133,7 +149,7 @@ export default function StoreTemplate({ store, products, slides, categories }: S
 
       {/* Slider Section */}
       {slides.length > 0 && (
-        <section className="container mx-auto px-4 py-6">
+        <section className="py-6">
           <div className="relative h-64 md:h-80 lg:h-96 rounded-xl overflow-hidden shadow-lg">
             <div 
               className="flex transition-transform duration-500 ease-in-out w-full h-full"
@@ -210,7 +226,7 @@ export default function StoreTemplate({ store, products, slides, categories }: S
             {categories.map((category) => (
               <div
                 key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
+                onClick={() => handleCategoryChange(category.id)}
                 className="flex flex-col items-center cursor-pointer text-center text-gray-700"
               >
                 <div
@@ -348,14 +364,20 @@ export default function StoreTemplate({ store, products, slides, categories }: S
       </footer>
 
       {/* Floating Widget */}
-      {store.avatar && (
+      {(store.widgetImage || store.avatar) && (
         <button
-          onClick={handleWidgetClick}
-          className="absolute bottom-6 right-6 z-50 animate-pulse"
+          onClick={() => {
+            if (store.widgetLink) {
+              window.open(store.widgetLink, '_blank', 'noopener,noreferrer');
+            } else {
+              handleWidgetClick();
+            }
+          }}
+          className="fixed bottom-4 right-4 z-50 animate-pulse"
           style={{ animation: 'pulse-animation 2s infinite cubic-bezier(0.4, 0, 0.6, 1)' }}
         >
           <Image
-            src={store.avatar}
+            src={store.widgetImage || store.avatar}
             alt={`${store.name} Store`}
             width={64}
             height={64}

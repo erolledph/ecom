@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { getUserStore, updateStore, uploadStoreImage, checkSlugAvailability, Store } from '@/lib/store';
+import { getUserStore, updateStore, uploadStoreImage, uploadWidgetImage, checkSlugAvailability, Store } from '@/lib/store';
 import { 
   Save, 
   Upload, 
@@ -15,7 +15,8 @@ import {
   Instagram,
   Twitter,
   Facebook,
-  Copy
+  Copy,
+  Zap
 } from 'lucide-react';
 
 export default function StoreSettingsPage() {
@@ -29,6 +30,7 @@ export default function StoreSettingsPage() {
     name: '',
     description: '',
     slug: '',
+    widgetLink: '',
     socialLinks: {
       instagram: '',
       twitter: '',
@@ -38,8 +40,10 @@ export default function StoreSettingsPage() {
   
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
+  const [widgetFile, setWidgetFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState('');
   const [backgroundPreview, setBackgroundPreview] = useState('');
+  const [widgetPreview, setWidgetPreview] = useState('');
   const [copySuccess, setCopySuccess] = useState(false);
 
   // Auto-clear success messages after 3 seconds
@@ -67,10 +71,12 @@ export default function StoreSettingsPage() {
             name: storeData.name,
             description: storeData.description,
             slug: storeData.slug,
+            widgetLink: storeData.widgetLink || '',
             socialLinks: storeData.socialLinks
           });
           setAvatarPreview(storeData.avatar);
           setBackgroundPreview(storeData.backgroundImage);
+          setWidgetPreview(storeData.widgetImage || '');
         } else {
           console.log('No store found for user:', user.uid);
           setMessage('No store found. Please contact support if this issue persists.');
@@ -106,16 +112,19 @@ export default function StoreSettingsPage() {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'avatar' | 'background') => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'avatar' | 'background' | 'widget') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (type === 'avatar') {
       setAvatarFile(file);
       setAvatarPreview(URL.createObjectURL(file));
-    } else {
+    } else if (type === 'background') {
       setBackgroundFile(file);
       setBackgroundPreview(URL.createObjectURL(file));
+    } else if (type === 'widget') {
+      setWidgetFile(file);
+      setWidgetPreview(URL.createObjectURL(file));
     }
   };
 
@@ -172,6 +181,7 @@ export default function StoreSettingsPage() {
     try {
       let avatarUrl = store.avatar;
       let backgroundUrl = store.backgroundImage;
+      let widgetUrl = store.widgetImage || '';
 
       // Upload new images if selected
       if (avatarFile) {
@@ -181,6 +191,10 @@ export default function StoreSettingsPage() {
       if (backgroundFile) {
         backgroundUrl = await uploadStoreImage(user.uid, backgroundFile, 'background');
       }
+      
+      if (widgetFile) {
+        widgetUrl = await uploadWidgetImage(user.uid, widgetFile);
+      }
 
       // Update store
       await updateStore(user.uid, {
@@ -189,6 +203,8 @@ export default function StoreSettingsPage() {
         slug: formData.slug,
         avatar: avatarUrl,
         backgroundImage: backgroundUrl,
+        widgetImage: widgetUrl,
+        widgetLink: formData.widgetLink,
         socialLinks: formData.socialLinks
       });
 
@@ -197,6 +213,7 @@ export default function StoreSettingsPage() {
       // Reset file states after successful save
       setAvatarFile(null);
       setBackgroundFile(null);
+      setWidgetFile(null);
       
       // Update local store state
       setStore(prev => prev ? {
@@ -206,6 +223,8 @@ export default function StoreSettingsPage() {
         slug: formData.slug,
         avatar: avatarUrl,
         backgroundImage: backgroundUrl,
+        widgetImage: widgetUrl,
+        widgetLink: formData.widgetLink,
         socialLinks: formData.socialLinks
       } : null);
 
@@ -460,6 +479,68 @@ export default function StoreSettingsPage() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
                 placeholder="https://facebook.com/yourstore"
               />
+            </div>
+          </div>
+        </div>
+
+        {/* Widget Settings */}
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+            <Zap className="w-5 h-5 mr-2 text-primary-600" />
+            Floating Widget Settings
+          </h2>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Widget Image */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Widget Image
+              </label>
+              <div className="flex flex-col items-center space-y-4">
+                <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200">
+                  <Image
+                    src={widgetPreview || avatarPreview || 'https://placehold.co/64x64/e5e7eb/9ca3af?text=Widget'}
+                    alt="Widget Image"
+                    width={64}
+                    height={64}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="w-full">
+                  <label className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
+                    <Upload className="w-5 h-5 text-gray-400 mr-2" />
+                    <span className="text-sm text-gray-600">Upload Widget Image</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFileChange(e, 'widget')}
+                      className="hidden"
+                    />
+                  </label>
+                  <p className="mt-1 text-xs text-gray-500">
+                    If not set, will use store avatar as fallback
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Widget Link */}
+            <div>
+              <label htmlFor="widgetLink" className="block text-sm font-medium text-gray-700 mb-3">
+                Widget Link (Optional)
+              </label>
+              <input
+                type="url"
+                id="widgetLink"
+                name="widgetLink"
+                value={formData.widgetLink}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
+                placeholder="https://your-special-link.com"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                When visitors click the floating widget, they'll be redirected to this link. If empty, shows a popup message instead.
+              </p>
             </div>
           </div>
         </div>
