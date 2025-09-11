@@ -45,13 +45,8 @@ const nextConfig = {
 
     // Optimize bundle size
     if (!isServer) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        '@firebase/app': '@firebase/app/dist/esm/index.esm.js',
-        '@firebase/auth': '@firebase/auth/dist/esm/index.esm.js',
-        '@firebase/firestore': '@firebase/firestore/dist/esm/index.esm.js',
-        '@firebase/storage': '@firebase/storage/dist/esm/index.esm.js'
-      };
+      // Let Next.js handle Firebase module resolution automatically
+      // using the exports field in package.json files
     }
 
     return config;
