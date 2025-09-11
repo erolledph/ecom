@@ -539,7 +539,7 @@ export default function StoreSettingsPage() {
                 placeholder="https://your-special-link.com"
               />
               <p className="mt-1 text-xs text-gray-500">
-                When visitors click the floating widget, they'll be redirected to this link. If empty, shows a popup message instead.
+                When visitors click the floating widget, they&apos;ll be redirected to this link. If empty, shows a popup message instead.
               </p>
             </div>
           </div>
