@@ -40,16 +40,6 @@ body {
   text-overflow: ellipsis;
 }
 
-.slider-container {
-  position: relative;
-  overflow: hidden;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  height: 100%;
-  aspect-ratio: 1 / 1;
-  min-height: 220px;
-}
-
 .slider-content {
   display: flex;
   height: 100%;
@@ -87,28 +77,6 @@ body {
 .dot.active {
   width: 1rem;
   background-color: white;
-}
-
-.slider-slide img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  position: relative;
-  top: 0;
-  left: 0;
-}
-
-.slider-overlay {
-  position: absolute;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.4);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  color: white;
-  padding: 1rem;
 }
 
 .category-scroller::-webkit-scrollbar {
