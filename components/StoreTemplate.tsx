@@ -160,16 +160,16 @@ export default function StoreTemplate({ store, products, slides, categories }: S
       <section className="container mx-auto p-2 grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1.5">
         {/* Slider Card */}
         {slides.length > 0 && (
-          <div className="bg-white rounded-md shadow-lg overflow-hidden">
-            <div className="relative overflow-hidden rounded-md aspect-square min-h-[220px]">
+          <div className="bg-white rounded-md shadow-lg overflow-hidden cursor-pointer">
+            <div className="relative overflow-hidden aspect-square">
               <div 
-                className="flex transition-transform duration-500 ease-in-out h-full"
+                className="flex transition-transform duration-500 ease-in-out w-full h-full"
                 style={{ transform: `translateX(-${currentSlide * 100}%)` }}
               >
                 {slides.map((slide, index) => (
                   <div
                     key={slide.id}
-                    className="min-w-full flex items-center justify-center relative h-full"
+                    className="min-w-full relative"
                     onClick={() => handleSlideClick(slide.link)}
                   >
                     <Image
@@ -180,8 +180,8 @@ export default function StoreTemplate({ store, products, slides, categories }: S
                       className="w-full h-full object-cover"
                       priority={index === 0}
                     />
-                    <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center text-white p-4">
-                      <h2 className="text-2xl md:text-4xl font-bold">{slide.title}</h2>
+                    <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center text-white p-2">
+                      <h2 className="text-xl md:text-2xl font-bold">{slide.title}</h2>
                     </div>
                   </div>
                 ))}
@@ -204,31 +204,28 @@ export default function StoreTemplate({ store, products, slides, categories }: S
         )}
 
         {/* Featured Products Card */}
-        <div className="bg-white rounded-md shadow-lg overflow-hidden flex flex-col justify-between">
-          <div className="p-2">
-            <h2 className="font-bold text-gray-800 text-sm">Featured Products</h2>
-          </div>
-          <div className="grid grid-cols-2 grid-rows-2 gap-2 p-2">
-            {products.slice(0, 4).map((product) => (
-              <div
-                key={product.id}
-                className="aspect-square overflow-hidden rounded-lg cursor-pointer"
-                onClick={() => handleProductClick(product.productLink)}
-              >
-                {product.images && product.images[0] && (
-                  <Image
-                    src={product.images[0]}
-                    alt={product.title}
-                    width={300}
-                    height={300}
-                    className="w-full h-full object-cover"
-                  />
-                )}
+        <div 
+          className="bg-white rounded-md shadow-lg overflow-hidden cursor-pointer"
+          onClick={() => window.location.href = `/${store.slug}#products`}
+        >
+          <div className="aspect-square overflow-hidden">
+            {products.length > 0 && products[0].images && products[0].images[0] ? (
+              <Image
+                src={products[0].images[0]}
+                alt="Featured Products"
+                width={600}
+                height={600}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-primary-100 to-secondary-100 flex items-center justify-center">
+                <span className="text-4xl">🛍️</span>
               </div>
-            ))}
+            )}
           </div>
-          <div className="p-2">
-            <p className="text-xs text-gray-500 line-clamp-2">
+          <div className="p-2 flex flex-col items-start h-[75px]">
+            <h3 className="font-bold text-gray-800 text-sm mb-1">Featured Products</h3>
+            <p className="text-xs text-gray-500 line-clamp-2 mt-auto">
               A curated selection of our best-selling items.
             </p>
           </div>
