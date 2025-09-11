@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
 import { getStoreBySlug, getStoreProducts, getStoreSlides, generateCategoriesFromProductsSync } from '@/lib/store';
 import StoreTemplate from '@/components/StoreTemplate';
 
@@ -6,6 +7,64 @@ interface StorePageProps {
   params: {
     storeSlug: string;
   };
+}
+
+export async function generateMetadata({ params }: StorePageProps): Promise<Metadata> {
+  const { storeSlug } = params;
+
+  try {
+    const store = await getStoreBySlug(storeSlug);
+    
+    if (!store || !store.isActive) {
+      return {
+        title: 'Store Not Found',
+        description: 'The requested store could not be found.',
+      };
+    }
+
+    // Ensure avatar URL is absolute
+    const avatarUrl = store.avatar && store.avatar.startsWith('http') 
+      ? store.avatar 
+      : store.avatar 
+        ? `${process.env.NEXT_PUBLIC_SITE_URL || 'https://your-domain.com'}${store.avatar}`
+        : null;
+
+    return {
+      title: store.name,
+      description: store.description,
+      openGraph: {
+        title: store.name,
+        description: store.description,
+        type: 'website',
+        url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://your-domain.com'}/${storeSlug}`,
+        siteName: store.name,
+        ...(avatarUrl && {
+          images: [
+            {
+              url: avatarUrl,
+              width: 1200,
+              height: 630,
+              alt: `${store.name} - Store Avatar`,
+            },
+          ],
+        }),
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: store.name,
+        description: store.description,
+        ...(avatarUrl && {
+          images: [avatarUrl],
+        }),
+      },
+    };
+  } catch (error) {
+    console.error('Error generating metadata:', error);
+    return {
+      title: 'Affiliate Store',
+      description: 'Discover amazing products and deals.',
+    };
+  }
 }
 
 export default async function StorePage({ params }: StorePageProps) {
