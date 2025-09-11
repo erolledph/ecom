@@ -232,13 +232,14 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                 <div
                   className={`w-20 h-20 rounded-full shadow-md overflow-hidden ${
                     selectedCategory === category.id
-                      ? 'bg-indigo-200 border-2 border-indigo-500'
+                      ? `bg-indigo-200 border-2`
                       : 'bg-gray-200'
                   } ${
                     category.id === 'all' 
                       ? 'grid grid-cols-2 grid-rows-2 gap-0' 
                       : 'flex items-center justify-center'
                   }`}
+                  style={selectedCategory === category.id ? { borderColor: activeCategoryBorderColor } : {}}
                 >
                   {category.id === 'all' ? (
                     // Photo collage for "All Products"
@@ -284,7 +285,30 @@ export default function StoreTemplate({ store, products, slides, categories, ini
             {selectedCategory === 'all' ? 'All Products' : categories.find(c => c.id === selectedCategory)?.name || 'Products'}
           </h2>
           <p className="text-[0.8rem] text-gray-600">Browse our complete collection</p>
+          
+          {/* Search Input */}
+          <div className="mt-4 relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-4 w-4 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+            />
+          </div>
         </div>
+        
+        {searchTerm && (
+          <div className="mb-4">
+            <p className="text-sm text-gray-600">
+              {searchFilteredProducts.length} result{searchFilteredProducts.length !== 1 ? 's' : ''} found for "{searchTerm}"
+            </p>
+          </div>
+        )}
+        
         <div className="grid grid-cols-3 lg:grid-cols-4 gap-[5px]">
           {visibleProducts.map((product) => (
             <div
@@ -306,7 +330,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
               <div className="p-[5px]">
                 <h3 className="font-semibold text-gray-800 line-clamp-2 text-[0.8rem] mb-[5px] min-h-[2.4rem]">{product.title}</h3>
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-primary-600 text-[0.8rem]">${product.price}</span>
+                  <span className="font-bold text-primary-600 text-[0.8rem]">{currencySymbol}{product.price}</span>
                 </div>
               </div>
             </div>
@@ -321,6 +345,21 @@ export default function StoreTemplate({ store, products, slides, categories, ini
               className="inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium"
             >
               Load More Products
+            </button>
+          </div>
+        )}
+        
+        {/* No Results Message */}
+        {searchTerm && searchFilteredProducts.length === 0 && (
+          <div className="text-center py-12">
+            <div className="text-gray-400 text-4xl mb-4">🔍</div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
+            <p className="text-gray-600">Try adjusting your search terms or browse all products.</p>
+            <button
+              onClick={() => setSearchTerm('')}
+              className="mt-4 inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+            >
+              Clear Search
             </button>
           </div>
         )}

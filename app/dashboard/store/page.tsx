@@ -35,6 +35,17 @@ export default function StoreSettingsPage() {
       instagram: '',
       twitter: '',
       facebook: ''
+    },
+    customization: {
+      storeNameFontColor: '#ffffff',
+      storeBioFontColor: '#e5e7eb',
+      avatarBorderColor: '#ffffff',
+      activeCategoryBorderColor: '#6366f1',
+      fontFamily: 'Inter',
+      headerBackgroundColor: '',
+      currencySymbol: '$',
+      slideOverlayColor: '#000000',
+      slideOverlayOpacity: 0.5
     }
   });
   
@@ -72,7 +83,18 @@ export default function StoreSettingsPage() {
             description: storeData.description,
             slug: storeData.slug,
             widgetLink: storeData.widgetLink || '',
-            socialLinks: storeData.socialLinks
+            socialLinks: storeData.socialLinks,
+            customization: {
+              storeNameFontColor: storeData.customization?.storeNameFontColor || '#ffffff',
+              storeBioFontColor: storeData.customization?.storeBioFontColor || '#e5e7eb',
+              avatarBorderColor: storeData.customization?.avatarBorderColor || '#ffffff',
+              activeCategoryBorderColor: storeData.customization?.activeCategoryBorderColor || '#6366f1',
+              fontFamily: storeData.customization?.fontFamily || 'Inter',
+              headerBackgroundColor: storeData.customization?.headerBackgroundColor || '',
+              currencySymbol: storeData.customization?.currencySymbol || '$',
+              slideOverlayColor: storeData.customization?.slideOverlayColor || '#000000',
+              slideOverlayOpacity: storeData.customization?.slideOverlayOpacity || 0.5
+            }
           });
           setAvatarPreview(storeData.avatar);
           setBackgroundPreview(storeData.backgroundImage);
@@ -102,6 +124,15 @@ export default function StoreSettingsPage() {
         socialLinks: {
           ...prev.socialLinks,
           [socialKey]: value
+        }
+      }));
+    } else if (name.startsWith('customization.')) {
+      const customKey = name.split('.')[1];
+      setFormData(prev => ({
+        ...prev,
+        customization: {
+          ...prev.customization,
+          [customKey]: customKey === 'slideOverlayOpacity' ? parseFloat(value) : value
         }
       }));
     } else {
@@ -205,7 +236,8 @@ export default function StoreSettingsPage() {
         backgroundImage: backgroundUrl,
         widgetImage: widgetUrl,
         widgetLink: formData.widgetLink,
-        socialLinks: formData.socialLinks
+        socialLinks: formData.socialLinks,
+        customization: formData.customization
       });
 
       setMessage('Store settings updated successfully!');
@@ -225,7 +257,8 @@ export default function StoreSettingsPage() {
         backgroundImage: backgroundUrl,
         widgetImage: widgetUrl,
         widgetLink: formData.widgetLink,
-        socialLinks: formData.socialLinks
+        socialLinks: formData.socialLinks,
+        customization: formData.customization
       } : null);
 
     } catch (error) {
@@ -479,6 +512,313 @@ export default function StoreSettingsPage() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
                 placeholder="https://facebook.com/yourstore"
               />
+            </div>
+          </div>
+        </div>
+
+        {/* Customization */}
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+            <span className="w-5 h-5 mr-2 text-primary-600">🎨</span>
+            Customization
+          </h2>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Font Colors */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-gray-900">Font Colors</h3>
+              
+              <div>
+                <label htmlFor="storeNameFontColor" className="block text-sm font-medium text-gray-700 mb-2">
+                  Store Name Color
+                </label>
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="color"
+                    id="storeNameFontColor"
+                    name="customization.storeNameFontColor"
+                    value={formData.customization.storeNameFontColor}
+                    onChange={handleInputChange}
+                    className="h-10 w-16 border border-gray-300 rounded cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={formData.customization.storeNameFontColor}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      customization: { ...prev.customization, storeNameFontColor: e.target.value }
+                    }))}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900"
+                    placeholder="#ffffff"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="storeBioFontColor" className="block text-sm font-medium text-gray-700 mb-2">
+                  Store Bio Color
+                </label>
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="color"
+                    id="storeBioFontColor"
+                    name="customization.storeBioFontColor"
+                    value={formData.customization.storeBioFontColor}
+                    onChange={handleInputChange}
+                    className="h-10 w-16 border border-gray-300 rounded cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={formData.customization.storeBioFontColor}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      customization: { ...prev.customization, storeBioFontColor: e.target.value }
+                    }))}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900"
+                    placeholder="#e5e7eb"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Border Colors */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium text-gray-900">Border Colors</h3>
+              
+              <div>
+                <label htmlFor="avatarBorderColor" className="block text-sm font-medium text-gray-700 mb-2">
+                  Avatar Border Color
+                </label>
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="color"
+                    id="avatarBorderColor"
+                    name="customization.avatarBorderColor"
+                    value={formData.customization.avatarBorderColor}
+                    onChange={handleInputChange}
+                    className="h-10 w-16 border border-gray-300 rounded cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={formData.customization.avatarBorderColor}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      customization: { ...prev.customization, avatarBorderColor: e.target.value }
+                    }))}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900"
+                    placeholder="#ffffff"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="activeCategoryBorderColor" className="block text-sm font-medium text-gray-700 mb-2">
+                  Active Category Border Color
+                </label>
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="color"
+                    id="activeCategoryBorderColor"
+                    name="customization.activeCategoryBorderColor"
+                    value={formData.customization.activeCategoryBorderColor}
+                    onChange={handleInputChange}
+                    className="h-10 w-16 border border-gray-300 rounded cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={formData.customization.activeCategoryBorderColor}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      customization: { ...prev.customization, activeCategoryBorderColor: e.target.value }
+                    }))}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900"
+                    placeholder="#6366f1"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+            {/* Font Family */}
+            <div>
+              <label htmlFor="fontFamily" className="block text-sm font-medium text-gray-700 mb-2">
+                Font Family
+              </label>
+              <select
+                id="fontFamily"
+                name="customization.fontFamily"
+                value={formData.customization.fontFamily}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
+              >
+                <option value="Inter">Inter</option>
+                <option value="Arial">Arial</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Helvetica">Helvetica</option>
+                <option value="Roboto">Roboto</option>
+                <option value="Open Sans">Open Sans</option>
+                <option value="Lato">Lato</option>
+                <option value="Montserrat">Montserrat</option>
+                <option value="Poppins">Poppins</option>
+                <option value="monospace">Monospace</option>
+              </select>
+            </div>
+
+            {/* Header Background Color */}
+            <div>
+              <label htmlFor="headerBackgroundColor" className="block text-sm font-medium text-gray-700 mb-2">
+                Header Background Color
+              </label>
+              <div className="flex items-center space-x-3">
+                <input
+                  type="color"
+                  id="headerBackgroundColor"
+                  name="customization.headerBackgroundColor"
+                  value={formData.customization.headerBackgroundColor || '#000000'}
+                  onChange={handleInputChange}
+                  className="h-10 w-16 border border-gray-300 rounded cursor-pointer"
+                />
+                <input
+                  type="text"
+                  value={formData.customization.headerBackgroundColor}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev,
+                    customization: { ...prev.customization, headerBackgroundColor: e.target.value }
+                  }))}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900"
+                  placeholder="Leave empty for image background"
+                />
+              </div>
+            </div>
+
+            {/* Currency Symbol */}
+            <div>
+              <label htmlFor="currencySymbol" className="block text-sm font-medium text-gray-700 mb-2">
+                Currency Symbol
+              </label>
+              <select
+                id="currencySymbol"
+                name="customization.currencySymbol"
+                value={formData.customization.currencySymbol}
+                onChange={handleInputChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
+              >
+                <option value="$">$ - US Dollar</option>
+                <option value="€">€ - Euro</option>
+                <option value="£">£ - British Pound</option>
+                <option value="¥">¥ - Japanese Yen</option>
+                <option value="₹">₹ - Indian Rupee</option>
+                <option value="₽">₽ - Russian Ruble</option>
+                <option value="₩">₩ - South Korean Won</option>
+                <option value="₪">₪ - Israeli Shekel</option>
+                <option value="₦">₦ - Nigerian Naira</option>
+                <option value="₨">₨ - Pakistani Rupee</option>
+                <option value="₱">₱ - Philippine Peso</option>
+                <option value="₫">₫ - Vietnamese Dong</option>
+                <option value="₡">₡ - Costa Rican Colón</option>
+                <option value="₲">₲ - Paraguayan Guaraní</option>
+                <option value="₴">₴ - Ukrainian Hryvnia</option>
+                <option value="₵">₵ - Ghanaian Cedi</option>
+                <option value="₶">₶ - Livre Tournois</option>
+                <option value="₷">₷ - Spesmilo</option>
+                <option value="₸">₸ - Kazakhstani Tenge</option>
+                <option value="₹">₹ - Indian Rupee</option>
+                <option value="₺">₺ - Turkish Lira</option>
+                <option value="₻">₻ - Nordic Mark</option>
+                <option value="₼">₼ - Azerbaijani Manat</option>
+                <option value="₽">₽ - Russian Ruble</option>
+                <option value="₾">₾ - Georgian Lari</option>
+                <option value="₿">₿ - Bitcoin</option>
+                <option value="﷼">﷼ - Saudi Riyal</option>
+                <option value="¢">¢ - Cent</option>
+                <option value="¤">¤ - Generic Currency</option>
+                <option value="؋">؋ - Afghan Afghani</option>
+                <option value="₳">₳ - Austral</option>
+                <option value="₢">₢ - Cruzeiro</option>
+                <option value="₣">₣ - French Franc</option>
+                <option value="₤">₤ - Lira</option>
+                <option value="₥">₥ - Mill</option>
+                <option value="₦">₦ - Naira</option>
+                <option value="₧">₧ - Peseta</option>
+                <option value="₨">₨ - Rupee</option>
+                <option value="₩">₩ - Won</option>
+                <option value="₪">₪ - New Sheqel</option>
+                <option value="₫">₫ - Dong</option>
+                <option value="€">€ - Euro</option>
+                <option value="₭">₭ - Kip</option>
+                <option value="₮">₮ - Tugrik</option>
+                <option value="₯">₯ - Drachma</option>
+                <option value="₰">₰ - Pfennig</option>
+                <option value="₱">₱ - Peso</option>
+                <option value="₲">₲ - Guarani</option>
+                <option value="₳">₳ - Austral</option>
+                <option value="₴">₴ - Hryvnia</option>
+                <option value="₵">₵ - Cedi</option>
+                <option value="₶">₶ - Livre Tournois</option>
+                <option value="₷">₷ - Spesmilo</option>
+                <option value="₸">₸ - Tenge</option>
+                <option value="₹">₹ - Indian Rupee</option>
+                <option value="₺">₺ - Lira</option>
+                <option value="₻">₻ - Nordic Mark</option>
+                <option value="₼">₼ - Manat</option>
+                <option value="₽">₽ - Ruble</option>
+                <option value="₾">₾ - Lari</option>
+                <option value="₿">₿ - Bitcoin</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Slide Customization */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Slide Customization</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="slideOverlayColor" className="block text-sm font-medium text-gray-700 mb-2">
+                  Slide Overlay Color
+                </label>
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="color"
+                    id="slideOverlayColor"
+                    name="customization.slideOverlayColor"
+                    value={formData.customization.slideOverlayColor}
+                    onChange={handleInputChange}
+                    className="h-10 w-16 border border-gray-300 rounded cursor-pointer"
+                  />
+                  <input
+                    type="text"
+                    value={formData.customization.slideOverlayColor}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      customization: { ...prev.customization, slideOverlayColor: e.target.value }
+                    }))}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900"
+                    placeholder="#000000"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="slideOverlayOpacity" className="block text-sm font-medium text-gray-700 mb-2">
+                  Slide Overlay Opacity
+                </label>
+                <input
+                  type="number"
+                  id="slideOverlayOpacity"
+                  name="customization.slideOverlayOpacity"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={formData.customization.slideOverlayOpacity}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  0 = transparent, 1 = opaque
+                </p>
+              </div>
             </div>
           </div>
         </div>

@@ -35,6 +35,17 @@ export interface Store {
     twitter: string;
     facebook: string;
   };
+  customization?: {
+    storeNameFontColor?: string;
+    storeBioFontColor?: string;
+    avatarBorderColor?: string;
+    activeCategoryBorderColor?: string;
+    fontFamily?: string;
+    headerBackgroundColor?: string;
+    currencySymbol?: string;
+    slideOverlayColor?: string;
+    slideOverlayOpacity?: number;
+  };
   createdAt: any;
   updatedAt: any;
 }
