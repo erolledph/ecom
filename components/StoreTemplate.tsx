@@ -83,9 +83,9 @@ export default function StoreTemplate({ store, products, slides, categories }: S
               />
             </div>
           )}
-          <h1 className="text-2xl font-extrabold text-white mb-1">{store.name}</h1>
-          <p className="text-gray-200 max-w-xs mb-2 leading-snug">{store.description}</p>
-          <div className="flex space-x-2">
+          <h1 className="text-[0.8rem] font-extrabold text-white mb-1">{store.name}</h1>
+          <p className="text-[0.8rem] text-gray-200 max-w-xs mb-2 leading-snug">{store.description}</p>
+          <div className="flex space-x-[5px]">
             {store.socialLinks.instagram && (
               <a
                 href={store.socialLinks.instagram}
@@ -123,7 +123,7 @@ export default function StoreTemplate({ store, products, slides, categories }: S
       {/* Categories */}
       {categories.length > 0 && (
         <section className="mt-4 pb-4 overflow-x-auto category-scroller">
-          <div className="flex space-x-4 px-4">
+          <div className="flex space-x-[5px] px-4">
             {categories.map((category) => (
               <div
                 key={category.id}
@@ -146,10 +146,10 @@ export default function StoreTemplate({ store, products, slides, categories }: S
                       className="w-full h-full object-cover rounded-full"
                     />
                   ) : (
-                    <span className="text-xs font-semibold text-gray-700">{category.name}</span>
+                    <span className="text-[0.8rem] font-semibold text-gray-700">{category.name}</span>
                   )}
                 </div>
-                <span className="text-xs font-semibold mt-1 whitespace-nowrap">{category.name}</span>
+                <span className="text-[0.8rem] font-semibold mt-1 whitespace-nowrap">{category.name}</span>
               </div>
             ))}
           </div>
@@ -179,9 +179,9 @@ export default function StoreTemplate({ store, products, slides, categories }: S
                     priority={index === 0}
                   />
                   <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center text-white p-4">
-                    <h2 className="text-2xl md:text-4xl font-bold mb-2">{slide.title}</h2>
+                    <h2 className="text-[0.8rem] font-bold mb-2">{slide.title}</h2>
                     {slide.description && (
-                      <p className="text-sm md:text-lg max-w-2xl">{slide.description}</p>
+                      <p className="text-[0.8rem] max-w-2xl">{slide.description}</p>
                     )}
                   </div>
                 </div>
@@ -212,7 +212,7 @@ export default function StoreTemplate({ store, products, slides, categories }: S
             
             {/* Pagination Dots */}
             {slides.length > 1 && (
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-[5px]">
                 {slides.map((_, index) => (
                   <button
                     key={index}
@@ -232,10 +232,10 @@ export default function StoreTemplate({ store, products, slides, categories }: S
       {products.length > 0 && (
         <section className="container mx-auto px-4 py-6">
           <div className="mb-6">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Featured Products</h2>
-            <p className="text-gray-600">Discover our handpicked selection of amazing products</p>
+            <h2 className="text-[0.8rem] font-bold text-gray-900 mb-2">Featured Products</h2>
+            <p className="text-[0.8rem] text-gray-600">Discover our handpicked selection of amazing products</p>
           </div>
-          <div className="grid grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-3 lg:grid-cols-4 gap-[5px]">
             {products.slice(0, 4).map((product) => (
               <div
                 key={product.id}
@@ -253,10 +253,10 @@ export default function StoreTemplate({ store, products, slides, categories }: S
                     />
                   )}
                 </div>
-                <div className="p-3">
-                  <h3 className="font-semibold text-gray-800 line-clamp-2 text-sm mb-2 min-h-10">{product.title}</h3>
+                <div className="p-[5px]">
+                  <h3 className="font-semibold text-gray-800 line-clamp-2 text-[0.8rem] mb-0 min-h-[2.4rem]">{product.title}</h3>
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-primary-600 text-lg">${product.price}</span>
+                    <span className="font-bold text-primary-600 text-[0.8rem]">${product.price}</span>
                   </div>
                 </div>
               </div>
@@ -268,10 +268,10 @@ export default function StoreTemplate({ store, products, slides, categories }: S
       {/* All Products Section */}
       <section className="container mx-auto px-4 py-6" id="products">
         <div className="mb-6">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">All Products</h2>
-          <p className="text-gray-600">Browse our complete collection</p>
+          <h2 className="text-[0.8rem] font-bold text-gray-900 mb-2">All Products</h2>
+          <p className="text-[0.8rem] text-gray-600">Browse our complete collection</p>
         </div>
-        <div className="grid grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-3 lg:grid-cols-4 gap-[5px]">
           {filteredProducts.map((product) => (
             <div
               key={product.id}
@@ -302,7 +302,7 @@ export default function StoreTemplate({ store, products, slides, categories }: S
 
       {/* Footer */}
       <footer className="bg-white shadow-inner rounded-t-lg mt-4 p-4 md:p-6 text-center text-gray-600">
-        <div className="flex justify-center space-x-4 mb-4">
+        <div className="flex justify-center space-x-[5px] mb-4">
           {store.socialLinks.instagram && (
             <a
               href={store.socialLinks.instagram}
@@ -334,7 +334,7 @@ export default function StoreTemplate({ store, products, slides, categories }: S
             </a>
           )}
         </div>
-        <p className="text-sm">&copy; {new Date().getFullYear()} {store.name}. All rights reserved.</p>
+        <p className="text-[0.8rem]">&copy; {new Date().getFullYear()} {store.name}. All rights reserved.</p>
       </footer>
 
       {/* Floating Widget */}
@@ -356,7 +356,7 @@ export default function StoreTemplate({ store, products, slides, categories }: S
 
       {/* Popup Message */}
       <div
-        className={`fixed bottom-20 right-4 bg-gray-800 text-white text-sm p-3 rounded-lg shadow-xl transition-opacity duration-300 ${
+        className={`fixed bottom-20 right-4 bg-gray-800 text-white text-[0.8rem] p-3 rounded-lg shadow-xl transition-opacity duration-300 ${
           isPopupVisible ? 'opacity-100' : 'opacity-0 hidden'
         }`}
       >
