@@ -131,7 +131,6 @@ body {
   text-align: center;
   flex-shrink: 0;
   cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   background: #f3f4f6;
   border: 2px solid #e5e7eb;
@@ -140,7 +139,6 @@ body {
 
 .category-circle:hover {
   transform: scale(1.05);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .category-circle img {
