@@ -113,7 +113,7 @@ export default function StoreSettingsPage() {
 
     fetchStore();
   }, [user]);
-
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     
@@ -127,6 +127,28 @@ export default function StoreSettingsPage() {
         }
       }));
     } else if (name.startsWith('customization.')) {
+      const customKey = name.split('.')[1];
+      setFormData(prev => ({
+        ...prev,
+        customization: {
+          ...prev.customization,
+          [customKey]: customKey === 'slideOverlayOpacity' ? parseFloat(value) : value
+        }
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+  };
+
+  const handleSelectChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    
+    if (name.startsWith('customization.')) {
       const customKey = name.split('.')[1];
       setFormData(prev => ({
         ...prev,
@@ -649,7 +671,7 @@ export default function StoreSettingsPage() {
                 id="fontFamily"
                 name="customization.fontFamily"
                 value={formData.customization.fontFamily}
-                onChange={handleInputChange}
+                onChange={handleSelectChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
               >
                 <option value="Inter">Inter</option>
@@ -702,7 +724,7 @@ export default function StoreSettingsPage() {
                 id="currencySymbol"
                 name="customization.currencySymbol"
                 value={formData.customization.currencySymbol}
-                onChange={handleInputChange}
+                onChange={handleSelectChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
               >
                 <option value="$">$ - US Dollar</option>

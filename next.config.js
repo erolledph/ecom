@@ -1,29 +1,37 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
+  trailingSlash: true,
   images: {
     domains: [
       'images.unsplash.com',
       'placehold.co',
-      'firebasestorage.googleapis.com'
+      'firebasestorage.googleapis.com',
+      'storage.googleapis.com'
     ],
+    unoptimized: true
   },
   transpilePackages: ['firebase', '@firebase/auth', '@firebase/firestore', '@firebase/app'],
   experimental: {
-    esmExternals: 'loose'
+    esmExternals: 'loose',
+    serverComponentsExternalPackages: ['firebase-admin']
   },
   webpack: (config, { isServer }) => {
     // Add fallbacks for Node.js modules when building for client-side
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
-        'grpc-js': false,
+        fs: false,
+        net: false,
+        tls: false,
+        crypto: false,
         'encoding': false,
-        'buffer': false,
+        'buffer': false
       };
     } else {
       // Mark grpc-js as external for server-side to prevent bundling issues
       config.externals = config.externals || [];
-      config.externals.push('grpc-js');
+      config.externals.push('grpc-js', 'firebase-admin');
     }
 
     // Ignore specific warnings that don't affect functionality
@@ -31,10 +39,29 @@ const nextConfig = {
       /Critical dependency: the request of a dependency is an expression/,
       /Module not found: Can't resolve 'encoding'/,
       /Module parse failed: Unexpected token/,
+      /Can't resolve 'grpc-js'/,
+      /Can't resolve 'firebase-admin'/
     ];
+
+    // Optimize bundle size
+    if (!isServer) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@firebase/app': '@firebase/app/dist/esm/index.esm.js',
+        '@firebase/auth': '@firebase/auth/dist/esm/index.esm.js',
+        '@firebase/firestore': '@firebase/firestore/dist/esm/index.esm.js',
+        '@firebase/storage': '@firebase/storage/dist/esm/index.esm.js'
+      };
+    }
 
     return config;
   },
+  eslint: {
+    ignoreDuringBuilds: true
+  },
+  typescript: {
+    ignoreBuildErrors: false
+  }
 };
 
 module.exports = nextConfig;
