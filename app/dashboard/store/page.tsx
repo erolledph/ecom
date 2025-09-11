@@ -92,7 +92,8 @@ export default function StoreSettingsPage() {
               avatarBorderColor: storeData.customization?.avatarBorderColor || '#ffffff',
               activeCategoryBorderColor: storeData.customization?.activeCategoryBorderColor || '#6366f1',
               fontFamily: storeData.customization?.fontFamily || 'Inter',
-              headerBackgroundColor: storeData.customization?.headerBackgroundColor || '',
+              backgroundGradientStartColor: storeData.customization?.backgroundGradientStartColor || '',
+              backgroundGradientEndColor: storeData.customization?.backgroundGradientEndColor || '',
               currencySymbol: storeData.customization?.currencySymbol || '$',
               slideOverlayColor: storeData.customization?.slideOverlayColor || '#000000',
               slideOverlayOpacity: storeData.customization?.slideOverlayOpacity || 0.5
