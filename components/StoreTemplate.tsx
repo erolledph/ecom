@@ -108,14 +108,15 @@ export default function StoreTemplate({ store, products, slides, categories, ini
 
   return (
     <div 
-      className="min-h-screen bg-gray-100 max-w-md mx-auto"
+      className="min-h-screen max-w-md mx-auto"
       style={{
-        fontFamily: store.customization?.fontFamily || 'Inter, system-ui, -apple-system, sans-serif'
+        fontFamily: store.customization?.fontFamily || 'Inter, system-ui, -apple-system, sans-serif',
+        backgroundColor: store.customization?.storeBackgroundColor || '#f3f4f6'
       }}
     >
-      {/* Header */}
+      {/* Header Section */}
       <header 
-        className="relative text-center text-white py-4 rounded-b-xl overflow-hidden"
+        className="relative text-white py-4 overflow-hidden"
         style={{
           background: store.customization?.backgroundGradientStartColor && store.customization?.backgroundGradientEndColor
             ? `linear-gradient(135deg, ${store.customization.backgroundGradientStartColor}, ${store.customization.backgroundGradientEndColor})`
@@ -128,78 +129,110 @@ export default function StoreTemplate({ store, products, slides, categories, ini
         {store.backgroundImage && !store.customization?.backgroundGradientStartColor && (
           <div className="absolute inset-0 bg-black opacity-50"></div>
         )}
-        <div className="relative z-10 flex flex-col items-center justify-center">
-          {store.avatar && (
-            <div 
-              className="w-32 h-32 rounded-full overflow-hidden mb-2 border-4 shadow-lg"
+        
+        <div className="relative z-10">
+          {/* Top section with avatar and social links */}
+          <div className="flex justify-between items-center px-4 mb-4">
+            {/* Avatar on the left */}
+            <div className="flex items-center">
+              {store.avatar && (
+                <div 
+                  className="w-16 h-16 rounded-full overflow-hidden border-4 shadow-lg"
+                  style={{
+                    borderColor: store.customization?.avatarBorderColor || '#ffffff'
+                  }}
+                >
+                  <Image
+                    src={store.avatar}
+                    alt={store.name}
+                    width={64}
+                    height={64}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+            </div>
+            
+            {/* Social links on the right */}
+            <div className="flex space-x-3">
+              {store.socialLinks.instagram && (
+                <a
+                  href={store.socialLinks.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white hover:text-pink-500 transition-colors"
+                >
+                  <Instagram className="w-6 h-6" />
+                </a>
+              )}
+              {store.socialLinks.twitter && (
+                <a
+                  href={store.socialLinks.twitter}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white hover:text-blue-400 transition-colors"
+                >
+                  <Twitter className="w-6 h-6" />
+                </a>
+              )}
+              {store.socialLinks.facebook && (
+                <a
+                  href={store.socialLinks.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white hover:text-blue-600 transition-colors"
+                >
+                  <Facebook className="w-6 h-6" />
+                </a>
+              )}
+            </div>
+          </div>
+          
+          {/* Centered store name and description */}
+          <div className="text-center px-4">
+            <h1 
+              className="text-2xl font-extrabold mb-2"
               style={{
-                borderColor: store.customization?.avatarBorderColor || '#ffffff'
+                color: store.customization?.storeNameFontColor || '#ffffff'
               }}
             >
-              <Image
-                src={store.avatar}
-                alt={store.name}
-                width={128}
-                height={128}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          )}
-          <h1 
-            className="text-[0.8rem] font-extrabold mb-1"
-            style={{
-              color: store.customization?.storeNameFontColor || '#ffffff'
-            }}
-          >
-            {store.name}
-          </h1>
-          <p 
-            className="text-[0.8rem] max-w-xs mb-2 leading-snug"
-            style={{
-              color: store.customization?.storeBioFontColor || '#e5e7eb'
-            }}
-          >
-            {store.description}
-          </p>
-          <div className="flex space-x-[5px]">
-            {store.socialLinks.instagram && (
-              <a
-                href={store.socialLinks.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white hover:text-pink-500 transition-colors"
-              >
-                <Instagram className="w-6 h-6" />
-              </a>
-            )}
-            {store.socialLinks.twitter && (
-              <a
-                href={store.socialLinks.twitter}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white hover:text-blue-400 transition-colors"
-              >
-                <Twitter className="w-6 h-6" />
-              </a>
-            )}
-            {store.socialLinks.facebook && (
-              <a
-                href={store.socialLinks.facebook}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white hover:text-blue-600 transition-colors"
-              >
-                <Facebook className="w-6 h-6" />
-              </a>
-            )}
+              {store.name}
+            </h1>
+            <p 
+              className="text-sm max-w-xs mx-auto leading-snug"
+              style={{
+                color: store.customization?.storeBioFontColor || '#e5e7eb'
+              }}
+            >
+              {store.description}
+            </p>
           </div>
         </div>
       </header>
 
-      {/* Slider Section */}
+      {/* Hero Section */}
+      <section className="py-4">
+        <div className="text-center px-4">
+          <h1 
+            className="text-xl font-bold text-gray-800 mb-2"
+            style={{
+              color: store.customization?.storeNameFontColor || '#ffffff'
+            }}
+          >
+            Welcome to {store.name}
+          </h1>
+          <p 
+            className="text-gray-600 text-sm"
+          >
+            Discover amazing products curated just for you
+          </p>
+        </div>
+      </section>
+
+      {/* Slides Section */}
       {slides.length > 0 && (
         <section className="py-6">
-          <div className="relative h-64 md:h-80 lg:h-96 rounded-xl overflow-hidden shadow-lg">
+          <div className="relative h-64 md:h-80 lg:h-96 overflow-hidden shadow-lg">
             <div 
               className="flex transition-transform duration-500 ease-in-out w-full h-full"
               style={{ transform: `translateX(-${currentSlide * 100}%)` }}
@@ -218,16 +251,33 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                     className="w-full h-full object-cover"
                     priority={index === 0}
                   />
+                  {/* Overlay layer */}
                   <div 
-                    className="absolute inset-0 flex flex-col items-center justify-center text-center text-white p-4"
+                    className="absolute inset-0"
                     style={{
                       backgroundColor: store.customization?.slideOverlayColor || '#000000',
                       opacity: store.customization?.slideOverlayOpacity || 0.4
                     }}
-                  >
-                    <h2 className="text-[0.8rem] font-bold mb-2">{slide.title}</h2>
+                  />
+                  {/* Text content layer */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 z-10">
+                    <h2 
+                      className="text-2xl font-bold mb-2"
+                      style={{
+                        color: store.customization?.slideTitleColor || '#ffffff'
+                      }}
+                    >
+                      {slide.title}
+                    </h2>
                     {slide.description && (
-                      <p className="text-[0.8rem] max-w-2xl">{slide.description}</p>
+                      <p 
+                        className="text-sm max-w-2xl"
+                        style={{
+                          color: store.customization?.slideDescriptionColor || '#e5e7eb'
+                        }}
+                      >
+                        {slide.description}
+                      </p>
                     )}
                   </div>
                 </div>

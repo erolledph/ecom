@@ -43,9 +43,12 @@ export interface Store {
     fontFamily?: string;
     backgroundGradientStartColor?: string;
     backgroundGradientEndColor?: string;
+    storeBackgroundColor?: string;
     currencySymbol?: string;
     slideOverlayColor?: string;
     slideOverlayOpacity?: number;
+    slideTitleColor?: string;
+    slideDescriptionColor?: string;
   };
   createdAt: any;
   updatedAt: any;

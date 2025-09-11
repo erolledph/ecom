@@ -45,9 +45,12 @@ export default function StoreSettingsPage() {
       fontFamily: 'Inter',
       backgroundGradientStartColor: '',
       backgroundGradientEndColor: '',
+      storeBackgroundColor: '',
       currencySymbol: '$',
       slideOverlayColor: '#000000',
-      slideOverlayOpacity: 0.5
+      slideOverlayOpacity: 0.5,
+      slideTitleColor: '',
+      slideDescriptionColor: ''
     }
   });
   
@@ -94,9 +97,12 @@ export default function StoreSettingsPage() {
               fontFamily: storeData.customization?.fontFamily || 'Inter',
               backgroundGradientStartColor: storeData.customization?.backgroundGradientStartColor || '',
               backgroundGradientEndColor: storeData.customization?.backgroundGradientEndColor || '',
+              storeBackgroundColor: storeData.customization?.storeBackgroundColor || '',
               currencySymbol: storeData.customization?.currencySymbol || '$',
               slideOverlayColor: storeData.customization?.slideOverlayColor || '#000000',
-              slideOverlayOpacity: storeData.customization?.slideOverlayOpacity || 0.5
+              slideOverlayOpacity: storeData.customization?.slideOverlayOpacity || 0.5,
+              slideTitleColor: storeData.customization?.slideTitleColor || '',
+              slideDescriptionColor: storeData.customization?.slideDescriptionColor || ''
             }
           });
           setAvatarPreview(storeData.avatar);
@@ -328,7 +334,7 @@ export default function StoreSettingsPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-800">Store Settings</h1>
-            <p className="text-sm text-gray-500 mt-1">Customize your store’s appearance and settings</p>
+            <p className="text-sm text-gray-500 mt-1">Customize your store's appearance and settings</p>
           </div>
         </div>
       </div>
@@ -769,6 +775,34 @@ export default function StoreSettingsPage() {
               </div>
             </div>
 
+            <div>
+              <label htmlFor="storeBackgroundColor" className="block text-sm font-medium text-gray-700 mb-2">
+                Store Background Color
+              </label>
+              <div className="flex items-center space-x-4">
+                <input
+                  type="color"
+                  id="storeBackgroundColor"
+                  name="customization.storeBackgroundColor"
+                  value={formData.customization.storeBackgroundColor || '#f3f4f6'}
+                  onChange={handleInputChange}
+                  className="h-12 w-20 border border-gray-200 rounded-lg cursor-pointer shadow-sm"
+                  aria-label="Store Background Color"
+                />
+                <input
+                  type="text"
+                  value={formData.customization.storeBackgroundColor}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev,
+                    customization: { ...prev.customization, storeBackgroundColor: e.target.value }
+                  }))}
+                  className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
+                  placeholder="#f3f4f6"
+                  aria-label="Store Background Color Hex"
+                />
+              </div>
+            </div>
+
             {/* Currency Symbol */}
             <div>
               <label htmlFor="currencySymbol" className="block text-sm font-medium text-gray-700 mb-2">
@@ -898,6 +932,62 @@ export default function StoreSettingsPage() {
                 <p className="mt-2 text-xs text-gray-500">
                   0 = transparent, 1 = opaque
                 </p>
+              </div>
+
+              <div>
+                <label htmlFor="slideTitleColor" className="block text-sm font-medium text-gray-700 mb-2">
+                  Slide Title Color
+                </label>
+                <div className="flex items-center space-x-4">
+                  <input
+                    type="color"
+                    id="slideTitleColor"
+                    name="customization.slideTitleColor"
+                    value={formData.customization.slideTitleColor || '#ffffff'}
+                    onChange={handleInputChange}
+                    className="h-12 w-20 border border-gray-200 rounded-lg cursor-pointer shadow-sm"
+                    aria-label="Slide Title Color"
+                  />
+                  <input
+                    type="text"
+                    value={formData.customization.slideTitleColor}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      customization: { ...prev.customization, slideTitleColor: e.target.value }
+                    }))}
+                    className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
+                    placeholder="#ffffff"
+                    aria-label="Slide Title Color Hex"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="slideDescriptionColor" className="block text-sm font-medium text-gray-700 mb-2">
+                  Slide Description Color
+                </label>
+                <div className="flex items-center space-x-4">
+                  <input
+                    type="color"
+                    id="slideDescriptionColor"
+                    name="customization.slideDescriptionColor"
+                    value={formData.customization.slideDescriptionColor || '#e5e7eb'}
+                    onChange={handleInputChange}
+                    className="h-12 w-20 border border-gray-200 rounded-lg cursor-pointer shadow-sm"
+                    aria-label="Slide Description Color"
+                  />
+                  <input
+                    type="text"
+                    value={formData.customization.slideDescriptionColor}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      customization: { ...prev.customization, slideDescriptionColor: e.target.value }
+                    }))}
+                    className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
+                    placeholder="#e5e7eb"
+                    aria-label="Slide Description Color Hex"
+                  />
+                </div>
               </div>
             </div>
           </div>
