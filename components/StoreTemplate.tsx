@@ -4,7 +4,33 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Store, Product, Slide } from '@/lib/store';
-import { Instagram, Twitter, Facebook, Search } from 'lucide-react';
+import { 
+  Instagram, 
+  Twitter, 
+  Facebook, 
+  Youtube,
+  Linkedin,
+  Github,
+  Globe,
+  MessageCircle,
+  Camera,
+  Music,
+  Search 
+} from 'lucide-react';
+
+// Social platform icon mapping
+const SOCIAL_ICONS: Record<string, any> = {
+  instagram: Instagram,
+  twitter: Twitter,
+  facebook: Facebook,
+  youtube: Youtube,
+  linkedin: Linkedin,
+  tiktok: Music,
+  snapchat: Camera,
+  pinterest: MessageCircle,
+  github: Github,
+  website: Globe,
+};
 
 interface StoreTemplateProps {
   store: Store;
@@ -57,6 +83,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
   const activeCategoryBorderColor = store.customization?.activeCategoryBorderColor || '#6366f1';
   const currencySymbol = store.customization?.currencySymbol || '$';
   const storeNameColor = store.customization?.storeNameFontColor || '#ffffff';
+  const priceColor = store.customization?.priceFontColor || '#059669';
 
   const handleCategoryChange = (categoryId: string) => {
     setSelectedCategory(categoryId);
@@ -100,87 +127,125 @@ export default function StoreTemplate({ store, products, slides, categories, ini
     }, 3000);
   };
 
+  // Get header layout style
+  const getHeaderLayoutStyle = () => {
+    switch (store.headerLayout) {
+      case 'right-left':
+        return 'flex-row-reverse';
+      case 'center':
+        return 'flex-col items-center';
+      default: // 'left-right'
+        return 'flex-row';
+    }
+  };
   return (
     <div 
       className="min-h-screen max-w-md mx-auto"
       style={{
         fontFamily: store.customization?.fontFamily || 'Inter, system-ui, -apple-system, sans-serif',
-        backgroundColor: store.customization?.storeBackgroundColor || '#f3f4f6'
+        backgroundColor: store.customization?.storeBackgroundColor || '#f3f4f6',
+        background: store.customization?.mainBackgroundGradientStartColor && store.customization?.mainBackgroundGradientEndColor
+          ? `linear-gradient(135deg, ${store.customization.mainBackgroundGradientStartColor}, ${store.customization.mainBackgroundGradientEndColor})`
+          : store.customization?.storeBackgroundColor || '#f3f4f6'
       }}
     >
       {/* Header Section */}
       <header 
         className="relative text-white py-4 overflow-hidden"
         style={{
-          background: store.customization?.backgroundGradientStartColor && store.customization?.backgroundGradientEndColor
-            ? `linear-gradient(135deg, ${store.customization.backgroundGradientStartColor}, ${store.customization.backgroundGradientEndColor})`
-            : store.backgroundImage
+          background: store.backgroundImage
             ? `url('${store.backgroundImage}') center/cover, linear-gradient(135deg, #667eea 0%, #764ba2 100%)`
             : "url('https://images.unsplash.com/photo-1542435503-956c469947f6?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') center/cover, rgba(0,0,0,0.5)"
         }}
       >
         {/* Overlay for better text readability when using background image */}
-        {store.backgroundImage && !store.customization?.backgroundGradientStartColor && (
+        {store.backgroundImage && (
           <div className="absolute inset-0 bg-black opacity-50"></div>
         )}
         
         <div className="relative z-10">
-          {/* Top section with avatar and social links */}
-          <div className="flex justify-between items-center px-4 mb-4">
-            {/* Avatar on the left */}
-            <div className="flex items-center">
-              {store.avatar && (
-                <div 
-                  className="w-16 h-16 rounded-full overflow-hidden border-4 shadow-lg"
-                  style={{
-                    borderColor: store.customization?.avatarBorderColor || '#ffffff'
-                  }}
-                >
-                  <Image
-                    src={store.avatar}
-                    alt={store.name}
-                    width={64}
-                    height={64}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
+          {/* Header layout based on user preference */}
+          {store.headerLayout === 'center' ? (
+            <div className="px-4 mb-4">
+              {/* Centered avatar */}
+              <div className="flex justify-center mb-4">
+                {store.avatar && (
+                  <div 
+                    className="w-16 h-16 rounded-full overflow-hidden border-4 shadow-lg"
+                    style={{
+                      borderColor: store.customization?.avatarBorderColor || '#ffffff'
+                    }}
+                  >
+                    <Image
+                      src={store.avatar}
+                      alt={store.name}
+                      width={64}
+                      height={64}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+              </div>
+              
+              {/* Centered social links */}
+              <div className="flex justify-center space-x-3">
+                {store.socialLinks?.map((socialLink, index) => {
+                  const IconComponent = SOCIAL_ICONS[socialLink.platform] || Globe;
+                  return (
+                    <a
+                      key={index}
+                      href={socialLink.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white hover:text-gray-300 transition-colors"
+                    >
+                      <IconComponent className="w-6 h-6" />
+                    </a>
+                  );
+                })}
+              </div>
             </div>
-            
-            {/* Social links on the right */}
-            <div className="flex space-x-3">
-              {store.socialLinks.instagram && (
-                <a
-                  href={store.socialLinks.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white hover:text-pink-500 transition-colors"
-                >
-                  <Instagram className="w-6 h-6" />
-                </a>
-              )}
-              {store.socialLinks.twitter && (
-                <a
-                  href={store.socialLinks.twitter}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white hover:text-blue-400 transition-colors"
-                >
-                  <Twitter className="w-6 h-6" />
-                </a>
-              )}
-              {store.socialLinks.facebook && (
-                <a
-                  href={store.socialLinks.facebook}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white hover:text-blue-600 transition-colors"
-                >
-                  <Facebook className="w-6 h-6" />
-                </a>
-              )}
+          ) : (
+            <div className={`flex justify-between items-center px-4 mb-4 ${getHeaderLayoutStyle()}`}>
+              {/* Avatar */}
+              <div className="flex items-center">
+                {store.avatar && (
+                  <div 
+                    className="w-16 h-16 rounded-full overflow-hidden border-4 shadow-lg"
+                    style={{
+                      borderColor: store.customization?.avatarBorderColor || '#ffffff'
+                    }}
+                  >
+                    <Image
+                      src={store.avatar}
+                      alt={store.name}
+                      width={64}
+                      height={64}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+              </div>
+              
+              {/* Social links */}
+              <div className="flex space-x-3">
+                {store.socialLinks?.map((socialLink, index) => {
+                  const IconComponent = SOCIAL_ICONS[socialLink.platform] || Globe;
+                  return (
+                    <a
+                      key={index}
+                      href={socialLink.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white hover:text-gray-300 transition-colors"
+                    >
+                      <IconComponent className="w-6 h-6" />
+                    </a>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
           
           {/* Centered store name and description */}
           <div className="text-center px-4">
@@ -401,7 +466,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                 <div className="flex items-center justify-between">
                   <span 
                     className="font-bold text-[0.8rem]"
-                    style={{ color: storeNameColor }}
+                    style={{ color: priceColor }}
                   >
                     {currencySymbol}{product.price}
                   </span>
@@ -442,36 +507,20 @@ export default function StoreTemplate({ store, products, slides, categories, ini
       {/* Footer */}
       <footer className="bg-white shadow-inner rounded-t-lg mt-4 p-4 md:p-6 text-center text-gray-600">
         <div className="flex justify-center space-x-[5px] mb-4">
-          {store.socialLinks.instagram && (
-            <a
-              href={store.socialLinks.instagram}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-600 hover:text-pink-500 transition-colors"
-            >
-              <Instagram className="w-6 h-6" />
-            </a>
-          )}
-          {store.socialLinks.twitter && (
-            <a
-              href={store.socialLinks.twitter}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-600 hover:text-blue-400 transition-colors"
-            >
-              <Twitter className="w-6 h-6" />
-            </a>
-          )}
-          {store.socialLinks.facebook && (
-            <a
-              href={store.socialLinks.facebook}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-600 hover:text-blue-600 transition-colors"
-            >
-              <Facebook className="w-6 h-6" />
-            </a>
-          )}
+          {store.socialLinks?.map((socialLink, index) => {
+            const IconComponent = SOCIAL_ICONS[socialLink.platform] || Globe;
+            return (
+              <a
+                key={index}
+                href={socialLink.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                <IconComponent className="w-6 h-6" />
+              </a>
+            );
+          })}
         </div>
         <p className="text-[0.8rem]">&copy; {new Date().getFullYear()} {store.name}. All rights reserved.</p>
       </footer>

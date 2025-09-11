@@ -1,56 +1,193 @@
 'use client';
 
-import React from 'react';
-import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { getUserStore, updateStore, uploadStoreImage, uploadWidgetImage, checkSlugAvailability, Store } from '@/lib/store';
+import { 
+  getUserStore, 
+  updateStore, 
+  uploadStoreImage, 
+  uploadWidgetImage,
+  checkSlugAvailability,
+  Store 
+} from '@/lib/store';
+import Image from 'next/image';
 import { 
   Save, 
   Upload, 
-  AlertCircle, 
-  CheckCircle, 
-  Store as StoreIcon,
-  Image as ImageIcon,
-  Link as LinkIcon,
-  Instagram,
-  Twitter,
-  Facebook,
-  Copy,
-  Zap
+  ArrowLeft, 
+  Plus, 
+  Trash2, 
+  Eye,
+  Palette,
+  Type,
+  DollarSign,
+  Image as ImageIcon
 } from 'lucide-react';
+
+const SOCIAL_PLATFORMS = [
+  'instagram',
+  'twitter', 
+  'facebook',
+  'youtube',
+  'linkedin',
+  'tiktok',
+  'snapchat',
+  'pinterest',
+  'github',
+  'website'
+];
+
+const FONT_FAMILIES = [
+  { name: 'Inter', value: 'Inter, system-ui, -apple-system, sans-serif' },
+  { name: 'Roboto', value: 'Roboto, system-ui, -apple-system, sans-serif' },
+  { name: 'Open Sans', value: '"Open Sans", system-ui, -apple-system, sans-serif' },
+  { name: 'Lato', value: 'Lato, system-ui, -apple-system, sans-serif' },
+  { name: 'Montserrat', value: 'Montserrat, system-ui, -apple-system, sans-serif' },
+  { name: 'Poppins', value: 'Poppins, system-ui, -apple-system, sans-serif' },
+  { name: 'Nunito', value: 'Nunito, system-ui, -apple-system, sans-serif' },
+  { name: 'Source Sans Pro', value: '"Source Sans Pro", system-ui, -apple-system, sans-serif' },
+  { name: 'Ubuntu', value: 'Ubuntu, system-ui, -apple-system, sans-serif' },
+  { name: 'Playfair Display', value: '"Playfair Display", serif' },
+  { name: 'Merriweather', value: 'Merriweather, serif' },
+  { name: 'Georgia', value: 'Georgia, serif' }
+];
+
+const COLOR_PALETTES = [
+  {
+    name: 'Ocean Breeze',
+    colors: {
+      storeNameFontColor: '#ffffff',
+      storeBioFontColor: '#e0f2fe',
+      avatarBorderColor: '#0ea5e9',
+      activeCategoryBorderColor: '#0284c7',
+      mainBackgroundGradientStartColor: '#0ea5e9',
+      mainBackgroundGradientEndColor: '#0284c7',
+      storeBackgroundColor: '#f0f9ff',
+      priceFontColor: '#0369a1',
+      slideOverlayColor: '#0c4a6e',
+      slideOverlayOpacity: 0.5,
+      slideTitleColor: '#ffffff',
+      slideDescriptionColor: '#e0f2fe'
+    }
+  },
+  {
+    name: 'Sunset Glow',
+    colors: {
+      storeNameFontColor: '#ffffff',
+      storeBioFontColor: '#fed7aa',
+      avatarBorderColor: '#f97316',
+      activeCategoryBorderColor: '#ea580c',
+      mainBackgroundGradientStartColor: '#f97316',
+      mainBackgroundGradientEndColor: '#dc2626',
+      storeBackgroundColor: '#fff7ed',
+      priceFontColor: '#c2410c',
+      slideOverlayColor: '#7c2d12',
+      slideOverlayOpacity: 0.4,
+      slideTitleColor: '#ffffff',
+      slideDescriptionColor: '#fed7aa'
+    }
+  },
+  {
+    name: 'Forest Green',
+    colors: {
+      storeNameFontColor: '#ffffff',
+      storeBioFontColor: '#dcfce7',
+      avatarBorderColor: '#22c55e',
+      activeCategoryBorderColor: '#16a34a',
+      mainBackgroundGradientStartColor: '#22c55e',
+      mainBackgroundGradientEndColor: '#15803d',
+      storeBackgroundColor: '#f0fdf4',
+      priceFontColor: '#166534',
+      slideOverlayColor: '#14532d',
+      slideOverlayOpacity: 0.5,
+      slideTitleColor: '#ffffff',
+      slideDescriptionColor: '#dcfce7'
+    }
+  },
+  {
+    name: 'Royal Purple',
+    colors: {
+      storeNameFontColor: '#ffffff',
+      storeBioFontColor: '#e9d5ff',
+      avatarBorderColor: '#a855f7',
+      activeCategoryBorderColor: '#9333ea',
+      mainBackgroundGradientStartColor: '#a855f7',
+      mainBackgroundGradientEndColor: '#7c3aed',
+      storeBackgroundColor: '#faf5ff',
+      priceFontColor: '#7c2d92',
+      slideOverlayColor: '#581c87',
+      slideOverlayOpacity: 0.5,
+      slideTitleColor: '#ffffff',
+      slideDescriptionColor: '#e9d5ff'
+    }
+  },
+  {
+    name: 'Rose Gold',
+    colors: {
+      storeNameFontColor: '#ffffff',
+      storeBioFontColor: '#fce7f3',
+      avatarBorderColor: '#ec4899',
+      activeCategoryBorderColor: '#db2777',
+      mainBackgroundGradientStartColor: '#ec4899',
+      mainBackgroundGradientEndColor: '#be185d',
+      storeBackgroundColor: '#fdf2f8',
+      priceFontColor: '#be185d',
+      slideOverlayColor: '#831843',
+      slideOverlayOpacity: 0.4,
+      slideTitleColor: '#ffffff',
+      slideDescriptionColor: '#fce7f3'
+    }
+  },
+  {
+    name: 'Midnight Dark',
+    colors: {
+      storeNameFontColor: '#ffffff',
+      storeBioFontColor: '#d1d5db',
+      avatarBorderColor: '#6b7280',
+      activeCategoryBorderColor: '#4b5563',
+      mainBackgroundGradientStartColor: '#374151',
+      mainBackgroundGradientEndColor: '#1f2937',
+      storeBackgroundColor: '#111827',
+      priceFontColor: '#10b981',
+      slideOverlayColor: '#000000',
+      slideOverlayOpacity: 0.6,
+      slideTitleColor: '#ffffff',
+      slideDescriptionColor: '#d1d5db'
+    }
+  }
+];
 
 export default function StoreSettingsPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [store, setStore] = useState<Store | null>(null);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('basic');
   
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     slug: '',
-    widgetLink: '',
-    socialLinks: {
-      instagram: '',
-      twitter: '',
-      facebook: ''
-    },
+    isActive: true,
+    headerLayout: 'left-right' as 'left-right' | 'right-left' | 'center',
+    socialLinks: [] as Array<{ platform: string; url: string; }>,
     customization: {
       storeNameFontColor: '#ffffff',
       storeBioFontColor: '#e5e7eb',
       avatarBorderColor: '#ffffff',
       activeCategoryBorderColor: '#6366f1',
-      fontFamily: 'Inter',
-      backgroundGradientStartColor: '',
-      backgroundGradientEndColor: '',
-      storeBackgroundColor: '',
+      fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+      mainBackgroundGradientStartColor: '',
+      mainBackgroundGradientEndColor: '',
+      storeBackgroundColor: '#f3f4f6',
       currencySymbol: '$',
+      priceFontColor: '#059669',
       slideOverlayColor: '#000000',
-      slideOverlayOpacity: 0.5,
-      slideTitleColor: '',
-      slideDescriptionColor: ''
+      slideOverlayOpacity: 0.4,
+      slideTitleColor: '#ffffff',
+      slideDescriptionColor: '#e5e7eb'
     }
   });
   
@@ -60,61 +197,49 @@ export default function StoreSettingsPage() {
   const [avatarPreview, setAvatarPreview] = useState('');
   const [backgroundPreview, setBackgroundPreview] = useState('');
   const [widgetPreview, setWidgetPreview] = useState('');
-  const [copySuccess, setCopySuccess] = useState(false);
-
-  // Auto-clear success messages after 3 seconds
-  useEffect(() => {
-    if (message && message.includes('success')) {
-      const timer = setTimeout(() => {
-        setMessage('');
-      }, 3000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
+  const [widgetLink, setWidgetLink] = useState('');
+  const [slugError, setSlugError] = useState('');
+  const [isCheckingSlug, setIsCheckingSlug] = useState(false);
 
   useEffect(() => {
     const fetchStore = async () => {
       if (!user) return;
       
       try {
-        console.log('Fetching store for user:', user.uid);
         const storeData = await getUserStore(user.uid);
-        console.log('Store data received:', storeData);
         if (storeData) {
           setStore(storeData);
           setFormData({
             name: storeData.name,
             description: storeData.description,
             slug: storeData.slug,
-            widgetLink: storeData.widgetLink || '',
-            socialLinks: storeData.socialLinks,
+            isActive: storeData.isActive,
+            headerLayout: storeData.headerLayout || 'left-right',
+            socialLinks: Array.isArray(storeData.socialLinks) ? storeData.socialLinks : [],
             customization: {
               storeNameFontColor: storeData.customization?.storeNameFontColor || '#ffffff',
               storeBioFontColor: storeData.customization?.storeBioFontColor || '#e5e7eb',
               avatarBorderColor: storeData.customization?.avatarBorderColor || '#ffffff',
               activeCategoryBorderColor: storeData.customization?.activeCategoryBorderColor || '#6366f1',
-              fontFamily: storeData.customization?.fontFamily || 'Inter',
-              backgroundGradientStartColor: storeData.customization?.backgroundGradientStartColor || '',
-              backgroundGradientEndColor: storeData.customization?.backgroundGradientEndColor || '',
-              storeBackgroundColor: storeData.customization?.storeBackgroundColor || '',
+              fontFamily: storeData.customization?.fontFamily || 'Inter, system-ui, -apple-system, sans-serif',
+              mainBackgroundGradientStartColor: storeData.customization?.mainBackgroundGradientStartColor || '',
+              mainBackgroundGradientEndColor: storeData.customization?.mainBackgroundGradientEndColor || '',
+              storeBackgroundColor: storeData.customization?.storeBackgroundColor || '#f3f4f6',
               currencySymbol: storeData.customization?.currencySymbol || '$',
+              priceFontColor: storeData.customization?.priceFontColor || '#059669',
               slideOverlayColor: storeData.customization?.slideOverlayColor || '#000000',
-              slideOverlayOpacity: storeData.customization?.slideOverlayOpacity || 0.5,
-              slideTitleColor: storeData.customization?.slideTitleColor || '',
-              slideDescriptionColor: storeData.customization?.slideDescriptionColor || ''
+              slideOverlayOpacity: storeData.customization?.slideOverlayOpacity || 0.4,
+              slideTitleColor: storeData.customization?.slideTitleColor || '#ffffff',
+              slideDescriptionColor: storeData.customization?.slideDescriptionColor || '#e5e7eb'
             }
           });
           setAvatarPreview(storeData.avatar);
           setBackgroundPreview(storeData.backgroundImage);
           setWidgetPreview(storeData.widgetImage || '');
-        } else {
-          console.log('No store found for user:', user.uid);
-          setMessage('No store found. Please contact support if this issue persists.');
+          setWidgetLink(storeData.widgetLink || '');
         }
       } catch (error) {
         console.error('Error fetching store:', error);
-        setMessage('Error loading store data. Please refresh the page.');
       } finally {
         setLoading(false);
       }
@@ -123,201 +248,175 @@ export default function StoreSettingsPage() {
     fetchStore();
   }, [user]);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    
-    if (name.startsWith('socialLinks.')) {
-      const socialKey = name.split('.')[1];
-      setFormData(prev => ({
-        ...prev,
-        socialLinks: {
-          ...prev.socialLinks,
-          [socialKey]: value
-        }
-      }));
-    } else if (name.startsWith('customization.')) {
-      const customKey = name.split('.')[1];
-      setFormData(prev => ({
-        ...prev,
-        customization: {
-          ...prev.customization,
-          [customKey]: customKey === 'slideOverlayOpacity' ? parseFloat(value) : value
-        }
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-    }
-  };
-
-  const handleSelectChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
     
     if (name.startsWith('customization.')) {
-      const customKey = name.split('.')[1];
+      const customizationKey = name.replace('customization.', '');
       setFormData(prev => ({
         ...prev,
         customization: {
           ...prev.customization,
-          [customKey]: value
+          [customizationKey]: type === 'number' ? parseFloat(value) : value
         }
       }));
     } else {
       setFormData(prev => ({
         ...prev,
-        [name]: value
+        [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
       }));
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'avatar' | 'background' | 'widget') => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (type === 'avatar') {
-      setAvatarFile(file);
-      setAvatarPreview(URL.createObjectURL(file));
-    } else if (type === 'background') {
-      setBackgroundFile(file);
-      setBackgroundPreview(URL.createObjectURL(file));
-    } else if (type === 'widget') {
-      setWidgetFile(file);
-      setWidgetPreview(URL.createObjectURL(file));
+  const checkSlug = async (slug: string) => {
+    if (!slug || slug === store?.slug) {
+      setSlugError('');
+      return;
     }
-  };
 
-  const copyStoreUrl = async () => {
-    if (!store) return;
-    
-    const storeUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/${store.slug}`;
-    
+    setIsCheckingSlug(true);
     try {
-      await navigator.clipboard.writeText(storeUrl);
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 2000);
+      const isAvailable = await checkSlugAvailability(slug, store?.id);
+      if (!isAvailable) {
+        setSlugError('This URL is already taken. Please choose a different one.');
+      } else {
+        setSlugError('');
+      }
     } catch (error) {
-      console.error('Failed to copy URL:', error);
-      // Fallback for older browsers
-      const textArea = document.createElement('textarea');
-      textArea.value = storeUrl;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 2000);
+      console.error('Error checking slug:', error);
+      setSlugError('Error checking URL availability');
+    } finally {
+      setIsCheckingSlug(false);
     }
   };
 
-  const validateSlug = (slug: string): boolean => {
-    const slugRegex = /^[a-z0-9]+$/;
-    return slugRegex.test(slug) && slug.length >= 3 && slug.length <= 20;
+  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const slug = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '');
+    setFormData(prev => ({ ...prev, slug }));
+    
+    // Debounce slug checking
+    const timeoutId = setTimeout(() => checkSlug(slug), 500);
+    return () => clearTimeout(timeoutId);
+  };
+
+  const handleImageChange = (type: 'avatar' | 'background' | 'widget') => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (type === 'avatar') {
+        setAvatarFile(file);
+        setAvatarPreview(URL.createObjectURL(file));
+      } else if (type === 'background') {
+        setBackgroundFile(file);
+        setBackgroundPreview(URL.createObjectURL(file));
+      } else if (type === 'widget') {
+        setWidgetFile(file);
+        setWidgetPreview(URL.createObjectURL(file));
+      }
+    }
+  };
+
+  const addSocialLink = () => {
+    setFormData(prev => ({
+      ...prev,
+      socialLinks: [...prev.socialLinks, { platform: 'instagram', url: '' }]
+    }));
+  };
+
+  const updateSocialLink = (index: number, field: 'platform' | 'url', value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      socialLinks: prev.socialLinks.map((link, i) => 
+        i === index ? { ...link, [field]: value } : link
+      )
+    }));
+  };
+
+  const removeSocialLink = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      socialLinks: prev.socialLinks.filter((_, i) => i !== index)
+    }));
+  };
+
+  const applySuggestedPalette = (palette: typeof COLOR_PALETTES[0]) => {
+    setFormData(prev => ({
+      ...prev,
+      customization: {
+        ...prev.customization,
+        ...palette.colors
+      }
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !store) return;
 
-    // Validate slug
-    if (!validateSlug(formData.slug)) {
-      setMessage('Slug must be 3-20 characters long and contain only lowercase letters and numbers.');
+    if (slugError) {
+      alert('Please fix the URL error before saving.');
       return;
     }
 
-    // Check slug availability
-    if (formData.slug !== store.slug) {
-      const isAvailable = await checkSlugAvailability(formData.slug, store.id);
-      if (!isAvailable) {
-        setMessage('This slug is already taken. Please choose another one.');
-        return;
-      }
-    }
-
     setSaving(true);
-    setMessage('');
 
     try {
       let avatarUrl = store.avatar;
       let backgroundUrl = store.backgroundImage;
-      let widgetUrl = store.widgetImage || '';
+      let widgetImageUrl = store.widgetImage || '';
 
       // Upload new images if selected
       if (avatarFile) {
         avatarUrl = await uploadStoreImage(user.uid, avatarFile, 'avatar');
       }
-      
       if (backgroundFile) {
         backgroundUrl = await uploadStoreImage(user.uid, backgroundFile, 'background');
       }
-      
       if (widgetFile) {
-        widgetUrl = await uploadWidgetImage(user.uid, widgetFile);
+        widgetImageUrl = await uploadWidgetImage(user.uid, widgetFile);
       }
 
-      // Update store
-      await updateStore(user.uid, {
+      // Filter out empty social links
+      const validSocialLinks = formData.socialLinks.filter(link => link.url.trim() !== '');
+
+      const updateData = {
         name: formData.name,
         description: formData.description,
         slug: formData.slug,
+        isActive: formData.isActive,
+        headerLayout: formData.headerLayout,
         avatar: avatarUrl,
         backgroundImage: backgroundUrl,
-        widgetImage: widgetUrl,
-        widgetLink: formData.widgetLink,
-        socialLinks: formData.socialLinks,
+        widgetImage: widgetImageUrl,
+        widgetLink: widgetLink,
+        socialLinks: validSocialLinks,
         customization: formData.customization
-      });
+      };
 
-      setMessage('Store settings updated successfully!');
-      
-      // Reset file states after successful save
-      setAvatarFile(null);
-      setBackgroundFile(null);
-      setWidgetFile(null);
-      
-      // Update local store state
-      setStore(prev => prev ? {
-        ...prev,
-        name: formData.name,
-        description: formData.description,
-        slug: formData.slug,
-        avatar: avatarUrl,
-        backgroundImage: backgroundUrl,
-        widgetImage: widgetUrl,
-        widgetLink: formData.widgetLink,
-        socialLinks: formData.socialLinks,
-        customization: formData.customization
-      } : null);
-
+      await updateStore(store.id, updateData);
+      alert('Store settings updated successfully!');
     } catch (error) {
       console.error('Error updating store:', error);
-      setMessage('Failed to update store settings. Please try again.');
+      alert('Failed to update store settings. Please try again.');
     } finally {
       setSaving(false);
     }
   };
 
+  const handleCancel = () => {
+    router.push('/dashboard');
+  };
+
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <div className="space-y-6">
         <div className="animate-pulse">
-          <div className="h-10 bg-gray-200 rounded-lg w-1/3 mb-4"></div>
-          <div className="h-5 bg-gray-200 rounded-lg w-1/2 mb-10"></div>
-          <div className="space-y-8">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-lg shadow-sm p-8">
-                <div className="h-7 bg-gray-200 rounded-lg w-1/4 mb-6"></div>
-                <div className="space-y-6">
-                  <div className="h-12 bg-gray-200 rounded-lg"></div>
-                  <div className="h-12 bg-gray-200 rounded-lg"></div>
-                </div>
-              </div>
-            ))}
+          <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="space-y-4">
+              <div className="h-10 bg-gray-200 rounded"></div>
+              <div className="h-20 bg-gray-200 rounded"></div>
+              <div className="h-10 bg-gray-200 rounded"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -325,778 +424,631 @@ export default function StoreSettingsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="space-y-6 md:space-y-8">
       {/* Header */}
-      <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-sm p-8 border border-gray-200">
-        <div className="flex items-center gap-4">
-          <div className="p-3 bg-primary-100 rounded-lg">
-            <StoreIcon className="w-6 h-6 text-primary-600" />
+      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="flex items-center mb-4">
+          <button
+            onClick={handleCancel}
+            className="mr-4 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <div className="flex-1">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Store Settings</h1>
+            <p className="text-gray-600 mt-1">Customize your store appearance and settings</p>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800">Store Settings</h1>
-            <p className="text-sm text-gray-500 mt-1">Customize your store's appearance and settings</p>
-          </div>
+          {store && (
+            <a
+              href={`/${store.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              Preview Store
+            </a>
+          )}
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Basic Information */}
-        <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-sm p-8 border border-gray-200">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-3">
-            <StoreIcon className="w-6 h-6 text-primary-600" />
-            Basic Information
-          </h2>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                Store Name *
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                required
-                value={formData.name}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
-                placeholder="My Awesome Store"
-                aria-label="Store Name"
-              />
-            </div>
+      {/* Tabs */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+        <div className="border-b border-gray-200">
+          <nav className="flex space-x-8 px-6">
+            {[
+              { id: 'basic', name: 'Basic Info', icon: Save },
+              { id: 'appearance', name: 'Appearance', icon: Palette },
+              { id: 'typography', name: 'Typography', icon: Type },
+              { id: 'pricing', name: 'Pricing', icon: DollarSign },
+              { id: 'media', name: 'Media', icon: ImageIcon }
+            ].map((tab) => {
+              const IconComponent = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center transition-colors ${
+                    activeTab === tab.id
+                      ? 'border-primary-500 text-primary-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <IconComponent className="w-4 h-4 mr-2" />
+                  {tab.name}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
 
-            <div>
-              <label htmlFor="slug" className="block text-sm font-medium text-gray-700 mb-2">
-                Store URL (Slug) *
-                {store && (
-                  <button
-                    type="button"
-                    onClick={copyStoreUrl}
-                    className="ml-3 inline-flex items-center text-sm text-primary-600 hover:text-primary-700 transition-colors"
-                    title="Copy store URL"
-                    aria-label="Copy store URL"
-                  >
-                    <Copy className="w-4 h-4 mr-1" />
-                    {copySuccess ? 'Copied!' : 'Copy URL'}
-                  </button>
-                )}
-              </label>
-              <div className="flex rounded-lg border border-gray-200 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500 shadow-sm">
-                <span className="inline-flex items-center px-4 rounded-l-lg border-r border-gray-200 bg-gray-50 text-gray-500 text-sm">
-                  {typeof window !== "undefined" ? window.location.origin.replace(/^https?:\/\//, '') : ""}/
-                </span>
+        <form onSubmit={handleSubmit} className="p-6">
+          {/* Basic Info Tab */}
+          {activeTab === 'basic' && (
+            <div className="space-y-6">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                  Store Name *
+                </label>
                 <input
                   type="text"
-                  id="slug"
-                  name="slug"
+                  id="name"
+                  name="name"
                   required
-                  value={formData.slug}
+                  value={formData.name}
                   onChange={handleInputChange}
-                  className="flex-1 px-4 py-3 rounded-r-lg focus:outline-none text-gray-800 bg-white"
-                  placeholder="mystore123"
-                  pattern="[a-z0-9]{3,20}"
-                  aria-label="Store URL Slug"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 bg-white"
+                  placeholder="My Awesome Store"
                 />
               </div>
-              <p className="mt-2 text-xs text-gray-500">
-                3-20 characters, lowercase letters and numbers only
-              </p>
-            </div>
-          </div>
 
-          <div className="mt-6">
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-              Store Description *
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              required
-              rows={4}
-              value={formData.description}
-              onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all resize-none text-gray-800 bg-white shadow-sm"
-              placeholder="Welcome to my affiliate store! Discover amazing products and deals curated just for you."
-              aria-label="Store Description"
-            />
-          </div>
-        </div>
-
-        {/* Images */}
-        <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-sm p-8 border border-gray-200">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-3">
-            <ImageIcon className="w-6 h-6 text-primary-600" />
-            Store Images
-          </h2>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-            {/* Avatar */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                Store Avatar
-              </label>
-              <div className="flex flex-col items-center space-y-4">
-                <div className="w-28 h-28 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 shadow-md">
-                  <Image
-                    src={avatarPreview || 'https://placehold.co/300x300/e5e7eb/9ca3af?text=No+Avatar'}
-                    alt="Store Avatar"
-                    width={112}
-                    height={112}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="w-full">
-                  <label className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-200 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-all bg-white shadow-sm">
-                    <Upload className="w-5 h-5 text-gray-400 mr-2" />
-                    <span className="text-sm text-gray-600">Upload Avatar</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileChange(e, 'avatar')}
-                      className="hidden"
-                      aria-label="Upload Store Avatar"
-                    />
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            {/* Background */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                Background Image
-              </label>
-              <div className="space-y-4">
-                <div className="w-full h-40 rounded-lg overflow-hidden bg-gray-100 border-2 border-gray-200 shadow-md">
-                  {backgroundPreview ? (
-                    <Image
-                      src={backgroundPreview}
-                      alt="Background"
-                      width={400}
-                      height={160}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-gray-500 text-sm">No Background Image</span>
-                    </div>
-                  )}
-                </div>
-                <label className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-200 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-all bg-white shadow-sm">
-                  <Upload className="w-5 h-5 text-gray-400 mr-2" />
-                  <span className="text-sm text-gray-600">Upload Background</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleFileChange(e, 'background')}
-                    className="hidden"
-                    aria-label="Upload Background Image"
-                  />
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Social Links */}
-        <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-sm p-8 border border-gray-200">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-3">
-            <LinkIcon className="w-6 h-6 text-primary-600" />
-            Social Media Links
-          </h2>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div>
-              <label htmlFor="instagram" className="block text-sm font-medium text-gray-700 mb-2">
-                <Instagram className="w-5 h-5 text-pink-500 inline mr-2" />
-                Instagram
-              </label>
-              <input
-                type="url"
-                id="instagram"
-                name="socialLinks.instagram"
-                value={formData.socialLinks.instagram}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
-                placeholder="https://instagram.com/yourstore"
-                aria-label="Instagram URL"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="twitter" className="block text-sm font-medium text-gray-700 mb-2">
-                <Twitter className="w-5 h-5 text-blue-400 inline mr-2" />
-                Twitter
-              </label>
-              <input
-                type="url"
-                id="twitter"
-                name="socialLinks.twitter"
-                value={formData.socialLinks.twitter}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
-                placeholder="https://twitter.com/yourstore"
-                aria-label="Twitter URL"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="facebook" className="block text-sm font-medium text-gray-700 mb-2">
-                <Facebook className="w-5 h-5 text-blue-600 inline mr-2" />
-                Facebook
-              </label>
-              <input
-                type="url"
-                id="facebook"
-                name="socialLinks.facebook"
-                value={formData.socialLinks.facebook}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
-                placeholder="https://facebook.com/yourstore"
-                aria-label="Facebook URL"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Customization */}
-        <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-sm p-8 border border-gray-200">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-3">
-            <span className="w-6 h-6 text-primary-600">🎨</span>
-            Customization
-          </h2>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-            {/* Font Colors */}
-            <div className="space-y-6">
-              <h3 className="text-lg font-medium text-gray-800">Font Colors</h3>
-              
               <div>
-                <label htmlFor="storeNameFontColor" className="block text-sm font-medium text-gray-700 mb-2">
-                  Store Name Color
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                  Store Description *
                 </label>
-                <div className="flex items-center space-x-4">
-                  <input
-                    type="color"
-                    id="storeNameFontColor"
-                    name="customization.storeNameFontColor"
-                    value={formData.customization.storeNameFontColor}
-                    onChange={handleInputChange}
-                    className="h-12 w-20 border border-gray-200 rounded-lg cursor-pointer shadow-sm"
-                    aria-label="Store Name Color"
-                  />
+                <textarea
+                  id="description"
+                  name="description"
+                  required
+                  rows={4}
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors resize-none text-gray-900 bg-white"
+                  placeholder="Welcome to my store! Discover amazing products..."
+                />
+              </div>
+
+              <div>
+                <label htmlFor="slug" className="block text-sm font-medium text-gray-700 mb-2">
+                  Store URL *
+                </label>
+                <div className="flex">
+                  <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                    yourdomain.com/
+                  </span>
                   <input
                     type="text"
-                    value={formData.customization.storeNameFontColor}
-                    onChange={(e) => setFormData(prev => ({
-                      ...prev,
-                      customization: { ...prev.customization, storeNameFontColor: e.target.value }
-                    }))}
-                    className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
-                    placeholder="#ffffff"
-                    aria-label="Store Name Color Hex"
+                    id="slug"
+                    name="slug"
+                    required
+                    value={formData.slug}
+                    onChange={handleSlugChange}
+                    className={`flex-1 px-4 py-3 border rounded-r-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 bg-white ${
+                      slugError ? 'border-red-300' : 'border-gray-300'
+                    }`}
+                    placeholder="my-store"
                   />
                 </div>
-              </div>
-
-              <div>
-                <label htmlFor="storeBioFontColor" className="block text-sm font-medium text-gray-700 mb-2">
-                  Store Bio Color
-                </label>
-                <div className="flex items-center space-x-4">
-                  <input
-                    type="color"
-                    id="storeBioFontColor"
-                    name="customization.storeBioFontColor"
-                    value={formData.customization.storeBioFontColor}
-                    onChange={handleInputChange}
-                    className="h-12 w-20 border border-gray-200 rounded-lg cursor-pointer shadow-sm"
-                    aria-label="Store Bio Color"
-                  />
-                  <input
-                    type="text"
-                    value={formData.customization.storeBioFontColor}
-                    onChange={(e) => setFormData(prev => ({
-                      ...prev,
-                      customization: { ...prev.customization, storeBioFontColor: e.target.value }
-                    }))}
-                    className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
-                    placeholder="#e5e7eb"
-                    aria-label="Store Bio Color Hex"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Border Colors */}
-            <div className="space-y-6">
-              <h3 className="text-lg font-medium text-gray-800">Border Colors</h3>
-              
-              <div>
-                <label htmlFor="avatarBorderColor" className="block text-sm font-medium text-gray-700 mb-2">
-                  Avatar Border Color
-                </label>
-                <div className="flex items-center space-x-4">
-                  <input
-                    type="color"
-                    id="avatarBorderColor"
-                    name="customization.avatarBorderColor"
-                    value={formData.customization.avatarBorderColor}
-                    onChange={handleInputChange}
-                    className="h-12 w-20 border border-gray-200 rounded-lg cursor-pointer shadow-sm"
-                    aria-label="Avatar Border Color"
-                  />
-                  <input
-                    type="text"
-                    value={formData.customization.avatarBorderColor}
-                    onChange={(e) => setFormData(prev => ({
-                      ...prev,
-                      customization: { ...prev.customization, avatarBorderColor: e.target.value }
-                    }))}
-                    className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
-                    placeholder="#ffffff"
-                    aria-label="Avatar Border Color Hex"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="activeCategoryBorderColor" className="block text-sm font-medium text-gray-700 mb-2">
-                  Active Category Border Color
-                </label>
-                <div className="flex items-center space-x-4">
-                  <input
-                    type="color"
-                    id="activeCategoryBorderColor"
-                    name="customization.activeCategoryBorderColor"
-                    value={formData.customization.activeCategoryBorderColor}
-                    onChange={handleInputChange}
-                    className="h-12 w-20 border border-gray-200 rounded-lg cursor-pointer shadow-sm"
-                    aria-label="Active Category Border Color"
-                  />
-                  <input
-                    type="text"
-                    value={formData.customization.activeCategoryBorderColor}
-                    onChange={(e) => setFormData(prev => ({
-                      ...prev,
-                      customization: { ...prev.customization, activeCategoryBorderColor: e.target.value }
-                    }))}
-                    className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
-                    placeholder="#6366f1"
-                    aria-label="Active Category Border Color Hex"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-8">
-            {/* Font Family */}
-            <div>
-              <label htmlFor="fontFamily" className="block text-sm font-medium text-gray-700 mb-2">
-                Font Family
-              </label>
-              <select
-                id="fontFamily"
-                name="customization.fontFamily"
-                value={formData.customization.fontFamily}
-                onChange={handleSelectChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
-                aria-label="Font Family"
-              >
-                <option value="Inter">Inter</option>
-                <option value="Arial">Arial</option>
-                <option value="Georgia">Georgia</option>
-                <option value="Times New Roman">Times New Roman</option>
-                <option value="Helvetica">Helvetica</option>
-                <option value="Roboto">Roboto</option>
-                <option value="Open Sans">Open Sans</option>
-                <option value="Lato">Lato</option>
-                <option value="Montserrat">Montserrat</option>
-                <option value="Poppins">Poppins</option>
-                <option value="monospace">Monospace</option>
-              </select>
-            </div>
-
-            {/* Background Gradient Colors */}
-            <div>
-              <label htmlFor="backgroundGradientStartColor" className="block text-sm font-medium text-gray-700 mb-2">
-                Background Gradient Start Color
-              </label>
-              <div className="flex items-center space-x-4">
-                <input
-                  type="color"
-                  id="backgroundGradientStartColor"
-                  name="customization.backgroundGradientStartColor"
-                  value={formData.customization.backgroundGradientStartColor || '#000000'}
-                  onChange={handleInputChange}
-                  className="h-12 w-20 border border-gray-200 rounded-lg cursor-pointer shadow-sm"
-                  aria-label="Background Gradient Start Color"
-                />
-                <input
-                  type="text"
-                  value={formData.customization.backgroundGradientStartColor}
-                  onChange={(e) => setFormData(prev => ({
-                    ...prev,
-                    customization: { ...prev.customization, backgroundGradientStartColor: e.target.value }
-                  }))}
-                  className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
-                  placeholder="#ffffff"
-                  aria-label="Background Gradient Start Color Hex"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="backgroundGradientEndColor" className="block text-sm font-medium text-gray-700 mb-2">
-                Background Gradient End Color
-              </label>
-              <div className="flex items-center space-x-4">
-                <input
-                  type="color"
-                  id="backgroundGradientEndColor"
-                  name="customization.backgroundGradientEndColor"
-                  value={formData.customization.backgroundGradientEndColor || '#000000'}
-                  onChange={handleInputChange}
-                  className="h-12 w-20 border border-gray-200 rounded-lg cursor-pointer shadow-sm"
-                  aria-label="Background Gradient End Color"
-                />
-                <input
-                  type="text"
-                  value={formData.customization.backgroundGradientEndColor}
-                  onChange={(e) => setFormData(prev => ({
-                    ...prev,
-                    customization: { ...prev.customization, backgroundGradientEndColor: e.target.value }
-                  }))}
-                  className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
-                  placeholder="#000000"
-                  aria-label="Background Gradient End Color Hex"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="storeBackgroundColor" className="block text-sm font-medium text-gray-700 mb-2">
-                Store Background Color
-              </label>
-              <div className="flex items-center space-x-4">
-                <input
-                  type="color"
-                  id="storeBackgroundColor"
-                  name="customization.storeBackgroundColor"
-                  value={formData.customization.storeBackgroundColor || '#f3f4f6'}
-                  onChange={handleInputChange}
-                  className="h-12 w-20 border border-gray-200 rounded-lg cursor-pointer shadow-sm"
-                  aria-label="Store Background Color"
-                />
-                <input
-                  type="text"
-                  value={formData.customization.storeBackgroundColor}
-                  onChange={(e) => setFormData(prev => ({
-                    ...prev,
-                    customization: { ...prev.customization, storeBackgroundColor: e.target.value }
-                  }))}
-                  className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
-                  placeholder="#f3f4f6"
-                  aria-label="Store Background Color Hex"
-                />
-              </div>
-            </div>
-
-            {/* Currency Symbol */}
-            <div>
-              <label htmlFor="currencySymbol" className="block text-sm font-medium text-gray-700 mb-2">
-                Currency Symbol
-              </label>
-              <select
-                id="currencySymbol"
-                name="customization.currencySymbol"
-                value={formData.customization.currencySymbol}
-                onChange={handleSelectChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
-                aria-label="Currency Symbol"
-              >
-                <option value="$">$ - US Dollar</option>
-                <option value="€">€ - Euro</option>
-                <option value="£">£ - British Pound</option>
-                <option value="¥">¥ - Japanese Yen</option>
-                <option value="₹">₹ - Indian Rupee</option>
-                <option value="₽">₽ - Russian Ruble</option>
-                <option value="₩">₩ - South Korean Won</option>
-                <option value="₪">₪ - Israeli Shekel</option>
-                <option value="₦">₦ - Nigerian Naira</option>
-                <option value="₨">₨ - Pakistani Rupee</option>
-                <option value="₱">₱ - Philippine Peso</option>
-                <option value="₫">₫ - Vietnamese Dong</option>
-                <option value="₡">₡ - Costa Rican Colón</option>
-                <option value="₲">₲ - Paraguayan Guaraní</option>
-                <option value="₴">₴ - Ukrainian Hryvnia</option>
-                <option value="₵">₵ - Ghanaian Cedi</option>
-                <option value="₶">₶ - Livre Tournois</option>
-                <option value="₷">₷ - Spesmilo</option>
-                <option value="₸">₸ - Kazakhstani Tenge</option>
-                <option value="₹">₹ - Indian Rupee</option>
-                <option value="₺">₺ - Turkish Lira</option>
-                <option value="₻">₻ - Nordic Mark</option>
-                <option value="₼">₼ - Azerbaijani Manat</option>
-                <option value="₽">₽ - Russian Ruble</option>
-                <option value="₾">₾ - Georgian Lari</option>
-                <option value="₿">₿ - Bitcoin</option>
-                <option value="﷼">﷼ - Saudi Riyal</option>
-                <option value="¢">¢ - Cent</option>
-                <option value="¤">¤ - Generic Currency</option>
-                <option value="؋">؋ - Afghan Afghani</option>
-                <option value="₳">₳ - Austral</option>
-                <option value="₢">₢ - Cruzeiro</option>
-                <option value="₣">₣ - French Franc</option>
-                <option value="₤">₤ - Lira</option>
-                <option value="₥">₥ - Mill</option>
-                <option value="₦">₦ - Naira</option>
-                <option value="₧">₧ - Peseta</option>
-                <option value="₨">₨ - Rupee</option>
-                <option value="₩">₩ - Won</option>
-                <option value="₪">₪ - New Sheqel</option>
-                <option value="₫">₫ - Dong</option>
-                <option value="€">€ - Euro</option>
-                <option value="₭">₭ - Kip</option>
-                <option value="₮">₮ - Tugrik</option>
-                <option value="₯">₯ - Drachma</option>
-                <option value="₰">₰ - Pfennig</option>
-                <option value="₱">₱ - Peso</option>
-                <option value="₲">₲ - Guarani</option>
-                <option value="₳">₳ - Austral</option>
-                <option value="₴">₴ - Hryvnia</option>
-                <option value="₵">₵ - Cedi</option>
-                <option value="₶">₶ - Livre Tournois</option>
-                <option value="₷">₷ - Spesmilo</option>
-                <option value="₸">₸ - Tenge</option>
-                <option value="₹">₹ - Indian Rupee</option>
-                <option value="₺">₺ - Lira</option>
-                <option value="₻">₻ - Nordic Mark</option>
-                <option value="₼">₼ - Manat</option>
-                <option value="₽">₽ - Ruble</option>
-                <option value="₾">₾ - Lari</option>
-                <option value="₿">₿ - Bitcoin</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Slide Customization */}
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <h3 className="text-lg font-medium text-gray-800 mb-4">Slide Customization</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="slideOverlayColor" className="block text-sm font-medium text-gray-700 mb-2">
-                  Slide Overlay Color
-                </label>
-                <div className="flex items-center space-x-4">
-                  <input
-                    type="color"
-                    id="slideOverlayColor"
-                    name="customization.slideOverlayColor"
-                    value={formData.customization.slideOverlayColor}
-                    onChange={handleInputChange}
-                    className="h-12 w-20 border border-gray-200 rounded-lg cursor-pointer shadow-sm"
-                    aria-label="Slide Overlay Color"
-                  />
-                  <input
-                    type="text"
-                    value={formData.customization.slideOverlayColor}
-                    onChange={(e) => setFormData(prev => ({
-                      ...prev,
-                      customization: { ...prev.customization, slideOverlayColor: e.target.value }
-                    }))}
-                    className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
-                    placeholder="#000000"
-                    aria-label="Slide Overlay Color Hex"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="slideOverlayOpacity" className="block text-sm font-medium text-gray-700 mb-2">
-                  Slide Overlay Opacity
-                </label>
-                <input
-                  type="number"
-                  id="slideOverlayOpacity"
-                  name="customization.slideOverlayOpacity"
-                  min="0"
-                  max="1"
-                  step="0.1"
-                  value={formData.customization.slideOverlayOpacity}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
-                  aria-label="Slide Overlay Opacity"
-                />
-                <p className="mt-2 text-xs text-gray-500">
-                  0 = transparent, 1 = opaque
+                {isCheckingSlug && (
+                  <p className="mt-1 text-sm text-gray-500">Checking availability...</p>
+                )}
+                {slugError && (
+                  <p className="mt-1 text-sm text-red-600">{slugError}</p>
+                )}
+                <p className="mt-1 text-xs text-gray-500">
+                  Only lowercase letters and numbers allowed. This will be your store's web address.
                 </p>
               </div>
 
               <div>
-                <label htmlFor="slideTitleColor" className="block text-sm font-medium text-gray-700 mb-2">
-                  Slide Title Color
+                <label htmlFor="headerLayout" className="block text-sm font-medium text-gray-700 mb-2">
+                  Header Layout
                 </label>
-                <div className="flex items-center space-x-4">
+                <select
+                  id="headerLayout"
+                  name="headerLayout"
+                  value={formData.headerLayout}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 bg-white"
+                >
+                  <option value="left-right">Avatar Left, Social Right</option>
+                  <option value="right-left">Avatar Right, Social Left</option>
+                  <option value="center">Centered Layout</option>
+                </select>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Social Media Links
+                  </label>
+                  <button
+                    type="button"
+                    onClick={addSocialLink}
+                    className="flex items-center px-3 py-1.5 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    Add Link
+                  </button>
+                </div>
+                
+                <div className="space-y-3">
+                  {formData.socialLinks.map((link, index) => (
+                    <div key={index} className="flex gap-3">
+                      <select
+                        value={link.platform}
+                        onChange={(e) => updateSocialLink(index, 'platform', e.target.value)}
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-900 bg-white"
+                      >
+                        {SOCIAL_PLATFORMS.map(platform => (
+                          <option key={platform} value={platform}>
+                            {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        type="url"
+                        value={link.url}
+                        onChange={(e) => updateSocialLink(index, 'url', e.target.value)}
+                        placeholder="https://..."
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-900 bg-white"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeSocialLink(index)}
+                        className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="isActive"
+                  name="isActive"
+                  checked={formData.isActive}
+                  onChange={handleInputChange}
+                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                />
+                <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
+                  Store is active (visible to visitors)
+                </label>
+              </div>
+            </div>
+          )}
+
+          {/* Appearance Tab */}
+          {activeTab === 'appearance' && (
+            <div className="space-y-6">
+              {/* Suggested Color Palettes */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-4">
+                  Suggested Color Palettes
+                </label>
+                <p className="text-sm text-gray-600 mb-4">
+                  Click on any palette below to instantly apply a professionally designed color scheme to your store.
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {COLOR_PALETTES.map((palette, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => applySuggestedPalette(palette)}
+                      className="group relative p-4 border-2 border-gray-200 rounded-lg hover:border-primary-400 hover:shadow-md transition-all duration-200 bg-white"
+                    >
+                      <div className="text-center">
+                        <h4 className="font-medium text-gray-900 mb-3">{palette.name}</h4>
+                        <div className="flex justify-center space-x-1 mb-2">
+                          <div 
+                            className="w-6 h-6 rounded-full border border-gray-300"
+                            style={{ backgroundColor: palette.colors.mainBackgroundGradientStartColor }}
+                            title="Primary Color"
+                          />
+                          <div 
+                            className="w-6 h-6 rounded-full border border-gray-300"
+                            style={{ backgroundColor: palette.colors.mainBackgroundGradientEndColor }}
+                            title="Secondary Color"
+                          />
+                          <div 
+                            className="w-6 h-6 rounded-full border border-gray-300"
+                            style={{ backgroundColor: palette.colors.activeCategoryBorderColor }}
+                            title="Accent Color"
+                          />
+                          <div 
+                            className="w-6 h-6 rounded-full border border-gray-300"
+                            style={{ backgroundColor: palette.colors.priceFontColor }}
+                            title="Price Color"
+                          />
+                        </div>
+                        <span className="text-xs text-gray-500 group-hover:text-primary-600 transition-colors">
+                          Click to apply
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="border-t border-gray-200 pt-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Custom Colors</h3>
+                <p className="text-sm text-gray-600 mb-6">
+                  Fine-tune individual colors or start from scratch with your own color scheme.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Store Name Color
+                  </label>
                   <input
                     type="color"
-                    id="slideTitleColor"
-                    name="customization.slideTitleColor"
-                    value={formData.customization.slideTitleColor || '#ffffff'}
+                    name="customization.storeNameFontColor"
+                    value={formData.customization.storeNameFontColor}
                     onChange={handleInputChange}
-                    className="h-12 w-20 border border-gray-200 rounded-lg cursor-pointer shadow-sm"
-                    aria-label="Slide Title Color"
+                    className="w-full h-12 border border-gray-300 rounded-lg cursor-pointer"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Store Bio Color
+                  </label>
                   <input
-                    type="text"
-                    value={formData.customization.slideTitleColor}
-                    onChange={(e) => setFormData(prev => ({
-                      ...prev,
-                      customization: { ...prev.customization, slideTitleColor: e.target.value }
-                    }))}
-                    className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
-                    placeholder="#ffffff"
-                    aria-label="Slide Title Color Hex"
+                    type="color"
+                    name="customization.storeBioFontColor"
+                    value={formData.customization.storeBioFontColor}
+                    onChange={handleInputChange}
+                    className="w-full h-12 border border-gray-300 rounded-lg cursor-pointer"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Avatar Border Color
+                  </label>
+                  <input
+                    type="color"
+                    name="customization.avatarBorderColor"
+                    value={formData.customization.avatarBorderColor}
+                    onChange={handleInputChange}
+                    className="w-full h-12 border border-gray-300 rounded-lg cursor-pointer"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Active Category Border
+                  </label>
+                  <input
+                    type="color"
+                    name="customization.activeCategoryBorderColor"
+                    value={formData.customization.activeCategoryBorderColor}
+                    onChange={handleInputChange}
+                    className="w-full h-12 border border-gray-300 rounded-lg cursor-pointer"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="slideDescriptionColor" className="block text-sm font-medium text-gray-700 mb-2">
-                  Slide Description Color
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Background Style
                 </label>
-                <div className="flex items-center space-x-4">
-                  <input
-                    type="color"
-                    id="slideDescriptionColor"
-                    name="customization.slideDescriptionColor"
-                    value={formData.customization.slideDescriptionColor || '#e5e7eb'}
-                    onChange={handleInputChange}
-                    className="h-12 w-20 border border-gray-200 rounded-lg cursor-pointer shadow-sm"
-                    aria-label="Slide Description Color"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Solid Background Color</label>
+                    <input
+                      type="color"
+                      name="customization.storeBackgroundColor"
+                      value={formData.customization.storeBackgroundColor}
+                      onChange={handleInputChange}
+                      className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+                    />
+                  </div>
+                  <div className="text-center text-gray-500 text-sm flex items-center justify-center">
+                    OR
+                  </div>
+                </div>
+                
+                <div className="mt-4">
+                  <label className="block text-xs text-gray-600 mb-2">Gradient Background (overrides solid color)</label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">Start Color</label>
+                      <input
+                        type="color"
+                        name="customization.mainBackgroundGradientStartColor"
+                        value={formData.customization.mainBackgroundGradientStartColor}
+                        onChange={handleInputChange}
+                        className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 mb-1">End Color</label>
+                      <input
+                        type="color"
+                        name="customization.mainBackgroundGradientEndColor"
+                        value={formData.customization.mainBackgroundGradientEndColor}
+                        onChange={handleInputChange}
+                        className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-4">
+                  Slide Overlay Settings
+                </label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Overlay Color</label>
+                    <input
+                      type="color"
+                      name="customization.slideOverlayColor"
+                      value={formData.customization.slideOverlayColor}
+                      onChange={handleInputChange}
+                      className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Overlay Opacity</label>
+                    <input
+                      type="range"
+                      name="customization.slideOverlayOpacity"
+                      min="0"
+                      max="1"
+                      step="0.1"
+                      value={formData.customization.slideOverlayOpacity}
+                      onChange={handleInputChange}
+                      className="w-full"
+                    />
+                    <span className="text-xs text-gray-500">{Math.round(formData.customization.slideOverlayOpacity * 100)}%</span>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Slide Title Color</label>
+                    <input
+                      type="color"
+                      name="customization.slideTitleColor"
+                      value={formData.customization.slideTitleColor}
+                      onChange={handleInputChange}
+                      className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Slide Description Color</label>
+                    <input
+                      type="color"
+                      name="customization.slideDescriptionColor"
+                      value={formData.customization.slideDescriptionColor}
+                      onChange={handleInputChange}
+                      className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Typography Tab */}
+          {activeTab === 'typography' && (
+            <div className="space-y-6">
+              <div>
+                <label htmlFor="fontFamily" className="block text-sm font-medium text-gray-700 mb-2">
+                  Font Family
+                </label>
+                <select
+                  id="fontFamily"
+                  name="customization.fontFamily"
+                  value={formData.customization.fontFamily}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 bg-white"
+                >
+                  {FONT_FAMILIES.map(font => (
+                    <option key={font.value} value={font.value}>
+                      {font.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
+
+          {/* Pricing Tab */}
+          {activeTab === 'pricing' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="currencySymbol" className="block text-sm font-medium text-gray-700 mb-2">
+                    Currency Symbol
+                  </label>
                   <input
                     type="text"
-                    value={formData.customization.slideDescriptionColor}
-                    onChange={(e) => setFormData(prev => ({
-                      ...prev,
-                      customization: { ...prev.customization, slideDescriptionColor: e.target.value }
-                    }))}
-                    className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
-                    placeholder="#e5e7eb"
-                    aria-label="Slide Description Color Hex"
+                    id="currencySymbol"
+                    name="customization.currencySymbol"
+                    value={formData.customization.currencySymbol}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 bg-white"
+                    placeholder="$"
+                    maxLength={3}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Price Color
+                  </label>
+                  <input
+                    type="color"
+                    name="customization.priceFontColor"
+                    value={formData.customization.priceFontColor}
+                    onChange={handleInputChange}
+                    className="w-full h-12 border border-gray-300 rounded-lg cursor-pointer"
                   />
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+          )}
 
-        {/* Widget Settings */}
-        <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-sm p-8 border border-gray-200">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-3">
-            <Zap className="w-6 h-6 text-primary-600" />
-            Floating Widget Settings
-          </h2>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-            {/* Widget Image */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                Widget Image
-              </label>
-              <div className="flex flex-col items-center space-y-4">
-                <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 shadow-md">
-                  <Image
-                    src={widgetPreview || avatarPreview || 'https://placehold.co/64x64/e5e7eb/9ca3af?text=Widget'}
-                    alt="Widget Image"
-                    width={80}
-                    height={80}
-                    className="w-full h-full object-cover"
+          {/* Media Tab */}
+          {activeTab === 'media' && (
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Store Avatar
+                </label>
+                {avatarPreview && (
+                  <div className="mb-4">
+                    <Image
+                      src={avatarPreview}
+                      alt="Avatar preview"
+                      width={100}
+                      height={100}
+                      className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
+                    />
+                  </div>
+                )}
+                <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
+                  <Upload className="w-5 h-5 text-gray-400 mr-2" />
+                  <span className="text-sm text-gray-600">
+                    {avatarFile ? 'Change Avatar' : 'Upload Avatar'}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange('avatar')}
+                    className="hidden"
                   />
-                </div>
-                <div className="w-full">
-                  <label className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-200 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-all bg-white shadow-sm">
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Header Background Image
+                </label>
+                {backgroundPreview && (
+                  <div className="mb-4">
+                    <Image
+                      src={backgroundPreview}
+                      alt="Background preview"
+                      width={300}
+                      height={150}
+                      className="w-full max-w-sm h-32 rounded-lg object-cover border-2 border-gray-200"
+                    />
+                  </div>
+                )}
+                <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
+                  <Upload className="w-5 h-5 text-gray-400 mr-2" />
+                  <span className="text-sm text-gray-600">
+                    {backgroundFile ? 'Change Background' : 'Upload Background'}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange('background')}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Floating Widget
+                </label>
+                <div className="space-y-4">
+                  {widgetPreview && (
+                    <div className="mb-4">
+                      <Image
+                        src={widgetPreview}
+                        alt="Widget preview"
+                        width={64}
+                        height={64}
+                        className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
+                      />
+                    </div>
+                  )}
+                  <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
                     <Upload className="w-5 h-5 text-gray-400 mr-2" />
-                    <span className="text-sm text-gray-600">Upload Widget Image</span>
+                    <span className="text-sm text-gray-600">
+                      {widgetFile ? 'Change Widget Image' : 'Upload Widget Image'}
+                    </span>
                     <input
                       type="file"
                       accept="image/*"
-                      onChange={(e) => handleFileChange(e, 'widget')}
+                      onChange={handleImageChange('widget')}
                       className="hidden"
-                      aria-label="Upload Widget Image"
                     />
                   </label>
-                  <p className="mt-2 text-xs text-gray-500">
-                    If not set, will use store avatar as fallback
-                  </p>
+                  
+                  <div>
+                    <label htmlFor="widgetLink" className="block text-sm font-medium text-gray-700 mb-2">
+                      Widget Link (Optional)
+                    </label>
+                    <input
+                      type="url"
+                      id="widgetLink"
+                      value={widgetLink}
+                      onChange={(e) => setWidgetLink(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 bg-white"
+                      placeholder="https://example.com"
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      When clicked, the widget will open this link. Leave empty for a simple animation.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
+          )}
 
-            {/* Widget Link */}
-            <div>
-              <label htmlFor="widgetLink" className="block text-sm font-medium text-gray-700 mb-3">
-                Widget Link (Optional)
-              </label>
-              <input
-                type="url"
-                id="widgetLink"
-                name="widgetLink"
-                value={formData.widgetLink}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
-                placeholder="https://your-special-link.com"
-                aria-label="Widget Link"
-              />
-              <p className="mt-2 text-xs text-gray-500">
-                When visitors click the floating widget, they&apos;ll be redirected to this link. If empty, shows a popup message instead.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Message */}
-        {message && (
-          <div className={`p-4 rounded-lg border-2 shadow-sm transition-all duration-300 ${
-            message.includes('success') 
-              ? 'bg-primary-50 text-primary-700 border-primary-300' 
-              : 'bg-red-50 text-red-700 border-red-300'
-          }`}>
-            <div className="flex items-center gap-3">
-              {message.includes('success') ? (
-                <CheckCircle className="w-6 h-6 text-primary-600" />
+          {/* Form Actions */}
+          <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 mt-8">
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="px-6 py-3 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={saving || slugError !== ''}
+              className="flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+            >
+              {saving ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  Saving...
+                </>
               ) : (
-                <AlertCircle className="w-6 h-6 text-red-600" />
+                <>
+                  <Save className="w-5 h-5 mr-2" />
+                  Save Changes
+                </>
               )}
-              <span className="font-medium text-sm">{message}</span>
-            </div>
+            </button>
           </div>
-        )}
-
-        {/* Submit Button */}
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            disabled={saving}
-            className="flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md"
-            aria-label={saving ? 'Saving Changes' : 'Save Changes'}
-          >
-            {saving ? (
-              <>
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
-                Saving Changes...
-              </>
-            ) : (
-              <>
-                <Save className="w-6 h-6 mr-2" />
-                Save Changes
-              </>
-            )}
-          </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 }

@@ -62,11 +62,8 @@ export const signUp = async (email: string, password: string, displayName?: stri
       slug: storeSlug,
       avatar: '',
       backgroundImage: '',
-      socialLinks: {
-        instagram: '',
-        twitter: '',
-        facebook: ''
-      },
+      socialLinks: [],
+      headerLayout: 'left-right',
       createdAt: new Date(),
       updatedAt: new Date(),
       isActive: true

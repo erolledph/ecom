@@ -30,21 +30,19 @@ export interface Store {
   widgetLink?: string;
   ownerId: string;
   isActive: boolean;
-  socialLinks: {
-    instagram: string;
-    twitter: string;
-    facebook: string;
-  };
+  socialLinks: Array<{ platform: string; url: string; }>;
+  headerLayout?: 'left-right' | 'right-left' | 'center';
   customization?: {
     storeNameFontColor?: string;
     storeBioFontColor?: string;
     avatarBorderColor?: string;
     activeCategoryBorderColor?: string;
     fontFamily?: string;
-    backgroundGradientStartColor?: string;
-    backgroundGradientEndColor?: string;
+    mainBackgroundGradientStartColor?: string;
+    mainBackgroundGradientEndColor?: string;
     storeBackgroundColor?: string;
     currencySymbol?: string;
+    priceFontColor?: string;
     slideOverlayColor?: string;
     slideOverlayOpacity?: number;
     slideTitleColor?: string;
