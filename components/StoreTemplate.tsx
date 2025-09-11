@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Store, Product, Slide } from '@/lib/store';
-import { Instagram, Twitter, Facebook, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Instagram, Twitter, Facebook } from 'lucide-react';
 
 interface StoreTemplateProps {
   store: Store;
@@ -15,6 +15,7 @@ interface StoreTemplateProps {
 export default function StoreTemplate({ store, products, slides, categories }: StoreTemplateProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
 
   // Auto-advance slides
   useEffect(() => {
@@ -54,190 +55,87 @@ export default function StoreTemplate({ store, products, slides, categories }: S
     }
   };
 
+  const handleWidgetClick = () => {
+    setIsPopupVisible(true);
+    setTimeout(() => {
+      setIsPopupVisible(false);
+    }, 3000);
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
-      {/* Sticky Header */}
-      <header className="bg-white shadow-md fixed top-0 left-0 w-full z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              {store.avatar && (
-                <Image
-                  src={store.avatar}
-                  alt={store.name}
-                  width={40}
-                  height={40}
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-              )}
-              <h1 className="text-xl font-extrabold text-gray-900 tracking-tight">{store.name}</h1>
+      {/* Header */}
+      <header className="relative text-center text-white py-4 rounded-b-xl overflow-hidden">
+        <div 
+          className="absolute inset-0 bg-cover bg-center" 
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1542435503-956c469947f6?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')" }}
+        ></div>
+        <div className="absolute inset-0 bg-black opacity-50"></div>
+        <div className="relative z-10 flex flex-col items-center justify-center">
+          {store.avatar && (
+            <div className="w-32 h-32 rounded-full overflow-hidden mb-2 border-4 border-white shadow-lg">
+              <Image
+                src={store.avatar}
+                alt={store.name}
+                width={128}
+                height={128}
+                className="w-full h-full object-cover"
+              />
             </div>
-            <div className="flex items-center space-x-6">
-              {store.socialLinks.instagram && (
-                <a
-                  href={store.socialLinks.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-600 hover:text-pink-500 transition-colors"
-                >
-                  <Instagram className="w-5 h-5" />
-                </a>
-              )}
-              {store.socialLinks.twitter && (
-                <a
-                  href={store.socialLinks.twitter}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-600 hover:text-blue-400 transition-colors"
-                >
-                  <Twitter className="w-5 h-5" />
-                </a>
-              )}
-              {store.socialLinks.facebook && (
-                <a
-                  href={store.socialLinks.facebook}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-600 hover:text-blue-600 transition-colors"
-                >
-                  <Facebook className="w-5 h-5" />
-                </a>
-              )}
-            </div>
+          )}
+          <h1 className="text-2xl font-extrabold text-white mb-1">{store.name}</h1>
+          <p className="text-gray-200 max-w-xs mb-2 leading-snug">{store.description}</p>
+          <div className="flex space-x-2">
+            {store.socialLinks.instagram && (
+              <a
+                href={store.socialLinks.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white hover:text-pink-500 transition-colors"
+              >
+                <Instagram className="w-6 h-6" />
+              </a>
+            )}
+            {store.socialLinks.twitter && (
+              <a
+                href={store.socialLinks.twitter}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white hover:text-blue-400 transition-colors"
+              >
+                <Twitter className="w-6 h-6" />
+              </a>
+            )}
+            {store.socialLinks.facebook && (
+              <a
+                href={store.socialLinks.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white hover:text-blue-600 transition-colors"
+              >
+                <Facebook className="w-6 h-6" />
+              </a>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="bg-white pt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* New Arrivals */}
-            <div>
-              <h2 className="text-3xl font-extrabold text-gray-900 mb-6">New Arrivals</h2>
-              <div className="grid grid-cols-2 gap-4 sm:gap-6">
-                {products.slice(0, 4).map((product) => (
-                  <div
-                    key={product.id}
-                    onClick={() => handleProductClick(product.productLink)}
-                    className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden cursor-pointer"
-                  >
-                    <div className="relative aspect-square overflow-hidden">
-                      {product.images && product.images[0] && (
-                        <Image
-                          src={product.images[0]}
-                          alt={product.title}
-                          width={200}
-                          height={200}
-                          className="w-full h-full object-cover"
-                        />
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-semibold text-gray-900 text-sm line-clamp-2 mb-1">
-                        {product.title}
-                      </h3>
-                      <p className="text-blue-600 font-bold text-sm">${product.price}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Hero Slider */}
-            <div className="relative">
-              {slides.length > 0 && (
-                <div className="relative overflow-hidden rounded-xl">
-                  <div 
-                    className="flex transition-transform duration-500 ease-in-out"
-                    style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-                  >
-                    {slides.map((slide, index) => (
-                      <div
-                        key={slide.id}
-                        className="min-w-full cursor-pointer"
-                        onClick={() => handleSlideClick(slide.link)}
-                      >
-                        <Image
-                          src={slide.image}
-                          alt={slide.title}
-                          width={600}
-                          height={400}
-                          className="w-full h-96 object-cover"
-                          priority={index === 0}
-                        />
-                        <div className="absolute bottom-6 left-6 bg-black/50 text-white p-4 rounded-lg">
-                          <h2 className="text-xl md:text-2xl font-bold mb-2">{slide.title}</h2>
-                          {slide.description && (
-                            <p className="text-sm opacity-90 mb-4">{slide.description}</p>
-                          )}
-                          {slide.link && (
-                            <button className="inline-flex items-center px-4 py-2 bg-white text-gray-900 rounded-lg font-medium hover:bg-gray-100 transition-colors">
-                              Shop Now
-                              <ExternalLink className="w-4 h-4 ml-2" />
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {slides.length > 1 && (
-                    <>
-                      <button
-                        onClick={prevSlide}
-                        className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-3 rounded-full shadow-lg transition-all hover:scale-105"
-                      >
-                        <ChevronLeft className="w-6 h-6" />
-                      </button>
-                      <button
-                        onClick={nextSlide}
-                        className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-3 rounded-full shadow-lg transition-all hover:scale-105"
-                      >
-                        <ChevronRight className="w-6 h-6" />
-                      </button>
-                      <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
-                        {slides.map((_, index) => (
-                          <button
-                            key={index}
-                            onClick={() => goToSlide(index)}
-                            className={`w-3 h-3 rounded-full transition-all ${
-                              index === currentSlide ? 'bg-white scale-125' : 'bg-white/50'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Store Description */}
-      <section className="bg-gray-50 py-12">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-gray-600 text-lg leading-relaxed">{store.description}</p>
-        </div>
-      </section>
-
       {/* Categories */}
-      {categories.length > 1 && (
-        <section className="bg-white py-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-extrabold text-gray-900 mb-6 text-center">Shop by Category</h2>
-            <div className="flex justify-center overflow-x-auto space-x-4 pb-4">
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
-                  className={`flex-shrink-0 w-24 h-24 rounded-full border-2 transition-all duration-200 ${
+      {categories.length > 0 && (
+        <section className="mt-4 pb-4 overflow-x-auto category-scroller">
+          <div className="flex space-x-4 px-4">
+            {categories.map((category) => (
+              <div
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className="flex flex-col items-center cursor-pointer text-center text-gray-700"
+              >
+                <div
+                  className={`w-20 h-20 rounded-full shadow-md flex items-center justify-center ${
                     selectedCategory === category.id
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-400 bg-gray-50'
-                  } flex items-center justify-center`}
+                      ? 'bg-indigo-200 border-2 border-indigo-500'
+                      : 'bg-gray-200'
+                  }`}
                 >
                   {category.image && category.id !== 'all' ? (
                     <Image
@@ -248,69 +146,176 @@ export default function StoreTemplate({ store, products, slides, categories }: S
                       className="w-full h-full object-cover rounded-full"
                     />
                   ) : (
-                    <span className="text-sm font-medium text-gray-700 text-center px-2">
-                      {category.name}
-                    </span>
+                    <span className="text-xs font-semibold text-gray-700">{category.name}</span>
                   )}
-                </button>
-              ))}
-            </div>
+                </div>
+                <span className="text-xs font-semibold mt-1 whitespace-nowrap">{category.name}</span>
+              </div>
+            ))}
           </div>
         </section>
       )}
 
       {/* Products Grid */}
-      <section className="bg-gray-50 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-extrabold text-gray-900 mb-8 text-center">
-            {selectedCategory === 'all' ? 'All Products' : `${selectedCategory} Products`}
-          </h2>
-          {filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-              {filteredProducts.map((product) => (
-                <div
-                  key={product.id}
-                  onClick={() => handleProductClick(product.productLink)}
-                  className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden cursor-pointer"
-                >
-                  <div className="relative aspect-square overflow-hidden">
-                    {product.images && product.images[0] && (
-                      <Image
-                        src={product.images[0]}
-                        alt={product.title}
-                        width={300}
-                        height={300}
-                        className="w-full h-full object-cover"
-                      />
-                    )}
+      <section className="container mx-auto p-2 grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+        {/* Slider Card */}
+        {slides.length > 0 && (
+          <div className="bg-white rounded-md shadow-lg overflow-hidden">
+            <div className="relative overflow-hidden rounded-md aspect-square min-h-[220px]">
+              <div 
+                className="flex transition-transform duration-500 ease-in-out h-full"
+                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+              >
+                {slides.map((slide, index) => (
+                  <div
+                    key={slide.id}
+                    className="min-w-full flex items-center justify-center relative h-full"
+                    onClick={() => handleSlideClick(slide.link)}
+                  >
+                    <Image
+                      src={slide.image}
+                      alt={slide.title}
+                      width={600}
+                      height={600}
+                      className="w-full h-full object-cover"
+                      priority={index === 0}
+                    />
+                    <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center text-white p-4">
+                      <h2 className="text-2xl md:text-4xl font-bold">{slide.title}</h2>
+                    </div>
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold text-gray-900 line-clamp-2 mb-2">{product.title}</h3>
-                    <p className="text-blue-600 font-bold text-lg">${product.price}</p>
-                  </div>
+                ))}
+              </div>
+              {slides.length > 1 && (
+                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-2">
+                  {slides.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => goToSlide(index)}
+                      className={`w-2 h-2 rounded-full transition-all ${
+                        index === currentSlide ? 'w-4 bg-white' : 'bg-white/50'
+                      }`}
+                    />
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">No products found in this category.</p>
-            </div>
-          )}
+          </div>
+        )}
+
+        {/* Featured Products Card */}
+        <div className="bg-white rounded-md shadow-lg overflow-hidden flex flex-col justify-between">
+          <div className="p-2">
+            <h2 className="font-bold text-gray-800 text-sm">Featured Products</h2>
+          </div>
+          <div className="grid grid-cols-2 grid-rows-2 gap-2 p-2">
+            {products.slice(0, 4).map((product) => (
+              <div
+                key={product.id}
+                className="aspect-square overflow-hidden rounded-lg cursor-pointer"
+                onClick={() => handleProductClick(product.productLink)}
+              >
+                {product.images && product.images[0] && (
+                  <Image
+                    src={product.images[0]}
+                    alt={product.title}
+                    width={300}
+                    height={300}
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="p-2">
+            <p className="text-xs text-gray-500 line-clamp-2">
+              A curated selection of our best-selling items.
+            </p>
+          </div>
         </div>
+
+        {/* Product Cards */}
+        {filteredProducts.map((product) => (
+          <div
+            key={product.id}
+            onClick={() => handleProductClick(product.productLink)}
+            className="bg-white rounded-md shadow-lg overflow-hidden cursor-pointer"
+          >
+            <div className="aspect-square overflow-hidden">
+              {product.images && product.images[0] && (
+                <Image
+                  src={product.images[0]}
+                  alt={product.title}
+                  width={600}
+                  height={600}
+                  className="w-full h-full object-cover"
+                />
+              )}
+            </div>
+            <div className="p-2 flex flex-col items-start h-[75px]">
+              <h3 className="font-bold text-gray-800 line-clamp-2 text-sm mb-1">{product.title}</h3>
+              <span className="font-bold text-indigo-600 mt-auto text-sm">${product.price}</span>
+            </div>
+          </div>
+        ))}
       </section>
+
+      {/* Footer */}
+      <footer className="bg-white shadow-inner rounded-t-lg mt-2 p-4 md:p-6 text-center text-gray-500">
+        <p className="text-sm">&copy; 2025 {store.name}. All rights reserved.</p>
+      </footer>
 
       {/* Floating Widget */}
       {store.avatar && (
-        <div className="fixed bottom-6 right-6 z-50">
+        <button
+          onClick={handleWidgetClick}
+          className="fixed bottom-6 right-6 z-50 animate-pulse"
+          style={{ animation: 'pulse-animation 2s infinite cubic-bezier(0.4, 0, 0.6, 1)' }}
+        >
           <Image
             src={store.avatar}
             alt={`${store.name} Store`}
-            width={60}
-            height={60}
+            width={64}
+            height={64}
             className="w-16 h-16 rounded-full shadow-lg"
           />
-        </div>
+        </button>
       )}
+
+      {/* Popup Message */}
+      <div
+        className={`fixed bottom-20 right-4 bg-gray-800 text-white text-sm p-3 rounded-lg shadow-xl transition-opacity duration-300 ${
+          isPopupVisible ? 'opacity-100' : 'opacity-0 hidden'
+        }`}
+      >
+        Your special surprise awaits!
+      </div>
+
+      {/* Inline Styles */}
+      <style jsx>{`
+        .category-scroller::-webkit-scrollbar {
+          display: none;
+        }
+        .category-scroller {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        @keyframes pulse-animation {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.1);
+          }
+        }
+      `}</style>
     </div>
   );
 }
