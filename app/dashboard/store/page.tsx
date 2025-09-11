@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -113,8 +114,10 @@ export default function StoreSettingsPage() {
 
     fetchStore();
   }, [user]);
+
+  const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  ) => {
     const { name, value } = e.target;
     
     if (name.startsWith('socialLinks.')) {
@@ -154,7 +157,7 @@ export default function StoreSettingsPage() {
         ...prev,
         customization: {
           ...prev.customization,
-          [customKey]: customKey === 'slideOverlayOpacity' ? parseFloat(value) : value
+          [customKey]: value
         }
       }));
     } else {
@@ -293,17 +296,17 @@ export default function StoreSettingsPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/3 mb-2"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
-          <div className="space-y-6">
+          <div className="h-10 bg-gray-200 rounded-lg w-1/3 mb-4"></div>
+          <div className="h-5 bg-gray-200 rounded-lg w-1/2 mb-10"></div>
+          <div className="space-y-8">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-xl shadow-sm p-6">
-                <div className="h-6 bg-gray-200 rounded w-1/4 mb-4"></div>
-                <div className="space-y-4">
-                  <div className="h-10 bg-gray-200 rounded"></div>
-                  <div className="h-10 bg-gray-200 rounded"></div>
+              <div key={i} className="bg-white rounded-lg shadow-sm p-8">
+                <div className="h-7 bg-gray-200 rounded-lg w-1/4 mb-6"></div>
+                <div className="space-y-6">
+                  <div className="h-12 bg-gray-200 rounded-lg"></div>
+                  <div className="h-12 bg-gray-200 rounded-lg"></div>
                 </div>
               </div>
             ))}
@@ -314,28 +317,29 @@ export default function StoreSettingsPage() {
   }
 
   return (
-    <div className="space-y-6 md:space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <div className="flex items-center mb-4">
-          <div className="p-2 bg-primary-100 rounded-lg mr-3">
+      <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-sm p-8 border border-gray-200">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-primary-100 rounded-lg">
             <StoreIcon className="w-6 h-6 text-primary-600" />
           </div>
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Store Settings</h1>
+            <h1 className="text-2xl font-bold text-gray-800">Store Settings</h1>
+            <p className="text-sm text-gray-500 mt-1">Customize your store’s appearance and settings</p>
           </div>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-8">
         {/* Basic Information */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-            <StoreIcon className="w-5 h-5 mr-2 text-primary-600" />
+        <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-sm p-8 border border-gray-200">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-3">
+            <StoreIcon className="w-6 h-6 text-primary-600" />
             Basic Information
           </h2>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                 Store Name *
@@ -347,8 +351,9 @@ export default function StoreSettingsPage() {
                 required
                 value={formData.name}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
                 placeholder="My Awesome Store"
+                aria-label="Store Name"
               />
             </div>
 
@@ -359,16 +364,17 @@ export default function StoreSettingsPage() {
                   <button
                     type="button"
                     onClick={copyStoreUrl}
-                    className="ml-2 inline-flex items-center text-xs text-primary-600 hover:text-primary-700 transition-colors"
+                    className="ml-3 inline-flex items-center text-sm text-primary-600 hover:text-primary-700 transition-colors"
                     title="Copy store URL"
+                    aria-label="Copy store URL"
                   >
-                    <Copy className="w-3 h-3 mr-1" />
+                    <Copy className="w-4 h-4 mr-1" />
                     {copySuccess ? 'Copied!' : 'Copy URL'}
                   </button>
                 )}
               </label>
-              <div className="flex rounded-lg border border-gray-300 focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-transparent">
-                <span className="inline-flex items-center px-3 rounded-l-lg border-r border-gray-300 bg-gray-50 text-gray-500 text-sm">
+              <div className="flex rounded-lg border border-gray-200 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500 shadow-sm">
+                <span className="inline-flex items-center px-4 rounded-l-lg border-r border-gray-200 bg-gray-50 text-gray-500 text-sm">
                   {typeof window !== "undefined" ? window.location.origin.replace(/^https?:\/\//, '') : ""}/
                 </span>
                 <input
@@ -378,12 +384,13 @@ export default function StoreSettingsPage() {
                   required
                   value={formData.slug}
                   onChange={handleInputChange}
-                  className="flex-1 px-4 py-3 rounded-r-lg focus:outline-none text-gray-900"
+                  className="flex-1 px-4 py-3 rounded-r-lg focus:outline-none text-gray-800 bg-white"
                   placeholder="mystore123"
                   pattern="[a-z0-9]{3,20}"
+                  aria-label="Store URL Slug"
                 />
               </div>
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-2 text-xs text-gray-500">
                 3-20 characters, lowercase letters and numbers only
               </p>
             </div>
@@ -400,37 +407,38 @@ export default function StoreSettingsPage() {
               rows={4}
               value={formData.description}
               onChange={handleInputChange}
-             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors resize-none text-gray-900"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all resize-none text-gray-800 bg-white shadow-sm"
               placeholder="Welcome to my affiliate store! Discover amazing products and deals curated just for you."
+              aria-label="Store Description"
             />
           </div>
         </div>
 
         {/* Images */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-            <ImageIcon className="w-5 h-5 mr-2 text-primary-600" />
+        <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-sm p-8 border border-gray-200">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-3">
+            <ImageIcon className="w-6 h-6 text-primary-600" />
             Store Images
           </h2>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
             {/* Avatar */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 Store Avatar
               </label>
               <div className="flex flex-col items-center space-y-4">
-                <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200">
+                <div className="w-28 h-28 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 shadow-md">
                   <Image
                     src={avatarPreview || 'https://placehold.co/300x300/e5e7eb/9ca3af?text=No+Avatar'}
                     alt="Store Avatar"
-                    width={96}
-                    height={96}
+                    width={112}
+                    height={112}
                     className="w-full h-full object-cover"
                   />
                 </div>
                 <div className="w-full">
-                  <label className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
+                  <label className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-200 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-all bg-white shadow-sm">
                     <Upload className="w-5 h-5 text-gray-400 mr-2" />
                     <span className="text-sm text-gray-600">Upload Avatar</span>
                     <input
@@ -438,6 +446,7 @@ export default function StoreSettingsPage() {
                       accept="image/*"
                       onChange={(e) => handleFileChange(e, 'avatar')}
                       className="hidden"
+                      aria-label="Upload Store Avatar"
                     />
                   </label>
                 </div>
@@ -450,13 +459,13 @@ export default function StoreSettingsPage() {
                 Background Image
               </label>
               <div className="space-y-4">
-                <div className="w-full h-32 rounded-lg overflow-hidden bg-gray-100 border-2 border-gray-200">
+                <div className="w-full h-40 rounded-lg overflow-hidden bg-gray-100 border-2 border-gray-200 shadow-md">
                   {backgroundPreview ? (
                     <Image
                       src={backgroundPreview}
                       alt="Background"
                       width={400}
-                      height={128}
+                      height={160}
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -465,7 +474,7 @@ export default function StoreSettingsPage() {
                     </div>
                   )}
                 </div>
-                <label className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
+                <label className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-200 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-all bg-white shadow-sm">
                   <Upload className="w-5 h-5 text-gray-400 mr-2" />
                   <span className="text-sm text-gray-600">Upload Background</span>
                   <input
@@ -473,6 +482,7 @@ export default function StoreSettingsPage() {
                     accept="image/*"
                     onChange={(e) => handleFileChange(e, 'background')}
                     className="hidden"
+                    aria-label="Upload Background Image"
                   />
                 </label>
               </div>
@@ -481,16 +491,16 @@ export default function StoreSettingsPage() {
         </div>
 
         {/* Social Links */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-            <LinkIcon className="w-5 h-5 mr-2 text-primary-600" />
+        <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-sm p-8 border border-gray-200">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-3">
+            <LinkIcon className="w-6 h-6 text-primary-600" />
             Social Media Links
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div>
               <label htmlFor="instagram" className="block text-sm font-medium text-gray-700 mb-2">
-                <Instagram className="w-4 h-4 text-pink-500 inline mr-2" />
+                <Instagram className="w-5 h-5 text-pink-500 inline mr-2" />
                 Instagram
               </label>
               <input
@@ -499,14 +509,15 @@ export default function StoreSettingsPage() {
                 name="socialLinks.instagram"
                 value={formData.socialLinks.instagram}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
                 placeholder="https://instagram.com/yourstore"
+                aria-label="Instagram URL"
               />
             </div>
 
             <div>
               <label htmlFor="twitter" className="block text-sm font-medium text-gray-700 mb-2">
-                <Twitter className="w-4 h-4 text-blue-400 inline mr-2" />
+                <Twitter className="w-5 h-5 text-blue-400 inline mr-2" />
                 Twitter
               </label>
               <input
@@ -515,14 +526,15 @@ export default function StoreSettingsPage() {
                 name="socialLinks.twitter"
                 value={formData.socialLinks.twitter}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
                 placeholder="https://twitter.com/yourstore"
+                aria-label="Twitter URL"
               />
             </div>
 
             <div>
               <label htmlFor="facebook" className="block text-sm font-medium text-gray-700 mb-2">
-                <Facebook className="w-4 h-4 text-blue-600 inline mr-2" />
+                <Facebook className="w-5 h-5 text-blue-600 inline mr-2" />
                 Facebook
               </label>
               <input
@@ -531,37 +543,39 @@ export default function StoreSettingsPage() {
                 name="socialLinks.facebook"
                 value={formData.socialLinks.facebook}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
                 placeholder="https://facebook.com/yourstore"
+                aria-label="Facebook URL"
               />
             </div>
           </div>
         </div>
 
         {/* Customization */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-            <span className="w-5 h-5 mr-2 text-primary-600">🎨</span>
+        <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-sm p-8 border border-gray-200">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-3">
+            <span className="w-6 h-6 text-primary-600">🎨</span>
             Customization
           </h2>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
             {/* Font Colors */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">Font Colors</h3>
+            <div className="space-y-6">
+              <h3 className="text-lg font-medium text-gray-800">Font Colors</h3>
               
               <div>
                 <label htmlFor="storeNameFontColor" className="block text-sm font-medium text-gray-700 mb-2">
                   Store Name Color
                 </label>
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-4">
                   <input
                     type="color"
                     id="storeNameFontColor"
                     name="customization.storeNameFontColor"
                     value={formData.customization.storeNameFontColor}
                     onChange={handleInputChange}
-                    className="h-10 w-16 border border-gray-300 rounded cursor-pointer"
+                    className="h-12 w-20 border border-gray-200 rounded-lg cursor-pointer shadow-sm"
+                    aria-label="Store Name Color"
                   />
                   <input
                     type="text"
@@ -570,8 +584,9 @@ export default function StoreSettingsPage() {
                       ...prev,
                       customization: { ...prev.customization, storeNameFontColor: e.target.value }
                     }))}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900"
+                    className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
                     placeholder="#ffffff"
+                    aria-label="Store Name Color Hex"
                   />
                 </div>
               </div>
@@ -580,14 +595,15 @@ export default function StoreSettingsPage() {
                 <label htmlFor="storeBioFontColor" className="block text-sm font-medium text-gray-700 mb-2">
                   Store Bio Color
                 </label>
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-4">
                   <input
                     type="color"
                     id="storeBioFontColor"
                     name="customization.storeBioFontColor"
                     value={formData.customization.storeBioFontColor}
                     onChange={handleInputChange}
-                    className="h-10 w-16 border border-gray-300 rounded cursor-pointer"
+                    className="h-12 w-20 border border-gray-200 rounded-lg cursor-pointer shadow-sm"
+                    aria-label="Store Bio Color"
                   />
                   <input
                     type="text"
@@ -596,29 +612,31 @@ export default function StoreSettingsPage() {
                       ...prev,
                       customization: { ...prev.customization, storeBioFontColor: e.target.value }
                     }))}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900"
+                    className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
                     placeholder="#e5e7eb"
+                    aria-label="Store Bio Color Hex"
                   />
                 </div>
               </div>
             </div>
 
             {/* Border Colors */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">Border Colors</h3>
+            <div className="space-y-6">
+              <h3 className="text-lg font-medium text-gray-800">Border Colors</h3>
               
               <div>
                 <label htmlFor="avatarBorderColor" className="block text-sm font-medium text-gray-700 mb-2">
                   Avatar Border Color
                 </label>
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-4">
                   <input
                     type="color"
                     id="avatarBorderColor"
                     name="customization.avatarBorderColor"
                     value={formData.customization.avatarBorderColor}
                     onChange={handleInputChange}
-                    className="h-10 w-16 border border-gray-300 rounded cursor-pointer"
+                    className="h-12 w-20 border border-gray-200 rounded-lg cursor-pointer shadow-sm"
+                    aria-label="Avatar Border Color"
                   />
                   <input
                     type="text"
@@ -627,8 +645,9 @@ export default function StoreSettingsPage() {
                       ...prev,
                       customization: { ...prev.customization, avatarBorderColor: e.target.value }
                     }))}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900"
+                    className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
                     placeholder="#ffffff"
+                    aria-label="Avatar Border Color Hex"
                   />
                 </div>
               </div>
@@ -637,14 +656,15 @@ export default function StoreSettingsPage() {
                 <label htmlFor="activeCategoryBorderColor" className="block text-sm font-medium text-gray-700 mb-2">
                   Active Category Border Color
                 </label>
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-4">
                   <input
                     type="color"
                     id="activeCategoryBorderColor"
                     name="customization.activeCategoryBorderColor"
                     value={formData.customization.activeCategoryBorderColor}
                     onChange={handleInputChange}
-                    className="h-10 w-16 border border-gray-300 rounded cursor-pointer"
+                    className="h-12 w-20 border border-gray-200 rounded-lg cursor-pointer shadow-sm"
+                    aria-label="Active Category Border Color"
                   />
                   <input
                     type="text"
@@ -653,15 +673,16 @@ export default function StoreSettingsPage() {
                       ...prev,
                       customization: { ...prev.customization, activeCategoryBorderColor: e.target.value }
                     }))}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900"
+                    className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
                     placeholder="#6366f1"
+                    aria-label="Active Category Border Color Hex"
                   />
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-8">
             {/* Font Family */}
             <div>
               <label htmlFor="fontFamily" className="block text-sm font-medium text-gray-700 mb-2">
@@ -672,7 +693,8 @@ export default function StoreSettingsPage() {
                 name="customization.fontFamily"
                 value={formData.customization.fontFamily}
                 onChange={handleSelectChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
+                aria-label="Font Family"
               >
                 <option value="Inter">Inter</option>
                 <option value="Arial">Arial</option>
@@ -693,14 +715,15 @@ export default function StoreSettingsPage() {
               <label htmlFor="headerBackgroundColor" className="block text-sm font-medium text-gray-700 mb-2">
                 Header Background Color
               </label>
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-4">
                 <input
                   type="color"
                   id="headerBackgroundColor"
                   name="customization.headerBackgroundColor"
                   value={formData.customization.headerBackgroundColor || '#000000'}
                   onChange={handleInputChange}
-                  className="h-10 w-16 border border-gray-300 rounded cursor-pointer"
+                  className="h-12 w-20 border border-gray-200 rounded-lg cursor-pointer shadow-sm"
+                  aria-label="Header Background Color"
                 />
                 <input
                   type="text"
@@ -709,8 +732,9 @@ export default function StoreSettingsPage() {
                     ...prev,
                     customization: { ...prev.customization, headerBackgroundColor: e.target.value }
                   }))}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900"
+                  className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
                   placeholder="Leave empty for image background"
+                  aria-label="Header Background Color Hex"
                 />
               </div>
             </div>
@@ -725,7 +749,8 @@ export default function StoreSettingsPage() {
                 name="customization.currencySymbol"
                 value={formData.customization.currencySymbol}
                 onChange={handleSelectChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
+                aria-label="Currency Symbol"
               >
                 <option value="$">$ - US Dollar</option>
                 <option value="€">€ - Euro</option>
@@ -793,21 +818,22 @@ export default function StoreSettingsPage() {
           </div>
 
           {/* Slide Customization */}
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Slide Customization</h3>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <h3 className="text-lg font-medium text-gray-800 mb-4">Slide Customization</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="slideOverlayColor" className="block text-sm font-medium text-gray-700 mb-2">
                   Slide Overlay Color
                 </label>
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-4">
                   <input
                     type="color"
                     id="slideOverlayColor"
                     name="customization.slideOverlayColor"
                     value={formData.customization.slideOverlayColor}
                     onChange={handleInputChange}
-                    className="h-10 w-16 border border-gray-300 rounded cursor-pointer"
+                    className="h-12 w-20 border border-gray-200 rounded-lg cursor-pointer shadow-sm"
+                    aria-label="Slide Overlay Color"
                   />
                   <input
                     type="text"
@@ -816,8 +842,9 @@ export default function StoreSettingsPage() {
                       ...prev,
                       customization: { ...prev.customization, slideOverlayColor: e.target.value }
                     }))}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900"
+                    className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
                     placeholder="#000000"
+                    aria-label="Slide Overlay Color Hex"
                   />
                 </div>
               </div>
@@ -835,9 +862,10 @@ export default function StoreSettingsPage() {
                   step="0.1"
                   value={formData.customization.slideOverlayOpacity}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
+                  aria-label="Slide Overlay Opacity"
                 />
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-2 text-xs text-gray-500">
                   0 = transparent, 1 = opaque
                 </p>
               </div>
@@ -846,30 +874,30 @@ export default function StoreSettingsPage() {
         </div>
 
         {/* Widget Settings */}
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-            <Zap className="w-5 h-5 mr-2 text-primary-600" />
+        <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-sm p-8 border border-gray-200">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-3">
+            <Zap className="w-6 h-6 text-primary-600" />
             Floating Widget Settings
           </h2>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
             {/* Widget Image */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 Widget Image
               </label>
               <div className="flex flex-col items-center space-y-4">
-                <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200">
+                <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 shadow-md">
                   <Image
                     src={widgetPreview || avatarPreview || 'https://placehold.co/64x64/e5e7eb/9ca3af?text=Widget'}
                     alt="Widget Image"
-                    width={64}
-                    height={64}
+                    width={80}
+                    height={80}
                     className="w-full h-full object-cover"
                   />
                 </div>
                 <div className="w-full">
-                  <label className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
+                  <label className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-200 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-all bg-white shadow-sm">
                     <Upload className="w-5 h-5 text-gray-400 mr-2" />
                     <span className="text-sm text-gray-600">Upload Widget Image</span>
                     <input
@@ -877,9 +905,10 @@ export default function StoreSettingsPage() {
                       accept="image/*"
                       onChange={(e) => handleFileChange(e, 'widget')}
                       className="hidden"
+                      aria-label="Upload Widget Image"
                     />
                   </label>
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-2 text-xs text-gray-500">
                     If not set, will use store avatar as fallback
                   </p>
                 </div>
@@ -897,10 +926,11 @@ export default function StoreSettingsPage() {
                 name="widgetLink"
                 value={formData.widgetLink}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
                 placeholder="https://your-special-link.com"
+                aria-label="Widget Link"
               />
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-2 text-xs text-gray-500">
                 When visitors click the floating widget, they&apos;ll be redirected to this link. If empty, shows a popup message instead.
               </p>
             </div>
@@ -909,18 +939,18 @@ export default function StoreSettingsPage() {
 
         {/* Message */}
         {message && (
-          <div className={`p-4 rounded-lg border transition-all duration-300 ${
+          <div className={`p-4 rounded-lg border-2 shadow-sm transition-all duration-300 ${
             message.includes('success') 
-              ? 'bg-primary-50 text-primary-700 border-primary-200' 
-              : 'bg-danger-50 text-danger-700 border-danger-200'
+              ? 'bg-primary-50 text-primary-700 border-primary-300' 
+              : 'bg-red-50 text-red-700 border-red-300'
           }`}>
-            <div className="flex items-center">
+            <div className="flex items-center gap-3">
               {message.includes('success') ? (
-                <CheckCircle className="w-5 h-5 mr-2 text-primary-500" />
+                <CheckCircle className="w-6 h-6 text-primary-600" />
               ) : (
-                <AlertCircle className="w-5 h-5 mr-2 text-danger-500" />
+                <AlertCircle className="w-6 h-6 text-red-600" />
               )}
-              <span className="font-medium">{message}</span>
+              <span className="font-medium text-sm">{message}</span>
             </div>
           </div>
         )}
@@ -930,16 +960,17 @@ export default function StoreSettingsPage() {
           <button
             type="submit"
             disabled={saving}
-           className="flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 min-h-11 font-medium"
+            className="flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md"
+            aria-label={saving ? 'Saving Changes' : 'Save Changes'}
           >
             {saving ? (
               <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
                 Saving Changes...
               </>
             ) : (
               <>
-                <Save className="w-5 h-5 mr-2" />
+                <Save className="w-6 h-6 mr-2" />
                 Save Changes
               </>
             )}
