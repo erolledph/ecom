@@ -155,7 +155,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
         style={{
           background: store.backgroundImage
             ? `url('${store.backgroundImage}') center/cover, linear-gradient(135deg, #667eea 0%, #764ba2 100%)`
-            : "url('https://images.unsplash.com/photo-1542435503-956c469947f6?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') center/cover, rgba(0,0,0,0.5)"
+            : "url('https://images.unsplash.com/photo-1542435503-956c469947f6?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG-outby1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') center/cover, rgba(0,0,0,0.5)"
         }}
       >
         {/* Overlay for better text readability when using background image */}
@@ -391,7 +391,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                   ) : (
                     <span 
                       className="text-[0.8rem] font-semibold"
-                      style={{ color: storeNameColor }}
+                      style={{ color: priceColor }}
                     >
                       {category.id === 'all' ? 'All' : category.name}
                     </span>
@@ -399,7 +399,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                 </div>
                 <span 
                   className="text-[0.8rem] font-semibold mt-1 whitespace-nowrap"
-                  style={{ color: storeNameColor }}
+                  style={{ color: priceColor }}
                 >
                   {category.name}
                 </span>
@@ -414,7 +414,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
         <div className="mb-6">
           <h2 
             className="text-[0.8rem] font-bold mb-2"
-            style={{ color: storeNameColor }}
+            style={{ color: priceColor }}
           >
             {selectedCategory === 'all' ? 'All Products' : categories.find(c => c.id === selectedCategory)?.name || 'Products'}
           </h2>
