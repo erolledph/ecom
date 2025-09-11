@@ -120,6 +120,39 @@ export default function StoreTemplate({ store, products, slides, categories }: S
         </div>
       </header>
 
+
+      {/* Slider Section */}
+      {slides.length > 0 && (
+        <section className="container mx-auto px-4 py-6">
+          <div className="relative h-64 md:h-80 lg:h-96 rounded-xl overflow-hidden shadow-lg">
+            <div 
+              className="flex transition-transform duration-500 ease-in-out w-full h-full"
+              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+            >
+              {slides.map((slide, index) => (
+                <div
+                  key={slide.id}
+                  className="min-w-full relative cursor-pointer"
+                  onClick={() => handleSlideClick(slide.link)}
+                >
+                  <Image
+                    src={slide.image}
+                    alt={slide.title}
+                    width={1200}
+                    height={400}
+                    className="w-full h-full object-cover"
+                    priority={index === 0}
+                  />
+                  <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center text-white p-4">
+                    <h2 className="text-[0.8rem] font-bold mb-2">{slide.title}</h2>
+                    {slide.description && (
+                      <p className="text-[0.8rem] max-w-2xl">{slide.description}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            
       {/* Categories */}
       {categories.length > 0 && (
         <section className="mt-4 pb-4 overflow-x-auto category-scroller">
@@ -155,39 +188,6 @@ export default function StoreTemplate({ store, products, slides, categories }: S
           </div>
         </section>
       )}
-
-      {/* Slider Section */}
-      {slides.length > 0 && (
-        <section className="container mx-auto px-4 py-6">
-          <div className="relative h-64 md:h-80 lg:h-96 rounded-xl overflow-hidden shadow-lg">
-            <div 
-              className="flex transition-transform duration-500 ease-in-out w-full h-full"
-              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-            >
-              {slides.map((slide, index) => (
-                <div
-                  key={slide.id}
-                  className="min-w-full relative cursor-pointer"
-                  onClick={() => handleSlideClick(slide.link)}
-                >
-                  <Image
-                    src={slide.image}
-                    alt={slide.title}
-                    width={1200}
-                    height={400}
-                    className="w-full h-full object-cover"
-                    priority={index === 0}
-                  />
-                  <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center text-white p-4">
-                    <h2 className="text-[0.8rem] font-bold mb-2">{slide.title}</h2>
-                    {slide.description && (
-                      <p className="text-[0.8rem] max-w-2xl">{slide.description}</p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-            
             {/* Navigation Arrows */}
             {slides.length > 1 && (
               <>
