@@ -254,7 +254,7 @@ export default function StoreTemplate({ store, products, slides, categories }: S
                   )}
                 </div>
                 <div className="p-[5px]">
-                  <h3 className="font-semibold text-gray-800 line-clamp-2 text-[0.8rem] mb-0 min-h-[2.4rem]">{product.title}</h3>
+                  <h3 className="font-semibold text-gray-800 line-clamp-2 text-[0.8rem] mb-[5px] min-h-[2.4rem]">{product.title}</h3>
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-primary-600 text-[0.8rem]">${product.price}</span>
                   </div>
@@ -289,10 +289,10 @@ export default function StoreTemplate({ store, products, slides, categories }: S
                   />
                 )}
               </div>
-              <div className="p-3">
-                <h3 className="font-semibold text-gray-800 line-clamp-2 text-sm mb-2 min-h-10">{product.title}</h3>
+              <div className="p-[5px]">
+                <h3 className="font-semibold text-gray-800 line-clamp-2 text-[0.8rem] mb-[5px] min-h-[2.4rem]">{product.title}</h3>
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-primary-600 text-lg">${product.price}</span>
+                  <span className="font-bold text-primary-600 text-[0.8rem]">${product.price}</span>
                 </div>
               </div>
             </div>
