@@ -63,7 +63,7 @@ export default function StoreTemplate({ store, products, slides, categories }: S
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 font-sans max-w-md mx-auto lg:max-w-full lg:mx-0">
+    <div className="min-h-screen bg-gray-100 font-sans max-w-md mx-auto">
       {/* Header */}
       <header className="relative text-center text-white py-4 rounded-b-xl overflow-hidden">
         <div 
