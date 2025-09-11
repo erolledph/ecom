@@ -210,25 +210,6 @@ export default function StoreTemplate({ store, products, slides, categories, ini
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="py-4">
-        <div className="text-center px-4">
-          <h1 
-            className="text-xl font-bold text-gray-800 mb-2"
-            style={{
-              color: store.customization?.storeNameFontColor || '#ffffff'
-            }}
-          >
-            Welcome to {store.name}
-          </h1>
-          <p 
-            className="text-gray-600 text-sm"
-          >
-            Discover amazing products curated just for you
-          </p>
-        </div>
-      </section>
-
       {/* Slides Section */}
       {slides.length > 0 && (
         <section className="py-6">
