@@ -214,22 +214,44 @@ export default function StoreTemplate({ store, products, slides, categories }: S
                 className="flex flex-col items-center cursor-pointer text-center text-gray-700"
               >
                 <div
-                  className={`w-20 h-20 rounded-full shadow-md flex items-center justify-center ${
+                  className={`w-20 h-20 rounded-full shadow-md overflow-hidden ${
                     selectedCategory === category.id
                       ? 'bg-indigo-200 border-2 border-indigo-500'
                       : 'bg-gray-200'
+                  } ${
+                    category.id === 'all' 
+                      ? 'grid grid-cols-2 grid-rows-2 gap-0' 
+                      : 'flex items-center justify-center'
                   }`}
                 >
-                  {category.image && category.id !== 'all' ? (
+                  {category.id === 'all' ? (
+                    // Photo collage for "All Products"
+                    products
+                      .filter(product => product.images && product.images[0])
+                      .slice(0, 4)
+                      .map((product, index) => (
+                        <div key={`collage-${product.id}-${index}`} className="w-full h-full">
+                          <Image
+                            src={product.images![0]}
+                            alt={product.title}
+                            width={40}
+                            height={40}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ))
+                  ) : category.image ? (
                     <Image
                       src={category.image}
                       alt={category.name}
                       width={80}
                       height={80}
-                      className="w-full h-full object-cover rounded-full"
+                      className="w-full h-full object-cover"
                     />
                   ) : (
-                    <span className="text-[0.8rem] font-semibold text-gray-700">{category.name}</span>
+                    <span className="text-[0.8rem] font-semibold text-gray-700">
+                      {category.id === 'all' ? 'All' : category.name}
+                    </span>
                   )}
                 </div>
                 <span className="text-[0.8rem] font-semibold mt-1 whitespace-nowrap">{category.name}</span>
