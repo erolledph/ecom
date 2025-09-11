@@ -7,10 +7,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { 
   getStoreProducts, 
   deleteProduct,
+  updateProduct,
   Product,
   getUserStore
 } from '@/lib/store';
-import { Edit, Trash2, Plus } from 'lucide-react';
+import { Edit, Trash2, Plus, Check, X, Users } from 'lucide-react';
 
 export default function ProductsPage() {
   const { user } = useAuth();
@@ -18,6 +19,10 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [storeSlug, setStoreSlug] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
+  const [showGroupModal, setShowGroupModal] = useState(false);
+  const [newGroupName, setNewGroupName] = useState('');
+  const [isGrouping, setIsGrouping] = useState(false);
 
   const fetchProducts = useCallback(async () => {
     if (!user) return;
@@ -44,6 +49,58 @@ export default function ProductsPage() {
     }
   }, [user, fetchProducts]);
 
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedProductIds(products.map(p => p.id!).filter(Boolean));
+    } else {
+      setSelectedProductIds([]);
+    }
+  };
+
+  const handleSelectProduct = (productId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedProductIds(prev => [...prev, productId]);
+    } else {
+      setSelectedProductIds(prev => prev.filter(id => id !== productId));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (!user || selectedProductIds.length === 0) return;
+    
+    if (confirm(`Are you sure you want to delete ${selectedProductIds.length} selected products?`)) {
+      try {
+        await Promise.all(selectedProductIds.map(id => deleteProduct(id)));
+        setSelectedProductIds([]);
+        fetchProducts();
+      } catch (error) {
+        console.error('Error deleting products:', error);
+        alert('Failed to delete some products. Please try again.');
+      }
+    }
+  };
+
+  const handleBulkGroup = async () => {
+    if (!user || selectedProductIds.length === 0 || !newGroupName.trim()) return;
+    
+    setIsGrouping(true);
+    try {
+      await Promise.all(
+        selectedProductIds.map(id => 
+          updateProduct(id, { category: newGroupName.trim() })
+        )
+      );
+      setSelectedProductIds([]);
+      setShowGroupModal(false);
+      setNewGroupName('');
+      fetchProducts();
+    } catch (error) {
+      console.error('Error grouping products:', error);
+      alert('Failed to group products. Please try again.');
+    } finally {
+      setIsGrouping(false);
+    }
+  };
   const handleDeleteProduct = async (productId: string) => {
     if (!user) return;
     
@@ -57,6 +114,8 @@ export default function ProductsPage() {
     }
   };
 
+  const isAllSelected = products.length > 0 && selectedProductIds.length === products.length;
+  const isIndeterminate = selectedProductIds.length > 0 && selectedProductIds.length < products.length;
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -77,7 +136,8 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="space-y-6 md:space-y-8">
+    <>
+      <div className="space-y-6 md:space-y-8">
       {/* Header */}
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -97,6 +157,34 @@ export default function ProductsPage() {
         </div>
       </div>
 
+      {/* Bulk Actions */}
+      {selectedProductIds.length > 0 && (
+        <div className="bg-primary-50 border border-primary-200 rounded-xl p-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center">
+              <span className="text-primary-700 font-medium">
+                {selectedProductIds.length} product{selectedProductIds.length > 1 ? 's' : ''} selected
+              </span>
+            </div>
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setShowGroupModal(true)}
+                className="flex items-center px-4 py-2 bg-secondary-600 text-white rounded-lg hover:bg-secondary-700 transition-colors"
+              >
+                <Users className="w-4 h-4 mr-2" />
+                Group Selected
+              </button>
+              <button
+                onClick={handleBulkDelete}
+                className="flex items-center px-4 py-2 bg-danger-600 text-white rounded-lg hover:bg-danger-700 transition-colors"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete Selected
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Products Table */}
       {products.length > 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -104,10 +192,21 @@ export default function ProductsPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
+                  <th className="px-4 py-2 text-left">
+                    <input
+                      type="checkbox"
+                      checked={isAllSelected}
+                      ref={(input) => {
+                        if (input) input.indeterminate = isIndeterminate;
+                      }}
+                      onChange={(e) => handleSelectAll(e.target.checked)}
+                      className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                    />
+                  </th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Image
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider max-w-[150px]">
                     Product Title
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -117,9 +216,6 @@ export default function ProductsPage() {
                     Price
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -127,6 +223,14 @@ export default function ProductsPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {products.map((product) => (
                   <tr key={product.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        checked={selectedProductIds.includes(product.id!)}
+                        onChange={(e) => handleSelectProduct(product.id!, e.target.checked)}
+                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                      />
+                    </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <div className="flex-shrink-0 h-10 w-10">
                         {product.images && product.images.length > 0 ? (
@@ -144,8 +248,8 @@ export default function ProductsPage() {
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900 line-clamp-1">
+                    <td className="px-4 py-3 max-w-[150px]">
+                      <div className="text-sm font-medium text-gray-900 line-clamp-2">
                         {product.title}
                       </div>
                     </td>
@@ -156,15 +260,6 @@ export default function ProductsPage() {
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
                       ${product.price}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        product.isActive 
-                          ? 'bg-primary-100 text-primary-800' 
-                          : 'bg-danger-100 text-danger-800'
-                      }`}>
-                        {product.isActive ? 'Active' : 'Inactive'}
-                      </span>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
@@ -208,6 +303,73 @@ export default function ProductsPage() {
           </div>
         </div>
       )}
-    </div>
+      {/* Group Modal */}
+      {showGroupModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Create New Section</h3>
+              <button
+                onClick={() => {
+                  setShowGroupModal(false);
+                  setNewGroupName('');
+                }}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="mb-4">
+              <p className="text-sm text-gray-600 mb-3">
+                Group {selectedProductIds.length} selected products into a new section.
+              </p>
+              <label htmlFor="groupName" className="block text-sm font-medium text-gray-700 mb-2">
+                Section Name
+              </label>
+              <input
+                type="text"
+                id="groupName"
+                value={newGroupName}
+                onChange={(e) => setNewGroupName(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
+                placeholder="e.g., Shoes, Electronics, Fashion"
+                autoFocus
+              />
+            </div>
+            
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setShowGroupModal(false);
+                  setNewGroupName('');
+                }}
+                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleBulkGroup}
+                disabled={!newGroupName.trim() || isGrouping}
+                className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {isGrouping ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4 mr-2" />
+                    Create Section
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      </div>
+    </>
   );
 }

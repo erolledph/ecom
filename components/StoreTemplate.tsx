@@ -9,13 +9,14 @@ interface StoreTemplateProps {
   store: Store;
   products: Product[];
   slides: Slide[];
-  categories: Array<{ id: string; name: string; image: string }>;
+  categories: Array<{ id: string; name: string; image: string; count?: number }>;
 }
 
 export default function StoreTemplate({ store, products, slides, categories }: StoreTemplateProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [visibleProductsCount, setVisibleProductsCount] = useState(9);
 
   // Auto-advance slides
   useEffect(() => {
@@ -27,6 +28,10 @@ export default function StoreTemplate({ store, products, slides, categories }: S
     }
   }, [slides.length]);
 
+  // Reset visible products count when category changes
+  useEffect(() => {
+    setVisibleProductsCount(9);
+  }, [selectedCategory]);
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
   };
@@ -43,6 +48,12 @@ export default function StoreTemplate({ store, products, slides, categories }: S
     ? products 
     : products.filter(product => product.category === selectedCategory);
 
+  const visibleProducts = filteredProducts.slice(0, visibleProductsCount);
+  const hasMoreProducts = filteredProducts.length > visibleProductsCount;
+
+  const loadMoreProducts = () => {
+    setVisibleProductsCount(prev => Math.min(prev + 9, filteredProducts.length));
+  };
   const handleProductClick = (productLink?: string) => {
     if (productLink) {
       window.open(productLink, '_blank', 'noopener,noreferrer');
@@ -231,11 +242,13 @@ export default function StoreTemplate({ store, products, slides, categories }: S
       {/* All Products Section */}
       <section className="container mx-auto px-4 py-6" id="products">
         <div className="mb-6">
-          <h2 className="text-[0.8rem] font-bold text-gray-900 mb-2">All Products</h2>
+          <h2 className="text-[0.8rem] font-bold text-gray-900 mb-2">
+            {selectedCategory === 'all' ? 'All Products' : categories.find(c => c.id === selectedCategory)?.name || 'Products'}
+          </h2>
           <p className="text-[0.8rem] text-gray-600">Browse our complete collection</p>
         </div>
         <div className="grid grid-cols-3 lg:grid-cols-4 gap-[5px]">
-          {filteredProducts.map((product) => (
+          {visibleProducts.map((product) => (
             <div
               key={product.id}
               onClick={() => handleProductClick(product.productLink)}
@@ -261,6 +274,18 @@ export default function StoreTemplate({ store, products, slides, categories }: S
             </div>
           ))}
         </div>
+        
+        {/* Load More Button */}
+        {hasMoreProducts && (
+          <div className="text-center mt-6">
+            <button
+              onClick={loadMoreProducts}
+              className="inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium"
+            >
+              Load More Products
+            </button>
+          </div>
+        )}
       </section>
 
       {/* Footer */}

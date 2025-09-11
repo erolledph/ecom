@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import { getStoreBySlug, getStoreProducts, getStoreSlides, generateCategoriesFromProductsSync } from '@/lib/store';
+import { getStoreBySlug, getStoreProducts, getStoreSlides, generateCategoriesWithCountSync } from '@/lib/store';
 import StoreTemplate from '@/components/StoreTemplate';
 
 interface StorePageProps {
@@ -85,7 +85,7 @@ export default async function StorePage({ params }: StorePageProps) {
     ]);
 
     // Generate categories from products
-    const categories = generateCategoriesFromProductsSync(products);
+    const categories = generateCategoriesWithCountSync(products);
 
     return (
       <StoreTemplate 

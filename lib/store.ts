@@ -380,7 +380,40 @@ export function generateCategoriesFromProductsSync(products: Product[]): Array<{
   }));
   
   return [
-    { id: 'all', name: 'All', image: '' },
+    { id: 'all', name: `All (${products.length})`, image: '' },
+    ...categories
+  ];
+}
+
+export function generateCategoriesWithCountSync(products: Product[]): Array<{ id: string; name: string; image: string; count: number }> {
+  const categoryMap = new Map<string, { image: string; count: number }>();
+  
+  products.forEach(product => {
+    if (product.category) {
+      if (categoryMap.has(product.category)) {
+        const existing = categoryMap.get(product.category)!;
+        categoryMap.set(product.category, {
+          image: existing.image || product.images?.[0] || '',
+          count: existing.count + 1
+        });
+      } else {
+        categoryMap.set(product.category, {
+          image: product.images?.[0] || '',
+          count: 1
+        });
+      }
+    }
+  });
+  
+  const categories = Array.from(categoryMap.entries()).map(([name, data]) => ({
+    id: name,
+    name: `${name} (${data.count})`,
+    image: data.image,
+    count: data.count
+  }));
+  
+  return [
+    { id: 'all', name: `All Products (${products.length})`, image: '', count: products.length },
     ...categories
   ];
 }
