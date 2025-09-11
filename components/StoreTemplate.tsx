@@ -120,7 +120,6 @@ export default function StoreTemplate({ store, products, slides, categories }: S
         </div>
       </header>
 
-
       {/* Slider Section */}
       {slides.length > 0 && (
         <section className="container mx-auto px-4 py-6">
@@ -153,41 +152,6 @@ export default function StoreTemplate({ store, products, slides, categories }: S
               ))}
             </div>
             
-      {/* Categories */}
-      {categories.length > 0 && (
-        <section className="mt-4 pb-4 overflow-x-auto category-scroller">
-          <div className="flex space-x-[5px] px-4">
-            {categories.map((category) => (
-              <div
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className="flex flex-col items-center cursor-pointer text-center text-gray-700"
-              >
-                <div
-                  className={`w-20 h-20 rounded-full shadow-md flex items-center justify-center ${
-                    selectedCategory === category.id
-                      ? 'bg-indigo-200 border-2 border-indigo-500'
-                      : 'bg-gray-200'
-                  }`}
-                >
-                  {category.image && category.id !== 'all' ? (
-                    <Image
-                      src={category.image}
-                      alt={category.name}
-                      width={80}
-                      height={80}
-                      className="w-full h-full object-cover rounded-full"
-                    />
-                  ) : (
-                    <span className="text-[0.8rem] font-semibold text-gray-700">{category.name}</span>
-                  )}
-                </div>
-                <span className="text-[0.8rem] font-semibold mt-1 whitespace-nowrap">{category.name}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
             {/* Navigation Arrows */}
             {slides.length > 1 && (
               <>
@@ -228,37 +192,36 @@ export default function StoreTemplate({ store, products, slides, categories }: S
         </section>
       )}
 
-      {/* Featured Products Section */}
-      {products.length > 0 && (
-        <section className="container mx-auto px-4 py-6">
-          <div className="mb-6">
-            <h2 className="text-[0.8rem] font-bold text-gray-900 mb-2">Featured Products</h2>
-            <p className="text-[0.8rem] text-gray-600">Discover our handpicked selection of amazing products</p>
-          </div>
-          <div className="grid grid-cols-3 lg:grid-cols-4 gap-[5px]">
-            {products.slice(0, 4).map((product) => (
+      {/* Categories */}
+      {categories.length > 0 && (
+        <section className="container mx-auto px-4 pb-4 overflow-x-auto category-scroller">
+          <div className="flex space-x-[5px] px-4">
+            {categories.map((category) => (
               <div
-                key={product.id}
-                onClick={() => handleProductClick(product.productLink)}
-                className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className="flex flex-col items-center cursor-pointer text-center text-gray-700"
               >
-                <div className="aspect-square overflow-hidden">
-                  {product.images && product.images[0] && (
+                <div
+                  className={`w-20 h-20 rounded-full shadow-md flex items-center justify-center ${
+                    selectedCategory === category.id
+                      ? 'bg-indigo-200 border-2 border-indigo-500'
+                      : 'bg-gray-200'
+                  }`}
+                >
+                  {category.image && category.id !== 'all' ? (
                     <Image
-                      src={product.images[0]}
-                      alt={product.title}
-                      width={300}
-                      height={300}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      src={category.image}
+                      alt={category.name}
+                      width={80}
+                      height={80}
+                      className="w-full h-full object-cover rounded-full"
                     />
+                  ) : (
+                    <span className="text-[0.8rem] font-semibold text-gray-700">{category.name}</span>
                   )}
                 </div>
-                <div className="p-[5px]">
-                  <h3 className="font-semibold text-gray-800 line-clamp-2 text-[0.8rem] mb-[5px] min-h-[2.4rem]">{product.title}</h3>
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-primary-600 text-[0.8rem]">${product.price}</span>
-                  </div>
-                </div>
+                <span className="text-[0.8rem] font-semibold mt-1 whitespace-nowrap">{category.name}</span>
               </div>
             ))}
           </div>
@@ -341,7 +304,7 @@ export default function StoreTemplate({ store, products, slides, categories }: S
       {store.avatar && (
         <button
           onClick={handleWidgetClick}
-          className="fixed bottom-6 right-6 z-50 animate-pulse"
+          className="absolute bottom-6 right-6 z-50 animate-pulse"
           style={{ animation: 'pulse-animation 2s infinite cubic-bezier(0.4, 0, 0.6, 1)' }}
         >
           <Image
@@ -356,7 +319,7 @@ export default function StoreTemplate({ store, products, slides, categories }: S
 
       {/* Popup Message */}
       <div
-        className={`fixed bottom-20 right-4 bg-gray-800 text-white text-[0.8rem] p-3 rounded-lg shadow-xl transition-opacity duration-300 ${
+        className={`absolute bottom-20 right-4 bg-gray-800 text-white text-[0.8rem] p-3 rounded-lg shadow-xl transition-opacity duration-300 ${
           isPopupVisible ? 'opacity-100' : 'opacity-0 hidden'
         }`}
       >
