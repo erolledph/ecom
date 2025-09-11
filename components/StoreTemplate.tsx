@@ -156,105 +156,154 @@ export default function StoreTemplate({ store, products, slides, categories }: S
         </section>
       )}
 
-      {/* Products Grid */}
-      <section className="container mx-auto p-2 grid grid-cols-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1.5">
-        {/* Slider Card */}
-        {slides.length > 0 && (
-          <div className="bg-white rounded-md shadow-lg overflow-hidden cursor-pointer">
-            <div className="relative overflow-hidden aspect-square">
-              <div 
-                className="flex transition-transform duration-500 ease-in-out w-full h-full"
-                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-              >
-                {slides.map((slide, index) => (
-                  <div
-                    key={slide.id}
-                    className="min-w-full relative"
-                    onClick={() => handleSlideClick(slide.link)}
-                  >
-                    <Image
-                      src={slide.image}
-                      alt={slide.title}
-                      width={600}
-                      height={600}
-                      className="w-full h-full object-cover"
-                      priority={index === 0}
-                    />
-                    <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center text-white p-2">
-                      <h2 className="text-xl md:text-2xl font-bold">{slide.title}</h2>
-                    </div>
+      {/* Slider Section */}
+      {slides.length > 0 && (
+        <section className="container mx-auto px-4 py-6">
+          <div className="relative h-64 md:h-80 lg:h-96 rounded-xl overflow-hidden shadow-lg">
+            <div 
+              className="flex transition-transform duration-500 ease-in-out w-full h-full"
+              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+            >
+              {slides.map((slide, index) => (
+                <div
+                  key={slide.id}
+                  className="min-w-full relative cursor-pointer"
+                  onClick={() => handleSlideClick(slide.link)}
+                >
+                  <Image
+                    src={slide.image}
+                    alt={slide.title}
+                    width={1200}
+                    height={400}
+                    className="w-full h-full object-cover"
+                    priority={index === 0}
+                  />
+                  <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center text-white p-4">
+                    <h2 className="text-2xl md:text-4xl font-bold mb-2">{slide.title}</h2>
+                    {slide.description && (
+                      <p className="text-sm md:text-lg max-w-2xl">{slide.description}</p>
+                    )}
                   </div>
-                ))}
-              </div>
-              {slides.length > 1 && (
-                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-2">
-                  {slides.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => goToSlide(index)}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        index === currentSlide ? 'w-4 bg-white' : 'bg-white/50'
-                      }`}
-                    />
-                  ))}
                 </div>
-              )}
+              ))}
             </div>
-          </div>
-        )}
-
-        {/* Featured Products Card */}
-        <div 
-          className="bg-white rounded-md shadow-lg overflow-hidden cursor-pointer"
-          onClick={() => window.location.href = `/${store.slug}#products`}
-        >
-          <div className="aspect-square overflow-hidden">
-            {products.length > 0 && products[0].images && products[0].images[0] ? (
-              <Image
-                src={products[0].images[0]}
-                alt="Featured Products"
-                width={600}
-                height={600}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-primary-100 to-secondary-100 flex items-center justify-center">
-                <span className="text-4xl">🛍️</span>
+            
+            {/* Navigation Arrows */}
+            {slides.length > 1 && (
+              <>
+                <button
+                  onClick={prevSlide}
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={nextSlide}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </>
+            )}
+            
+            {/* Pagination Dots */}
+            {slides.length > 1 && (
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+                {slides.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => goToSlide(index)}
+                    className={`w-3 h-3 rounded-full transition-all ${
+                      index === currentSlide ? 'w-8 bg-white' : 'bg-white/50'
+                    }`}
+                  />
+                ))}
               </div>
             )}
           </div>
-          <div className="p-2 flex flex-col items-start h-[75px]">
-            <h3 className="font-bold text-gray-800 text-sm mb-1">Featured Products</h3>
-            <p className="text-xs text-gray-500 line-clamp-2 mt-auto">
-              A curated selection of our best-selling items.
-            </p>
-          </div>
-        </div>
+        </section>
+      )}
 
-        {/* Product Cards */}
-        {filteredProducts.map((product) => (
-          <div
-            key={product.id}
-            onClick={() => handleProductClick(product.productLink)}
-            className="bg-white rounded-md shadow-lg overflow-hidden cursor-pointer"
-          >
-            <div className="aspect-square overflow-hidden">
-              {product.images && product.images[0] && (
-                <Image
-                  src={product.images[0]}
-                  alt={product.title}
-                  width={600}
-                  height={600}
-                  className="w-full h-full object-cover"
-                />
-              )}
-            </div>
-            <div className="p-2 flex flex-col items-start h-[75px]">
-              <h3 className="font-bold text-gray-800 line-clamp-2 text-sm mb-1">{product.title}</h3>
-              <span className="font-bold text-indigo-600 mt-auto text-sm">${product.price}</span>
-            </div>
+      {/* Featured Products Section */}
+      {products.length > 0 && (
+        <section className="container mx-auto px-4 py-6">
+          <div className="mb-6">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Featured Products</h2>
+            <p className="text-gray-600">Discover our handpicked selection of amazing products</p>
           </div>
-        ))}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {products.slice(0, 4).map((product) => (
+              <div
+                key={product.id}
+                onClick={() => handleProductClick(product.productLink)}
+                className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+              >
+                <div className="aspect-square overflow-hidden">
+                  {product.images && product.images[0] && (
+                    <Image
+                      src={product.images[0]}
+                      alt={product.title}
+                      width={300}
+                      height={300}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    />
+                  )}
+                </div>
+                <div className="p-3">
+                  <h3 className="font-semibold text-gray-800 line-clamp-2 text-sm mb-2">{product.title}</h3>
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-primary-600 text-lg">${product.price}</span>
+                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                      {product.category}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* All Products Section */}
+      <section className="container mx-auto px-4 py-6" id="products">
+        <div className="mb-6">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">All Products</h2>
+          <p className="text-gray-600">Browse our complete collection</p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {filteredProducts.map((product) => (
+            <div
+              key={product.id}
+              onClick={() => handleProductClick(product.productLink)}
+              className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+            >
+              <div className="aspect-square overflow-hidden">
+                {product.images && product.images[0] && (
+                  <Image
+                    src={product.images[0]}
+                    alt={product.title}
+                    width={300}
+                    height={300}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                )}
+              </div>
+              <div className="p-3">
+                <h3 className="font-semibold text-gray-800 line-clamp-2 text-sm mb-2">{product.title}</h3>
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-primary-600 text-lg">${product.price}</span>
+                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                    {product.category}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* Footer */}
