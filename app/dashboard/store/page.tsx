@@ -43,7 +43,8 @@ export default function StoreSettingsPage() {
       avatarBorderColor: '#ffffff',
       activeCategoryBorderColor: '#6366f1',
       fontFamily: 'Inter',
-      headerBackgroundColor: '',
+      backgroundGradientStartColor: '',
+      backgroundGradientEndColor: '',
       currencySymbol: '$',
       slideOverlayColor: '#000000',
       slideOverlayOpacity: 0.5
@@ -710,31 +711,59 @@ export default function StoreSettingsPage() {
               </select>
             </div>
 
-            {/* Header Background Color */}
+            {/* Background Gradient Colors */}
             <div>
-              <label htmlFor="headerBackgroundColor" className="block text-sm font-medium text-gray-700 mb-2">
-                Header Background Color
+              <label htmlFor="backgroundGradientStartColor" className="block text-sm font-medium text-gray-700 mb-2">
+                Background Gradient Start Color
               </label>
               <div className="flex items-center space-x-4">
                 <input
                   type="color"
-                  id="headerBackgroundColor"
-                  name="customization.headerBackgroundColor"
-                  value={formData.customization.headerBackgroundColor || '#000000'}
+                  id="backgroundGradientStartColor"
+                  name="customization.backgroundGradientStartColor"
+                  value={formData.customization.backgroundGradientStartColor || '#000000'}
                   onChange={handleInputChange}
                   className="h-12 w-20 border border-gray-200 rounded-lg cursor-pointer shadow-sm"
-                  aria-label="Header Background Color"
+                  aria-label="Background Gradient Start Color"
                 />
                 <input
                   type="text"
-                  value={formData.customization.headerBackgroundColor}
+                  value={formData.customization.backgroundGradientStartColor}
                   onChange={(e) => setFormData(prev => ({
                     ...prev,
-                    customization: { ...prev.customization, headerBackgroundColor: e.target.value }
+                    customization: { ...prev.customization, backgroundGradientStartColor: e.target.value }
                   }))}
                   className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
-                  placeholder="Leave empty for image background"
-                  aria-label="Header Background Color Hex"
+                  placeholder="#ffffff"
+                  aria-label="Background Gradient Start Color Hex"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="backgroundGradientEndColor" className="block text-sm font-medium text-gray-700 mb-2">
+                Background Gradient End Color
+              </label>
+              <div className="flex items-center space-x-4">
+                <input
+                  type="color"
+                  id="backgroundGradientEndColor"
+                  name="customization.backgroundGradientEndColor"
+                  value={formData.customization.backgroundGradientEndColor || '#000000'}
+                  onChange={handleInputChange}
+                  className="h-12 w-20 border border-gray-200 rounded-lg cursor-pointer shadow-sm"
+                  aria-label="Background Gradient End Color"
+                />
+                <input
+                  type="text"
+                  value={formData.customization.backgroundGradientEndColor}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev,
+                    customization: { ...prev.customization, backgroundGradientEndColor: e.target.value }
+                  }))}
+                  className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all text-gray-800 bg-white shadow-sm"
+                  placeholder="#000000"
+                  aria-label="Background Gradient End Color Hex"
                 />
               </div>
             </div>

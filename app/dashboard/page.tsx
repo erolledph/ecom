@@ -226,15 +226,35 @@ export default function DashboardOverview() {
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Performance</p>
-              <p className="text-2xl font-bold text-gray-900">Good</p>
+              <p className="text-sm font-medium text-gray-600">Total Slides</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.totalSlides}</p>
             </div>
-            <div className="p-3 bg-green-100 rounded-lg">
-              <TrendingUp className="w-6 h-6 text-green-600" />
+            <div className="p-3 bg-purple-100 rounded-lg">
+              <ImageIcon className="w-6 h-6 text-purple-600" />
             </div>
           </div>
           <div className="mt-4 flex items-center text-sm">
-            <span className="text-green-600 font-medium">Optimized</span>
+            <span className="text-green-600 font-medium">{stats.activeSlides}</span>
+            <span className="text-gray-600 ml-1">active</span>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Store Status</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {store?.isActive ? 'Active' : 'Inactive'}
+              </p>
+            </div>
+            <div className={`p-3 rounded-lg ${store?.isActive ? 'bg-green-100' : 'bg-red-100'}`}>
+              <StoreIcon className={`w-6 h-6 ${store?.isActive ? 'text-green-600' : 'text-red-600'}`} />
+            </div>
+          </div>
+          <div className="mt-4 flex items-center text-sm">
+            <span className={store?.isActive ? 'text-green-600' : 'text-red-600'}>
+              {store?.isActive ? 'Live' : 'Offline'}
+            </span>
           </div>
         </div>
       </div>

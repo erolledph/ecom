@@ -186,7 +186,13 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                     className="w-full h-full object-cover"
                     priority={index === 0}
                   />
-                  <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center text-white p-4">
+                  <div 
+                    className="absolute inset-0 flex flex-col items-center justify-center text-center text-white p-4"
+                    style={{
+                      backgroundColor: store.customization?.slideOverlayColor || '#000000',
+                      opacity: store.customization?.slideOverlayOpacity || 0.4
+                    }}
+                  >
                     <h2 className="text-[0.8rem] font-bold mb-2">{slide.title}</h2>
                     {slide.description && (
                       <p className="text-[0.8rem] max-w-2xl">{slide.description}</p>
