@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Store, Product, Slide } from '@/lib/store';
-import { Instagram, Twitter, Facebook } from 'lucide-react';
+import { Instagram, Twitter, Facebook, Search } from 'lucide-react';
 
 interface StoreTemplateProps {
   store: Store;
@@ -21,6 +21,18 @@ export default function StoreTemplate({ store, products, slides, categories, ini
   const [selectedCategory, setSelectedCategory] = useState(initialCategory || 'all');
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [visibleProductsCount, setVisibleProductsCount] = useState(9);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // Filter products by search term
+  const searchFilteredProducts = filteredProducts.filter(product =>
+    product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   // Auto-advance slides
   useEffect(() => {
@@ -36,6 +48,9 @@ export default function StoreTemplate({ store, products, slides, categories, ini
   useEffect(() => {
     setVisibleProductsCount(9);
   }, [selectedCategory]);
+
+  const activeCategoryBorderColor = store.customization?.activeCategoryBorderColor || '#6366f1';
+  const currencySymbol = store.customization?.currencySymbol || '$';
 
   const handleCategoryChange = (categoryId: string) => {
     setSelectedCategory(categoryId);
@@ -64,11 +79,12 @@ export default function StoreTemplate({ store, products, slides, categories, ini
     ? products 
     : products.filter(product => product.category === selectedCategory);
 
-  const visibleProducts = filteredProducts.slice(0, visibleProductsCount);
-  const hasMoreProducts = filteredProducts.length > visibleProductsCount;
+  const finalFilteredProducts = searchTerm ? searchFilteredProducts : filteredProducts;
+  const visibleProducts = finalFilteredProducts.slice(0, visibleProductsCount);
+  const hasMoreProducts = finalFilteredProducts.length > visibleProductsCount;
 
   const loadMoreProducts = () => {
-    setVisibleProductsCount(prev => Math.min(prev + 9, filteredProducts.length));
+    setVisibleProductsCount(prev => Math.min(prev + 9, finalFilteredProducts.length));
   };
   const handleProductClick = (productLink?: string) => {
     if (productLink) {
@@ -242,7 +258,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                   style={selectedCategory === category.id ? { borderColor: activeCategoryBorderColor } : {}}
                 >
                   {category.id === 'all' ? (
-                    // Photo collage for "All Products"
+                    // Photo collage for All Products
                     products
                       .filter(product => product.images && product.images[0])
                       .slice(0, 4)
@@ -293,7 +309,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
             </div>
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder="Search products&hellip;"
               value={searchTerm}
               onChange={handleSearchChange}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
@@ -304,7 +320,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
         {searchTerm && (
           <div className="mb-4">
             <p className="text-sm text-gray-600">
-              {searchFilteredProducts.length} result{searchFilteredProducts.length !== 1 ? 's' : ''} found for "{searchTerm}"
+              {searchFilteredProducts.length} result{searchFilteredProducts.length !== 1 ? 's' : ''} found for &ldquo;{searchTerm}&rdquo;
             </p>
           </div>
         )}
