@@ -27,6 +27,11 @@ export default function StoreTemplate({ store, products, slides, categories, ini
     setSearchTerm(e.target.value);
   };
 
+  // Filter products by category first
+  const filteredProducts = selectedCategory === 'all' 
+    ? products 
+    : products.filter(product => product.category === selectedCategory);
+
   // Filter products by search term
   const searchFilteredProducts = filteredProducts.filter(product =>
     product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -74,10 +79,6 @@ export default function StoreTemplate({ store, products, slides, categories, ini
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
   };
-
-  const filteredProducts = selectedCategory === 'all' 
-    ? products 
-    : products.filter(product => product.category === selectedCategory);
 
   const finalFilteredProducts = searchTerm ? searchFilteredProducts : filteredProducts;
   const visibleProducts = finalFilteredProducts.slice(0, visibleProductsCount);
