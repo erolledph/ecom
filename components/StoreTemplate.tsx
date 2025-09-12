@@ -53,17 +53,29 @@ export default function StoreTemplate({ store, products, slides, categories, ini
     setSearchTerm(e.target.value);
   };
 
-  // Filter products by category first
-  const filteredProducts = selectedCategory === 'all' 
-    ? products 
-    : products.filter(product => product.category === selectedCategory);
-
-  // Filter products by search term
-  const searchFilteredProducts = filteredProducts.filter(product =>
-    product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Get displayed products with category prioritization and search filtering
+  const getDisplayedProducts = () => {
+    let displayedProducts = [...products];
+    
+    // Apply search filter first if there's a search term
+    if (searchTerm) {
+      displayedProducts = displayedProducts.filter(product =>
+        product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    // If a specific category is selected (not 'all') and no search term, 
+    // reorder products to show selected category first
+    if (selectedCategory !== 'all' && !searchTerm) {
+      const categoryProducts = displayedProducts.filter(product => product.category === selectedCategory);
+      const otherProducts = displayedProducts.filter(product => product.category !== selectedCategory);
+      displayedProducts = [...categoryProducts, ...otherProducts];
+    }
+    
+    return displayedProducts;
+  };
 
   // Auto-advance slides
   useEffect(() => {
@@ -101,7 +113,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
     setCurrentSlide(index);
   };
 
-  const finalFilteredProducts = searchTerm ? searchFilteredProducts : filteredProducts;
+  const finalFilteredProducts = getDisplayedProducts();
   const visibleProducts = finalFilteredProducts.slice(0, visibleProductsCount);
   const hasMoreProducts = finalFilteredProducts.length > visibleProductsCount;
 
@@ -416,9 +428,14 @@ export default function StoreTemplate({ store, products, slides, categories, ini
             className="text-[0.8rem] font-bold mb-2"
             style={{ color: priceColor }}
           >
-            {selectedCategory === 'all' ? 'All Products' : categories.find(c => c.id === selectedCategory)?.name || 'Products'}
+            {selectedCategory === 'all' || searchTerm ? 'All Products' : `${categories.find(c => c.id === selectedCategory)?.name || 'Products'} - Showing All`}
           </h2>
-          <p className="text-[0.8rem] text-gray-600">Browse our complete collection</p>
+          <p className="text-[0.8rem] text-gray-600">
+            {selectedCategory === 'all' || searchTerm 
+              ? 'Browse our complete collection' 
+              : `${categories.find(c => c.id === selectedCategory)?.name || 'Selected'} products shown first, followed by all others`
+            }
+          </p>
           
           {/* Search Input */}
           <div className="mt-4 relative">
@@ -438,7 +455,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
         {searchTerm && (
           <div className="mb-4">
             <p className="text-sm text-gray-600">
-              {searchFilteredProducts.length} result{searchFilteredProducts.length !== 1 ? 's' : ''} found for &ldquo;{searchTerm}&rdquo;
+              {finalFilteredProducts.length} result{finalFilteredProducts.length !== 1 ? 's' : ''} found for &ldquo;{searchTerm}&rdquo;
             </p>
           </div>
         )}
@@ -489,7 +506,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
         )}
         
         {/* No Results Message */}
-        {searchTerm && searchFilteredProducts.length === 0 && (
+        {searchTerm && finalFilteredProducts.length === 0 && (
           <div className="text-center py-12">
             <div className="text-gray-400 text-4xl mb-4">🔍</div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
