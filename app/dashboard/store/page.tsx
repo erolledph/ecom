@@ -317,26 +317,7 @@ export default function StoreSettingsPage() {
         </div>
       </div>
 
-      {/* Store URL Display (Read-only) */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Store URL</h3>
-            <p className="text-sm text-gray-600 mb-3">Your store is accessible at this permanent URL</p>
-            <div className="flex items-center space-x-2">
-              <LinkIcon className="w-4 h-4 text-gray-400" />
-              <code className="px-3 py-2 bg-gray-100 rounded-lg text-sm font-mono text-gray-800">
-                {typeof window !== 'undefined' ? window.location.origin : 'yourdomain.com'}/{store?.slug}
-              </code>
-            </div>
-          </div>
-        </div>
-        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-          <p className="text-sm text-blue-800">
-            <strong>Note:</strong> Store URLs cannot be changed after creation to maintain link consistency and SEO benefits.
-          </p>
-        </div>
-      </div>
+    
 
       {/* Tabs */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -877,7 +858,7 @@ export default function StoreSettingsPage() {
           )}
 
           {/* Save Button */}
-          <div className="flex justify-end pt-6 border-t border-gray-200">
+          <div className="flex justify-end pt-6">
             <button
               type="submit"
               disabled={saving}
