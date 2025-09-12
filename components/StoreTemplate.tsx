@@ -373,66 +373,68 @@ export default function StoreTemplate({ store, products, slides, categories, ini
       {categories.length > 0 && (
         <section className="container mx-auto px-4 pt-6 overflow-x-auto category-scroller">
           <div className="flex space-x-[5px] px-4">
-            {categories.map((category) => (
+            {categories.map((category) => {
               const categoryDisplayName = category.name.replace(/\s*\(\d+\)$/, '');
-              <div
-                key={category.id}
-                onClick={() => handleCategoryChange(category.id)}
-                className="flex flex-col items-center cursor-pointer text-center"
-              >
+              return (
                 <div
-                  className={`w-20 h-20 rounded-full shadow-md overflow-hidden ${
-                    selectedCategory === category.id
-                      ? `bg-indigo-200 border-4`
-                      : 'bg-gray-200'
-                  } ${
-                    category.id === 'all' 
-                      ? 'grid grid-cols-2 grid-rows-2 gap-0' 
-                      : 'flex items-center justify-center'
-                  }`}
-                  style={selectedCategory === category.id ? { borderColor: activeCategoryBorderColor } : {}}
+                  key={category.id}
+                  onClick={() => handleCategoryChange(category.id)}
+                  className="flex flex-col items-center cursor-pointer text-center"
                 >
-                  {category.id === 'all' ? (
-                    // Photo collage for All Products
-                    products
-                      .filter(product => product.images && product.images[0])
-                      .slice(0, 4)
-                      .map((product, index) => (
-                        <div key={`collage-${product.id}-${index}`} className="w-full h-full">
-                          <Image
-                            src={product.images![0]}
-                            alt={product.title}
-                            width={40}
-                            height={40}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ))
-                  ) : category.image ? (
-                    <Image
-                      src={category.image}
-                      alt={category.name}
-                      width={80}
-                      height={80}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span 
-                      className="text-[0.8rem] font-semibold"
-                      style={{ color: priceColor }}
-                    >
-                      {category.id === 'all' ? 'All' : categoryDisplayName}
-                    </span>
-                  )}
+                  <div
+                    className={`w-20 h-20 rounded-full shadow-md overflow-hidden ${
+                      selectedCategory === category.id
+                        ? `bg-indigo-200 border-4`
+                        : 'bg-gray-200'
+                    } ${
+                      category.id === 'all' 
+                        ? 'grid grid-cols-2 grid-rows-2 gap-0' 
+                        : 'flex items-center justify-center'
+                    }`}
+                    style={selectedCategory === category.id ? { borderColor: activeCategoryBorderColor } : {}}
+                  >
+                    {category.id === 'all' ? (
+                      // Photo collage for All Products
+                      products
+                        .filter(product => product.images && product.images[0])
+                        .slice(0, 4)
+                        .map((product, index) => (
+                          <div key={`collage-${product.id}-${index}`} className="w-full h-full">
+                            <Image
+                              src={product.images![0]}
+                              alt={product.title}
+                              width={40}
+                              height={40}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ))
+                    ) : category.image ? (
+                      <Image
+                        src={category.image}
+                        alt={category.name}
+                        width={80}
+                        height={80}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span 
+                        className="text-[0.8rem] font-semibold"
+                        style={{ color: priceColor }}
+                      >
+                        {category.id === 'all' ? 'All' : categoryDisplayName}
+                      </span>
+                    )}
+                  </div>
+                  <span 
+                    className="text-[0.8rem] font-semibold mt-1 whitespace-nowrap"
+                    style={{ color: priceColor }}
+                  >
+                    {category.id === 'all' ? 'All Products' : categoryDisplayName}
+                  </span>
                 </div>
-                <span 
-                  className="text-[0.8rem] font-semibold mt-1 whitespace-nowrap"
-                  style={{ color: priceColor }}
-                >
-                  {category.id === 'all' ? 'All Products' : categoryDisplayName}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}
