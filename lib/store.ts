@@ -401,7 +401,7 @@ export async function uploadStoreImage(storeId: string, file: File, type: 'avata
     
     const baseFileName = sanitizeFilename(file.name);
     const fileName = `${baseFileName}_${type}_${Date.now()}.webp`; // Use sanitized original name + type + timestamp + webp extension
-    const imageRef = ref(storage, `stores/${fileName}`);
+    const imageRef = ref(storage, `stores/${storeId}/${fileName}`);
     await uploadBytes(imageRef, compressedBlob); // Upload the compressed blob
     return getDownloadURL(imageRef);
   } catch (error) {
@@ -417,7 +417,7 @@ export async function uploadWidgetImage(storeId: string, file: File): Promise<st
     
     const baseFileName = sanitizeFilename(file.name);
     const fileName = `${baseFileName}_widget_${Date.now()}.webp`; // Use sanitized original name + timestamp + webp extension
-    const imageRef = ref(storage, `stores/${fileName}`);
+    const imageRef = ref(storage, `stores/${storeId}/${fileName}`);
     await uploadBytes(imageRef, compressedBlob); // Upload the compressed blob
     return getDownloadURL(imageRef);
   } catch (error) {
