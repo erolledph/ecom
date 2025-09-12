@@ -13,6 +13,7 @@ import {
   getUserStore
 } from '@/lib/store';
 import { Edit, Trash2, Plus, Check, X, Users } from 'lucide-react';
+import { RefreshCcw } from 'lucide-react';
 
 export default function ProductsPage() {
   const { user } = useAuth();
@@ -25,6 +26,7 @@ export default function ProductsPage() {
   const [showGroupModal, setShowGroupModal] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
   const [isGrouping, setIsGrouping] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchProducts = useCallback(async () => {
     if (!user) return;
@@ -119,6 +121,18 @@ export default function ProductsPage() {
     }
   };
 
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await fetchProducts();
+      showSuccess('Products refreshed successfully');
+    } catch (error) {
+      showError('Failed to refresh products');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   const isAllSelected = products.length > 0 && selectedProductIds.length === products.length;
   const isIndeterminate = selectedProductIds.length > 0 && selectedProductIds.length < products.length;
   if (isLoading) {
@@ -150,7 +164,15 @@ export default function ProductsPage() {
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Manage Products</h1>
           </div>
           
-          <div>
+         <div className="flex space-x-3">
+           <button
+             onClick={handleRefresh}
+             disabled={refreshing}
+             className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+           >
+             <RefreshCcw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+             {refreshing ? 'Refreshing...' : 'Refresh'}
+           </button>
             <button
               onClick={() => router.push('/dashboard/products/add')}
               className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
