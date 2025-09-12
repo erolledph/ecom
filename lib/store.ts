@@ -34,6 +34,8 @@ export interface Store {
   bannerDescription?: string;
   bannerLink?: string;
   slidesEnabled?: boolean;
+  displayPriceOnProducts?: boolean;
+  displayHeaderBackgroundImage?: boolean;
   ownerId: string;
   isActive: boolean;
   socialLinks: Array<{ platform: string; url: string; }>;

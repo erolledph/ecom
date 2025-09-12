@@ -179,13 +179,15 @@ export default function StoreTemplate({ store, products, slides, categories, ini
       <header 
         className="relative text-white py-4 overflow-hidden"
         style={{
-          background: store.backgroundImage
+          background: store.displayHeaderBackgroundImage !== false && store.backgroundImage
             ? `url('${store.backgroundImage}') center/cover, linear-gradient(135deg, #667eea 0%, #764ba2 100%)`
-            : "url('https://images.unsplash.com/photo-1542435503-956c469947f6?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG-outby1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') center/cover, rgba(0,0,0,0.5)"
+            : store.customization?.mainBackgroundGradientStartColor && store.customization?.mainBackgroundGradientEndColor
+              ? `linear-gradient(135deg, ${store.customization.mainBackgroundGradientStartColor}, ${store.customization.mainBackgroundGradientEndColor})`
+              : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
         }}
       >
         {/* Overlay for better text readability when using background image */}
-        {store.backgroundImage && (
+        {store.displayHeaderBackgroundImage !== false && store.backgroundImage && (
           <div className="absolute inset-0 bg-black opacity-50"></div>
         )}
         
@@ -497,14 +499,18 @@ export default function StoreTemplate({ store, products, slides, categories, ini
               </div>
               <div className="p-[5px]">
                 <h3 className="font-semibold text-gray-800 line-clamp-2 text-[0.8rem] mb-[5px] min-h-[2.4rem]">{product.title}</h3>
-                <div className="flex items-center justify-between">
-                  <span 
-                    className="font-bold text-[0.8rem]"
-                    style={{ color: priceColor }}
-                  >
-                    {currencySymbol}{product.price}
-                  </span>
-                </div>
+                {store.displayPriceOnProducts !== false && (
+                  {store.displayPriceOnProducts !== false && (
+                    <div className="flex items-center justify-between">
+                      <span 
+                        className="font-bold text-[0.8rem]"
+                        style={{ color: priceColor }}
+                      >
+                        {currencySymbol}{product.price}
+                      </span>
+                    </div>
+                  )}
+                )}
               </div>
             </div>
           ))}
@@ -570,14 +576,16 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                 </div>
                 <div className="p-[5px]">
                   <h3 className="font-semibold text-gray-800 line-clamp-2 text-[0.8rem] mb-[5px] min-h-[2.4rem]">{product.title}</h3>
-                  <div className="flex items-center justify-between">
-                    <span 
-                      className="font-bold text-[0.8rem]"
-                      style={{ color: priceColor }}
-                    >
-                      {currencySymbol}{product.price}
-                    </span>
-                  </div>
+                  {store.displayPriceOnProducts !== false && (
+                    <div className="flex items-center justify-between">
+                      <span 
+                        className="font-bold text-[0.8rem]"
+                        style={{ color: priceColor }}
+                      >
+                        {currencySymbol}{product.price}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

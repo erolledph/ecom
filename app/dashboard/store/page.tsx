@@ -241,6 +241,8 @@ export default function StoreSettingsPage() {
   const [bannerLink, setBannerLink] = useState('');
   const [bannerEnabled, setBannerEnabled] = useState(false);
   const [slidesEnabled, setSlidesEnabled] = useState(true);
+  const [displayPriceOnProducts, setDisplayPriceOnProducts] = useState(true);
+  const [displayHeaderBackgroundImage, setDisplayHeaderBackgroundImage] = useState(true);
   const [slugError, setSlugError] = useState('');
   const [isCheckingSlug, setIsCheckingSlug] = useState(false);
 
@@ -286,6 +288,8 @@ export default function StoreSettingsPage() {
           setBannerLink(storeData.bannerLink || '');
           setBannerEnabled(storeData.bannerEnabled || false);
           setSlidesEnabled(storeData.slidesEnabled !== false); // Default to true if not set
+          setDisplayPriceOnProducts(storeData.displayPriceOnProducts !== false); // Default to true if not set
+          setDisplayHeaderBackgroundImage(storeData.displayHeaderBackgroundImage !== false); // Default to true if not set
         }
       } catch (error) {
         console.error('Error fetching store:', error);
@@ -450,6 +454,8 @@ export default function StoreSettingsPage() {
         bannerLink: bannerLink,
         bannerEnabled: bannerEnabled,
         slidesEnabled: slidesEnabled,
+        displayPriceOnProducts: displayPriceOnProducts,
+        displayHeaderBackgroundImage: displayHeaderBackgroundImage,
         socialLinks: validSocialLinks,
         customization: formData.customization
       };
@@ -1176,6 +1182,56 @@ export default function StoreSettingsPage() {
                 <p className="mt-1 text-xs text-gray-500">
                   When enabled, promotional slides will be displayed at the top of your store page.
                 </p>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Product Display Options
+                  </label>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="displayPriceOnProducts"
+                      checked={displayPriceOnProducts}
+                      onChange={(e) => setDisplayPriceOnProducts(e.target.checked)}
+                      className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="displayPriceOnProducts" className="ml-2 block text-sm text-gray-900">
+                      Show product prices on store
+                    </label>
+                  </div>
+                  <p className="ml-6 text-xs text-gray-500">
+                    When disabled, product prices will be hidden from your store visitors.
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Header Background Options
+                  </label>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="displayHeaderBackgroundImage"
+                      checked={displayHeaderBackgroundImage}
+                      onChange={(e) => setDisplayHeaderBackgroundImage(e.target.checked)}
+                      className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="displayHeaderBackgroundImage" className="ml-2 block text-sm text-gray-900">
+                      Use header background image
+                    </label>
+                  </div>
+                  <p className="ml-6 text-xs text-gray-500">
+                    When disabled, the header will use your custom gradient/background colors instead of the uploaded image.
+                  </p>
+                </div>
               </div>
             </div>
           )}
