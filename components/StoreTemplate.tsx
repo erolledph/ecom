@@ -49,6 +49,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
   const [visibleProductsCount, setVisibleProductsCount] = useState(9);
   const [visibleAllProductsCount, setVisibleAllProductsCount] = useState(9);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showBannerPopup, setShowBannerPopup] = useState(false);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -89,6 +90,16 @@ export default function StoreTemplate({ store, products, slides, categories, ini
     setVisibleProductsCount(9);
     setVisibleAllProductsCount(9);
   }, [selectedCategory]);
+
+  // Show banner popup on component mount if banner is enabled
+  useEffect(() => {
+    if (store.bannerEnabled && store.bannerImage) {
+      const timer = setTimeout(() => {
+        setShowBannerPopup(true);
+      }, 2000); // Show banner after 2 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [store.bannerEnabled, store.bannerImage]);
 
   const activeCategoryBorderColor = store.customization?.activeCategoryBorderColor || '#6366f1';
   const currencySymbol = store.customization?.currencySymbol || '$';
