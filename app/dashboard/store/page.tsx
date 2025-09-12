@@ -55,105 +55,139 @@ const FONT_FAMILIES = [
 
 const COLOR_PALETTES = [
   {
-    name: 'Ocean Breeze',
+    name: 'Professional Blue',
     colors: {
       storeNameFontColor: '#ffffff',
-      storeBioFontColor: '#e0f2fe',
-      avatarBorderColor: '#0ea5e9',
-      activeCategoryBorderColor: '#0284c7',
-      mainBackgroundGradientStartColor: '#0ea5e9',
-      mainBackgroundGradientEndColor: '#0284c7',
-      storeBackgroundColor: '#f0f9ff',
-      priceFontColor: '#0369a1',
-      slideOverlayColor: '#0c4a6e',
+      storeBioFontColor: '#f0f9ff',
+      avatarBorderColor: '#3b82f6',
+      activeCategoryBorderColor: '#2563eb',
+      mainBackgroundGradientStartColor: '#3b82f6',
+      mainBackgroundGradientEndColor: '#1d4ed8',
+      storeBackgroundColor: '#f8fafc',
+      priceFontColor: '#1e40af',
+      slideOverlayColor: '#1e3a8a',
       slideOverlayOpacity: 0.5,
       slideTitleColor: '#ffffff',
-      slideDescriptionColor: '#e0f2fe'
+      slideDescriptionColor: '#dbeafe'
     }
   },
   {
-    name: 'Sunset Glow',
+    name: 'Warm Orange',
     colors: {
       storeNameFontColor: '#ffffff',
-      storeBioFontColor: '#fed7aa',
-      avatarBorderColor: '#f97316',
-      activeCategoryBorderColor: '#ea580c',
-      mainBackgroundGradientStartColor: '#f97316',
+      storeBioFontColor: '#fff7ed',
+      avatarBorderColor: '#ea580c',
+      activeCategoryBorderColor: '#dc2626',
+      mainBackgroundGradientStartColor: '#ea580c',
       mainBackgroundGradientEndColor: '#dc2626',
-      storeBackgroundColor: '#fff7ed',
+      storeBackgroundColor: '#fefcfb',
       priceFontColor: '#c2410c',
-      slideOverlayColor: '#7c2d12',
-      slideOverlayOpacity: 0.4,
+      slideOverlayColor: '#9a3412',
+      slideOverlayOpacity: 0.6,
       slideTitleColor: '#ffffff',
-      slideDescriptionColor: '#fed7aa'
+      slideDescriptionColor: '#ffedd5'
     }
   },
   {
-    name: 'Forest Green',
+    name: 'Nature Green',
     colors: {
       storeNameFontColor: '#ffffff',
-      storeBioFontColor: '#dcfce7',
-      avatarBorderColor: '#22c55e',
-      activeCategoryBorderColor: '#16a34a',
-      mainBackgroundGradientStartColor: '#22c55e',
-      mainBackgroundGradientEndColor: '#15803d',
-      storeBackgroundColor: '#f0fdf4',
-      priceFontColor: '#166534',
-      slideOverlayColor: '#14532d',
+      storeBioFontColor: '#f0fdf4',
+      avatarBorderColor: '#16a34a',
+      activeCategoryBorderColor: '#15803d',
+      mainBackgroundGradientStartColor: '#16a34a',
+      mainBackgroundGradientEndColor: '#166534',
+      storeBackgroundColor: '#fefffe',
+      priceFontColor: '#15803d',
+      slideOverlayColor: '#166534',
       slideOverlayOpacity: 0.5,
       slideTitleColor: '#ffffff',
       slideDescriptionColor: '#dcfce7'
     }
   },
   {
-    name: 'Royal Purple',
+    name: 'Elegant Purple',
     colors: {
       storeNameFontColor: '#ffffff',
-      storeBioFontColor: '#e9d5ff',
-      avatarBorderColor: '#a855f7',
-      activeCategoryBorderColor: '#9333ea',
-      mainBackgroundGradientStartColor: '#a855f7',
-      mainBackgroundGradientEndColor: '#7c3aed',
-      storeBackgroundColor: '#faf5ff',
-      priceFontColor: '#7c2d92',
-      slideOverlayColor: '#581c87',
+      storeBioFontColor: '#faf5ff',
+      avatarBorderColor: '#9333ea',
+      activeCategoryBorderColor: '#7c3aed',
+      mainBackgroundGradientStartColor: '#9333ea',
+      mainBackgroundGradientEndColor: '#6b21a8',
+      storeBackgroundColor: '#fefcff',
+      priceFontColor: '#7c3aed',
+      slideOverlayColor: '#6b21a8',
       slideOverlayOpacity: 0.5,
       slideTitleColor: '#ffffff',
-      slideDescriptionColor: '#e9d5ff'
+      slideDescriptionColor: '#f3e8ff'
     }
   },
   {
-    name: 'Rose Gold',
+    name: 'Modern Pink',
     colors: {
       storeNameFontColor: '#ffffff',
-      storeBioFontColor: '#fce7f3',
-      avatarBorderColor: '#ec4899',
-      activeCategoryBorderColor: '#db2777',
-      mainBackgroundGradientStartColor: '#ec4899',
+      storeBioFontColor: '#fdf2f8',
+      avatarBorderColor: '#db2777',
+      activeCategoryBorderColor: '#be185d',
+      mainBackgroundGradientStartColor: '#db2777',
       mainBackgroundGradientEndColor: '#be185d',
-      storeBackgroundColor: '#fdf2f8',
+      storeBackgroundColor: '#fffbfe',
       priceFontColor: '#be185d',
-      slideOverlayColor: '#831843',
-      slideOverlayOpacity: 0.4,
+      slideOverlayColor: '#9d174d',
+      slideOverlayOpacity: 0.5,
       slideTitleColor: '#ffffff',
       slideDescriptionColor: '#fce7f3'
     }
   },
   {
-    name: 'Midnight Dark',
+    name: 'Premium Dark',
     colors: {
       storeNameFontColor: '#ffffff',
-      storeBioFontColor: '#d1d5db',
-      avatarBorderColor: '#6b7280',
-      activeCategoryBorderColor: '#4b5563',
-      mainBackgroundGradientStartColor: '#374151',
-      mainBackgroundGradientEndColor: '#1f2937',
-      storeBackgroundColor: '#111827',
-      priceFontColor: '#10b981',
-      slideOverlayColor: '#000000',
+      storeBioFontColor: '#f3f4f6',
+      avatarBorderColor: '#9ca3af',
+      activeCategoryBorderColor: '#f59e0b',
+      mainBackgroundGradientStartColor: '#4b5563',
+      mainBackgroundGradientEndColor: '#374151',
+      storeBackgroundColor: '#1f2937',
+      priceFontColor: '#fbbf24',
+      slideOverlayColor: '#111827',
       slideOverlayOpacity: 0.6,
       slideTitleColor: '#ffffff',
-      slideDescriptionColor: '#d1d5db'
+      slideDescriptionColor: '#e5e7eb'
+    }
+  },
+  {
+    name: 'Fresh Mint',
+    colors: {
+      storeNameFontColor: '#ffffff',
+      storeBioFontColor: '#ecfdf5',
+      avatarBorderColor: '#10b981',
+      activeCategoryBorderColor: '#059669',
+      mainBackgroundGradientStartColor: '#10b981',
+      mainBackgroundGradientEndColor: '#047857',
+      storeBackgroundColor: '#f0fdfa',
+      priceFontColor: '#065f46',
+      slideOverlayColor: '#064e3b',
+      slideOverlayOpacity: 0.5,
+      slideTitleColor: '#ffffff',
+      slideDescriptionColor: '#d1fae5'
+    }
+  },
+  {
+    name: 'Sunset Red',
+    colors: {
+      storeNameFontColor: '#ffffff',
+      storeBioFontColor: '#fef2f2',
+      avatarBorderColor: '#ef4444',
+      activeCategoryBorderColor: '#dc2626',
+      mainBackgroundGradientStartColor: '#ef4444',
+      mainBackgroundGradientEndColor: '#b91c1c',
+      storeBackgroundColor: '#fffbfb',
+      priceFontColor: '#991b1b',
+      slideOverlayColor: '#7f1d1d',
+      slideOverlayOpacity: 0.5,
+      slideTitleColor: '#ffffff',
+      slideDescriptionColor: '#fee2e2'
     }
   }
 ];
@@ -749,24 +783,8 @@ export default function StoreSettingsPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Background Style
                 </label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">Solid Background Color</label>
-                    <input
-                      type="color"
-                      name="customization.storeBackgroundColor"
-                      value={formData.customization.storeBackgroundColor}
-                      onChange={handleInputChange}
-                      className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
-                    />
-                  </div>
-                  <div className="text-center text-gray-500 text-sm flex items-center justify-center">
-                    OR
-                  </div>
-                </div>
-                
                 <div className="mt-4">
-                  <label className="block text-xs text-gray-600 mb-2">Gradient Background (overrides solid color)</label>
+                  <label className="block text-xs text-gray-600 mb-2">Gradient Background</label>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs text-gray-500 mb-1">Start Color</label>

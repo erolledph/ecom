@@ -212,7 +212,7 @@ export default function DashboardOverview() {
           </div>
           <div className="mt-4">
             <Link
-              href="/dashboard/settings"
+              href="/dashboard/store"
               className="text-sm text-primary-600 hover:text-primary-700 font-medium"
               aria-label="Go to Settings"
             >
