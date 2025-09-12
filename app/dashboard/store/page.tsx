@@ -1,92 +1,67 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
-import { 
-  getUserStore, 
-  updateStore, 
-  uploadStoreImage, 
-  uploadWidgetImage,
-  checkSlugAvailability,
-  Store 
-} from '@/lib/store';
+import { getUserStore, updateStore, uploadStoreImage, Store } from '@/lib/store';
 import Image from 'next/image';
 import { 
   Save, 
   Upload, 
-  Eye, 
   Palette, 
   Settings, 
-  Globe,
-  DollarSign,
-  Package,
-  Image as ImageIcon,
-  Smartphone,
-  Monitor,
-  ArrowLeft
+  Type,
+  Eye,
+  EyeOff,
+  Link as LinkIcon,
+  Plus,
+  Trash2
 } from 'lucide-react';
 
-const CURRENCY_OPTIONS = [
-  { value: '$', label: '$ (USD, CAD, AUD)' },
-  { value: '€', label: '€ (Euro)' },
-  { value: '£', label: '£ (British Pound)' },
-  { value: '¥', label: '¥ (Japanese Yen)' },
-  { value: '₹', label: '₹ (Indian Rupee)' },
-  { value: '₽', label: '₽ (Russian Ruble)' },
-  { value: '₩', label: '₩ (Korean Won)' },
-  { value: '₺', label: '₺ (Turkish Lira)' },
-  { value: '₱', label: '₱ (Philippine Peso)' },
-  { value: 'Mex$', label: 'Mex$ (Mexican Peso)' },
-  { value: 'R$', label: 'R$ (Brazilian Real)' },
-  { value: 'SFr', label: 'SFr (Swiss Franc)' },
-  { value: 'kr', label: 'kr (Scandinavian)' },
-  { value: 'zł', label: 'zł (Polish Złoty)' },
-  { value: '฿', label: '฿ (Thai Baht)' },
-  { value: '₫', label: '₫ (Vietnamese Đồng)' },
-  { value: '₦', label: '₦ (Nigerian Naira)' },
-  { value: 'R', label: 'R (South African Rand)' },
-  { value: 'د.إ', label: 'د.إ (UAE Dirham)' },
-  { value: '﷼', label: '﷼ (Saudi Riyal)' }
-];
-
-const FONT_FAMILIES = [
+const FONT_OPTIONS = [
   { value: 'Inter, system-ui, -apple-system, sans-serif', label: 'Inter (Default)' },
   { value: 'Arial, sans-serif', label: 'Arial' },
   { value: 'Helvetica, sans-serif', label: 'Helvetica' },
   { value: 'Georgia, serif', label: 'Georgia' },
   { value: 'Times New Roman, serif', label: 'Times New Roman' },
-  { value: 'Roboto, sans-serif', label: 'Roboto' },
-  { value: 'Open Sans, sans-serif', label: 'Open Sans' },
-  { value: 'Lato, sans-serif', label: 'Lato' },
-  { value: 'Montserrat, sans-serif', label: 'Montserrat' },
-  { value: 'Poppins, sans-serif', label: 'Poppins' }
+  { value: 'Courier New, monospace', label: 'Courier New' },
+  { value: 'Verdana, sans-serif', label: 'Verdana' },
+  { value: 'Trebuchet MS, sans-serif', label: 'Trebuchet MS' },
+  { value: 'Palatino, serif', label: 'Palatino' },
+  { value: 'Garamond, serif', label: 'Garamond' },
+  { value: 'Comic Sans MS, cursive', label: 'Comic Sans MS' },
+  { value: 'Impact, sans-serif', label: 'Impact' },
+  { value: 'Lucida Console, monospace', label: 'Lucida Console' },
+  { value: 'Tahoma, sans-serif', label: 'Tahoma' },
+  { value: 'Century Gothic, sans-serif', label: 'Century Gothic' }
 ];
 
-const HEADER_LAYOUTS = [
-  { value: 'left-right', label: 'Avatar Left, Social Right' },
-  { value: 'right-left', label: 'Avatar Right, Social Left' },
-  { value: 'center', label: 'Centered Layout' }
+const SOCIAL_PLATFORMS = [
+  'instagram',
+  'twitter', 
+  'facebook',
+  'youtube',
+  'linkedin',
+  'tiktok',
+  'snapchat',
+  'pinterest',
+  'github',
+  'website'
 ];
 
 export default function StoreSettingsPage() {
   const { user } = useAuth();
-  const router = useRouter();
-  const { showSuccess, showError, showWarning } = useToast();
-  
+  const { showSuccess, showError } = useToast();
   const [store, setStore] = useState<Store | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('general');
   
-  // Form data state
+  // Form states
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    slug: '',
     headerLayout: 'left-right' as 'left-right' | 'right-left' | 'center',
-    socialLinks: [] as Array<{ platform: string; url: string; }>,
     displayPriceOnProducts: true,
     displayHeaderBackgroundImage: true,
     slidesEnabled: true,
@@ -100,6 +75,10 @@ export default function StoreSettingsPage() {
       avatarBorderColor: '#ffffff',
       activeCategoryBorderColor: '#6366f1',
       fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+      headingFontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+      bodyFontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+      headingTextColor: '#111827',
+      bodyTextColor: '#374151',
       mainBackgroundGradientStartColor: '#f3f4f6',
       mainBackgroundGradientEndColor: '#f3f4f6',
       storeBackgroundColor: '#f3f4f6',
@@ -112,21 +91,19 @@ export default function StoreSettingsPage() {
     }
   });
   
-  // Image states
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
-  const [bannerFile, setBannerFile] = useState<File | null>(null);
-  const [widgetFile, setWidgetFile] = useState<File | null>(null);
-  
-  // Preview states
-  const [avatarPreview, setAvatarPreview] = useState('');
-  const [backgroundPreview, setBackgroundPreview] = useState('');
-  const [bannerPreview, setBannerPreview] = useState('');
-  const [widgetPreview, setWidgetPreview] = useState('');
-  
-  // Social link state
-  const [newSocialPlatform, setNewSocialPlatform] = useState('');
-  const [newSocialUrl, setNewSocialUrl] = useState('');
+  const [socialLinks, setSocialLinks] = useState<Array<{ platform: string; url: string }>>([]);
+  const [imageFiles, setImageFiles] = useState<{
+    avatar?: File;
+    background?: File;
+    widget?: File;
+    banner?: File;
+  }>({});
+  const [imagePreviews, setImagePreviews] = useState<{
+    avatar?: string;
+    background?: string;
+    widget?: string;
+    banner?: string;
+  }>({});
 
   useEffect(() => {
     const fetchStore = async () => {
@@ -139,9 +116,7 @@ export default function StoreSettingsPage() {
           setFormData({
             name: storeData.name,
             description: storeData.description,
-            slug: storeData.slug,
             headerLayout: storeData.headerLayout || 'left-right',
-            socialLinks: storeData.socialLinks || [],
             displayPriceOnProducts: storeData.displayPriceOnProducts !== false,
             displayHeaderBackgroundImage: storeData.displayHeaderBackgroundImage !== false,
             slidesEnabled: storeData.slidesEnabled !== false,
@@ -155,6 +130,10 @@ export default function StoreSettingsPage() {
               avatarBorderColor: storeData.customization?.avatarBorderColor || '#ffffff',
               activeCategoryBorderColor: storeData.customization?.activeCategoryBorderColor || '#6366f1',
               fontFamily: storeData.customization?.fontFamily || 'Inter, system-ui, -apple-system, sans-serif',
+              headingFontFamily: storeData.customization?.headingFontFamily || storeData.customization?.fontFamily || 'Inter, system-ui, -apple-system, sans-serif',
+              bodyFontFamily: storeData.customization?.bodyFontFamily || storeData.customization?.fontFamily || 'Inter, system-ui, -apple-system, sans-serif',
+              headingTextColor: storeData.customization?.headingTextColor || '#111827',
+              bodyTextColor: storeData.customization?.bodyTextColor || '#374151',
               mainBackgroundGradientStartColor: storeData.customization?.mainBackgroundGradientStartColor || '#f3f4f6',
               mainBackgroundGradientEndColor: storeData.customization?.mainBackgroundGradientEndColor || '#f3f4f6',
               storeBackgroundColor: storeData.customization?.storeBackgroundColor || '#f3f4f6',
@@ -166,12 +145,15 @@ export default function StoreSettingsPage() {
               slideDescriptionColor: storeData.customization?.slideDescriptionColor || '#e5e7eb'
             }
           });
+          setSocialLinks(storeData.socialLinks || []);
           
           // Set image previews
-          setAvatarPreview(storeData.avatar || '');
-          setBackgroundPreview(storeData.backgroundImage || '');
-          setBannerPreview(storeData.bannerImage || '');
-          setWidgetPreview(storeData.widgetImage || '');
+          setImagePreviews({
+            avatar: storeData.avatar || undefined,
+            background: storeData.backgroundImage || undefined,
+            widget: storeData.widgetImage || undefined,
+            banner: storeData.bannerImage || undefined
+          });
         }
       } catch (error) {
         console.error('Error fetching store:', error);
@@ -204,45 +186,26 @@ export default function StoreSettingsPage() {
     }
   };
 
-  const handleImageChange = (type: 'avatar' | 'background' | 'banner' | 'widget', file: File) => {
-    const previewUrl = URL.createObjectURL(file);
-    
-    switch (type) {
-      case 'avatar':
-        setAvatarFile(file);
-        setAvatarPreview(previewUrl);
-        break;
-      case 'background':
-        setBackgroundFile(file);
-        setBackgroundPreview(previewUrl);
-        break;
-      case 'banner':
-        setBannerFile(file);
-        setBannerPreview(previewUrl);
-        break;
-      case 'widget':
-        setWidgetFile(file);
-        setWidgetPreview(previewUrl);
-        break;
+  const handleImageChange = (type: 'avatar' | 'background' | 'widget' | 'banner') => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFiles(prev => ({ ...prev, [type]: file }));
+      setImagePreviews(prev => ({ ...prev, [type]: URL.createObjectURL(file) }));
     }
+  };
+
+  const handleSocialLinkChange = (index: number, field: 'platform' | 'url', value: string) => {
+    setSocialLinks(prev => prev.map((link, i) => 
+      i === index ? { ...link, [field]: value } : link
+    ));
   };
 
   const addSocialLink = () => {
-    if (newSocialPlatform && newSocialUrl) {
-      setFormData(prev => ({
-        ...prev,
-        socialLinks: [...prev.socialLinks, { platform: newSocialPlatform, url: newSocialUrl }]
-      }));
-      setNewSocialPlatform('');
-      setNewSocialUrl('');
-    }
+    setSocialLinks(prev => [...prev, { platform: 'instagram', url: '' }]);
   };
 
   const removeSocialLink = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      socialLinks: prev.socialLinks.filter((_, i) => i !== index)
-    }));
+    setSocialLinks(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -250,15 +213,34 @@ export default function StoreSettingsPage() {
     if (!user || !store) return;
 
     setSaving(true);
-    showWarning('Saving store settings...');
 
     try {
-      let updates: Partial<Store> = {
+      // Upload images if any
+      const imageUrls: Partial<{
+        avatar: string;
+        backgroundImage: string;
+        widgetImage: string;
+        bannerImage: string;
+      }> = {};
+
+      if (imageFiles.avatar) {
+        imageUrls.avatar = await uploadStoreImage(user.uid, imageFiles.avatar, 'avatar');
+      }
+      if (imageFiles.background) {
+        imageUrls.backgroundImage = await uploadStoreImage(user.uid, imageFiles.background, 'background');
+      }
+      if (imageFiles.widget) {
+        imageUrls.widgetImage = await uploadStoreImage(user.uid, imageFiles.widget, 'avatar');
+      }
+      if (imageFiles.banner) {
+        imageUrls.bannerImage = await uploadStoreImage(user.uid, imageFiles.banner, 'banner');
+      }
+
+      // Update store
+      await updateStore(user.uid, {
         name: formData.name,
         description: formData.description,
-        slug: formData.slug,
         headerLayout: formData.headerLayout,
-        socialLinks: formData.socialLinks,
         displayPriceOnProducts: formData.displayPriceOnProducts,
         displayHeaderBackgroundImage: formData.displayHeaderBackgroundImage,
         slidesEnabled: formData.slidesEnabled,
@@ -266,48 +248,28 @@ export default function StoreSettingsPage() {
         bannerEnabled: formData.bannerEnabled,
         bannerDescription: formData.bannerDescription,
         bannerLink: formData.bannerLink,
-        customization: formData.customization
-      };
+        socialLinks: socialLinks.filter(link => link.url.trim() !== ''),
+        customization: formData.customization,
+        ...imageUrls
+      });
 
-      // Upload images if new files are selected
-      if (avatarFile) {
-        const avatarUrl = await uploadStoreImage(user.uid, avatarFile, 'avatar');
-        updates.avatar = avatarUrl;
+      showSuccess('Store settings updated successfully!');
+      
+      // Reset image files
+      setImageFiles({});
+      
+      // Refresh store data
+      const updatedStore = await getUserStore(user.uid);
+      if (updatedStore) {
+        setStore(updatedStore);
       }
-
-      if (backgroundFile) {
-        const backgroundUrl = await uploadStoreImage(user.uid, backgroundFile, 'background');
-        updates.backgroundImage = backgroundUrl;
-      }
-
-      if (bannerFile) {
-        const bannerUrl = await uploadStoreImage(user.uid, bannerFile, 'banner');
-        updates.bannerImage = bannerUrl;
-      }
-
-      if (widgetFile) {
-        const widgetUrl = await uploadWidgetImage(user.uid, widgetFile);
-        updates.widgetImage = widgetUrl;
-      }
-
-      await updateStore(user.uid, updates);
-      showSuccess('Store settings saved successfully!');
     } catch (error) {
-      console.error('Error saving store:', error);
-      showError('Failed to save store settings. Please try again.');
+      console.error('Error updating store:', error);
+      showError('Failed to update store settings');
     } finally {
       setSaving(false);
     }
   };
-
-  const tabs = [
-    { id: 'general', label: 'General', icon: Settings },
-    { id: 'appearance', label: 'Appearance', icon: Palette },
-    { id: 'products', label: 'Products', icon: Package },
-    { id: 'currency', label: 'Currency', icon: DollarSign },
-    { id: 'images', label: 'Images', icon: ImageIcon },
-    { id: 'features', label: 'Features', icon: Globe }
-  ];
 
   if (loading) {
     return (
@@ -316,9 +278,9 @@ export default function StoreSettingsPage() {
           <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
           <div className="bg-white rounded-lg shadow p-6">
             <div className="space-y-4">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="h-10 bg-gray-200 rounded"></div>
-              ))}
+              <div className="h-10 bg-gray-200 rounded"></div>
+              <div className="h-20 bg-gray-200 rounded"></div>
+              <div className="h-10 bg-gray-200 rounded"></div>
             </div>
           </div>
         </div>
@@ -326,195 +288,287 @@ export default function StoreSettingsPage() {
     );
   }
 
+  const tabs = [
+    { id: 'general', label: 'General', icon: Settings },
+    { id: 'appearance', label: 'Appearance', icon: Palette },
+    { id: 'typography', label: 'Typography', icon: Type }
+  ];
+
   return (
     <div className="space-y-6 md:space-y-8">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-sm p-4 md:p-6 border border-gray-100">
+      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Store Settings</h1>
             <p className="text-gray-600 mt-1">Customize your store appearance and settings</p>
           </div>
-          
           {store && (
-            <div className="flex flex-col sm:flex-row gap-3">
-              <a
-                href={`/${store.slug}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
-              >
-                <Eye className="w-4 h-4 mr-2" />
-                Preview Store
-              </a>
-            </div>
+            <a
+              href={`/${store.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              Preview Store
+            </a>
           )}
         </div>
       </div>
 
-      {/* Mobile/Desktop Tab Navigation */}
+      {/* Store URL Display (Read-only) */}
+      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Store URL</h3>
+            <p className="text-sm text-gray-600 mb-3">Your store is accessible at this permanent URL</p>
+            <div className="flex items-center space-x-2">
+              <LinkIcon className="w-4 h-4 text-gray-400" />
+              <code className="px-3 py-2 bg-gray-100 rounded-lg text-sm font-mono text-gray-800">
+                {typeof window !== 'undefined' ? window.location.origin : 'yourdomain.com'}/{store?.slug}
+              </code>
+            </div>
+          </div>
+        </div>
+        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+          <p className="text-sm text-blue-800">
+            <strong>Note:</strong> Store URLs cannot be changed after creation to maintain link consistency and SEO benefits.
+          </p>
+        </div>
+      </div>
+
+      {/* Tabs */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        {/* Mobile Tab Selector */}
-        <div className="block md:hidden border-b border-gray-200">
-          <select
-            value={activeTab}
-            onChange={(e) => setActiveTab(e.target.value)}
-            className="w-full p-4 text-sm font-medium text-gray-700 bg-white border-0 focus:outline-none focus:ring-2 focus:ring-primary-500"
-          >
-            {tabs.map((tab) => (
-              <option key={tab.id} value={tab.id}>
-                {tab.label}
-              </option>
-            ))}
-          </select>
+        <div className="border-b border-gray-200">
+          <nav className="flex space-x-8 px-6">
+            {tabs.map((tab) => {
+              const IconComponent = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    activeTab === tab.id
+                      ? 'border-primary-500 text-primary-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <IconComponent className="w-4 h-4 mr-2" />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </nav>
         </div>
 
-        {/* Desktop Tab Navigation */}
-        <div className="hidden md:flex border-b border-gray-200">
-          {tabs.map((tab) => {
-            const IconComponent = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center px-6 py-4 text-sm font-medium transition-colors ${
-                  activeTab === tab.id
-                    ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50'
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                <IconComponent className="w-4 h-4 mr-2" />
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Tab Content */}
-        <form onSubmit={handleSubmit} className="p-4 md:p-6">
+        <form onSubmit={handleSubmit} className="p-6">
           {/* General Tab */}
           {activeTab === 'general' && (
             <div className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Store Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    required
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    placeholder="My Awesome Store"
-                  />
-                </div>
-                {/* store url are hidden so user cant update it */}
-             <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Store URL *
-                  </label>
-                  <div className="flex">
-                    <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                      yourdomain.com/
-                    </span>
-                    <input
-                      type="text"
-                      name="slug"
-                      disabled
-                      value={formData.slug}
-                      onChange={handleInputChange}
-                      className="flex-1 px-4 py-3 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                      placeholder="my-store"
-                   />
-                  </div>
-                </div>
-               
-              </div>
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Store Description
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                  Store Name *
                 </label>
-                <textarea
-                  name="description"
-                  rows={4}
-                  value={formData.description}
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  required
+                  value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors resize-none"
-                  placeholder="Welcome to my awesome store! Discover unique products curated just for you."
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                  placeholder="My Awesome Store"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                  Store Description *
+                </label>
+                <textarea
+                  id="description"
+                  name="description"
+                  required
+                  rows={4}
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors resize-none"
+                  placeholder="Welcome to my store! Discover amazing products..."
+                />
+              </div>
+
+              <div>
+                <label htmlFor="headerLayout" className="block text-sm font-medium text-gray-700 mb-2">
                   Header Layout
                 </label>
                 <select
+                  id="headerLayout"
                   name="headerLayout"
                   value={formData.headerLayout}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
                 >
-                  {HEADER_LAYOUTS.map((layout) => (
-                    <option key={layout.value} value={layout.value}>
-                      {layout.label}
-                    </option>
-                  ))}
+                  <option value="left-right">Avatar Left, Social Right</option>
+                  <option value="right-left">Avatar Right, Social Left</option>
+                  <option value="center">Centered Layout</option>
                 </select>
+              </div>
+
+              {/* Store Images */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Store Avatar
+                  </label>
+                  {imagePreviews.avatar && (
+                    <div className="mb-3">
+                      <Image
+                        src={imagePreviews.avatar}
+                        alt="Avatar preview"
+                        width={80}
+                        height={80}
+                        className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
+                      />
+                    </div>
+                  )}
+                  <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
+                    <Upload className="w-5 h-5 text-gray-400 mr-2" />
+                    <span className="text-sm text-gray-600">Upload Avatar</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange('avatar')}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Background Image
+                  </label>
+                  {imagePreviews.background && (
+                    <div className="mb-3">
+                      <Image
+                        src={imagePreviews.background}
+                        alt="Background preview"
+                        width={120}
+                        height={80}
+                        className="w-30 h-20 rounded-lg object-cover border-2 border-gray-200"
+                      />
+                    </div>
+                  )}
+                  <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
+                    <Upload className="w-5 h-5 text-gray-400 mr-2" />
+                    <span className="text-sm text-gray-600">Upload Background</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange('background')}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
               </div>
 
               {/* Social Links */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-4">
-                  Social Media Links
-                </label>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Social Media Links
+                  </label>
+                  <button
+                    type="button"
+                    onClick={addSocialLink}
+                    className="flex items-center px-3 py-1 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    Add Link
+                  </button>
+                </div>
                 
-                {/* Existing Social Links */}
-                <div className="space-y-3 mb-4">
-                  {formData.socialLinks.map((link, index) => (
-                    <div key={index} className="flex flex-col sm:flex-row gap-3 p-3 bg-gray-50 rounded-lg">
-                      <div className="flex-1">
-                        <span className="text-sm font-medium text-gray-600 capitalize">
-                          {link.platform}
-                        </span>
-                        <p className="text-sm text-gray-500 truncate">{link.url}</p>
-                      </div>
+                <div className="space-y-3">
+                  {socialLinks.map((link, index) => (
+                    <div key={index} className="flex space-x-3">
+                      <select
+                        value={link.platform}
+                        onChange={(e) => handleSocialLinkChange(index, 'platform', e.target.value)}
+                        className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      >
+                        {SOCIAL_PLATFORMS.map(platform => (
+                          <option key={platform} value={platform}>
+                            {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        type="url"
+                        value={link.url}
+                        onChange={(e) => handleSocialLinkChange(index, 'url', e.target.value)}
+                        placeholder="https://..."
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      />
                       <button
                         type="button"
                         onClick={() => removeSocialLink(index)}
-                        className="px-3 py-1 text-sm text-red-600 hover:text-red-800 transition-colors"
+                        className="px-3 py-2 text-danger-600 hover:bg-danger-50 rounded-lg transition-colors"
                       >
-                        Remove
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   ))}
                 </div>
+              </div>
 
-                {/* Add New Social Link */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <input
-                    type="text"
-                    value={newSocialPlatform}
-                    onChange={(e) => setNewSocialPlatform(e.target.value)}
-                    placeholder="Platform (e.g., instagram)"
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-sm"
-                  />
-                  <input
-                    type="url"
-                    value={newSocialUrl}
-                    onChange={(e) => setNewSocialUrl(e.target.value)}
-                    placeholder="https://instagram.com/username"
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-sm"
-                  />
-                  <button
-                    type="button"
-                    onClick={addSocialLink}
-                    className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm"
-                  >
-                    Add Link
-                  </button>
+              {/* Feature Toggles */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium text-gray-900">Feature Settings</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      name="displayPriceOnProducts"
+                      checked={formData.displayPriceOnProducts}
+                      onChange={handleInputChange}
+                      className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                    />
+                    <span className="ml-2 text-sm text-gray-900">Display prices on products</span>
+                  </label>
+
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      name="displayHeaderBackgroundImage"
+                      checked={formData.displayHeaderBackgroundImage}
+                      onChange={handleInputChange}
+                      className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                    />
+                    <span className="ml-2 text-sm text-gray-900">Show header background image</span>
+                  </label>
+
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      name="slidesEnabled"
+                      checked={formData.slidesEnabled}
+                      onChange={handleInputChange}
+                      className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                    />
+                    <span className="ml-2 text-sm text-gray-900">Enable promotional slides</span>
+                  </label>
+
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      name="widgetEnabled"
+                      checked={formData.widgetEnabled}
+                      onChange={handleInputChange}
+                      className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                    />
+                    <span className="ml-2 text-sm text-gray-900">Enable floating widget</span>
+                  </label>
                 </div>
               </div>
             </div>
@@ -523,150 +577,151 @@ export default function StoreSettingsPage() {
           {/* Appearance Tab */}
           {activeTab === 'appearance' && (
             <div className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Font Family
-                  </label>
-                  <select
-                    name="customization.fontFamily"
-                    value={formData.customization.fontFamily}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                  >
-                    {FONT_FAMILIES.map((font) => (
-                      <option key={font.value} value={font.value}>
-                        {font.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Store Background Color
-                  </label>
-                  <input
-                    type="color"
-                    name="customization.storeBackgroundColor"
-                    value={formData.customization.storeBackgroundColor}
-                    onChange={handleInputChange}
-                    className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="customization.storeNameFontColor" className="block text-sm font-medium text-gray-700 mb-2">
                     Store Name Color
                   </label>
                   <input
                     type="color"
+                    id="customization.storeNameFontColor"
                     name="customization.storeNameFontColor"
                     value={formData.customization.storeNameFontColor}
                     onChange={handleInputChange}
-                    className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="customization.storeBioFontColor" className="block text-sm font-medium text-gray-700 mb-2">
                     Store Bio Color
                   </label>
                   <input
                     type="color"
+                    id="customization.storeBioFontColor"
                     name="customization.storeBioFontColor"
                     value={formData.customization.storeBioFontColor}
                     onChange={handleInputChange}
-                    className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
                   />
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="customization.avatarBorderColor" className="block text-sm font-medium text-gray-700 mb-2">
                     Avatar Border Color
                   </label>
                   <input
                     type="color"
+                    id="customization.avatarBorderColor"
                     name="customization.avatarBorderColor"
                     value={formData.customization.avatarBorderColor}
                     onChange={handleInputChange}
-                    className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="customization.activeCategoryBorderColor" className="block text-sm font-medium text-gray-700 mb-2">
                     Active Category Border Color
                   </label>
                   <input
                     type="color"
+                    id="customization.activeCategoryBorderColor"
                     name="customization.activeCategoryBorderColor"
                     value={formData.customization.activeCategoryBorderColor}
                     onChange={handleInputChange}
-                    className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="customization.priceFontColor" className="block text-sm font-medium text-gray-700 mb-2">
+                    Price Color
+                  </label>
+                  <input
+                    type="color"
+                    id="customization.priceFontColor"
+                    name="customization.priceFontColor"
+                    value={formData.customization.priceFontColor}
+                    onChange={handleInputChange}
+                    className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="customization.currencySymbol" className="block text-sm font-medium text-gray-700 mb-2">
+                    Currency Symbol
+                  </label>
+                  <input
+                    type="text"
+                    id="customization.currencySymbol"
+                    name="customization.currencySymbol"
+                    value={formData.customization.currencySymbol}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    placeholder="$"
+                    maxLength={3}
                   />
                 </div>
               </div>
 
-              {/* Gradient Background */}
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Background Gradient</h3>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Background Settings</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Gradient Start Color
+                    <label htmlFor="customization.mainBackgroundGradientStartColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Background Start Color
                     </label>
                     <input
                       type="color"
+                      id="customization.mainBackgroundGradientStartColor"
                       name="customization.mainBackgroundGradientStartColor"
                       value={formData.customization.mainBackgroundGradientStartColor}
                       onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                      className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Gradient End Color
+                    <label htmlFor="customization.mainBackgroundGradientEndColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Background End Color
                     </label>
                     <input
                       type="color"
+                      id="customization.mainBackgroundGradientEndColor"
                       name="customization.mainBackgroundGradientEndColor"
                       value={formData.customization.mainBackgroundGradientEndColor}
                       onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                      className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Slide Customization */}
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Slide Customization</h3>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Slide Overlay Settings</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Slide Overlay Color
+                    <label htmlFor="customization.slideOverlayColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Overlay Color
                     </label>
                     <input
                       type="color"
+                      id="customization.slideOverlayColor"
                       name="customization.slideOverlayColor"
                       value={formData.customization.slideOverlayColor}
                       onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                      className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Slide Overlay Opacity
+                    <label htmlFor="customization.slideOverlayOpacity" className="block text-sm font-medium text-gray-700 mb-2">
+                      Overlay Opacity
                     </label>
                     <input
                       type="range"
+                      id="customization.slideOverlayOpacity"
                       name="customization.slideOverlayOpacity"
                       min="0"
                       max="1"
@@ -675,36 +730,20 @@ export default function StoreSettingsPage() {
                       onChange={handleInputChange}
                       className="w-full"
                     />
-                    <span className="text-sm text-gray-500">
-                      {Math.round(formData.customization.slideOverlayOpacity * 100)}%
-                    </span>
+                    <span className="text-sm text-gray-500">{formData.customization.slideOverlayOpacity}</span>
                   </div>
-                </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="customization.slideTitleColor" className="block text-sm font-medium text-gray-700 mb-2">
                       Slide Title Color
                     </label>
                     <input
                       type="color"
+                      id="customization.slideTitleColor"
                       name="customization.slideTitleColor"
                       value={formData.customization.slideTitleColor}
                       onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Slide Description Color
-                    </label>
-                    <input
-                      type="color"
-                      name="customization.slideDescriptionColor"
-                      value={formData.customization.slideDescriptionColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                      className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
                     />
                   </div>
                 </div>
@@ -712,337 +751,133 @@ export default function StoreSettingsPage() {
             </div>
           )}
 
-          {/* Products Tab */}
-          {activeTab === 'products' && (
+          {/* Typography Tab */}
+          {activeTab === 'typography' && (
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Product Display Options</h3>
-                
-                <div className="space-y-4">
-                  <div className="flex items-start">
-                    <div className="flex items-center h-5">
-                      <input
-                        id="displayPriceOnProducts"
-                        name="displayPriceOnProducts"
-                        type="checkbox"
-                        checked={formData.displayPriceOnProducts}
-                        onChange={handleInputChange}
-                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                      />
-                    </div>
-                    <div className="ml-3 text-sm">
-                      <label htmlFor="displayPriceOnProducts" className="font-medium text-gray-700">
-                        Show product prices on store
-                      </label>
-                      <p className="text-gray-500">
-                        When disabled, product prices will be hidden from your store visitors.
-                      </p>
-                    </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Font Families</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="customization.headingFontFamily" className="block text-sm font-medium text-gray-700 mb-2">
+                      Heading Font
+                    </label>
+                    <select
+                      id="customization.headingFontFamily"
+                      name="customization.headingFontFamily"
+                      value={formData.customization.headingFontFamily}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    >
+                      {FONT_OPTIONS.map(font => (
+                        <option key={font.value} value={font.value}>
+                          {font.label}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-1 text-sm text-gray-500">Used for titles, headings, and category names</p>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Price Font Color
+                    <label htmlFor="customization.bodyFontFamily" className="block text-sm font-medium text-gray-700 mb-2">
+                      Body Font
                     </label>
-                    <input
-                      type="color"
-                      name="customization.priceFontColor"
-                      value={formData.customization.priceFontColor}
+                    <select
+                      id="customization.bodyFontFamily"
+                      name="customization.bodyFontFamily"
+                      value={formData.customization.bodyFontFamily}
                       onChange={handleInputChange}
-                      className="w-full md:w-48 h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    >
+                      {FONT_OPTIONS.map(font => (
+                        <option key={font.value} value={font.value}>
+                          {font.label}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="mt-1 text-sm text-gray-500">Used for descriptions, prices, and general text</p>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* Currency Tab */}
-          {activeTab === 'currency' && (
-            <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Currency Settings</h3>
-                
-                <div className="max-w-md">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Currency Symbol
-                  </label>
-                  <select
-                    name="customization.currencySymbol"
-                    value={formData.customization.currencySymbol}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Text Colors</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="customization.headingTextColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Heading Text Color
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.headingTextColor"
+                      name="customization.headingTextColor"
+                      value={formData.customization.headingTextColor}
+                      onChange={handleInputChange}
+                      className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+                    />
+                    <p className="mt-1 text-sm text-gray-500">Color for headings and titles</p>
+                  </div>
+
+                  <div>
+                    <label htmlFor="customization.bodyTextColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Body Text Color
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.bodyTextColor"
+                      name="customization.bodyTextColor"
+                      value={formData.customization.bodyTextColor}
+                      onChange={handleInputChange}
+                      className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+                    />
+                    <p className="mt-1 text-sm text-gray-500">Color for descriptions and general text</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Typography Preview */}
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Typography Preview</h3>
+                <div 
+                  className="p-6 border border-gray-200 rounded-lg bg-white"
+                  style={{
+                    fontFamily: formData.customization.bodyFontFamily,
+                    color: formData.customization.bodyTextColor
+                  }}
+                >
+                  <h1 
+                    className="text-2xl font-bold mb-2"
+                    style={{
+                      fontFamily: formData.customization.headingFontFamily,
+                      color: formData.customization.headingTextColor
+                    }}
                   >
-                    {CURRENCY_OPTIONS.map((currency) => (
-                      <option key={currency.value} value={currency.value}>
-                        {currency.label}
-                      </option>
-                    ))}
-                  </select>
-                  <p className="mt-2 text-sm text-gray-500">
-                    This symbol will be displayed before product prices in your store.
+                    Sample Store Heading
+                  </h1>
+                  <h2 
+                    className="text-lg font-semibold mb-3"
+                    style={{
+                      fontFamily: formData.customization.headingFontFamily,
+                      color: formData.customization.headingTextColor
+                    }}
+                  >
+                    Product Category
+                  </h2>
+                  <p className="text-sm mb-2">
+                    This is how your store description and product descriptions will look with the selected typography settings.
+                  </p>
+                  <p 
+                    className="text-sm font-semibold"
+                    style={{ color: formData.customization.priceFontColor }}
+                  >
+                    {formData.customization.currencySymbol}29.99
                   </p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Images Tab */}
-          {activeTab === 'images' && (
-            <div className="space-y-8">
-              {/* Avatar */}
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Store Avatar</h3>
-                <div className="flex flex-col md:flex-row md:items-center gap-4">
-                  {avatarPreview && (
-                    <div className="flex-shrink-0">
-                      <Image
-                        src={avatarPreview}
-                        alt="Avatar preview"
-                        width={80}
-                        height={80}
-                        className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
-                      />
-                    
-                    </div>
-                  )}
-                  <div className="flex-1">
-                    <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
-                      <Upload className="w-5 h-5 text-gray-400 mr-2" />
-                      <span className="text-sm text-gray-600">
-                        {avatarFile ? 'Change Avatar' : 'Upload Avatar'}
-                      </span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => e.target.files?.[0] && handleImageChange('avatar', e.target.files[0])}
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              {/* Background Image */}
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Header Background Image</h3>
-                <div className="space-y-4">
-                  <div className="flex items-start">
-                    <div className="flex items-center h-5">
-                      <input
-                        id="displayHeaderBackgroundImage"
-                        name="displayHeaderBackgroundImage"
-                        type="checkbox"
-                        checked={formData.displayHeaderBackgroundImage}
-                        onChange={handleInputChange}
-                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                      />
-                    </div>
-                    <div className="ml-3 text-sm">
-                      <label htmlFor="displayHeaderBackgroundImage" className="font-medium text-gray-700">
-                        Display header background image
-                      </label>
-                      <p className="text-gray-500">
-                        When enabled, the background image will be shown in the store header.
-                      </p>
-                    </div>
-                  </div>
-
-                  {backgroundPreview && (
-                    <div className="mt-4">
-                      <Image
-                        src={backgroundPreview}
-                        alt="Background preview"
-                        width={400}
-                        height={200}
-                        className="w-full max-w-md h-32 object-cover rounded-lg border-2 border-gray-200"
-                      />
-                    </div>
-                  )}
-                  
-                  <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
-                    <Upload className="w-5 h-5 text-gray-400 mr-2" />
-                    <span className="text-sm text-gray-600">
-                      {backgroundFile ? 'Change Background' : 'Upload Background Image'}
-                    </span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => e.target.files?.[0] && handleImageChange('background', e.target.files[0])}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-              </div>
-
-              {/* Banner Image */}
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Pop-up Banner</h3>
-                <div className="space-y-4">
-                  {bannerPreview && (
-                    <div>
-                      <Image
-                        src={bannerPreview}
-                        alt="Banner preview"
-                        width={400}
-                        height={200}
-                        className="w-full max-w-md h-32 object-cover rounded-lg border-2 border-gray-200"
-                      />
-                    </div>
-                  )}
-                  
-                  <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
-                    <Upload className="w-5 h-5 text-gray-400 mr-2" />
-                    <span className="text-sm text-gray-600">
-                      {bannerFile ? 'Change Banner' : 'Upload Banner Image'}
-                    </span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => e.target.files?.[0] && handleImageChange('banner', e.target.files[0])}
-                      className="hidden"
-                    />
-                  </label>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Banner Description
-                    </label>
-                    <textarea
-                      name="bannerDescription"
-                      rows={3}
-                      value={formData.bannerDescription}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors resize-none"
-                      placeholder="Describe your banner or promotion..."
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Banner Link (Optional)
-                    </label>
-                    <input
-                      type="url"
-                      name="bannerLink"
-                      value={formData.bannerLink}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                      placeholder="https://example.com/promotion"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Widget Image */}
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Floating Widget</h3>
-                <div className="space-y-4">
-                  {widgetPreview && (
-                    <div>
-                      <Image
-                        src={widgetPreview}
-                        alt="Widget preview"
-                        width={64}
-                        height={64}
-                        className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
-                      />
-                    </div>
-                  )}
-                  
-                  <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
-                    <Upload className="w-5 h-5 text-gray-400 mr-2" />
-                    <span className="text-sm text-gray-600">
-                      {widgetFile ? 'Change Widget Image' : 'Upload Widget Image'}
-                    </span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => e.target.files?.[0] && handleImageChange('widget', e.target.files[0])}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Features Tab */}
-          {activeTab === 'features' && (
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Store Features</h3>
-                
-                <div className="space-y-6">
-                  <div className="flex items-start">
-                    <div className="flex items-center h-5">
-                      <input
-                        id="slidesEnabled"
-                        name="slidesEnabled"
-                        type="checkbox"
-                        checked={formData.slidesEnabled}
-                        onChange={handleInputChange}
-                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                      />
-                    </div>
-                    <div className="ml-3 text-sm">
-                      <label htmlFor="slidesEnabled" className="font-medium text-gray-700">
-                        Enable promotional slides
-                      </label>
-                      <p className="text-gray-500">
-                        Show promotional slides on your store homepage to highlight special offers.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start">
-                    <div className="flex items-center h-5">
-                      <input
-                        id="widgetEnabled"
-                        name="widgetEnabled"
-                        type="checkbox"
-                        checked={formData.widgetEnabled}
-                        onChange={handleInputChange}
-                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                      />
-                    </div>
-                    <div className="ml-3 text-sm">
-                      <label htmlFor="widgetEnabled" className="font-medium text-gray-700">
-                        Enable floating widget
-                      </label>
-                      <p className="text-gray-500">
-                        Display a floating widget button on your store for quick access to promotions.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start">
-                    <div className="flex items-center h-5">
-                      <input
-                        id="bannerEnabled"
-                        name="bannerEnabled"
-                        type="checkbox"
-                        checked={formData.bannerEnabled}
-                        onChange={handleInputChange}
-                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                      />
-                    </div>
-                    <div className="ml-3 text-sm">
-                      <label htmlFor="bannerEnabled" className="font-medium text-gray-700">
-                        Enable pop-up banner
-                      </label>
-                      <p className="text-gray-500">
-                        Show a pop-up banner to visitors with special announcements or promotions.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Save Button */}
-          <div className="flex justify-end pt-6">
+          <div className="flex justify-end pt-6 border-t border-gray-200">
             <button
               type="submit"
               disabled={saving}

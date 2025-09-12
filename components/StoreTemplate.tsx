@@ -169,7 +169,8 @@ export default function StoreTemplate({ store, products, slides, categories, ini
     <div 
       className="min-h-screen max-w-md mx-auto"
       style={{
-        fontFamily: store.customization?.fontFamily || 'Inter, system-ui, -apple-system, sans-serif',
+        fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'Inter, system-ui, -apple-system, sans-serif',
+        color: store.customization?.bodyTextColor || '#374151',
         backgroundColor: store.customization?.storeBackgroundColor || '#f3f4f6',
         background: store.customization?.mainBackgroundGradientStartColor && store.customization?.mainBackgroundGradientEndColor
           ? `linear-gradient(135deg, ${store.customization.mainBackgroundGradientStartColor}, ${store.customization.mainBackgroundGradientEndColor})`
@@ -277,9 +278,10 @@ export default function StoreTemplate({ store, products, slides, categories, ini
           {/* Centered store name and description */}
           <div className="text-center px-4">
             <h1 
-              className="text-2xl font-extrabold mb-2"
+              className="text-2xl font-extrabold mb-2" 
               style={{
-                color: storeNameColor
+                color: storeNameColor,
+                fontFamily: store.customization?.headingFontFamily || store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
               }}
             >
               {store.name}
@@ -287,7 +289,8 @@ export default function StoreTemplate({ store, products, slides, categories, ini
             <p 
               className="text-sm max-w-xs mx-auto leading-snug"
               style={{
-                color: store.customization?.storeBioFontColor || '#e5e7eb'
+                color: store.customization?.storeBioFontColor || '#e5e7eb',
+                fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
               }}
             >
               {store.description}
@@ -331,7 +334,8 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                     <h2 
                       className="text-2xl font-bold mb-2"
                       style={{
-                        color: store.customization?.slideTitleColor || '#ffffff'
+                        color: store.customization?.slideTitleColor || '#ffffff',
+                        fontFamily: store.customization?.headingFontFamily || store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
                       }}
                     >
                       {slide.title}
@@ -340,7 +344,8 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                       <p 
                         className="text-sm max-w-2xl"
                         style={{
-                          color: store.customization?.slideDescriptionColor || '#e5e7eb'
+                          color: store.customization?.slideDescriptionColor || '#e5e7eb',
+                          fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
                         }}
                       >
                         {slide.description}
@@ -428,7 +433,10 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                   </div>
                   <span 
                     className="text-[0.8rem] font-semibold mt-1 whitespace-nowrap"
-                    style={{ color: priceColor }}
+                    style={{ 
+                      color: priceColor,
+                      fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+                    }}
                   >
                     {category.id === 'all' ? 'All Products' : categoryDisplayName}
                   </span>
@@ -444,7 +452,10 @@ export default function StoreTemplate({ store, products, slides, categories, ini
         <div className="mb-6">
           <h2 
             className="text-[0.8rem] font-bold mb-2"
-            style={{ color: priceColor }}
+            style={{ 
+              color: priceColor,
+              fontFamily: store.customization?.headingFontFamily || store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+            }}
           >
             {searchTerm 
               ? `Search Results for "${searchTerm}"` 
@@ -455,7 +466,8 @@ export default function StoreTemplate({ store, products, slides, categories, ini
           <p className="text-[0.8rem] text-gray-600">
             {searchTerm
               ? `Found ${finalFilteredProducts.length} result${finalFilteredProducts.length !== 1 ? 's' : ''}`
-              : ''}
+              : ''
+            }
           </p>
           
           {/* Search Input */}
@@ -505,7 +517,10 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                   <div className="flex items-center justify-between">
                     <span 
                       className="font-bold text-[0.8rem]"
-                      style={{ color: priceColor }}
+                      style={{ 
+                        color: priceColor,
+                        fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+                      }}
                     >
                       {currencySymbol}{product.price}
                     </span>
@@ -537,6 +552,9 @@ export default function StoreTemplate({ store, products, slides, categories, ini
             <button
               onClick={() => setSearchTerm('')}
               className="mt-4 inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+              style={{
+                fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+              }}
             >
               Clear Search
             </button>
@@ -550,7 +568,10 @@ export default function StoreTemplate({ store, products, slides, categories, ini
           <div className="mb-6">
             <h2 
               className="text-[0.8rem] font-bold mb-2"
-              style={{ color: priceColor }}
+              style={{ 
+                color: priceColor,
+                fontFamily: store.customization?.headingFontFamily || store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+              }}
             >
               All Products
             </h2>
@@ -580,7 +601,10 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                     <div className="flex items-center justify-between">
                       <span 
                         className="font-bold text-[0.8rem]"
-                        style={{ color: priceColor }}
+                        style={{ 
+                          color: priceColor,
+                          fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+                        }}
                       >
                         {currencySymbol}{product.price}
                       </span>

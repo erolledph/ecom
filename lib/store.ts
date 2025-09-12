@@ -50,6 +50,10 @@ export interface Store {
     avatarBorderColor?: string;
     activeCategoryBorderColor?: string;
     fontFamily?: string;
+    headingFontFamily?: string;
+    bodyFontFamily?: string;
+    headingTextColor?: string;
+    bodyTextColor?: string;
     mainBackgroundGradientStartColor?: string;
     mainBackgroundGradientEndColor?: string;
     storeBackgroundColor?: string;
@@ -147,10 +151,13 @@ export async function getStoreBySlug(slug: string): Promise<Store | null> {
 
 export async function updateStore(storeId: string, updates: Partial<Store>): Promise<void> {
   try {
+    // Remove slug from updates to prevent changing store URL after creation
+    const { slug, ...allowedUpdates } = updates;
+    
     // Update store in nested path
     const storeRef = doc(db, 'users', storeId, 'stores', storeId);
     await updateDoc(storeRef, {
-      ...updates,
+      ...allowedUpdates,
       updatedAt: serverTimestamp()
     });
   } catch (error) {

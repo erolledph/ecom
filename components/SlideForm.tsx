@@ -147,7 +147,7 @@ export default function SlideForm({ slide, mode }: SlideFormProps) {
               required
               value={formData.title}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 bg-white"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
               placeholder="New Summer Collection!"
             />
             <p className="mt-1 text-xs text-gray-500">
@@ -165,7 +165,7 @@ export default function SlideForm({ slide, mode }: SlideFormProps) {
               rows={3}
               value={formData.description}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors resize-none text-gray-900 bg-white"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors resize-none text-gray-900"
               placeholder="Promote your best affiliate products or special offers"
             />
           </div>
@@ -180,7 +180,7 @@ export default function SlideForm({ slide, mode }: SlideFormProps) {
               name="link"
               value={formData.link}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 bg-white"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
               placeholder="https://affiliate-link.com/product"
             />
             <p className="mt-1 text-xs text-gray-500">
@@ -199,7 +199,7 @@ export default function SlideForm({ slide, mode }: SlideFormProps) {
               min="0"
               value={formData.order}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 bg-white"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
             />
             <p className="mt-1 text-xs text-gray-500">
               Lower numbers appear first in the slider

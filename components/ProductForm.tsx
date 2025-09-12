@@ -273,7 +273,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
                     type="url"
                     value={productData.imageUrl}
                     onChange={handleImageUrlChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 bg-white"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
                     placeholder="https://example.com/image.jpg"
                   />
                   <p className="mt-1 text-xs text-gray-500">
@@ -308,7 +308,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
               required
               value={productData.title}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 bg-white"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
               placeholder="Enter product name"
             />
           </div>
@@ -325,7 +325,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
               rows={4}
               value={productData.description}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors resize-none text-gray-900 bg-white"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors resize-none text-gray-900"
               placeholder="Enter product description"
             />
           </div>
@@ -343,7 +343,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
                 required
                 value={productData.price}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 bg-white"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
                 placeholder="0.00"
               />
             </div>
@@ -359,7 +359,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
                 required
                 value={productData.category}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 bg-white"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
                 placeholder="Enter category (e.g., Electronics, Fashion)"
               />
               <p className="mt-1 text-xs text-gray-500">
@@ -380,7 +380,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
               required
               value={productData.productLink}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 bg-white"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
               placeholder="https://affiliate-link.com/product"
             />
             <p className="mt-1 text-sm text-gray-500">
