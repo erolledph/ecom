@@ -361,7 +361,7 @@ export async function uploadProductImage(storeId: string, file: File, productId:
     
     const baseFileName = sanitizeFilename(file.name);
     const fileName = `${baseFileName}_${Date.now()}.webp`; // Use sanitized original name + timestamp + webp extension
-    const imageRef = ref(storage, `product_images/${storeId}/${productId}/${fileName}`);
+    const imageRef = ref(storage, `users/${storeId}/images/products/${productId}/${fileName}`);
     await uploadBytes(imageRef, compressedBlob); // Upload the compressed blob
     return getDownloadURL(imageRef);
   } catch (error) {
@@ -377,7 +377,7 @@ export async function uploadSlideImage(storeId: string, file: File, slideId: str
     
     const baseFileName = sanitizeFilename(file.name);
     const fileName = `${baseFileName}_${Date.now()}.webp`; // Use sanitized original name + timestamp + webp extension
-    const imageRef = ref(storage, `slider_images/${storeId}/${slideId}/${fileName}`);
+    const imageRef = ref(storage, `users/${storeId}/images/slides/${slideId}/${fileName}`);
     await uploadBytes(imageRef, compressedBlob); // Upload the compressed blob
     return getDownloadURL(imageRef);
   } catch (error) {
@@ -401,7 +401,7 @@ export async function uploadStoreImage(storeId: string, file: File, type: 'avata
     
     const baseFileName = sanitizeFilename(file.name);
     const fileName = `${baseFileName}_${type}_${Date.now()}.webp`; // Use sanitized original name + type + timestamp + webp extension
-    const imageRef = ref(storage, `stores/${storeId}/${fileName}`);
+    const imageRef = ref(storage, `users/${storeId}/images/store/${type}/${fileName}`);
     await uploadBytes(imageRef, compressedBlob); // Upload the compressed blob
     return getDownloadURL(imageRef);
   } catch (error) {
@@ -417,7 +417,7 @@ export async function uploadWidgetImage(storeId: string, file: File): Promise<st
     
     const baseFileName = sanitizeFilename(file.name);
     const fileName = `${baseFileName}_widget_${Date.now()}.webp`; // Use sanitized original name + timestamp + webp extension
-    const imageRef = ref(storage, `stores/${storeId}/${fileName}`);
+    const imageRef = ref(storage, `users/${storeId}/images/store/widget/${fileName}`);
     await uploadBytes(imageRef, compressedBlob); // Upload the compressed blob
     return getDownloadURL(imageRef);
   } catch (error) {
