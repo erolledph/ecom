@@ -639,6 +639,57 @@ export default function StoreTemplate({ store, products, slides, categories, ini
         Your special surprise awaits!
       </div>
 
+      {/* Pop-up Banner */}
+      {store.bannerEnabled && showBannerPopup && store.bannerImage && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-hidden relative">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowBannerPopup(false)}
+              className="absolute top-2 right-2 z-10 bg-black bg-opacity-50 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-opacity-70 transition-colors"
+            >
+              ✕
+            </button>
+            
+            {/* Banner Content */}
+            <div
+              className={store.bannerLink ? 'cursor-pointer' : ''}
+              onClick={() => {
+                if (store.bannerLink) {
+                  window.open(store.bannerLink, '_blank', 'noopener,noreferrer');
+                  setShowBannerPopup(false);
+                }
+              }}
+            >
+              <div className="aspect-video overflow-hidden">
+                <Image
+                  src={store.bannerImage}
+                  alt="Banner"
+                  width={400}
+                  height={300}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              
+              {store.bannerDescription && (
+                <div className="p-4">
+                  <p className="text-gray-800 text-sm leading-relaxed">
+                    {store.bannerDescription}
+                  </p>
+                  {store.bannerLink && (
+                    <div className="mt-3">
+                      <span className="inline-flex items-center text-primary-600 text-sm font-medium">
+                        Click to learn more →
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Inline Styles */}
       <style jsx>{`
         .category-scroller::-webkit-scrollbar {

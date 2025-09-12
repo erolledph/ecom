@@ -230,11 +230,17 @@ export default function StoreSettingsPage() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
   const [widgetFile, setWidgetFile] = useState<File | null>(null);
+  const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState('');
   const [backgroundPreview, setBackgroundPreview] = useState('');
   const [widgetPreview, setWidgetPreview] = useState('');
+  const [bannerPreview, setBannerPreview] = useState('');
   const [widgetLink, setWidgetLink] = useState('');
   const [widgetEnabled, setWidgetEnabled] = useState(true);
+  const [bannerDescription, setBannerDescription] = useState('');
+  const [bannerLink, setBannerLink] = useState('');
+  const [bannerEnabled, setBannerEnabled] = useState(false);
+  const [slidesEnabled, setSlidesEnabled] = useState(true);
   const [slugError, setSlugError] = useState('');
   const [isCheckingSlug, setIsCheckingSlug] = useState(false);
 
@@ -275,6 +281,11 @@ export default function StoreSettingsPage() {
           setWidgetPreview(storeData.widgetImage || '');
           setWidgetLink(storeData.widgetLink || '');
           setWidgetEnabled(storeData.widgetEnabled !== false); // Default to true if not set
+          setBannerPreview(storeData.bannerImage || '');
+          setBannerDescription(storeData.bannerDescription || '');
+          setBannerLink(storeData.bannerLink || '');
+          setBannerEnabled(storeData.bannerEnabled || false);
+          setSlidesEnabled(storeData.slidesEnabled !== false); // Default to true if not set
         }
       } catch (error) {
         console.error('Error fetching store:', error);
@@ -337,7 +348,7 @@ export default function StoreSettingsPage() {
     return () => clearTimeout(timeoutId);
   };
 
-  const handleImageChange = (type: 'avatar' | 'background' | 'widget') => (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (type: 'avatar' | 'background' | 'widget' | 'banner') => (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (type === 'avatar') {
@@ -349,6 +360,9 @@ export default function StoreSettingsPage() {
       } else if (type === 'widget') {
         setWidgetFile(file);
         setWidgetPreview(URL.createObjectURL(file));
+      } else if (type === 'banner') {
+        setBannerFile(file);
+        setBannerPreview(URL.createObjectURL(file));
       }
     }
   };
@@ -401,6 +415,7 @@ export default function StoreSettingsPage() {
       let avatarUrl = store.avatar;
       let backgroundUrl = store.backgroundImage;
       let widgetImageUrl = store.widgetImage || '';
+      let bannerImageUrl = store.bannerImage || '';
 
       // Upload new images if selected
       if (avatarFile) {
@@ -411,6 +426,9 @@ export default function StoreSettingsPage() {
       }
       if (widgetFile) {
         widgetImageUrl = await uploadWidgetImage(user.uid, widgetFile);
+      }
+      if (bannerFile) {
+        bannerImageUrl = await uploadStoreImage(user.uid, bannerFile, 'banner');
       }
 
       // Filter out empty social links
@@ -427,6 +445,11 @@ export default function StoreSettingsPage() {
         widgetImage: widgetImageUrl,
         widgetLink: widgetLink,
         widgetEnabled: widgetEnabled,
+        bannerImage: bannerImageUrl,
+        bannerDescription: bannerDescription,
+        bannerLink: bannerLink,
+        bannerEnabled: bannerEnabled,
+        slidesEnabled: slidesEnabled,
         socialLinks: validSocialLinks,
         customization: formData.customization
       };
@@ -1049,6 +1072,84 @@ export default function StoreSettingsPage() {
                     />
                     <label htmlFor="widgetEnabled" className="ml-2 block text-sm text-gray-900">
                       Enable floating widget (visible on store)
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Pop-up Banner
+                </label>
+                <div className="space-y-4">
+                  {bannerPreview && (
+                    <div className="mb-4">
+                      <Image
+                        src={bannerPreview}
+                        alt="Banner preview"
+                        width={300}
+                        height={200}
+                        className="w-full max-w-sm h-40 rounded-lg object-cover border-2 border-gray-200"
+                      />
+                    </div>
+                  )}
+                  <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
+                    <Upload className="w-5 h-5 text-gray-400 mr-2" />
+                    <span className="text-sm text-gray-600">
+                      {bannerFile ? 'Change Banner Image' : 'Upload Banner Image'}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange('banner')}
+                      className="hidden"
+                    />
+                  </label>
+                  
+                  <div>
+                    <label htmlFor="bannerDescription" className="block text-sm font-medium text-gray-700 mb-2">
+                      Banner Description
+                    </label>
+                    <textarea
+                      id="bannerDescription"
+                      rows={3}
+                      value={bannerDescription}
+                      onChange={(e) => setBannerDescription(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 bg-white resize-none"
+                      placeholder="Welcome! Check out our amazing deals..."
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      This text will appear on the pop-up banner.
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="bannerLink" className="block text-sm font-medium text-gray-700 mb-2">
+                      Banner Link (Optional)
+                    </label>
+                    <input
+                      type="url"
+                      id="bannerLink"
+                      value={bannerLink}
+                      onChange={(e) => setBannerLink(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 bg-white"
+                      placeholder="https://example.com"
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      When clicked, the banner will open this link. Leave empty for close-only banner.
+                    </p>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="bannerEnabled"
+                      checked={bannerEnabled}
+                      onChange={(e) => setBannerEnabled(e.target.checked)}
+                      className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="bannerEnabled" className="ml-2 block text-sm text-gray-900">
+                      Enable pop-up banner (show on store visits)
                     </label>
                   </div>
                 </div>
