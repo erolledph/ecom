@@ -411,7 +411,7 @@ export default function StoreSettingsPage() {
                   />
                 </div>
                 {/* store url are hidden so user cant update it */}
-             {/*   <div>
+             <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Store URL *
                   </label>
@@ -422,15 +422,15 @@ export default function StoreSettingsPage() {
                     <input
                       type="text"
                       name="slug"
-                      required
+                      disabled
                       value={formData.slug}
                       onChange={handleInputChange}
                       className="flex-1 px-4 py-3 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
                       placeholder="my-store"
-                    />
+                   />
                   </div>
                 </div>
-                */}
+               
               </div>
 
               <div>
