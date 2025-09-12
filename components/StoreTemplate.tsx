@@ -501,16 +501,14 @@ export default function StoreTemplate({ store, products, slides, categories, ini
               <div className="p-[5px]">
                 <h3 className="font-semibold text-gray-800 line-clamp-2 text-[0.8rem] mb-[5px] min-h-[2.4rem]">{product.title}</h3>
                 {store.displayPriceOnProducts !== false && (
-                  {store.displayPriceOnProducts !== false && (
-                    <div className="flex items-center justify-between">
-                      <span 
-                        className="font-bold text-[0.8rem]"
-                        style={{ color: priceColor }}
-                      >
-                        {currencySymbol}{product.price}
-                      </span>
-                    </div>
-                  )}
+                  <div className="flex items-center justify-between">
+                    <span 
+                      className="font-bold text-[0.8rem]"
+                      style={{ color: priceColor }}
+                    >
+                      {currencySymbol}{product.price}
+                    </span>
+                  </div>
                 )}
               </div>
             </div>
