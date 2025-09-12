@@ -182,9 +182,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
         style={{
           background: store.displayHeaderBackgroundImage !== false && store.backgroundImage
             ? `url('${store.backgroundImage}') center/cover, linear-gradient(135deg, #667eea 0%, #764ba2 100%)`
-            : store.customization?.mainBackgroundGradientStartColor && store.customization?.mainBackgroundGradientEndColor
-              ? `linear-gradient(135deg, ${store.customization.mainBackgroundGradientStartColor}, ${store.customization.mainBackgroundGradientEndColor})`
-              : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+            : 'transparent'
         }}
       >
         {/* Overlay for better text readability when using background image */}
@@ -373,7 +371,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
 
       {/* Categories */}
       {categories.length > 0 && (
-        <section className="container mx-auto px-4 pb-4 overflow-x-auto category-scroller">
+        <section className="container mx-auto px-4 pb-4 pt-6 overflow-x-auto category-scroller">
           <div className="flex space-x-[5px] px-4">
             {categories.map((category) => (
               <div
