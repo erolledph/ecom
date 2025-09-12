@@ -133,7 +133,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
       
       if (mode === 'edit' && product) {
         // Update existing product
-        await updateDoc(doc(db, 'products', product.id!), {
+        await updateDoc(doc(db, 'users', user.uid, 'stores', user.uid, 'products', product.id!), {
           title: productData.title,
           description: productData.description,
           price: parseFloat(productData.price),
@@ -143,7 +143,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
         productId = product.id!;
       } else {
         // Create new product
-        const docRef = await addDoc(collection(db, 'products'), {
+        const docRef = await addDoc(collection(db, 'users', user.uid, 'stores', user.uid, 'products'), {
           title: productData.title,
           description: productData.description,
           price: parseFloat(productData.price),
@@ -168,7 +168,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
       
       // Update the product with the final image URL
       if (finalImageUrl) {
-        await updateProduct(productId, {
+        await updateProduct(user.uid, productId, {
           images: [finalImageUrl]
         });
       }

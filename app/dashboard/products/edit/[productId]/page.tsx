@@ -4,18 +4,22 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { getProductById, Product } from '@/lib/store';
 import ProductForm from '@/components/ProductForm';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function EditProductPage() {
   const params = useParams();
   const productId = params.productId as string;
+  const { user } = useAuth();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
+      if (!user) return;
+      
       try {
-        const productData = await getProductById(productId);
+        const productData = await getProductById(user.uid, productId);
         if (productData) {
           setProduct(productData);
         } else {
@@ -29,10 +33,10 @@ export default function EditProductPage() {
       }
     };
 
-    if (productId) {
+    if (productId && user) {
       fetchProduct();
     }
-  }, [productId]);
+  }, [productId, user]);
 
   if (loading) {
     return (

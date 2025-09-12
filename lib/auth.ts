@@ -105,8 +105,8 @@ export const signUp = async (email: string, password: string, displayName?: stri
     };
     
     console.log('Creating default store with data:', defaultStore);
-    // Create store document with user's UID as the store ID for easy access
-    const storeRef = doc(db, 'stores', user.uid);
+    // Create store document nested under user document
+    const storeRef = doc(db, 'users', user.uid, 'stores', user.uid);
     await setDoc(storeRef, defaultStore);
     
     console.log('Store created successfully with slug:', finalStoreSlug, 'and ID:', user.uid);

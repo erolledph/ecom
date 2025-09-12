@@ -7,13 +7,12 @@ service firebase.storage {
       allow read;
     }
 
-    // Store images: Only authenticated users can write to their own store folders
-    match /store_images/{storeId}/{fileName} {
+    // Store images (avatar, background, banner, widget): Only authenticated users can write to their own store folders
+    match /stores/{storeId}/{fileName} {
       allow write, delete: if request.auth != null && request.auth.uid == storeId;
     }
 
     // Product images: Only authenticated users can write to their own product folders
-    // Updated path structure for single image per product
     match /product_images/{storeId}/{productId}/{fileName} {
       allow write, delete: if request.auth != null && request.auth.uid == storeId;
     }
@@ -26,11 +25,6 @@ service firebase.storage {
     // User avatar images: Only authenticated users can write to their own avatar folder
     match /user_avatars/{userId}/{fileName} {
       allow write, delete: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // Store general images: Only authenticated users can write to their own store folder
-    match /stores/{fileName} {
-      allow write, delete: if request.auth != null;
     }
   }
 }

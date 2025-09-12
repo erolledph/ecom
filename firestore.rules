@@ -5,34 +5,33 @@ service cloud.firestore {
     // Users collection: Users can only read/write their own profile
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // Stores subcollection: Public read, owner write/create/delete
+      match /stores/{storeId} {
+        allow read; // Anyone can read store details
+        allow create: if request.auth != null && request.auth.uid == userId && request.resource.data.ownerId == userId;
+        allow update, delete: if request.auth != null && request.auth.uid == userId && resource.data.ownerId == userId;
+
+        // Products subcollection: Public read, owner write
+        match /products/{productId} {
+          allow read; // Anyone can read products from any store
+          allow create: if request.auth != null && request.auth.uid == userId;
+          allow update, delete: if request.auth != null && request.auth.uid == userId;
+        }
+
+        // Slides subcollection: Public read, owner write
+        match /slides/{slideId} {
+          allow read; // Anyone can read slides from any store
+          allow create: if request.auth != null && request.auth.uid == userId;
+          allow update, delete: if request.auth != null && request.auth.uid == userId;
+        }
+      }
     }
 
-    // Stores collection: Public read, owner write/create/delete
-    match /stores/{storeId} {
-      allow read; // Anyone can read store details
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerId;
-      allow update, delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
-    }
-
-    // Products collection: Public read, owner write
-    match /products/{productId} {
-      allow read; // Anyone can read products from any store
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.storeId;
-      allow update, delete: if request.auth != null && request.auth.uid == resource.data.storeId;
-    }
-
-    // Slides collection: Public read, owner write
-    match /slides/{slideId} {
-      allow read; // Anyone can read slides from any store
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.storeId;
-      allow update, delete: if request.auth != null && request.auth.uid == resource.data.storeId;
-    }
-
-    // Categories collection: Public read, owner write
-    match /categories/{categoryId} {
-      allow read; // Anyone can read categories from any store
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.storeId;
-      allow update, delete: if request.auth != null && request.auth.uid == resource.data.storeId;
+    // Collection Group for 'stores' to allow querying by slug across all users
+    // This enables getStoreBySlug and checkSlugAvailability functions
+    match /{path=**}/stores/{storeId} {
+      allow read: if true; // Public read for stores via collection group query
     }
   }
 }

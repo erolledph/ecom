@@ -89,7 +89,7 @@ export default function SlideForm({ slide, mode }: SlideFormProps) {
       };
 
       if (mode === 'edit' && slide) {
-        await updateSlide(slide.id, slideData);
+        await updateSlide(user.uid, slide.id, slideData);
       } else {
         await addSlide({
           ...slideData,

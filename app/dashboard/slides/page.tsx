@@ -49,7 +49,7 @@ export default function SlidesPage() {
     showWarning('Deleting slide...');
     
     try {
-      await deleteSlide(slideId);
+      await deleteSlide(user.uid, slideId);
       showSuccess('Slide deleted successfully');
       await fetchSlides();
     } catch (error) {

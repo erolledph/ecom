@@ -4,18 +4,22 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { getSlideById, Slide } from '@/lib/store';
 import SlideForm from '@/components/SlideForm';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function EditSlidePage() {
   const params = useParams();
   const slideId = params.slideId as string;
+  const { user } = useAuth();
   const [slide, setSlide] = useState<Slide | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchSlide = async () => {
+      if (!user) return;
+      
       try {
-        const slideData = await getSlideById(slideId);
+        const slideData = await getSlideById(user.uid, slideId);
         if (slideData) {
           setSlide(slideData);
         } else {
@@ -29,10 +33,10 @@ export default function EditSlidePage() {
       }
     };
 
-    if (slideId) {
+    if (slideId && user) {
       fetchSlide();
     }
-  }, [slideId]);
+  }, [slideId, user]);
 
   if (loading) {
     return (

@@ -55,7 +55,7 @@ export default function ProductsPage() {
     showWarning('Deleting product...');
     
     try {
-      await deleteProduct(productId);
+      await deleteProduct(user.uid, productId);
       showSuccess('Product deleted successfully');
       fetchProducts();
     } catch (error) {

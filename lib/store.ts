@@ -20,6 +20,9 @@ import {
 import { db, storage } from './firebase';
 import { fromBlob } from 'image-resize-compress';
 
+// Import collectionGroup for collection group queries
+import { collectionGroup } from 'firebase/firestore';
+
 export interface Store {
   id: string;
   name: string;
@@ -102,18 +105,17 @@ function sanitizeFilename(filename: string): string {
 // Store functions
 export async function getUserStore(userId: string): Promise<Store | null> {
   try {
-    const storesRef = collection(db, 'stores');
-    const q = query(storesRef, where('ownerId', '==', userId));
-    const querySnapshot = await getDocs(q);
+    // Get store from nested path
+    const storeRef = doc(db, 'users', userId, 'stores', userId);
+    const storeSnap = await getDoc(storeRef);
     
-    if (querySnapshot.empty) {
+    if (!storeSnap.exists()) {
       return null;
     }
     
-    const storeDoc = querySnapshot.docs[0];
     return {
-      id: storeDoc.id,
-      ...storeDoc.data()
+      id: storeSnap.id,
+      ...storeSnap.data()
     } as Store;
   } catch (error) {
     console.error('Error getting user store:', error);
@@ -123,7 +125,8 @@ export async function getUserStore(userId: string): Promise<Store | null> {
 
 export async function getStoreBySlug(slug: string): Promise<Store | null> {
   try {
-    const storesRef = collection(db, 'stores');
+    // Use collection group query to search across all users' stores
+    const storesRef = collectionGroup(db, 'stores');
     const q = query(storesRef, where('slug', '==', slug));
     const querySnapshot = await getDocs(q);
     
@@ -144,7 +147,8 @@ export async function getStoreBySlug(slug: string): Promise<Store | null> {
 
 export async function updateStore(storeId: string, updates: Partial<Store>): Promise<void> {
   try {
-    const storeRef = doc(db, 'stores', storeId);
+    // Update store in nested path
+    const storeRef = doc(db, 'users', storeId, 'stores', storeId);
     await updateDoc(storeRef, {
       ...updates,
       updatedAt: serverTimestamp()
@@ -157,7 +161,8 @@ export async function updateStore(storeId: string, updates: Partial<Store>): Pro
 
 export async function checkSlugAvailability(slug: string, excludeStoreId?: string): Promise<boolean> {
   try {
-    const storesRef = collection(db, 'stores');
+    // Use collection group query to check across all users' stores
+    const storesRef = collectionGroup(db, 'stores');
     const q = query(storesRef, where('slug', '==', slug));
     const querySnapshot = await getDocs(q);
     
@@ -173,6 +178,12 @@ export async function checkSlugAvailability(slug: string, excludeStoreId?: strin
     return false;
   } catch (error) {
     console.error('Error checking slug availability:', error);
+    // If the error is due to missing index, return true to allow the operation
+    // The user will need to create the required Firestore index
+    if (error instanceof Error && error.message.includes('index')) {
+      console.warn('Firestore index required. Please create the index in Firebase console.');
+      return true; // Allow slug to be used until index is created
+    }
     throw error;
   }
 }
@@ -180,8 +191,9 @@ export async function checkSlugAvailability(slug: string, excludeStoreId?: strin
 // Product functions
 export async function getStoreProducts(storeId: string): Promise<Product[]> {
   try {
-    const productsRef = collection(db, 'products');
-    const q = query(productsRef, where('storeId', '==', storeId));
+    // Get products from nested path
+    const productsRef = collection(db, 'users', storeId, 'stores', storeId, 'products');
+    const q = query(productsRef);
     const querySnapshot = await getDocs(q);
     
     const products = querySnapshot.docs.map(doc => ({
@@ -202,7 +214,8 @@ export async function getStoreProducts(storeId: string): Promise<Product[]> {
 
 export async function addProduct(product: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
   try {
-    const productsRef = collection(db, 'products');
+    // Add product to nested path
+    const productsRef = collection(db, 'users', product.storeId!, 'stores', product.storeId!, 'products');
     const docRef = await addDoc(productsRef, {
       ...product,
       createdAt: serverTimestamp(),
@@ -215,9 +228,10 @@ export async function addProduct(product: Omit<Product, 'id' | 'createdAt' | 'up
   }
 }
 
-export async function updateProduct(productId: string, updates: Partial<Product>): Promise<void> {
+export async function updateProduct(storeId: string, productId: string, updates: Partial<Product>): Promise<void> {
   try {
-    const productRef = doc(db, 'products', productId);
+    // Update product in nested path
+    const productRef = doc(db, 'users', storeId, 'stores', storeId, 'products', productId);
     await updateDoc(productRef, {
       ...updates,
       updatedAt: serverTimestamp()
@@ -228,9 +242,10 @@ export async function updateProduct(productId: string, updates: Partial<Product>
   }
 }
 
-export async function deleteProduct(productId: string): Promise<void> {
+export async function deleteProduct(storeId: string, productId: string): Promise<void> {
   try {
-    const productRef = doc(db, 'products', productId);
+    // Delete product from nested path
+    const productRef = doc(db, 'users', storeId, 'stores', storeId, 'products', productId);
     await deleteDoc(productRef);
   } catch (error) {
     console.error('Error deleting product:', error);
@@ -241,8 +256,9 @@ export async function deleteProduct(productId: string): Promise<void> {
 // Slide functions
 export async function getStoreSlides(storeId: string): Promise<Slide[]> {
   try {
-    const slidesRef = collection(db, 'slides');
-    const q = query(slidesRef, where('storeId', '==', storeId));
+    // Get slides from nested path
+    const slidesRef = collection(db, 'users', storeId, 'stores', storeId, 'slides');
+    const q = query(slidesRef);
     const querySnapshot = await getDocs(q);
     
     const slides = querySnapshot.docs.map(doc => ({
@@ -260,7 +276,8 @@ export async function getStoreSlides(storeId: string): Promise<Slide[]> {
 
 export async function addSlide(slide: Omit<Slide, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
   try {
-    const slidesRef = collection(db, 'slides');
+    // Add slide to nested path
+    const slidesRef = collection(db, 'users', slide.storeId, 'stores', slide.storeId, 'slides');
     const docRef = await addDoc(slidesRef, {
       ...slide,
       createdAt: serverTimestamp(),
@@ -273,9 +290,10 @@ export async function addSlide(slide: Omit<Slide, 'id' | 'createdAt' | 'updatedA
   }
 }
 
-export async function updateSlide(slideId: string, updates: Partial<Slide>): Promise<void> {
+export async function updateSlide(storeId: string, slideId: string, updates: Partial<Slide>): Promise<void> {
   try {
-    const slideRef = doc(db, 'slides', slideId);
+    // Update slide in nested path
+    const slideRef = doc(db, 'users', storeId, 'stores', storeId, 'slides', slideId);
     await updateDoc(slideRef, {
       ...updates,
       updatedAt: serverTimestamp()
@@ -286,9 +304,10 @@ export async function updateSlide(slideId: string, updates: Partial<Slide>): Pro
   }
 }
 
-export async function deleteSlide(slideId: string): Promise<void> {
+export async function deleteSlide(storeId: string, slideId: string): Promise<void> {
   try {
-    const slideRef = doc(db, 'slides', slideId);
+    // Delete slide from nested path
+    const slideRef = doc(db, 'users', storeId, 'stores', storeId, 'slides', slideId);
     await deleteDoc(slideRef);
   } catch (error) {
     console.error('Error deleting slide:', error);
@@ -296,9 +315,10 @@ export async function deleteSlide(slideId: string): Promise<void> {
   }
 }
 
-export async function getSlideById(slideId: string): Promise<Slide | null> {
+export async function getSlideById(storeId: string, slideId: string): Promise<Slide | null> {
   try {
-    const slideRef = doc(db, 'slides', slideId);
+    // Get slide from nested path
+    const slideRef = doc(db, 'users', storeId, 'stores', storeId, 'slides', slideId);
     const slideSnap = await getDoc(slideRef);
     
     if (slideSnap.exists()) {
@@ -314,9 +334,10 @@ export async function getSlideById(slideId: string): Promise<Slide | null> {
   }
 }
 
-export async function getProductById(productId: string): Promise<Product | null> {
+export async function getProductById(storeId: string, productId: string): Promise<Product | null> {
   try {
-    const productRef = doc(db, 'products', productId);
+    // Get product from nested path
+    const productRef = doc(db, 'users', storeId, 'stores', storeId, 'products', productId);
     const productSnap = await getDoc(productRef);
     
     if (productSnap.exists()) {
