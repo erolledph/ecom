@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { signIn, signUp } from '@/lib/auth';
+import { checkSlugAvailability } from '@/lib/store';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function AuthPage() {
@@ -10,8 +11,12 @@ export default function AuthPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [storeSlug, setStoreSlug] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [slugError, setSlugError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [isCheckingSlug, setIsCheckingSlug] = useState(false);
   
   const router = useRouter();
   const { user } = useAuth();
@@ -22,16 +27,94 @@ export default function AuthPage() {
     }
   }, [user, router]);
 
+  const validatePassword = (password: string): string => {
+    if (password.length < 8) {
+      return 'Password must be at least 8 characters long';
+    }
+    if (!/[A-Z]/.test(password)) {
+      return 'Password must contain at least one uppercase letter';
+    }
+    if (!/[a-z]/.test(password)) {
+      return 'Password must contain at least one lowercase letter';
+    }
+    if (!/\d/.test(password)) {
+      return 'Password must contain at least one number';
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      return 'Password must contain at least one special character';
+    }
+    return '';
+  };
+
+  const checkSlug = async (slug: string) => {
+    if (!slug || slug.length < 3) {
+      setSlugError('Store URL must be at least 3 characters long');
+      return;
+    }
+
+    setIsCheckingSlug(true);
+    try {
+      const isAvailable = await checkSlugAvailability(slug);
+      if (!isAvailable) {
+        setSlugError('This store URL is already taken. Please choose a different one.');
+      } else {
+        setSlugError('');
+      }
+    } catch (error) {
+      console.error('Error checking slug:', error);
+      setSlugError('Error checking URL availability');
+    } finally {
+      setIsCheckingSlug(false);
+    }
+  };
+
+  const handleStoreSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+    setStoreSlug(value);
+    
+    // Debounce slug checking
+    const timeoutId = setTimeout(() => checkSlug(value), 500);
+    return () => clearTimeout(timeoutId);
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPassword(value);
+    
+    if (!isLogin) {
+      const error = validatePassword(value);
+      setPasswordError(error);
+    }
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
+    // Additional validation for signup
+    if (!isLogin) {
+      if (passwordError) {
+        setError('Please fix the password requirements');
+        setLoading(false);
+        return;
+      }
+      if (slugError) {
+        setError('Please fix the store URL error');
+        setLoading(false);
+        return;
+      }
+      if (!storeSlug.trim()) {
+        setError('Store URL is required');
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       if (isLogin) {
         await signIn(email, password);
       } else {
-        await signUp(email, password, displayName);
+        await signUp(email, password, displayName, storeSlug);
       }
       router.push('/dashboard');
     } catch (error: any) {
@@ -80,6 +163,39 @@ export default function AuthPage() {
               </div>
             )}
             
+            {!isLogin && (
+              <div>
+                <label htmlFor="storeSlug" className="sr-only">
+                  Store URL
+                </label>
+                <div className="flex">
+                  <span className="inline-flex items-center px-3 rounded-l-none border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                    yourdomain.com/
+                  </span>
+                  <input
+                    id="storeSlug"
+                    name="storeSlug"
+                    type="text"
+                    required={!isLogin}
+                    className={`appearance-none rounded-none relative block w-full px-3 py-2 border placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm ${
+                      slugError ? 'border-red-300' : 'border-gray-300'
+                    }`}
+                    placeholder="my-store"
+                    value={storeSlug}
+                    onChange={handleStoreSlugChange}
+                  />
+                </div>
+                {isCheckingSlug && (
+                  <p className="mt-1 text-sm text-gray-500">Checking availability...</p>
+                )}
+                {slugError && (
+                  <p className="mt-1 text-sm text-red-600">{slugError}</p>
+                )}
+                {!slugError && !isCheckingSlug && storeSlug && (
+                  <p className="mt-1 text-sm text-green-600">✓ Store URL is available</p>
+                )}
+              </div>
+            )}
             <div>
               <label htmlFor="email-address" className="sr-only">
                 Email address
@@ -91,7 +207,7 @@ export default function AuthPage() {
                 autoComplete="email"
                 required
                 className={`appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 ${
-                  isLogin ? 'rounded-t-md' : ''
+                  isLogin ? 'rounded-t-md' : (displayName ? '' : 'rounded-t-md')
                 } focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm`}
                 placeholder="Email address"
                 value={email}
@@ -112,8 +228,14 @@ export default function AuthPage() {
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
                 placeholder="Password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={handlePasswordChange}
               />
+              {!isLogin && passwordError && (
+                <p className="mt-1 text-sm text-red-600">{passwordError}</p>
+              )}
+              {!isLogin && !passwordError && password && (
+                <p className="mt-1 text-sm text-green-600">✓ Password meets requirements</p>
+              )}
             </div>
           </div>
 
@@ -124,7 +246,7 @@ export default function AuthPage() {
           <div>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || (!isLogin && (slugError !== '' || passwordError !== '' || isCheckingSlug))}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (

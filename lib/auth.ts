@@ -1,6 +1,7 @@
 import { auth, db } from './firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { checkSlugAvailability } from './store';
 
 export interface UserProfile {
   uid: string;
@@ -10,6 +11,23 @@ export interface UserProfile {
   storeId?: string;
 }
 
+const validatePassword = (password: string): void => {
+  if (password.length < 8) {
+    throw new Error('Password must be at least 8 characters long');
+  }
+  if (!/[A-Z]/.test(password)) {
+    throw new Error('Password must contain at least one uppercase letter');
+  }
+  if (!/[a-z]/.test(password)) {
+    throw new Error('Password must contain at least one lowercase letter');
+  }
+  if (!/\d/.test(password)) {
+    throw new Error('Password must contain at least one number');
+  }
+  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    throw new Error('Password must contain at least one special character');
+  }
+};
 export const signIn = async (email: string, password: string) => {
   try {
     if (!auth) throw new Error('Firebase not initialized');
@@ -21,26 +39,43 @@ export const signIn = async (email: string, password: string) => {
   }
 };
 
-export const signUp = async (email: string, password: string, displayName?: string) => {
+export const signUp = async (email: string, password: string, displayName?: string, storeSlug?: string) => {
   try {
     if (!auth || !db) throw new Error('Firebase not initialized');
 
+    // Validate password strength
+    validatePassword(password);
+
+    // Validate and check store slug availability
+    if (storeSlug) {
+      if (storeSlug.length < 3) {
+        throw new Error('Store URL must be at least 3 characters long');
+      }
+      
+      const isSlugAvailable = await checkSlugAvailability(storeSlug);
+      if (!isSlugAvailable) {
+        throw new Error('Store URL is already taken. Please choose a different one.');
+      }
+    }
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     
-    // Generate unique slug for the store
-    const generateSlug = (name: string, uid: string): string => {
-      const baseName = name || 'store';
-      const sanitized = baseName
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, '')
-        .substring(0, 10);
-      const timestamp = Date.now().toString().slice(-6);
-      return `${sanitized}${timestamp}`;
-    };
+    // Use provided slug or generate one as fallback
+    let finalStoreSlug = storeSlug;
+    if (!finalStoreSlug) {
+      const generateSlug = (name: string, uid: string): string => {
+        const baseName = name || 'store';
+        const sanitized = baseName
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, '')
+          .substring(0, 10);
+        const timestamp = Date.now().toString().slice(-6);
+        return `${sanitized}${timestamp}`;
+      };
+      finalStoreSlug = generateSlug(displayName || 'mystore', user.uid);
+    }
     
-    const storeSlug = generateSlug(displayName || 'mystore', user.uid);
-    console.log('Generated store slug:', storeSlug);
+    console.log('Using store slug:', finalStoreSlug);
     
     // Create user profile and store in Firestore
     const userProfile: UserProfile = {
@@ -59,7 +94,7 @@ export const signUp = async (email: string, password: string, displayName?: stri
       ownerId: user.uid,
       name: `${displayName || 'My'} Store`,
       description: 'Welcome to my awesome store! Discover unique products curated just for you.',
-      slug: storeSlug,
+      slug: finalStoreSlug,
       avatar: '',
       backgroundImage: '',
       socialLinks: [],
@@ -74,7 +109,7 @@ export const signUp = async (email: string, password: string, displayName?: stri
     const storeRef = doc(db, 'stores', user.uid);
     await setDoc(storeRef, defaultStore);
     
-    console.log('Store created successfully with slug:', storeSlug, 'and ID:', user.uid);
+    console.log('Store created successfully with slug:', finalStoreSlug, 'and ID:', user.uid);
     
     // Update user profile with store reference
     const userRef = doc(db, 'users', user.uid);
