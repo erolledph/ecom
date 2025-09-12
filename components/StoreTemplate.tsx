@@ -198,7 +198,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
               <div className="flex justify-center mb-4">
                 {store.avatar && (
                   <div 
-                    className="w-16 h-16 rounded-full overflow-hidden border-4 shadow-lg"
+                    className="w-20 h-20 rounded-full overflow-hidden border-4 shadow-lg"
                     style={{
                       borderColor: store.customization?.avatarBorderColor || '#ffffff'
                     }}
@@ -206,8 +206,8 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                     <Image
                       src={store.avatar}
                       alt={store.name}
-                      width={64}
-                      height={64}
+                      width={80}
+                      height={80}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -371,7 +371,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
 
       {/* Categories */}
       {categories.length > 0 && (
-        <section className="container mx-auto px-4 pb-4 pt-6 overflow-x-auto category-scroller">
+        <section className="container mx-auto px-4 pt-6 overflow-x-auto category-scroller">
           <div className="flex space-x-[5px] px-4">
             {categories.map((category) => (
               <div
@@ -437,7 +437,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
       )}
 
       {/* All Products Section */}
-      <section className="container mx-auto px-4 py-6" id="products">
+      <section className="container mx-auto px-4 pb-6" id="products">
         <div className="mb-6">
           <h2 
             className="text-[0.8rem] font-bold mb-2"
@@ -543,7 +543,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
 
       {/* All Products Section - Only show when category filtering is active (not for search) */}
       {selectedCategory !== 'all' && !searchTerm && (
-        <section className="container mx-auto px-4 py-6 border-t border-gray-200" id="all-products">
+        <section className="container mx-auto px-4 py-6" id="all-products">
           <div className="mb-6">
             <h2 
               className="text-[0.8rem] font-bold mb-2"
