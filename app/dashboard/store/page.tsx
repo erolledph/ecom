@@ -234,6 +234,7 @@ export default function StoreSettingsPage() {
   const [backgroundPreview, setBackgroundPreview] = useState('');
   const [widgetPreview, setWidgetPreview] = useState('');
   const [widgetLink, setWidgetLink] = useState('');
+  const [widgetEnabled, setWidgetEnabled] = useState(true);
   const [slugError, setSlugError] = useState('');
   const [isCheckingSlug, setIsCheckingSlug] = useState(false);
 
@@ -273,6 +274,7 @@ export default function StoreSettingsPage() {
           setBackgroundPreview(storeData.backgroundImage);
           setWidgetPreview(storeData.widgetImage || '');
           setWidgetLink(storeData.widgetLink || '');
+          setWidgetEnabled(storeData.widgetEnabled !== false); // Default to true if not set
         }
       } catch (error) {
         console.error('Error fetching store:', error);
@@ -424,6 +426,7 @@ export default function StoreSettingsPage() {
         backgroundImage: backgroundUrl,
         widgetImage: widgetImageUrl,
         widgetLink: widgetLink,
+        widgetEnabled: widgetEnabled,
         socialLinks: validSocialLinks,
         customization: formData.customization
       };
@@ -1034,6 +1037,19 @@ export default function StoreSettingsPage() {
                     <p className="mt-1 text-xs text-gray-500">
                       When clicked, the widget will open this link. Leave empty for a simple animation.
                     </p>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="widgetEnabled"
+                      checked={widgetEnabled}
+                      onChange={(e) => setWidgetEnabled(e.target.checked)}
+                      className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                    />
+                    <label htmlFor="widgetEnabled" className="ml-2 block text-sm text-gray-900">
+                      Enable floating widget (visible on store)
+                    </label>
                   </div>
                 </div>
               </div>
