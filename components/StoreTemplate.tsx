@@ -374,6 +374,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
         <section className="container mx-auto px-4 pt-6 overflow-x-auto category-scroller">
           <div className="flex space-x-[5px] px-4">
             {categories.map((category) => (
+              const categoryDisplayName = category.name.replace(/\s*\(\d+\)$/, '');
               <div
                 key={category.id}
                 onClick={() => handleCategoryChange(category.id)}
@@ -382,7 +383,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                 <div
                   className={`w-20 h-20 rounded-full shadow-md overflow-hidden ${
                     selectedCategory === category.id
-                      ? `bg-indigo-200 border-2`
+                      ? `bg-indigo-200 border-4`
                       : 'bg-gray-200'
                   } ${
                     category.id === 'all' 
@@ -420,7 +421,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                       className="text-[0.8rem] font-semibold"
                       style={{ color: priceColor }}
                     >
-                      {category.id === 'all' ? 'All' : category.name}
+                      {category.id === 'all' ? 'All' : categoryDisplayName}
                     </span>
                   )}
                 </div>
@@ -428,7 +429,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                   className="text-[0.8rem] font-semibold mt-1 whitespace-nowrap"
                   style={{ color: priceColor }}
                 >
-                  {category.name}
+                  {category.id === 'all' ? 'All Products' : categoryDisplayName}
                 </span>
               </div>
             ))}
@@ -437,7 +438,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
       )}
 
       {/* All Products Section */}
-      <section className="container mx-auto px-4 pb-6" id="products">
+      <section className="container mx-auto px-4 py-6" id="products">
         <div className="mb-6">
           <h2 
             className="text-[0.8rem] font-bold mb-2"
@@ -543,7 +544,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
 
       {/* All Products Section - Only show when category filtering is active (not for search) */}
       {selectedCategory !== 'all' && !searchTerm && (
-        <section className="container mx-auto px-4 py-6" id="all-products">
+        <section className="container mx-auto px-4 pt-6 pb-6" id="all-products">
           <div className="mb-6">
             <h2 
               className="text-[0.8rem] font-bold mb-2"
