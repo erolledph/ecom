@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { getStoreSlides, deleteSlide, Slide, getUserStore } from '@/lib/store';
 import { Edit, Trash2, Plus, ExternalLink } from 'lucide-react';
+import { RefreshCcw } from 'lucide-react';
 
 export default function SlidesPage() {
   const { user } = useAuth();
@@ -15,6 +16,7 @@ export default function SlidesPage() {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [storeSlug, setStoreSlug] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchSlides = useCallback(async () => {
     if (!user) return;
@@ -56,6 +58,18 @@ export default function SlidesPage() {
     }
   };
 
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await fetchSlides();
+      showSuccess('Slides refreshed successfully');
+    } catch (error) {
+      showError('Failed to refresh slides');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -83,7 +97,15 @@ export default function SlidesPage() {
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Manage Slides</h1>
           </div>
           
-          <div>
+          <div className="flex space-x-3">
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <RefreshCcw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+              {refreshing ? 'Refreshing...' : 'Refresh'}
+            </button>
             <button
               onClick={() => router.push('/dashboard/slides/add')}
               className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
