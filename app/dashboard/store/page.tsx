@@ -517,7 +517,7 @@ export default function StoreSettingsPage() {
                   placeholder="Welcome to my store! Discover amazing products..."
                 />
               </div>
-
+ {/*
               <div>
                 <label htmlFor="slug" className="block text-sm font-medium text-gray-700 mb-2">
                   Store URL *
@@ -549,7 +549,7 @@ export default function StoreSettingsPage() {
                   Only lowercase letters and numbers allowed. This will be your store's web address.
                 </p>
               </div>
-
+*/}
               <div>
                 <label htmlFor="headerLayout" className="block text-sm font-medium text-gray-700 mb-2">
                   Header Layout
