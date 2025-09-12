@@ -93,7 +93,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
 
   // Show banner popup on component mount if banner is enabled
   useEffect(() => {
-    if (store.bannerEnabled && store.bannerImage) {
+    if (store.bannerEnabled !== false && store.bannerImage) {
       const timer = setTimeout(() => {
         setShowBannerPopup(true);
       }, 2000); // Show banner after 2 seconds
@@ -164,6 +164,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
         return 'flex-row';
     }
   };
+
   return (
     <div 
       className="min-h-screen max-w-md mx-auto"
@@ -298,7 +299,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
       </header>
 
       {/* Slides Section */}
-      {slides.length > 0 && (
+      {store.slidesEnabled !== false && slides.length > 0 && (
         <section className="py-6">
           <div className="relative h-64 md:h-80 lg:h-96 overflow-hidden shadow-lg">
             <div 
@@ -659,7 +660,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
       </div>
 
       {/* Pop-up Banner */}
-      {store.bannerEnabled && showBannerPopup && store.bannerImage && (
+      {store.bannerEnabled !== false && showBannerPopup && store.bannerImage && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-hidden relative">
             {/* Close Button */}
