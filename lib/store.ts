@@ -28,6 +28,7 @@ export interface Store {
   backgroundImage: string;
   widgetImage?: string;
   widgetLink?: string;
+  widgetEnabled?: boolean;
   ownerId: string;
   isActive: boolean;
   socialLinks: Array<{ platform: string; url: string; }>;
