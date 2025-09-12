@@ -344,7 +344,7 @@ export async function uploadSlideImage(storeId: string, file: File, slideId: str
   }
 }
 
-export async function uploadStoreImage(storeId: string, file: File, type: 'avatar' | 'background'): Promise<string> {
+export async function uploadStoreImage(storeId: string, file: File, type: 'avatar' | 'background' | 'banner'): Promise<string> {
   try {
     const fileName = `${storeId}_${type}_${Date.now()}`;
     const imageRef = ref(storage, `stores/${fileName}`);
