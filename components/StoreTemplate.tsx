@@ -543,7 +543,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
       </footer>
 
       {/* Floating Widget */}
-      {(store.widgetImage || store.avatar) && (
+      {store.widgetEnabled !== false && (store.widgetImage || store.avatar) && (
         <button
           onClick={() => {
             if (store.widgetLink) {
