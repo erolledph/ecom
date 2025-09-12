@@ -5,12 +5,10 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
-import { addProduct, updateProduct, Product } from '@/lib/store';
+import { addProduct, updateProduct, Product, uploadProductImage } from '@/lib/store';
 import Image from 'next/image';
 import { addDoc, collection, updateDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '@/lib/firebase';
 import { ArrowLeft, Save } from 'lucide-react';
 
 interface ProductFormProps {
@@ -103,18 +101,6 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
     setImagePreview(url);
   };
 
-  const uploadSingleImage = async (file: File, productId: string): Promise<string> => {
-    try {
-      const fileName = `${productId}_${Date.now()}`;
-      const imageRef = ref(storage, `product_images/${user!.uid}/${productId}/${fileName}`);
-      await uploadBytes(imageRef, file);
-      return getDownloadURL(imageRef);
-    } catch (error) {
-      console.error('Error uploading image:', error);
-      throw error;
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -174,7 +160,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
       
       if (productData.imageType === 'upload' && productData.imageFile) {
         // Upload new image file
-        finalImageUrl = await uploadSingleImage(productData.imageFile, productId);
+        finalImageUrl = await uploadProductImage(user.uid, productData.imageFile, productId);
       } else if (productData.imageType === 'url' && productData.imageUrl.trim()) {
         // Use provided URL
         finalImageUrl = productData.imageUrl.trim();
@@ -358,7 +344,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
                 value={productData.price}
                 onChange={handleInputChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 bg-white"
-                placeholder="$0.00"
+                placeholder="0.00"
               />
             </div>
 

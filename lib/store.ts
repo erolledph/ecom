@@ -18,6 +18,7 @@ import {
   deleteObject 
 } from 'firebase/storage';
 import { db, storage } from './firebase';
+import { fromBlob } from 'image-resize-compress';
 
 export interface Store {
   id: string;
@@ -86,6 +87,16 @@ export interface Slide {
   isActive: boolean;
   createdAt: any;
   updatedAt: any;
+}
+
+// Utility function to sanitize filename
+function sanitizeFilename(filename: string): string {
+  const baseName = filename.split('.').slice(0, -1).join('.');
+  return baseName
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '-') // Replace non-alphanumeric with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with a single one
+    .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
 }
 
 // Store functions
@@ -324,9 +335,13 @@ export async function getProductById(productId: string): Promise<Product | null>
 // Image upload functions
 export async function uploadProductImage(storeId: string, file: File, productId: string): Promise<string> {
   try {
-    const fileName = `${productId}_${Date.now()}`;
+    // Compress and resize the image
+    const compressedBlob = await fromBlob(file, 75, 1200, 'auto', 'webp'); // 75% quality, max width 1200px, auto height, webp format
+    
+    const baseFileName = sanitizeFilename(file.name);
+    const fileName = `${baseFileName}_${Date.now()}.webp`; // Use sanitized original name + timestamp + webp extension
     const imageRef = ref(storage, `product_images/${storeId}/${productId}/${fileName}`);
-    await uploadBytes(imageRef, file);
+    await uploadBytes(imageRef, compressedBlob); // Upload the compressed blob
     return getDownloadURL(imageRef);
   } catch (error) {
     console.error('Error uploading product image:', error);
@@ -336,9 +351,13 @@ export async function uploadProductImage(storeId: string, file: File, productId:
 
 export async function uploadSlideImage(storeId: string, file: File, slideId: string): Promise<string> {
   try {
-    const fileName = `${slideId}_${Date.now()}`;
+    // Compress and resize the image
+    const compressedBlob = await fromBlob(file, 75, 1200, 'auto', 'webp'); // 75% quality, max width 1200px, auto height, webp format
+    
+    const baseFileName = sanitizeFilename(file.name);
+    const fileName = `${baseFileName}_${Date.now()}.webp`; // Use sanitized original name + timestamp + webp extension
     const imageRef = ref(storage, `slider_images/${storeId}/${slideId}/${fileName}`);
-    await uploadBytes(imageRef, file);
+    await uploadBytes(imageRef, compressedBlob); // Upload the compressed blob
     return getDownloadURL(imageRef);
   } catch (error) {
     console.error('Error uploading slide image:', error);
@@ -348,9 +367,21 @@ export async function uploadSlideImage(storeId: string, file: File, slideId: str
 
 export async function uploadStoreImage(storeId: string, file: File, type: 'avatar' | 'background' | 'banner'): Promise<string> {
   try {
-    const fileName = `${storeId}_${type}_${Date.now()}`;
+    let maxWidth: number | 'auto' = 'auto';
+    
+    if (type === 'avatar') {
+      maxWidth = 200; // Smaller size for avatar
+    } else if (type === 'background' || type === 'banner') {
+      maxWidth = 1200; // Larger size for background/banner
+    }
+    
+    // Compress and resize the image
+    const compressedBlob = await fromBlob(file, 75, maxWidth, 'auto', 'webp'); // 75% quality, auto height, webp format
+    
+    const baseFileName = sanitizeFilename(file.name);
+    const fileName = `${baseFileName}_${type}_${Date.now()}.webp`; // Use sanitized original name + type + timestamp + webp extension
     const imageRef = ref(storage, `stores/${fileName}`);
-    await uploadBytes(imageRef, file);
+    await uploadBytes(imageRef, compressedBlob); // Upload the compressed blob
     return getDownloadURL(imageRef);
   } catch (error) {
     console.error('Error uploading store image:', error);
@@ -360,9 +391,13 @@ export async function uploadStoreImage(storeId: string, file: File, type: 'avata
 
 export async function uploadWidgetImage(storeId: string, file: File): Promise<string> {
   try {
-    const fileName = `${storeId}_widget_${Date.now()}`;
+    // Compress and resize the image
+    const compressedBlob = await fromBlob(file, 75, 200, 'auto', 'webp'); // 75% quality, max width 200px, auto height, webp format
+    
+    const baseFileName = sanitizeFilename(file.name);
+    const fileName = `${baseFileName}_widget_${Date.now()}.webp`; // Use sanitized original name + timestamp + webp extension
     const imageRef = ref(storage, `stores/${fileName}`);
-    await uploadBytes(imageRef, file);
+    await uploadBytes(imageRef, compressedBlob); // Upload the compressed blob
     return getDownloadURL(imageRef);
   } catch (error) {
     console.error('Error uploading widget image:', error);
