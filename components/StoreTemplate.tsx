@@ -47,6 +47,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
   const [selectedCategory, setSelectedCategory] = useState(initialCategory || 'all');
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [visibleProductsCount, setVisibleProductsCount] = useState(9);
+  const [visibleAllProductsCount, setVisibleAllProductsCount] = useState(9);
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -90,6 +91,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
   // Reset visible products count when category changes
   useEffect(() => {
     setVisibleProductsCount(9);
+    setVisibleAllProductsCount(9);
   }, [selectedCategory]);
 
   const activeCategoryBorderColor = store.customization?.activeCategoryBorderColor || '#6366f1';
@@ -120,6 +122,11 @@ export default function StoreTemplate({ store, products, slides, categories, ini
   const loadMoreProducts = () => {
     setVisibleProductsCount(prev => Math.min(prev + 9, finalFilteredProducts.length));
   };
+
+  const loadMoreAllProducts = () => {
+    setVisibleAllProductsCount(prev => Math.min(prev + 9, products.length));
+  };
+
   const handleProductClick = (productLink?: string) => {
     if (productLink) {
       window.open(productLink, '_blank', 'noopener,noreferrer');
@@ -428,12 +435,19 @@ export default function StoreTemplate({ store, products, slides, categories, ini
             className="text-[0.8rem] font-bold mb-2"
             style={{ color: priceColor }}
           >
-            {selectedCategory === 'all' || searchTerm ? 'All Products' : `${categories.find(c => c.id === selectedCategory)?.name || 'Products'} - Showing All`}
+            {selectedCategory === 'all' && !searchTerm 
+              ? 'All Products' 
+              : searchTerm 
+                ? `Search Results for "${searchTerm}"` 
+                : `${categories.find(c => c.id === selectedCategory)?.name || 'Category'} Products`
+            }
           </h2>
           <p className="text-[0.8rem] text-gray-600">
-            {selectedCategory === 'all' || searchTerm 
+            {selectedCategory === 'all' && !searchTerm
               ? 'Browse our complete collection' 
-              : `${categories.find(c => c.id === selectedCategory)?.name || 'Selected'} products shown first, followed by all others`
+              : searchTerm
+                ? `Found ${finalFilteredProducts.length} result${finalFilteredProducts.length !== 1 ? 's' : ''}`
+                : `Showing ${categories.find(c => c.id === selectedCategory)?.name || 'selected'} products first, followed by others`
             }
           </p>
           
@@ -520,6 +534,68 @@ export default function StoreTemplate({ store, products, slides, categories, ini
           </div>
         )}
       </section>
+
+      {/* Permanent All Products Section - Only show when filtering is active */}
+      {(selectedCategory !== 'all' || searchTerm) && (
+        <section className="container mx-auto px-4 py-6 border-t border-gray-200" id="all-products">
+          <div className="mb-6">
+            <h2 
+              className="text-[0.8rem] font-bold mb-2"
+              style={{ color: priceColor }}
+            >
+              All Products
+            </h2>
+            <p className="text-[0.8rem] text-gray-600">
+              Browse our complete collection of {products.length} products
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-3 lg:grid-cols-4 gap-[5px]">
+            {products.slice(0, visibleAllProductsCount).map((product) => (
+              <div
+                key={`all-${product.id}`}
+                onClick={() => handleProductClick(product.productLink)}
+                className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+              >
+                <div className="aspect-square overflow-hidden">
+                  {product.images && product.images[0] && (
+                    <Image
+                      src={product.images[0]}
+                      alt={product.title}
+                      width={300}
+                      height={300}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    />
+                  )}
+                </div>
+                <div className="p-[5px]">
+                  <h3 className="font-semibold text-gray-800 line-clamp-2 text-[0.8rem] mb-[5px] min-h-[2.4rem]">{product.title}</h3>
+                  <div className="flex items-center justify-between">
+                    <span 
+                      className="font-bold text-[0.8rem]"
+                      style={{ color: priceColor }}
+                    >
+                      {currencySymbol}{product.price}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Load More Button for All Products */}
+          {products.length > visibleAllProductsCount && (
+            <div className="text-center mt-6">
+              <button
+                onClick={loadMoreAllProducts}
+                className="inline-flex items-center px-6 py-3 bg-secondary-600 text-white rounded-lg hover:bg-secondary-700 transition-colors font-medium"
+              >
+                Load More Products
+              </button>
+            </div>
+          )}
+        </section>
+      )}
 
       {/* Footer */}
       <footer className="bg-white shadow-inner rounded-t-lg mt-4 p-4 md:p-6 text-center text-gray-600">
