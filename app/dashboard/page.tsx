@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
 import { getUserStore, getStoreProducts, getStoreSlides, Store } from '@/lib/store';
 import { 
   Store as StoreIcon,
@@ -20,6 +21,7 @@ import {
 
 export default function DashboardOverview() {
   const { user } = useAuth();
+  const { showSuccess, showError, showInfo, showWarning } = useToast();
   const [store, setStore] = useState<Store | null>(null);
   const [stats, setStats] = useState({
     totalProducts: 0,
@@ -52,11 +54,17 @@ export default function DashboardOverview() {
             activeProducts: products.filter(p => p.isActive !== false).length,
             activeSlides: slides.filter(s => s.isActive).length
           });
+          
+          // Show welcome toast for new users
+          if (products.length === 0 && slides.length === 0) {
+            showInfo('Welcome to your dashboard! Start by adding products or creating slides.');
+          }
         } else {
           setError('No store found. Please contact support if this issue persists.');
         }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
+        showError('Error loading dashboard data. Please refresh the page.');
         setError('Error loading dashboard data. Please refresh the page.');
       } finally {
         setLoading(false);
@@ -139,6 +147,7 @@ export default function DashboardOverview() {
               rel="noopener noreferrer"
               className="flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all shadow-md"
               aria-label="View Store"
+              onClick={() => showInfo('Opening your store in a new tab!')}
             >
               <Eye className="w-5 h-5 mr-2" />
               View Store
