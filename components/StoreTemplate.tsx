@@ -56,26 +56,22 @@ export default function StoreTemplate({ store, products, slides, categories, ini
 
   // Get displayed products with category prioritization and search filtering
   const getDisplayedProducts = () => {
-    let displayedProducts = [...products];
-    
-    // Apply search filter first if there's a search term
+    // If search term is active, filter all products by search
     if (searchTerm) {
-      displayedProducts = displayedProducts.filter(product =>
+      return products.filter(product =>
         product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.category.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     
-    // If a specific category is selected (not 'all') and no search term, 
-    // reorder products to show selected category first
-    if (selectedCategory !== 'all' && !searchTerm) {
-      const categoryProducts = displayedProducts.filter(product => product.category === selectedCategory);
-      const otherProducts = displayedProducts.filter(product => product.category !== selectedCategory);
-      displayedProducts = [...categoryProducts, ...otherProducts];
+    // If specific category is selected, show only that category
+    if (selectedCategory !== 'all') {
+      return products.filter(product => product.category === selectedCategory);
     }
     
-    return displayedProducts;
+    // Default: show all products
+    return products;
   };
 
   // Auto-advance slides
@@ -435,20 +431,18 @@ export default function StoreTemplate({ store, products, slides, categories, ini
             className="text-[0.8rem] font-bold mb-2"
             style={{ color: priceColor }}
           >
-            {selectedCategory === 'all' && !searchTerm 
-              ? 'All Products' 
-              : searchTerm 
-                ? `Search Results for "${searchTerm}"` 
-                : `${categories.find(c => c.id === selectedCategory)?.name || 'Category'} Products`
-            }
+            {searchTerm 
+              ? `Search Results for "${searchTerm}"` 
+              : selectedCategory === 'all'
+                ? 'All Products'
+                : `${categories.find(c => c.id === selectedCategory)?.name || 'Category'} Products`}
           </h2>
           <p className="text-[0.8rem] text-gray-600">
-            {selectedCategory === 'all' && !searchTerm
-              ? 'Browse our complete collection' 
-              : searchTerm
-                ? `Found ${finalFilteredProducts.length} result${finalFilteredProducts.length !== 1 ? 's' : ''}`
-                : `Showing ${categories.find(c => c.id === selectedCategory)?.name || 'selected'} products first, followed by others`
-            }
+            {searchTerm
+              ? `Found ${finalFilteredProducts.length} result${finalFilteredProducts.length !== 1 ? 's' : ''}`
+              : selectedCategory === 'all'
+                ? 'Browse our complete collection'
+                : `Showing products from ${categories.find(c => c.id === selectedCategory)?.name || 'selected category'}`}
           </p>
           
           {/* Search Input */}
@@ -535,8 +529,8 @@ export default function StoreTemplate({ store, products, slides, categories, ini
         )}
       </section>
 
-      {/* Permanent All Products Section - Only show when filtering is active */}
-      {(selectedCategory !== 'all' || searchTerm) && (
+      {/* All Products Section - Only show when category filtering is active (not for search) */}
+      {selectedCategory !== 'all' && !searchTerm && (
         <section className="container mx-auto px-4 py-6 border-t border-gray-200" id="all-products">
           <div className="mb-6">
             <h2 
