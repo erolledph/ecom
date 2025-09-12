@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
 import { 
   getUserStore, 
   updateStore, 
@@ -195,6 +196,7 @@ const COLOR_PALETTES = [
 export default function StoreSettingsPage() {
   const { user } = useAuth();
   const router = useRouter();
+  const { showSuccess, showError } = useToast();
   const [store, setStore] = useState<Store | null>(null);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -387,7 +389,7 @@ export default function StoreSettingsPage() {
     if (!user || !store) return;
 
     if (slugError) {
-      alert('Please fix the URL error before saving.');
+      showError('Please fix the URL error before saving.');
       return;
     }
 
@@ -427,10 +429,10 @@ export default function StoreSettingsPage() {
       };
 
       await updateStore(store.id, updateData);
-      alert('Store settings updated successfully!');
+      showSuccess('Store settings updated successfully!');
     } catch (error) {
       console.error('Error updating store:', error);
-      alert('Failed to update store settings. Please try again.');
+      showError('Failed to update store settings. Please try again.');
     } finally {
       setSaving(false);
     }

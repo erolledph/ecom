@@ -4,12 +4,14 @@ import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
 import { getStoreSlides, deleteSlide, Slide, getUserStore } from '@/lib/store';
 import { Edit, Trash2, Plus, ExternalLink } from 'lucide-react';
 
 export default function SlidesPage() {
   const { user } = useAuth();
   const router = useRouter();
+  const { showSuccess, showError, showWarning } = useToast();
   const [slides, setSlides] = useState<Slide[]>([]);
   const [storeSlug, setStoreSlug] = useState<string>('');
   const [loading, setLoading] = useState(true);
@@ -42,14 +44,15 @@ export default function SlidesPage() {
   const handleDelete = async (slideId: string) => {
     if (!user) return;
     
-    if (confirm('Are you sure you want to delete this slide?')) {
-      try {
-        await deleteSlide(slideId);
-        await fetchSlides();
-      } catch (error) {
-        console.error('Error deleting slide:', error);
-        alert('Failed to delete slide. Please try again.');
-      }
+    showWarning('Deleting slide...');
+    
+    try {
+      await deleteSlide(slideId);
+      showSuccess('Slide deleted successfully');
+      await fetchSlides();
+    } catch (error) {
+      console.error('Error deleting slide:', error);
+      showError('Failed to delete slide. Please try again.');
     }
   };
 

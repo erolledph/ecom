@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
 import { addProduct, updateProduct, Product } from '@/lib/store';
 import Image from 'next/image';
 import { addDoc, collection, updateDoc, doc } from 'firebase/firestore';
@@ -31,6 +32,7 @@ interface ProductData {
 export default function ProductForm({ product, mode }: ProductFormProps) {
   const { user } = useAuth();
   const router = useRouter();
+  const { showSuccess, showError } = useToast();
   const [productData, setProductData] = useState<ProductData>({
     title: '',
     description: '',
@@ -123,17 +125,17 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
     
     // Validate that we have an image
     if (productData.imageType === 'upload' && !productData.imageFile && mode === 'add') {
-      alert('Please upload a product image');
+      showError('Please upload a product image');
       return;
     }
     
     if (productData.imageType === 'url' && !productData.imageUrl.trim()) {
-      alert('Please provide an image URL');
+      showError('Please provide an image URL');
       return;
     }
     
     if (!productData.category.trim()) {
-      alert('Please enter a category name');
+      showError('Please enter a category name');
       return;
     }
     
@@ -185,11 +187,11 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
         });
       }
       
-      alert('Product saved successfully!');
+      showSuccess('Product saved successfully!');
       router.push('/dashboard/products');
     } catch (error) {
       console.error('Save error:', error);
-      alert('Failed to save product. Please try again.');
+      showError('Failed to save product. Please try again.');
     } finally {
       setIsLoading(false);
     }

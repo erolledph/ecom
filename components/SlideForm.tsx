@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
 import { addSlide, updateSlide, uploadSlideImage, Slide } from '@/lib/store';
 import Image from 'next/image';
 import { Save, Upload, ArrowLeft } from 'lucide-react';
@@ -15,6 +16,7 @@ interface SlideFormProps {
 export default function SlideForm({ slide, mode }: SlideFormProps) {
   const { user } = useAuth();
   const router = useRouter();
+  const { showSuccess, showError } = useToast();
   const [saving, setSaving] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -63,7 +65,7 @@ export default function SlideForm({ slide, mode }: SlideFormProps) {
     if (!user) return;
 
     if (!imageFile && mode === 'add') {
-      alert('Please select an image for the slide.');
+      showError('Please select an image for the slide.');
       return;
     }
 
@@ -95,10 +97,11 @@ export default function SlideForm({ slide, mode }: SlideFormProps) {
         });
       }
 
+      showSuccess(mode === 'edit' ? 'Slide updated successfully!' : 'Slide created successfully!');
       router.push('/dashboard/slides');
     } catch (error) {
       console.error('Error saving slide:', error);
-      alert('Failed to save slide. Please try again.');
+      showError('Failed to save slide. Please try again.');
     } finally {
       setSaving(false);
     }

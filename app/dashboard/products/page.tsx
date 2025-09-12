@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
 import { 
   getStoreProducts, 
   deleteProduct,
@@ -16,6 +17,7 @@ import { Edit, Trash2, Plus, Check, X, Users } from 'lucide-react';
 export default function ProductsPage() {
   const { user } = useAuth();
   const router = useRouter();
+  const { showSuccess, showError, showWarning } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [storeSlug, setStoreSlug] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
@@ -68,15 +70,16 @@ export default function ProductsPage() {
   const handleBulkDelete = async () => {
     if (!user || selectedProductIds.length === 0) return;
     
-    if (confirm(`Are you sure you want to delete ${selectedProductIds.length} selected products?`)) {
-      try {
-        await Promise.all(selectedProductIds.map(id => deleteProduct(id)));
-        setSelectedProductIds([]);
-        fetchProducts();
-      } catch (error) {
-        console.error('Error deleting products:', error);
-        alert('Failed to delete some products. Please try again.');
-      }
+    showWarning(`Deleting ${selectedProductIds.length} selected products...`);
+    
+    try {
+      await Promise.all(selectedProductIds.map(id => deleteProduct(id)));
+      setSelectedProductIds([]);
+      showSuccess(`Successfully deleted ${selectedProductIds.length} products`);
+      fetchProducts();
+    } catch (error) {
+      console.error('Error deleting products:', error);
+      showError('Failed to delete some products. Please try again.');
     }
   };
 
@@ -96,7 +99,7 @@ export default function ProductsPage() {
       fetchProducts();
     } catch (error) {
       console.error('Error grouping products:', error);
-      alert('Failed to group products. Please try again.');
+      showError('Failed to group products. Please try again.');
     } finally {
       setIsGrouping(false);
     }
@@ -104,13 +107,15 @@ export default function ProductsPage() {
   const handleDeleteProduct = async (productId: string) => {
     if (!user) return;
     
-    if (confirm('Are you sure you want to delete this product?')) {
-      try {
-        await deleteProduct(productId);
-        fetchProducts();
-      } catch (error) {
-        console.error('Error deleting product:', error);
-      }
+    showWarning('Deleting product...');
+    
+    try {
+      await deleteProduct(productId);
+      showSuccess('Product deleted successfully');
+      fetchProducts();
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      showError('Failed to delete product. Please try again.');
     }
   };
 
