@@ -107,7 +107,7 @@ export default function StoreSettingsPage() {
     bannerLink: '',
     socialLinks: [] as Array<{ platform: string; url: string; }>,
     customization: {
-      backgroundType: 'solid' as 'solid' | 'gradient',
+      backgroundType: 'gradient' as 'gradient',
       storeNameFontColor: '#ffffff',
       storeBioFontColor: '#e5e7eb',
       avatarBorderColor: '#ffffff',
@@ -643,6 +643,26 @@ export default function StoreSettingsPage() {
               {/* Typography */}
               <div>
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Typography</h3>
+                
+                {/* Live Font Preview */}
+                <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <h4 className="text-sm font-medium text-gray-700 mb-3">Live Preview</h4>
+                  <div className="space-y-3">
+                    <p 
+                      className="text-xl font-bold text-gray-900"
+                      style={{ fontFamily: formData.customization.headingFontFamily }}
+                    >
+                      This is a sample heading text
+                    </p>
+                    <p 
+                      className="text-sm text-gray-700"
+                      style={{ fontFamily: formData.customization.bodyFontFamily }}
+                    >
+                      This is sample body text that shows how your content will look with the selected font family. You can see the changes in real-time as you select different fonts.
+                    </p>
+                  </div>
+                </div>
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="customization.headingFontFamily" className="block text-sm font-medium text-gray-700 mb-2">
@@ -764,96 +784,45 @@ export default function StoreSettingsPage() {
               <div>
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Store Background</h3>
                 
-                {/* Background Type Selection */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    Background Type
-                  </label>
-                  <div className="flex space-x-4">
-                    <label className="flex items-center border border-gray-300 rounded-md px-4 py-2 cursor-pointer hover:bg-gray-50 transition-colors">
-                      <input
-                        type="radio"
-                        name="customization.backgroundType"
-                        value="solid"
-                        checked={formData.customization.backgroundType === 'solid'}
-                        onChange={handleInputChange}
-                        className="mr-2"
-                      />
-                      <span className="text-gray-700">Solid Color</span>
-                    </label>
-                    <label className="flex items-center border border-gray-300 rounded-md px-4 py-2 cursor-pointer hover:bg-gray-50 transition-colors">
-                      <input
-                        type="radio"
-                        name="customization.backgroundType"
-                        value="gradient"
-                        checked={formData.customization.backgroundType === 'gradient'}
-                        onChange={handleInputChange}
-                        className="mr-2"
-                      />
-                      <span className="text-gray-700">Gradient Color</span>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Background Color Options */}
+                {/* Gradient Background Colors */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {formData.customization.backgroundType === 'solid' ? (
-                    <div>
-                      <label htmlFor="customization.storeBackgroundColor" className="block text-sm font-medium text-gray-700 mb-2">
-                        Background Color
-                      </label>
-                      <input
-                        type="color"
-                        id="customization.storeBackgroundColor"
-                        name="customization.storeBackgroundColor"
-                        value={formData.customization.storeBackgroundColor}
-                        onChange={handleInputChange}
-                        className="w-full h-12 border border-gray-300 rounded-lg cursor-pointer"
-                      />
-                    </div>
-                  ) : (
-                    <>
-                      <div>
-                        <label htmlFor="customization.mainBackgroundGradientStartColor" className="block text-sm font-medium text-gray-700 mb-2">
-                          Gradient Start Color
-                        </label>
-                        <input
-                          type="color"
-                          id="customization.mainBackgroundGradientStartColor"
-                          name="customization.mainBackgroundGradientStartColor"
-                          value={formData.customization.mainBackgroundGradientStartColor}
-                          onChange={handleInputChange}
-                          className="w-full h-12 border border-gray-300 rounded-lg cursor-pointer"
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="customization.mainBackgroundGradientEndColor" className="block text-sm font-medium text-gray-700 mb-2">
-                          Gradient End Color
-                        </label>
-                        <input
-                          type="color"
-                          id="customization.mainBackgroundGradientEndColor"
-                          name="customization.mainBackgroundGradientEndColor"
-                          value={formData.customization.mainBackgroundGradientEndColor}
-                          onChange={handleInputChange}
-                          className="w-full h-12 border border-gray-300 rounded-lg cursor-pointer"
-                        />
-                      </div>
-                    </>
-                  )}
+                  <div>
+                    <label htmlFor="customization.mainBackgroundGradientStartColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Gradient Start Color
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.mainBackgroundGradientStartColor"
+                      name="customization.mainBackgroundGradientStartColor"
+                      value={formData.customization.mainBackgroundGradientStartColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg cursor-pointer"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="customization.mainBackgroundGradientEndColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Gradient End Color
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.mainBackgroundGradientEndColor"
+                      name="customization.mainBackgroundGradientEndColor"
+                      value={formData.customization.mainBackgroundGradientEndColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg cursor-pointer"
+                    />
+                  </div>
                 </div>
                 
                 {/* Background Preview */}
-                <div>
+                <div className="mt-6">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Background Preview
                   </label>
                   <div 
                     className="w-full h-20 rounded-lg border border-gray-300"
                     style={{
-                      background: formData.customization.backgroundType === 'gradient'
-                        ? `linear-gradient(135deg, ${formData.customization.mainBackgroundGradientStartColor}, ${formData.customization.mainBackgroundGradientEndColor})`
-                        : formData.customization.storeBackgroundColor
+                      background: `linear-gradient(135deg, ${formData.customization.mainBackgroundGradientStartColor}, ${formData.customization.mainBackgroundGradientEndColor})`
                     }}
                   />
                 </div>
