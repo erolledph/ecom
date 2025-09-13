@@ -631,23 +631,60 @@ export default function StoreTemplate({ store, products, slides, categories, ini
 
       {/* Footer */}
       <footer className="bg-white shadow-inner rounded-t-lg mt-4 p-4 md:p-6 text-center text-gray-600">
-        <div className="flex justify-center space-x-[5px] mb-4">
-          {store.socialLinks?.map((socialLink, index) => {
-            const IconComponent = SOCIAL_ICONS[socialLink.platform] || Globe;
-            return (
-              <a
-                key={index}
-                href={socialLink.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-600 hover:text-gray-800 transition-colors"
-              >
-                <IconComponent className="w-6 h-6" />
-              </a>
-            );
-          })}
+        <div className="space-y-4">
+          {/* Tagline */}
+          <div>
+            <p 
+              className="text-sm font-medium text-gray-800 mb-2"
+              style={{
+                fontFamily: store.customization?.headingFontFamily || store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+              }}
+            >
+              Discover Amazing Products & Deals
+            </p>
+            <p className="text-xs text-gray-500">Your trusted affiliate marketplace</p>
+          </div>
+          
+          {/* Navigation Links */}
+          <div className="flex flex-wrap justify-center gap-4 text-xs">
+            <a 
+              href="#" 
+              className="text-gray-600 hover:text-gray-800 transition-colors"
+              style={{
+                fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+              }}
+            >
+              Terms & Privacy
+            </a>
+            <span className="text-gray-400">•</span>
+            <a 
+              href="#" 
+              className="text-gray-600 hover:text-gray-800 transition-colors"
+              style={{
+                fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+              }}
+            >
+              Contact
+            </a>
+            <span className="text-gray-400">•</span>
+            <a 
+              href="#" 
+              className="text-gray-600 hover:text-gray-800 transition-colors"
+              style={{
+                fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+              }}
+            >
+              Career
+            </a>
+          </div>
+          
+          {/* Copyright */}
+          <div className="border-t border-gray-200 pt-4">
+            <p className="text-[0.8rem] text-gray-500">
+              &copy; {new Date().getFullYear()} Affiliate Store. All rights reserved.
+            </p>
+          </div>
         </div>
-        <p className="text-[0.8rem]">&copy; {new Date().getFullYear()} {store.name}. All rights reserved.</p>
       </footer>
 
       {/* Floating Widget */}
