@@ -49,6 +49,147 @@ const SOCIAL_PLATFORMS = [
   'website'
 ];
 
+const CURRENCY_OPTIONS = [
+  { symbol: '$', name: 'USD - US Dollar' },
+  { symbol: '₱', name: 'PHP - PHILIPPINE PESO' },
+  { symbol: '€', name: 'EUR - Euro' },
+  { symbol: '£', name: 'GBP - British Pound' },
+  { symbol: '¥', name: 'JPY - Japanese Yen' },
+  { symbol: '₹', name: 'INR - Indian Rupee' },
+  { symbol: 'C$', name: 'CAD - Canadian Dollar' },
+  { symbol: 'A$', name: 'AUD - Australian Dollar' },
+  { symbol: '₩', name: 'KRW - South Korean Won' },
+  { symbol: '¥', name: 'CNY - Chinese Yuan' },
+  { symbol: 'CHF', name: 'CHF - Swiss Franc' },
+  { symbol: 'kr', name: 'SEK - Swedish Krona' },
+  { symbol: 'kr', name: 'NOK - Norwegian Krone' },
+  { symbol: 'kr', name: 'DKK - Danish Krone' },
+  { symbol: '₽', name: 'RUB - Russian Ruble' },
+  { symbol: 'R$', name: 'BRL - Brazilian Real' },
+  { symbol: '$', name: 'MXN - Mexican Peso' },
+  { symbol: '₦', name: 'NGN - Nigerian Naira' },
+  { symbol: 'R', name: 'ZAR - South African Rand' },
+  { symbol: '₪', name: 'ILS - Israeli Shekel' },
+  { symbol: '₺', name: 'TRY - Turkish Lira' }
+];
+
+const PREDEFINED_PALETTES = [
+  {
+    id: 'default',
+    name: 'Default',
+    colors: {
+      storeNameFontColor: '#ffffff',
+      storeBioFontColor: '#e5e7eb',
+      avatarBorderColor: '#ffffff',
+      activeCategoryBorderColor: '#6366f1',
+      headingTextColor: '#111827',
+      bodyTextColor: '#374151',
+      mainBackgroundGradientStartColor: '#f3f4f6',
+      mainBackgroundGradientEndColor: '#f3f4f6',
+      storeBackgroundColor: '#f3f4f6',
+      priceFontColor: '#059669',
+      slideOverlayColor: '#000000',
+      slideTitleColor: '#ffffff',
+      slideDescriptionColor: '#e5e7eb'
+    }
+  },
+  {
+    id: 'ocean',
+    name: 'Ocean Blue',
+    colors: {
+      storeNameFontColor: '#ffffff',
+      storeBioFontColor: '#bfdbfe',
+      avatarBorderColor: '#3b82f6',
+      activeCategoryBorderColor: '#1d4ed8',
+      headingTextColor: '#1e3a8a',
+      bodyTextColor: '#1e40af',
+      mainBackgroundGradientStartColor: '#dbeafe',
+      mainBackgroundGradientEndColor: '#bfdbfe',
+      storeBackgroundColor: '#eff6ff',
+      priceFontColor: '#1d4ed8',
+      slideOverlayColor: '#1e40af',
+      slideTitleColor: '#ffffff',
+      slideDescriptionColor: '#bfdbfe'
+    }
+  },
+  {
+    id: 'sunset',
+    name: 'Sunset Orange',
+    colors: {
+      storeNameFontColor: '#ffffff',
+      storeBioFontColor: '#fed7aa',
+      avatarBorderColor: '#f97316',
+      activeCategoryBorderColor: '#ea580c',
+      headingTextColor: '#9a3412',
+      bodyTextColor: '#c2410c',
+      mainBackgroundGradientStartColor: '#fff7ed',
+      mainBackgroundGradientEndColor: '#fed7aa',
+      storeBackgroundColor: '#fff7ed',
+      priceFontColor: '#ea580c',
+      slideOverlayColor: '#9a3412',
+      slideTitleColor: '#ffffff',
+      slideDescriptionColor: '#fed7aa'
+    }
+  },
+  {
+    id: 'forest',
+    name: 'Forest Green',
+    colors: {
+      storeNameFontColor: '#ffffff',
+      storeBioFontColor: '#bbf7d0',
+      avatarBorderColor: '#10b981',
+      activeCategoryBorderColor: '#059669',
+      headingTextColor: '#064e3b',
+      bodyTextColor: '#065f46',
+      mainBackgroundGradientStartColor: '#ecfdf5',
+      mainBackgroundGradientEndColor: '#bbf7d0',
+      storeBackgroundColor: '#f0fdf4',
+      priceFontColor: '#059669',
+      slideOverlayColor: '#064e3b',
+      slideTitleColor: '#ffffff',
+      slideDescriptionColor: '#bbf7d0'
+    }
+  },
+  {
+    id: 'purple',
+    name: 'Royal Purple',
+    colors: {
+      storeNameFontColor: '#ffffff',
+      storeBioFontColor: '#ddd6fe',
+      avatarBorderColor: '#8b5cf6',
+      activeCategoryBorderColor: '#7c3aed',
+      headingTextColor: '#581c87',
+      bodyTextColor: '#6b21a8',
+      mainBackgroundGradientStartColor: '#faf5ff',
+      mainBackgroundGradientEndColor: '#ddd6fe',
+      storeBackgroundColor: '#faf5ff',
+      priceFontColor: '#7c3aed',
+      slideOverlayColor: '#581c87',
+      slideTitleColor: '#ffffff',
+      slideDescriptionColor: '#ddd6fe'
+    }
+  },
+  {
+    id: 'rose',
+    name: 'Rose Pink',
+    colors: {
+      storeNameFontColor: '#ffffff',
+      storeBioFontColor: '#fecdd3',
+      avatarBorderColor: '#f43f5e',
+      activeCategoryBorderColor: '#e11d48',
+      headingTextColor: '#881337',
+      bodyTextColor: '#9f1239',
+      mainBackgroundGradientStartColor: '#fff1f2',
+      mainBackgroundGradientEndColor: '#fecdd3',
+      storeBackgroundColor: '#fff1f2',
+      priceFontColor: '#e11d48',
+      slideOverlayColor: '#881337',
+      slideTitleColor: '#ffffff',
+      slideDescriptionColor: '#fecdd3'
+    }
+  }
+];
+
 export default function StoreSettingsPage() {
   const { user } = useAuth();
   const { showSuccess, showError } = useToast();
@@ -56,6 +197,7 @@ export default function StoreSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('general');
+  const [selectedPaletteId, setSelectedPaletteId] = useState('default');
   
   // Form states
   const [formData, setFormData] = useState({
@@ -147,6 +289,9 @@ export default function StoreSettingsPage() {
           });
           setSocialLinks(storeData.socialLinks || []);
           
+          // Set initial palette selection
+          setSelectedPaletteId('default');
+          
           // Set image previews
           setImagePreviews({
             avatar: storeData.avatar || undefined,
@@ -175,7 +320,7 @@ export default function StoreSettingsPage() {
         ...prev,
         customization: {
           ...prev.customization,
-          [customizationKey]: type === 'number' ? parseFloat(value) : value
+          [customizationKey]: type === 'number' ? (customizationKey === 'slideOverlayOpacity' ? parseFloat(value) : parseFloat(value)) : value
         }
       }));
     } else {
@@ -206,6 +351,17 @@ export default function StoreSettingsPage() {
 
   const removeSocialLink = (index: number) => {
     setSocialLinks(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const applyPalette = (palette: typeof PREDEFINED_PALETTES[0]) => {
+    setFormData(prev => ({
+      ...prev,
+      customization: {
+        ...prev.customization,
+        ...palette.colors
+      }
+    }));
+    setSelectedPaletteId(palette.id);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -502,6 +658,28 @@ export default function StoreSettingsPage() {
                 </div>
               </div>
 
+              <div>
+                <label htmlFor="customization.currencySymbol" className="block text-sm font-medium text-gray-700 mb-2">
+                  Currency
+                </label>
+                <select
+                  id="customization.currencySymbol"
+                  name="customization.currencySymbol"
+                  value={formData.customization.currencySymbol}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                >
+                  {CURRENCY_OPTIONS.map(currency => (
+                    <option key={`${currency.symbol}-${currency.name}`} value={currency.symbol}>
+                      {currency.symbol} - {currency.name}
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-1 text-xs text-gray-500">
+                  Symbol displayed before product prices
+                </p>
+              </div>
+
               {/* Feature Toggles */}
               <div className="space-y-4">
                 <h3 className="text-lg font-medium text-gray-900">Feature Settings</h3>
@@ -558,6 +736,64 @@ export default function StoreSettingsPage() {
           {/* Appearance Tab */}
           {activeTab === 'appearance' && (
             <div className="space-y-6">
+              {/* Color Palettes Section */}
+              <div>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Color Palettes</h3>
+                <p className="text-sm text-gray-600 mb-4">Choose a predefined color palette or customize individual colors below</p>
+                
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                  {PREDEFINED_PALETTES.map((palette) => (
+                    <div
+                      key={palette.id}
+                      onClick={() => applyPalette(palette)}
+                      className={`cursor-pointer p-4 rounded-lg border-2 transition-all hover:shadow-md ${
+                        selectedPaletteId === palette.id
+                          ? 'border-primary-500 bg-primary-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-medium text-gray-900">{palette.name}</h4>
+                        {selectedPaletteId === palette.id && (
+                          <div className="w-5 h-5 bg-primary-500 rounded-full flex items-center justify-center">
+                            <div className="w-2 h-2 bg-white rounded-full"></div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Color Swatches */}
+                      <div className="grid grid-cols-4 gap-1">
+                        <div
+                          className="w-6 h-6 rounded border border-gray-200"
+                          style={{ backgroundColor: palette.colors.activeCategoryBorderColor }}
+                          title="Active Category"
+                        ></div>
+                        <div
+                          className="w-6 h-6 rounded border border-gray-200"
+                          style={{ backgroundColor: palette.colors.priceFontColor }}
+                          title="Price Color"
+                        ></div>
+                        <div
+                          className="w-6 h-6 rounded border border-gray-200"
+                          style={{ backgroundColor: palette.colors.headingTextColor }}
+                          title="Heading Color"
+                        ></div>
+                        <div
+                          className="w-6 h-6 rounded border border-gray-200"
+                          style={{ backgroundColor: palette.colors.mainBackgroundGradientStartColor }}
+                          title="Background"
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 pt-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Custom Colors</h3>
+                <p className="text-sm text-gray-600 mb-4">Fine-tune individual colors to match your brand</p>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="customization.storeNameFontColor" className="block text-sm font-medium text-gray-700 mb-2">
@@ -626,22 +862,6 @@ export default function StoreSettingsPage() {
                     value={formData.customization.priceFontColor}
                     onChange={handleInputChange}
                     className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="customization.currencySymbol" className="block text-sm font-medium text-gray-700 mb-2">
-                    Currency Symbol
-                  </label>
-                  <input
-                    type="text"
-                    id="customization.currencySymbol"
-                    name="customization.currencySymbol"
-                    value={formData.customization.currencySymbol}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    placeholder="$"
-                    maxLength={3}
                   />
                 </div>
               </div>
