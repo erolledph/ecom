@@ -546,7 +546,7 @@ export default function StoreSettingsPage() {
                   <h3 className="text-lg font-medium text-gray-900">Popup Banner</h3>
                 </div>
                 <p className="text-sm text-gray-600 mb-6">
-                  Create an eye-catching popup banner that appears when visitors first arrive at your store.
+                  Create an eye-catching popup banner that appears when visitors first arrive at your store (Please check to open)
                 </p>
                 
                 <div className="space-y-6">
@@ -1018,7 +1018,7 @@ export default function StoreSettingsPage() {
           )}
 
           {/* Submit Button */}
-          <div className="flex justify-end pt-6 border-t border-gray-200">
+          <div className="flex justify-end pt-6">
             <button
               type="submit"
               disabled={saving}
