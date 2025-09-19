@@ -537,7 +537,7 @@ export async function getStoreSubscribers(storeId: string): Promise<Subscriber[]
 export async function clearStoreSubscribers(storeId: string): Promise<void> {
   try {
     const subscribersRef = collection(db, 'users', storeId, 'stores', storeId, 'subscribers');
-    const q = query(subscribersRef, where('storeId', '==', storeId));
+    const q = query(subscribersRef);
     const querySnapshot = await getDocs(q);
     
     const batch = writeBatch(db);
