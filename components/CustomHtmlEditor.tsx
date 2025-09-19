@@ -50,7 +50,7 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
       setPreviewHtml(result.sanitizedHtml);
       setValidationResult({
         wasModified: result.wasModified,
-        message: result.message
+        message: result.message,
       });
 
       if (result.wasModified) {
