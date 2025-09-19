@@ -2,7 +2,6 @@
 const nextConfig = {
   output: 'standalone',
   trailingSlash: true,
-  // Exclude functions directory from Next.js compilation
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
   experimental: {
     esmExternals: 'loose',
@@ -19,10 +18,9 @@ const nextConfig = {
   },
   transpilePackages: ['firebase', '@firebase/auth', '@firebase/firestore', '@firebase/app'],
   webpack: (config, { isServer }) => {
-    // Exclude functions directory from webpack compilation
     config.watchOptions = {
       ...config.watchOptions,
-      ignored: ['**/functions/**', '**/node_modules/**']
+      ignored: ['**/node_modules/**']
     };
     
     // Add fallbacks for Node.js modules when building for client-side
@@ -39,7 +37,7 @@ const nextConfig = {
     } else {
       // Mark grpc-js as external for server-side to prevent bundling issues
       config.externals = config.externals || [];
-      config.externals.push('grpc-js', 'firebase-admin');
+      config.externals.push('grpc-js');
     }
 
     // Ignore specific warnings that don't affect functionality
@@ -47,8 +45,7 @@ const nextConfig = {
       /Critical dependency: the request of a dependency is an expression/,
       /Module not found: Can't resolve 'encoding'/,
       /Module parse failed: Unexpected token/,
-      /Can't resolve 'grpc-js'/,
-      /Can't resolve 'firebase-admin'/
+      /Can't resolve 'grpc-js'/
     ];
 
     // Optimize bundle size

@@ -7,6 +7,3 @@
   NODE_VERSION = "20"
   NODE_ENV = "production"
   NPM_FLAGS = "--production=false"
-
-[functions]
-  node_bundler = "esbuild"
