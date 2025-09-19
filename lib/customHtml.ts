@@ -27,21 +27,22 @@ export const updateCustomHtml = async (user: User, storeId: string, customHtml: 
     throw new Error('User must be logged in to update custom HTML');
   }
   
-  // Force refresh the ID token to ensure it's valid
+  // Get the ID token to send to the Cloud Function
+  let idToken: string;
   try {
-    await user.getIdToken(true); // true forces refresh
+    idToken = await user.getIdToken(true); // true forces refresh
   } catch (error) {
     console.error('Failed to refresh auth token:', error);
     throw new Error('Authentication failed. Please try logging in again.');
   }
 
   const updateCustomHtmlFunction = httpsCallable<
-    { storeId: string; customHtml: string },
+    { storeId: string; customHtml: string; authToken: string },
     UpdateCustomHtmlResponse
   >(functions, 'updateCustomHtml');
 
   try {
-    const result = await updateCustomHtmlFunction({ storeId, customHtml });
+    const result = await updateCustomHtmlFunction({ storeId, customHtml, authToken: idToken });
     return result.data;
   } catch (error: any) {
     console.error('Error updating custom HTML:', error);
@@ -56,21 +57,22 @@ export const validateCustomHtml = async (user: User, customHtml: string): Promis
     throw new Error('User must be logged in to validate HTML');
   }
   
-  // Force refresh the ID token to ensure it's valid
+  // Get the ID token to send to the Cloud Function
+  let idToken: string;
   try {
-    await user.getIdToken(true); // true forces refresh
+    idToken = await user.getIdToken(true); // true forces refresh
   } catch (error) {
     console.error('Failed to refresh auth token:', error);
     throw new Error('Authentication failed. Please try logging in again.');
   }
 
   const validateCustomHtmlFunction = httpsCallable<
-    { customHtml: string },
+    { customHtml: string; authToken: string },
     ValidateCustomHtmlResponse
   >(functions, 'validateCustomHtml');
 
   try {
-    const result = await validateCustomHtmlFunction({ customHtml });
+    const result = await validateCustomHtmlFunction({ customHtml, authToken: idToken });
     return result.data;
   } catch (error: any) {
     console.error('Error validating custom HTML:', error);
