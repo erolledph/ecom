@@ -14,6 +14,7 @@ export default function SubscribersPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [hasShownError, setHasShownError] = useState(false);
 
   const fetchSubscribers = useCallback(async () => {
     if (!user) return;
@@ -21,13 +22,18 @@ export default function SubscribersPage() {
     try {
       const subscribersData = await getStoreSubscribers(user.uid);
       setSubscribers(subscribersData);
+      setHasShownError(false); // Reset error flag on successful fetch
     } catch (error) {
       console.error('Error fetching subscribers:', error);
-      showError('Failed to load subscribers');
+      // Only show error toast if we haven't shown it before
+      if (!hasShownError) {
+        showError('Failed to load subscribers');
+        setHasShownError(true);
+      }
     } finally {
       setLoading(false);
     }
-  }, [user, showError]);
+  }, [user, showError, hasShownError]);
 
   useEffect(() => {
     if (user) {
@@ -37,6 +43,7 @@ export default function SubscribersPage() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
+    setHasShownError(false); // Reset error flag when manually refreshing
     try {
       await fetchSubscribers();
       showSuccess('Subscribers refreshed successfully');
