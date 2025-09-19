@@ -55,7 +55,6 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
       ALLOWED_TAGS,
       ALLOWED_ATTR,
       ALLOW_DATA_ATTR: false,
-      FORBID_SCRIPT: true,
       FORBID_TAGS: ['script', 'object', 'embed', 'form', 'input', 'button'],
       FORBID_ATTR: ['onclick', 'onload', 'onerror', 'onmouseover', 'onfocus', 'onblur'],
       KEEP_CONTENT: true,
