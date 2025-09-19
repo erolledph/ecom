@@ -506,7 +506,7 @@ export async function uploadSubscriptionImage(storeId: string, file: File): Prom
 // Subscriber functions
 export async function addSubscriber(subscriber: Omit<Subscriber, 'id' | 'createdAt'>): Promise<string> {
   try {
-    const subscribersRef = collection(db, 'subscribers');
+    const subscribersRef = collection(db, 'users', subscriber.storeId, 'stores', subscriber.storeId, 'subscribers');
     const docRef = await addDoc(subscribersRef, {
       ...subscriber,
       createdAt: serverTimestamp()
@@ -520,7 +520,7 @@ export async function addSubscriber(subscriber: Omit<Subscriber, 'id' | 'created
 
 export async function getStoreSubscribers(storeId: string): Promise<Subscriber[]> {
   try {
-    const subscribersRef = collection(db, 'subscribers');
+    const subscribersRef = collection(db, 'users', storeId, 'stores', storeId, 'subscribers');
     const q = query(subscribersRef, where('storeId', '==', storeId), orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
     
@@ -536,7 +536,7 @@ export async function getStoreSubscribers(storeId: string): Promise<Subscriber[]
 
 export async function clearStoreSubscribers(storeId: string): Promise<void> {
   try {
-    const subscribersRef = collection(db, 'subscribers');
+    const subscribersRef = collection(db, 'users', storeId, 'stores', storeId, 'subscribers');
     const q = query(subscribersRef, where('storeId', '==', storeId));
     const querySnapshot = await getDocs(q);
     
