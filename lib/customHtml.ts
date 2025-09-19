@@ -27,12 +27,26 @@ export const updateCustomHtml = async (user: User, storeId: string, customHtml: 
     throw new Error('User must be logged in to update custom HTML');
   }
   
-  // Force refresh of ID token to ensure valid authentication
+  // Force refresh of ID token with retry mechanism
   try {
+    // First try to get a fresh token
     await user.getIdToken(true);
+    
+    // Verify the token is valid by checking if user is still authenticated
+    if (!user.uid) {
+      throw new Error('User authentication is invalid');
+    }
   } catch (error) {
     console.error('Failed to refresh authentication token:', error);
-    throw new Error('Authentication session expired. Please log out and log back in.');
+    
+    // Try one more time with force refresh
+    try {
+      await user.reload();
+      await user.getIdToken(true);
+    } catch (retryError) {
+      console.error('Retry failed:', retryError);
+      throw new Error('AUTHENTICATION_EXPIRED');
+    }
   }
   
   const updateCustomHtmlFunction = httpsCallable<
@@ -56,12 +70,26 @@ export const validateCustomHtml = async (user: User, customHtml: string): Promis
     throw new Error('User must be logged in to validate HTML');
   }
 
-  // Force refresh of ID token to ensure valid authentication
+  // Force refresh of ID token with retry mechanism
   try {
+    // First try to get a fresh token
     await user.getIdToken(true);
+    
+    // Verify the token is valid by checking if user is still authenticated
+    if (!user.uid) {
+      throw new Error('User authentication is invalid');
+    }
   } catch (error) {
     console.error('Failed to refresh authentication token:', error);
-    throw new Error('Authentication session expired. Please log out and log back in.');
+    
+    // Try one more time with force refresh
+    try {
+      await user.reload();
+      await user.getIdToken(true);
+    } catch (retryError) {
+      console.error('Retry failed:', retryError);
+      throw new Error('AUTHENTICATION_EXPIRED');
+    }
   }
 
   const validateCustomHtmlFunction = httpsCallable<
