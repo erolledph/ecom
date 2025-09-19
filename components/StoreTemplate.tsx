@@ -146,6 +146,10 @@ export default function StoreTemplate({ store, products, slides, categories, ini
     }
   }, [store.bannerEnabled, store.bannerImage]);
 
+  const handleBannerClose = () => {
+    setShowBannerPopup(false);
+  };
+
   const activeCategoryBorderColor = store.customization?.activeCategoryBorderColor || '#6366f1';
   const currencySymbol = store.customization?.currencySymbol || '$';
   const storeNameColor = store.customization?.storeNameFontColor || '#ffffff';
