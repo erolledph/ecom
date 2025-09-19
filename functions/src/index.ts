@@ -1,7 +1,6 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import { JSDOM } from 'jsdom';
-import { CallableRequest } from 'firebase-functions/v2/https';
 const DOMPurify = require('dompurify');
 
 // Initialize Firebase Admin
@@ -40,7 +39,7 @@ function sanitizeHtml(html: string): string {
 }
 
 // Cloud Function to sanitize and update custom HTML
-export const updateCustomHtml = functions.https.onCall(async (data, context) => {
+export const updateCustomHtml = functions.https.onCall(async (data: any, context: functions.https.CallableContext) => {
   // Check if user is authenticated
   if (!context.auth) {
     throw new functions.https.HttpsError(
@@ -115,7 +114,7 @@ export const updateCustomHtml = functions.https.onCall(async (data, context) => 
 });
 
 // Cloud Function to validate HTML without saving (for preview)
-export const validateCustomHtml = functions.https.onCall(async (data, context) => {
+export const validateCustomHtml = functions.https.onCall(async (data: any, context: functions.https.CallableContext) => {
   // Check if user is authenticated
   if (!context.auth) {
     throw new functions.https.HttpsError(
