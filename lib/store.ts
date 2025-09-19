@@ -521,7 +521,7 @@ export async function addSubscriber(subscriber: Omit<Subscriber, 'id' | 'created
 export async function getStoreSubscribers(storeId: string): Promise<Subscriber[]> {
   try {
     const subscribersRef = collection(db, 'users', storeId, 'stores', storeId, 'subscribers');
-    const q = query(subscribersRef, where('storeId', '==', storeId), orderBy('createdAt', 'desc'));
+    const q = query(subscribersRef, orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
     
     return querySnapshot.docs.map(doc => ({
