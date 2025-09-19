@@ -44,5 +44,13 @@ service cloud.firestore {
       // Only authenticated store owners can read, update, or delete their own analytics data
       allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
     }
+
+    // Subscribers collection: Public can create, owners can manage their own
+    match /subscribers/{subscriberId} {
+      // Allow unauthenticated users to create subscriber entries (for public store visitors)
+      allow create: if request.resource.data.storeId != null;
+      // Only authenticated store owners can read, update, or delete their own subscriber data
+      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.storeId;
+    }
   }
 }

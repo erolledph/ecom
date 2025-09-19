@@ -38,6 +38,9 @@ export interface Store {
   bannerImage?: string;
   bannerDescription?: string;
   bannerLink?: string;
+  subscriptionEnabled?: boolean;
+  requireNameForSubscription?: boolean;
+  subscriptionBackgroundImage?: string;
   slidesEnabled?: boolean;
   displayPriceOnProducts?: boolean;
   displayHeaderBackgroundImage?: boolean;
@@ -68,6 +71,14 @@ export interface Store {
   };
   createdAt: any;
   updatedAt: any;
+}
+
+export interface Subscriber {
+  id?: string;
+  name?: string;
+  email: string;
+  storeId: string;
+  createdAt: any;
 }
 
 export interface Product {
@@ -472,6 +483,71 @@ export async function uploadWidgetImage(storeId: string, file: File): Promise<st
     return getDownloadURL(imageRef);
   } catch (error) {
     console.error('Error uploading widget image:', error);
+    throw error;
+  }
+}
+
+export async function uploadSubscriptionImage(storeId: string, file: File): Promise<string> {
+  try {
+    // Compress and resize the image
+    const compressedBlob = await fromBlob(file, 75, 1200, 'auto', 'webp'); // 75% quality, max width 1200px, auto height, webp format
+    
+    const baseFileName = sanitizeFilename(file.name);
+    const fileName = `${baseFileName}_subscription_${Date.now()}.webp`; // Use sanitized original name + timestamp + webp extension
+    const imageRef = ref(storage, `users/${storeId}/images/store/subscription/${fileName}`);
+    await uploadBytes(imageRef, compressedBlob); // Upload the compressed blob
+    return getDownloadURL(imageRef);
+  } catch (error) {
+    console.error('Error uploading subscription image:', error);
+    throw error;
+  }
+}
+
+// Subscriber functions
+export async function addSubscriber(subscriber: Omit<Subscriber, 'id' | 'createdAt'>): Promise<string> {
+  try {
+    const subscribersRef = collection(db, 'subscribers');
+    const docRef = await addDoc(subscribersRef, {
+      ...subscriber,
+      createdAt: serverTimestamp()
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding subscriber:', error);
+    throw error;
+  }
+}
+
+export async function getStoreSubscribers(storeId: string): Promise<Subscriber[]> {
+  try {
+    const subscribersRef = collection(db, 'subscribers');
+    const q = query(subscribersRef, where('storeId', '==', storeId), orderBy('createdAt', 'desc'));
+    const querySnapshot = await getDocs(q);
+    
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as Subscriber[];
+  } catch (error) {
+    console.error('Error getting store subscribers:', error);
+    throw error;
+  }
+}
+
+export async function clearStoreSubscribers(storeId: string): Promise<void> {
+  try {
+    const subscribersRef = collection(db, 'subscribers');
+    const q = query(subscribersRef, where('storeId', '==', storeId));
+    const querySnapshot = await getDocs(q);
+    
+    const batch = writeBatch(db);
+    querySnapshot.docs.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+    
+    await batch.commit();
+  } catch (error) {
+    console.error('Error clearing store subscribers:', error);
     throw error;
   }
 }

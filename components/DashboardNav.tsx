@@ -18,13 +18,15 @@ import {
   ChevronRight,
   PlusCircle,
   PlusSquare,
-  TrendingUp
+  TrendingUp,
+  Users
 } from 'lucide-react';
 
 const navigation = [
   { name: 'Overview', href: '/dashboard', icon: BarChart3 },
   { name: 'Store Settings', href: '/dashboard/store', icon: Store },
   { name: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp },
+  { name: 'Subscribers', href: '/dashboard/subscribers', icon: Users },
   { name: 'Add Slide', href: '/dashboard/slides/add', icon: PlusSquare },
   { name: 'Manage Slides', href: '/dashboard/slides', icon: Image },
   { name: 'Add Product', href: '/dashboard/products/add', icon: PlusCircle },

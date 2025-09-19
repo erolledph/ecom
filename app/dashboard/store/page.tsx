@@ -20,7 +20,8 @@ import {
   Code,
   Smartphone,
   Monitor,
-  Tablet
+  Tablet,
+  Users
 } from 'lucide-react';
 
 const SOCIAL_PLATFORMS = [
@@ -130,6 +131,8 @@ export default function StoreSettingsPage() {
             bannerEnabled: storeData.bannerEnabled !== false,
             bannerDescription: storeData.bannerDescription || '',
             bannerLink: storeData.bannerLink || '',
+            subscriptionEnabled: storeData.subscriptionEnabled !== false,
+            requireNameForSubscription: storeData.requireNameForSubscription !== false,
             customization: {
               ...formData.customization,
               ...storeData.customization
@@ -140,6 +143,7 @@ export default function StoreSettingsPage() {
           setBackgroundPreview(storeData.backgroundImage || '');
           setWidgetPreview(storeData.widgetImage || '');
           setBannerPreview(storeData.bannerImage || '');
+          setSubscriptionPreview(storeData.subscriptionBackgroundImage || '');
         }
       } catch (error) {
         console.error('Error fetching store:', error);
@@ -171,7 +175,7 @@ export default function StoreSettingsPage() {
     }
   };
 
-  const handleImageChange = (type: 'avatar' | 'background' | 'widget' | 'banner', e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (type: 'avatar' | 'background' | 'widget' | 'banner' | 'subscription', e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const preview = URL.createObjectURL(file);
@@ -192,6 +196,10 @@ export default function StoreSettingsPage() {
         case 'banner':
           setBannerFile(file);
           setBannerPreview(preview);
+          break;
+        case 'subscription':
+          setSubscriptionFile(file);
+          setSubscriptionPreview(preview);
           break;
       }
     }
@@ -222,6 +230,7 @@ export default function StoreSettingsPage() {
       let backgroundUrl = store.backgroundImage;
       let widgetUrl = store.widgetImage;
       let bannerUrl = store.bannerImage;
+      let subscriptionUrl = store.subscriptionBackgroundImage;
 
       // Upload images if new files are selected
       if (avatarFile) {
@@ -236,6 +245,9 @@ export default function StoreSettingsPage() {
       if (bannerFile) {
         bannerUrl = await uploadStoreImage(user.uid, bannerFile, 'banner');
       }
+      if (subscriptionFile) {
+        subscriptionUrl = await uploadSubscriptionImage(user.uid, subscriptionFile);
+      }
 
       const updateData = {
         ...formData,
@@ -243,6 +255,7 @@ export default function StoreSettingsPage() {
         backgroundImage: backgroundUrl,
         widgetImage: widgetUrl,
         bannerImage: bannerUrl,
+        subscriptionBackgroundImage: subscriptionUrl,
         socialLinks: socialLinks.filter(link => link.url.trim() !== '')
       };
 
@@ -288,6 +301,7 @@ export default function StoreSettingsPage() {
     { id: 'appearance', name: 'Appearance', icon: Palette },
     { id: 'images', name: 'Images', icon: ImageIcon },
     { id: 'features', name: 'Features', icon: Settings },
+    { id: 'subscriptions', name: 'Subscriptions', icon: Users },
     { id: 'custom-html', name: 'Custom HTML', icon: Code },
     { id: 'social', name: 'Social Links', icon: Globe }
   ];

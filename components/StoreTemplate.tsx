@@ -864,7 +864,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-hidden relative">
             {/* Close Button */}
             <button
-              onClick={() => setShowBannerPopup(false)}
+              onClick={handleBannerClose}
               className="absolute top-2 right-2 z-10 bg-black bg-opacity-50 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-opacity-70 transition-colors"
             >
               ✕
@@ -883,7 +883,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                     destination_link: store.bannerLink,
                   });
                   window.open(store.bannerLink, '_blank', 'noopener,noreferrer');
-                  setShowBannerPopup(false);
+                  handleBannerClose();
                 }
               }}
             >
@@ -915,6 +915,16 @@ export default function StoreTemplate({ store, products, slides, categories, ini
           </div>
         </div>
       )}
+
+      {/* Subscription Modal */}
+      <SubscriptionModal
+        isOpen={showSubscriptionModal}
+        onClose={() => setShowSubscriptionModal(false)}
+        storeId={store.ownerId}
+        storeName={store.name}
+        requireName={store.requireNameForSubscription !== false}
+        backgroundImage={store.subscriptionBackgroundImage}
+      />
 
       {/* Inline Styles */}
       <style jsx>{`

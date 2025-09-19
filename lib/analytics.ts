@@ -122,6 +122,20 @@ export const trackPageView = async (
 };
 
 /**
+ * Track subscription form events
+ * @param eventName - The subscription event name
+ * @param ownerId - The ID of the store owner
+ * @param properties - Event properties
+ */
+export const trackSubscriptionEvent = async (
+  eventName: 'subscription_form_view' | 'subscription_form_submit' | 'subscription_form_close',
+  ownerId: string,
+  properties?: Record<string, any>
+): Promise<void> => {
+  await trackEvent(eventName, ownerId, properties);
+};
+
+/**
  * Get analytics events for a specific store owner from Firestore
  */
 export const getAnalyticsEvents = async (ownerId: string): Promise<AnalyticsEvent[]> => {
