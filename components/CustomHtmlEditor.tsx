@@ -4,8 +4,27 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { useRouter } from 'next/navigation';
-import { updateCustomHtml, validateCustomHtml } from '@/lib/customHtml';
+import { httpsCallable } from 'firebase/functions';
+import { getFunctions } from 'firebase/functions';
+import app from '@/lib/firebase';
 import { Eye, Save, AlertTriangle, CheckCircle, Code, Loader } from 'lucide-react';
+
+// Initialize Firebase Functions
+const functions = getFunctions(app);
+
+// Interface for the update custom HTML response
+interface UpdateCustomHtmlResponse {
+  success: boolean;
+  sanitizedHtml: string;
+  message: string;
+}
+
+// Interface for the validate custom HTML response
+interface ValidateCustomHtmlResponse {
+  sanitizedHtml: string;
+  wasModified: boolean;
+  message: string;
+}
 
 interface CustomHtmlEditorProps {
   storeId: string;
@@ -33,33 +52,133 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
     setHtmlContent(initialHtml);
   }, [initialHtml]);
 
-  // Handle authentication errors with automatic retry
-  const handleAuthError = async (error: any, retryFunction: () => Promise<void>) => {
-    if (error.message === 'AUTHENTICATION_EXPIRED') {
-      showWarning('Session expired. Attempting to refresh authentication...');
-      
-      // Wait a moment for potential auth state changes
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Check if user is still available after waiting
-      if (user) {
-        try {
-          // Try the operation again
-          await retryFunction();
-          return true; // Success on retry
-        } catch (retryError: any) {
-          console.error('Retry failed:', retryError);
-          showError('Authentication failed. Please refresh the page and log in again.');
-          return false;
-        }
-      } else {
-        showError('Authentication session lost. Please refresh the page and log in again.');
-        return false;
+  // Validate HTML content for preview
+  const handleValidateHtml = async () => {
+    if (!user) {
+      showError('You must be logged in to validate HTML.');
+      return;
+    }
+
+    if (!htmlContent.trim()) {
+      setPreviewHtml('');
+      setValidationResult(null);
+      return;
+    }
+
+    // Add detailed logging before validation
+    console.log('CustomHtmlEditor: Starting validation for user:', user.uid);
+
+    setIsValidating(true);
+    
+    try {
+      // Force token refresh to ensure we have a valid token
+      let idToken: string;
+      try {
+        await user.getIdToken(true); // Force refresh
+        idToken = await user.getIdToken();
+        console.log('CustomHtmlEditor: Successfully obtained fresh ID token');
+      } catch (tokenError) {
+        console.error('CustomHtmlEditor: Failed to get ID token:', tokenError);
+        showError('Your session is invalid. Please re-login.');
+        router.push('/auth');
+        return;
       }
-    } else {
-      // Handle other types of errors
-      showError('Operation failed: ' + error.message);
-      return false;
+      
+      const validateCustomHtmlFunction = httpsCallable<
+        { customHtml: string; idToken: string },
+        ValidateCustomHtmlResponse
+      >(functions, 'validateCustomHtml');
+
+      const result = await validateCustomHtmlFunction({ customHtml: htmlContent, idToken });
+      
+      setPreviewHtml(result.data.sanitizedHtml);
+      setValidationResult({
+        wasModified: result.data.wasModified,
+        message: result.data.message,
+      });
+
+      if (result.data.wasModified) {
+        showWarning('Some content was removed for security reasons. Check the preview.');
+      } else {
+        showInfo('HTML is safe and ready to use.');
+      }
+    } catch (error: any) {
+      console.error('Validation error:', error);
+      
+      if (error.code === 'unauthenticated' || error.message?.includes('must be authenticated')) {
+        showError('Your session has expired or is invalid. Please re-login.');
+        router.push('/auth');
+      } else {
+        setPreviewHtml('');
+        setValidationResult(null);
+        showError('Validation failed: ' + error.message);
+      }
+    } finally {
+      setIsValidating(false);
+    }
+  };
+
+  // Save HTML content with server-side sanitization
+  const handleSaveHtml = async () => {
+    if (!user) {
+      showError('You must be logged in to save custom HTML.');
+      return;
+    }
+
+    // Add detailed logging before save
+    console.log('CustomHtmlEditor: Starting save for user:', user.uid);
+
+    setIsSaving(true);
+    
+    try {
+      // Force token refresh to ensure we have a valid token
+      let idToken: string;
+      try {
+        await user.getIdToken(true); // Force refresh
+        idToken = await user.getIdToken();
+        console.log('CustomHtmlEditor: Successfully obtained fresh ID token for save');
+      } catch (tokenError) {
+        console.error('CustomHtmlEditor: Failed to get ID token for save:', tokenError);
+        showError('Your session is invalid. Please re-login.');
+        router.push('/auth');
+        return;
+      }
+      
+      const updateCustomHtmlFunction = httpsCallable<
+        { storeId: string; customHtml: string; idToken: string },
+        UpdateCustomHtmlResponse
+      >(functions, 'updateCustomHtml');
+
+      const result = await updateCustomHtmlFunction({ storeId, customHtml: htmlContent, idToken });
+      
+      if (result.data.success) {
+        showSuccess(result.data.message);
+        
+        // Update preview with sanitized content
+        setPreviewHtml(result.data.sanitizedHtml);
+        
+        // Call onSave callback if provided
+        if (onSave) {
+          onSave(result.data.sanitizedHtml);
+        }
+        
+        // Check if content was modified during sanitization
+        if (result.data.sanitizedHtml !== htmlContent) {
+          showWarning('Some content was sanitized for security. The saved version may differ slightly.');
+          setHtmlContent(result.data.sanitizedHtml); // Update editor with sanitized version
+        }
+      }
+    } catch (error: any) {
+      console.error('Save error:', error);
+      
+      if (error.code === 'unauthenticated' || error.message?.includes('must be authenticated')) {
+        showError('Your session has expired or is invalid. Please re-login.');
+        router.push('/auth');
+      } else {
+        showError('Save failed: ' + error.message);
+      }
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -76,111 +195,6 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
       </div>
     );
   }
-
-  // Validate HTML content for preview
-  const handleValidateHtml = async () => {
-    if (!user) {
-      showError('You must be logged in to validate HTML.');
-      return;
-    }
-
-    if (!user.uid) {
-      showError('User authentication data is incomplete. Please try logging in again.');
-      return;
-    }
-
-    if (!htmlContent.trim()) {
-      setPreviewHtml('');
-      setValidationResult(null);
-      return;
-    }
-
-    // Add detailed logging before validation
-    console.log('CustomHtmlEditor: User object before validateCustomHtml call:', user);
-    console.log('CustomHtmlEditor: User UID before validateCustomHtml call:', user?.uid);
-
-    setIsValidating(true);
-    
-    const performValidation = async () => {
-      const result = await validateCustomHtml(user, htmlContent);
-      setPreviewHtml(result.sanitizedHtml);
-      setValidationResult({
-        wasModified: result.wasModified,
-        message: result.message,
-      });
-
-      if (result.wasModified) {
-        showWarning('Some content was removed for security reasons. Check the preview.');
-      } else {
-        showInfo('HTML is safe and ready to use.');
-      }
-    };
-
-    try {
-      await performValidation();
-    } catch (error: any) {
-      console.error('Validation error:', error);
-      
-      const handled = await handleAuthError(error, performValidation);
-      if (!handled) {
-        setPreviewHtml('');
-        setValidationResult(null);
-      }
-    } finally {
-      setIsValidating(false);
-    }
-  };
-
-  // Save HTML content with server-side sanitization
-  const handleSaveHtml = async () => {
-    if (!user) {
-      showError('You must be logged in to save custom HTML.');
-      return;
-    }
-
-    if (!user.uid) {
-      showError('User authentication data is incomplete. Please try logging in again.');
-      return;
-    }
-
-    // Add detailed logging before save
-    console.log('CustomHtmlEditor: User object before updateCustomHtml call:', user);
-    console.log('CustomHtmlEditor: User UID before updateCustomHtml call:', user?.uid);
-
-    setIsSaving(true);
-    
-    const performSave = async () => {
-      const result = await updateCustomHtml(user, storeId, htmlContent);
-      
-      if (result.success) {
-        showSuccess(result.message);
-        
-        // Update preview with sanitized content
-        setPreviewHtml(result.sanitizedHtml);
-        
-        // Call onSave callback if provided
-        if (onSave) {
-          onSave(result.sanitizedHtml);
-        }
-        
-        // Check if content was modified during sanitization
-        if (result.sanitizedHtml !== htmlContent) {
-          showWarning('Some content was sanitized for security. The saved version may differ slightly.');
-          setHtmlContent(result.sanitizedHtml); // Update editor with sanitized version
-        }
-      }
-    };
-
-    try {
-      await performSave();
-    } catch (error: any) {
-      console.error('Save error:', error);
-      
-      await handleAuthError(error, performSave);
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   return (
     <div className="space-y-6">

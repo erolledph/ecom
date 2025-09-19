@@ -42,6 +42,9 @@ function sanitizeHtml(html: string): string {
 // Cloud Function to sanitize and update custom HTML
 export const updateCustomHtml = functions.https.onCall(async (data: any, context: CallableContext) => {
   const { storeId, customHtml, idToken } = data;
+  
+  console.log('updateCustomHtml: Function called with storeId:', storeId);
+  console.log('updateCustomHtml: Received idToken (first 20 chars):', idToken?.substring(0, 20) + '...');
 
   // Validate input
   if (!storeId || typeof customHtml !== 'string' || !idToken) {
@@ -57,10 +60,12 @@ export const updateCustomHtml = functions.https.onCall(async (data: any, context
     decodedToken = await admin.auth().verifyIdToken(idToken);
     console.log('updateCustomHtml: Token verified successfully for user:', decodedToken.uid);
   } catch (error) {
-    console.error('updateCustomHtml: Token verification failed:', error);
+    console.error('updateCustomHtml: Token verification failed - Full error:', error);
+    console.error('updateCustomHtml: Error code:', (error as any).code);
+    console.error('updateCustomHtml: Error message:', (error as any).message);
     throw new functions.https.HttpsError(
       'unauthenticated',
-      'Invalid authentication token.'
+      'Authentication failed: Invalid or expired token.'
     );
   }
 
@@ -123,6 +128,9 @@ export const updateCustomHtml = functions.https.onCall(async (data: any, context
 // Cloud Function to validate HTML without saving (for preview)
 export const validateCustomHtml = functions.https.onCall(async (data: any, context: CallableContext) => {
   const { customHtml, idToken } = data;
+  
+  console.log('validateCustomHtml: Function called');
+  console.log('validateCustomHtml: Received idToken (first 20 chars):', idToken?.substring(0, 20) + '...');
 
   // Validate input
   if (typeof customHtml !== 'string' || !idToken) {
@@ -138,10 +146,12 @@ export const validateCustomHtml = functions.https.onCall(async (data: any, conte
     decodedToken = await admin.auth().verifyIdToken(idToken);
     console.log('validateCustomHtml: Token verified successfully for user:', decodedToken.uid);
   } catch (error) {
-    console.error('validateCustomHtml: Token verification failed:', error);
+    console.error('validateCustomHtml: Token verification failed - Full error:', error);
+    console.error('validateCustomHtml: Error code:', (error as any).code);
+    console.error('validateCustomHtml: Error message:', (error as any).message);
     throw new functions.https.HttpsError(
       'unauthenticated',
-      'Invalid authentication token.'
+      'Authentication failed: Invalid or expired token.'
     );
   }
 
