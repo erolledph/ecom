@@ -230,11 +230,11 @@ export default function StoreSettingsPage() {
     setSaving(true);
 
     try {
-      let avatarUrl = store.avatar;
-      let backgroundUrl = store.backgroundImage;
-      let widgetUrl = store.widgetImage;
-      let bannerUrl = store.bannerImage;
-      let subscriptionUrl = store.subscriptionBackgroundImage;
+      let avatarUrl = store.avatar || '';
+      let backgroundUrl = store.backgroundImage || '';
+      let widgetUrl = store.widgetImage || '';
+      let bannerUrl = store.bannerImage || '';
+      let subscriptionUrl = store.subscriptionBackgroundImage || '';
 
       // Upload images if new files are selected
       if (avatarFile) {
