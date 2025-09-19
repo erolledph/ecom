@@ -79,7 +79,15 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
       }
     } catch (error: any) {
       console.error('Validation error:', error);
-      showError('Failed to validate HTML: ' + error.message);
+      
+      // Check for authentication-related errors
+      if (error.message.includes('Authentication session expired') || 
+          error.message.includes('User must be authenticated')) {
+        showError('Your session has expired. Please refresh the page and log in again.');
+      } else {
+        showError('Failed to validate HTML: ' + error.message);
+      }
+      
       setPreviewHtml('');
       setValidationResult(null);
     } finally {
@@ -122,7 +130,14 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
       }
     } catch (error: any) {
       console.error('Save error:', error);
-      showError('Failed to save custom HTML: ' + error.message);
+      
+      // Check for authentication-related errors
+      if (error.message.includes('Authentication session expired') || 
+          error.message.includes('User must be authenticated')) {
+        showError('Your session has expired. Please refresh the page and log in again.');
+      } else {
+        showError('Failed to save custom HTML: ' + error.message);
+      }
     } finally {
       setIsSaving(false);
     }

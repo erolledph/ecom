@@ -28,7 +28,12 @@ export const updateCustomHtml = async (user: User, storeId: string, customHtml: 
   }
   
   // Force refresh of ID token to ensure valid authentication
-  await user.getIdToken(true);
+  try {
+    await user.getIdToken(true);
+  } catch (error) {
+    console.error('Failed to refresh authentication token:', error);
+    throw new Error('Authentication session expired. Please log out and log back in.');
+  }
   
   const updateCustomHtmlFunction = httpsCallable<
     { storeId: string; customHtml: string },
@@ -52,7 +57,12 @@ export const validateCustomHtml = async (user: User, customHtml: string): Promis
   }
 
   // Force refresh of ID token to ensure valid authentication
-  await user.getIdToken(true);
+  try {
+    await user.getIdToken(true);
+  } catch (error) {
+    console.error('Failed to refresh authentication token:', error);
+    throw new Error('Authentication session expired. Please log out and log back in.');
+  }
 
   const validateCustomHtmlFunction = httpsCallable<
     { customHtml: string },
