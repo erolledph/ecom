@@ -27,6 +27,9 @@ export const updateCustomHtml = async (user: User, storeId: string, customHtml: 
     throw new Error('User must be logged in to update custom HTML');
   }
   
+  // Force refresh of ID token to ensure valid authentication
+  await user.getIdToken(true);
+  
   const updateCustomHtmlFunction = httpsCallable<
     { storeId: string; customHtml: string },
     UpdateCustomHtmlResponse
@@ -47,6 +50,9 @@ export const validateCustomHtml = async (user: User, customHtml: string): Promis
   if (!user) {
     throw new Error('User must be logged in to validate HTML');
   }
+
+  // Force refresh of ID token to ensure valid authentication
+  await user.getIdToken(true);
 
   const validateCustomHtmlFunction = httpsCallable<
     { customHtml: string },
