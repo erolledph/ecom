@@ -33,6 +33,11 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
 
   // Validate HTML content for preview
   const handleValidateHtml = async () => {
+    if (!user) {
+      showError('You must be logged in to validate HTML.');
+      return;
+    }
+
     if (!htmlContent.trim()) {
       setPreviewHtml('');
       setValidationResult(null);
@@ -148,7 +153,7 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
         <div className="flex justify-between items-center">
           <button
             onClick={handleValidateHtml}
-            disabled={isValidating || !htmlContent.trim()}
+            disabled={isValidating || !htmlContent.trim() || !user}
             className="flex items-center px-4 py-2 bg-secondary-600 text-white rounded-lg hover:bg-secondary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isValidating ? (
@@ -161,7 +166,7 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
 
           <button
             onClick={handleSaveHtml}
-            disabled={isSaving || !htmlContent.trim()}
+            disabled={isSaving || !htmlContent.trim() || !user}
             className="flex items-center px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isSaving ? (
