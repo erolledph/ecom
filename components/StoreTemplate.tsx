@@ -52,6 +52,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
   const [visibleAllProductsCount, setVisibleAllProductsCount] = useState(9);
   const [searchTerm, setSearchTerm] = useState('');
   const [showBannerPopup, setShowBannerPopup] = useState(false);
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
 
   // Track store view on component mount (client-side only)
   useEffect(() => {
