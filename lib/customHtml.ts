@@ -56,11 +56,10 @@ export const validateCustomHtml = async (user: User, customHtml: string): Promis
   if (!user) {
     throw new Error('User must be logged in to validate HTML');
   }
-  
-  // Get the ID token to send to the Cloud Function
+
   let idToken: string;
   try {
-    idToken = await user.getIdToken(true); // true forces refresh
+    idToken = await user.getIdToken(true); // true forces token refresh
   } catch (error) {
     console.error('Failed to refresh auth token:', error);
     throw new Error('Authentication failed. Please try logging in again.');
