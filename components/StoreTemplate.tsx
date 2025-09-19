@@ -55,6 +55,16 @@ export default function StoreTemplate({ store, products, slides, categories, ini
   const [showBannerPopup, setShowBannerPopup] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
 
+  // Show subscription modal on component mount if subscription is enabled
+  useEffect(() => {
+    if (store.subscriptionEnabled !== false) {
+      const timer = setTimeout(() => {
+        setShowSubscriptionModal(true);
+      }, 5000); // Show subscription modal after 5 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [store.subscriptionEnabled]);
+
   // Track store view on component mount (client-side only)
   useEffect(() => {
     const trackStoreView = async () => {
