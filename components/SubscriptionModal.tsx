@@ -12,17 +12,13 @@ interface SubscriptionModalProps {
   onClose: () => void;
   storeId: string;
   storeName: string;
-  requireName?: boolean;
-  backgroundImage?: string;
 }
 
 export default function SubscriptionModal({
   isOpen,
   onClose,
   storeId,
-  storeName,
-  requireName = true,
-  backgroundImage
+  storeName
 }: SubscriptionModalProps) {
   const { showSuccess, showError } = useToast();
   const [formData, setFormData] = useState({
@@ -30,6 +26,7 @@ export default function SubscriptionModal({
     email: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
   const [hasTrackedView, setHasTrackedView] = useState(false);
 
   // Track modal view when it opens
@@ -37,18 +34,18 @@ export default function SubscriptionModal({
     if (isOpen && !hasTrackedView) {
       trackSubscriptionEvent('subscription_form_view', storeId, {
         store_name: storeName,
-        require_name: requireName,
-        has_background_image: !!backgroundImage
+        require_name: true
       });
       setHasTrackedView(true);
     }
-  }, [isOpen, hasTrackedView, storeId, storeName, requireName, backgroundImage]);
+  }, [isOpen, hasTrackedView, storeId, storeName]);
 
   // Reset form when modal closes
   useEffect(() => {
     if (!isOpen) {
       setFormData({ name: '', email: '' });
       setIsSubmitting(false);
+      setIsSubscribed(false);
       setHasTrackedView(false);
     }
   }, [isOpen]);
@@ -69,7 +66,7 @@ export default function SubscriptionModal({
       return;
     }
 
-    if (requireName && !formData.name.trim()) {
+    if (!formData.name.trim()) {
       showError('Name is required');
       return;
     }
@@ -85,7 +82,7 @@ export default function SubscriptionModal({
 
     try {
       await addSubscriber({
-        name: requireName ? formData.name.trim() : undefined,
+        name: formData.name.trim(),
         email: formData.email.trim(),
         storeId
       });
@@ -94,12 +91,16 @@ export default function SubscriptionModal({
       await trackSubscriptionEvent('subscription_form_submit', storeId, {
         store_name: storeName,
         subscriber_email: formData.email.trim(),
-        subscriber_name: requireName ? formData.name.trim() : undefined,
-        require_name: requireName
+        subscriber_name: formData.name.trim(),
+        require_name: true
       });
 
-      showSuccess('Thank you for subscribing! You\'ll receive updates from our store.');
-      onClose();
+      setIsSubscribed(true);
+      
+      // Auto-close modal after showing thank you message
+      setTimeout(() => {
+        onClose();
+      }, 1500);
     } catch (error) {
       console.error('Error subscribing:', error);
       showError('Failed to subscribe. Please try again.');
@@ -122,76 +123,62 @@ export default function SubscriptionModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden relative">
-        {/* Background Image */}
-        {backgroundImage && (
-          <div className="absolute inset-0 z-0">
-            <Image
-              src={backgroundImage}
-              alt="Subscription background"
-              fill
-              className="object-cover opacity-20"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/90 to-white/95" />
-          </div>
-        )}
+      <div className="bg-white rounded-xl shadow-2xl max-w-xs w-full max-h-[80vh] overflow-hidden relative">
 
         {/* Close Button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 z-20 bg-white bg-opacity-80 hover:bg-opacity-100 text-gray-600 hover:text-gray-800 rounded-full w-8 h-8 flex items-center justify-center transition-all shadow-sm"
+          className="absolute top-3 right-3 z-20 bg-white bg-opacity-80 hover:bg-opacity-100 text-gray-600 hover:text-gray-800 rounded-full w-6 h-6 flex items-center justify-center transition-all shadow-sm"
           aria-label="Close subscription form"
         >
-          <X className="w-4 h-4" />
+          <X className="w-3 h-3" />
         </button>
 
         {/* Content */}
-        <div className="relative z-10 p-6 sm:p-8">
+        <div className="relative z-10 p-4 sm:p-5">
           {/* Header */}
-          <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Mail className="w-8 h-8 text-white" />
+          <div className="text-center mb-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center mx-auto mb-3">
+              <Mail className="w-6 h-6 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            <h2 className="text-xl font-bold text-gray-900 mb-1">
               Stay Updated!
             </h2>
-            <p className="text-gray-600 text-sm leading-relaxed">
+            <p className="text-gray-600 text-xs leading-snug">
               Subscribe to <strong>{storeName}</strong> and be the first to know about new products, exclusive deals, and special offers.
             </p>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {requireName && (
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                  Your Name *
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="h-4 w-4 text-gray-400" />
-                  </div>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required={requireName}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
-                    placeholder="Enter your name"
-                  />
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div>
+              <label htmlFor="name" className="block text-xs font-medium text-gray-700 mb-1">
+                Your Name *
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                  <User className="h-3 w-3 text-gray-400" />
                 </div>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 text-sm"
+                  placeholder="Enter your name"
+                />
               </div>
-            )}
+            </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-xs font-medium text-gray-700 mb-1">
                 Email Address *
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-4 w-4 text-gray-400" />
+                <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
+                  <Mail className="h-3 w-3 text-gray-400" />
                 </div>
                 <input
                   type="email"
@@ -200,7 +187,7 @@ export default function SubscriptionModal({
                   value={formData.email}
                   onChange={handleInputChange}
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
+                  className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 text-sm"
                   placeholder="Enter your email"
                 />
               </div>
@@ -208,17 +195,19 @@ export default function SubscriptionModal({
 
             <button
               type="submit"
-              disabled={isSubmitting}
-              className="w-full flex items-center justify-center px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-lg hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium shadow-lg hover:shadow-xl"
+              disabled={isSubmitting || isSubscribed}
+              className="w-full flex items-center justify-center px-4 py-2 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-lg hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium shadow-lg hover:shadow-xl text-sm"
             >
               {isSubmitting ? (
                 <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                   Subscribing...
                 </>
+              ) : isSubscribed ? (
+                'Thank you!'
               ) : (
                 <>
-                  <Send className="w-4 h-4 mr-2" />
+                  <Send className="w-3 h-3 mr-2" />
                   Subscribe Now
                 </>
               )}
@@ -226,8 +215,8 @@ export default function SubscriptionModal({
           </form>
 
           {/* Footer */}
-          <div className="mt-6 text-center">
-            <p className="text-xs text-gray-500">
+          <div className="mt-4 text-center">
+            <p className="text-xs text-gray-500 text-xs">
               We respect your privacy. Unsubscribe at any time.
             </p>
           </div>

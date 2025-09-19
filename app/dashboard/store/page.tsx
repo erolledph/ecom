@@ -259,7 +259,8 @@ export default function StoreSettingsPage() {
         backgroundImage: backgroundUrl,
         widgetImage: widgetUrl,
         bannerImage: bannerUrl,
-        subscriptionBackgroundImage: subscriptionUrl,
+        subscriptionBackgroundImage: '',
+        requireNameForSubscription: true,
         socialLinks: socialLinks.filter(link => link.url.trim() !== '')
       };
 
@@ -840,56 +841,6 @@ export default function StoreSettingsPage() {
                     <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
                   </label>
                 </div>
-
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div>
-                    <h4 className="font-medium text-gray-900">Require Name</h4>
-                    <p className="text-sm text-gray-600">Require visitors to provide their name when subscribing</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="requireNameForSubscription"
-                      checked={formData.requireNameForSubscription}
-                      onChange={handleInputChange}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-                  </label>
-                </div>
-              </div>
-
-              {/* Subscription Background Image */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Subscription Form Background Image
-                </label>
-                <p className="text-sm text-gray-600 mb-4">
-                  Optional background image for the subscription modal
-                </p>
-                {subscriptionPreview && (
-                  <div className="mb-4">
-                    <Image
-                      src={subscriptionPreview}
-                      alt="Subscription background preview"
-                      width={300}
-                      height={200}
-                      className="w-full max-w-md h-40 rounded-lg object-cover border-2 border-gray-200"
-                    />
-                  </div>
-                )}
-                <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
-                  <Upload className="w-5 h-5 text-gray-400 mr-2" />
-                  <span className="text-sm text-gray-600">
-                    {subscriptionFile ? 'Change Background' : 'Upload Background'}
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageChange('subscription', e)}
-                    className="hidden"
-                  />
-                </label>
               </div>
             </div>
           )}
