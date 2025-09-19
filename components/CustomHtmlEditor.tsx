@@ -46,7 +46,7 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
 
     setIsValidating(true);
     try {
-      const result = await validateCustomHtml(htmlContent);
+      const result = await validateCustomHtml(user, htmlContent);
       setPreviewHtml(result.sanitizedHtml);
       setValidationResult({
         wasModified: result.wasModified,
@@ -77,7 +77,7 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
 
     setIsSaving(true);
     try {
-      const result = await updateCustomHtml(storeId, htmlContent);
+      const result = await updateCustomHtml(user, storeId, htmlContent);
       
       if (result.success) {
         showSuccess(result.message);
