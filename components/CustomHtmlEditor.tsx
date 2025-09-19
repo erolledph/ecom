@@ -3,28 +3,21 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
-import { useRouter } from 'next/navigation';
-import { httpsCallable } from 'firebase/functions';
-import { getFunctions } from 'firebase/functions';
-import app from '@/lib/firebase';
+import { updateStore } from '@/lib/store';
+import DOMPurify from 'dompurify';
 import { Eye, Save, AlertTriangle, CheckCircle, Code, Loader } from 'lucide-react';
 
-// Initialize Firebase Functions
-const functions = getFunctions(app);
+// Configure DOMPurify with safe HTML elements and attributes
+const ALLOWED_TAGS = [
+  'p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'ul', 'ol', 'li', 'blockquote', 'a', 'img', 'div', 'span', 'hr',
+  'table', 'thead', 'tbody', 'tr', 'th', 'td', 'pre', 'code'
+];
 
-// Interface for the update custom HTML response
-interface UpdateCustomHtmlResponse {
-  success: boolean;
-  sanitizedHtml: string;
-  message: string;
-}
-
-// Interface for the validate custom HTML response
-interface ValidateCustomHtmlResponse {
-  sanitizedHtml: string;
-  wasModified: boolean;
-  message: string;
-}
+const ALLOWED_ATTR = [
+  'href', 'src', 'alt', 'title', 'class', 'id', 'style',
+  'target', 'rel', 'width', 'height'
+];
 
 interface CustomHtmlEditorProps {
   storeId: string;
@@ -35,7 +28,6 @@ interface CustomHtmlEditorProps {
 export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: CustomHtmlEditorProps) {
   const { user, loading } = useAuth();
   const { showSuccess, showError, showWarning, showInfo } = useToast();
-  const router = useRouter();
   
   const [htmlContent, setHtmlContent] = useState(initialHtml);
   const [previewHtml, setPreviewHtml] = useState('');
@@ -52,6 +44,30 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
     setHtmlContent(initialHtml);
   }, [initialHtml]);
 
+  // Client-side HTML sanitization function
+  const sanitizeHtml = (html: string): { sanitizedHtml: string; wasModified: boolean } => {
+    if (typeof window === 'undefined') {
+      // Server-side rendering fallback
+      return { sanitizedHtml: html, wasModified: false };
+    }
+
+    const sanitizedHtml = DOMPurify.sanitize(html, {
+      ALLOWED_TAGS,
+      ALLOWED_ATTR,
+      ALLOW_DATA_ATTR: false,
+      FORBID_SCRIPT: true,
+      FORBID_TAGS: ['script', 'object', 'embed', 'form', 'input', 'button'],
+      FORBID_ATTR: ['onclick', 'onload', 'onerror', 'onmouseover', 'onfocus', 'onblur'],
+      KEEP_CONTENT: true,
+      RETURN_DOM: false,
+      RETURN_DOM_FRAGMENT: false,
+      SANITIZE_DOM: true
+    });
+
+    const wasModified = sanitizedHtml !== html;
+    return { sanitizedHtml, wasModified };
+  };
+
   // Validate HTML content for preview
   const handleValidateHtml = async () => {
     if (!user) {
@@ -65,118 +81,75 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
       return;
     }
 
-    // Add detailed logging before validation
-    console.log('CustomHtmlEditor: Starting validation for user:', user.uid);
-
     setIsValidating(true);
     
     try {
-      // Force token refresh to ensure we have a valid token
-      let idToken: string;
-      try {
-        await user.getIdToken(true); // Force refresh
-        idToken = await user.getIdToken();
-        console.log('CustomHtmlEditor: Successfully obtained fresh ID token');
-      } catch (tokenError) {
-        console.error('CustomHtmlEditor: Failed to get ID token:', tokenError);
-        showError('Your session is invalid. Please re-login.');
-        router.push('/auth');
-        return;
-      }
+      // Perform client-side sanitization
+      const { sanitizedHtml, wasModified } = sanitizeHtml(htmlContent);
       
-      const validateCustomHtmlFunction = httpsCallable<
-        { customHtml: string; idToken: string },
-        ValidateCustomHtmlResponse
-      >(functions, 'validateCustomHtml');
-
-      const result = await validateCustomHtmlFunction({ customHtml: htmlContent, idToken });
-      
-      setPreviewHtml(result.data.sanitizedHtml);
+      setPreviewHtml(sanitizedHtml);
       setValidationResult({
-        wasModified: result.data.wasModified,
-        message: result.data.message,
+        wasModified,
+        message: wasModified
+          ? 'HTML was sanitized for security. Some content may have been removed.'
+          : 'HTML is safe and ready to use.'
       });
 
-      if (result.data.wasModified) {
+      if (wasModified) {
         showWarning('Some content was removed for security reasons. Check the preview.');
       } else {
         showInfo('HTML is safe and ready to use.');
       }
     } catch (error: any) {
       console.error('Validation error:', error);
-      
-      if (error.code === 'unauthenticated' || error.message?.includes('must be authenticated')) {
-        showError('Your session has expired or is invalid. Please re-login.');
-        router.push('/auth');
-      } else {
-        setPreviewHtml('');
-        setValidationResult(null);
-        showError('Validation failed: ' + error.message);
-      }
+      setPreviewHtml('');
+      setValidationResult(null);
+      showError('Validation failed: ' + error.message);
     } finally {
       setIsValidating(false);
     }
   };
 
-  // Save HTML content with server-side sanitization
+  // Save HTML content with client-side sanitization
   const handleSaveHtml = async () => {
     if (!user) {
       showError('You must be logged in to save custom HTML.');
       return;
     }
 
-    // Add detailed logging before save
-    console.log('CustomHtmlEditor: Starting save for user:', user.uid);
-
     setIsSaving(true);
     
     try {
-      // Force token refresh to ensure we have a valid token
-      let idToken: string;
-      try {
-        await user.getIdToken(true); // Force refresh
-        idToken = await user.getIdToken();
-        console.log('CustomHtmlEditor: Successfully obtained fresh ID token for save');
-      } catch (tokenError) {
-        console.error('CustomHtmlEditor: Failed to get ID token for save:', tokenError);
-        showError('Your session is invalid. Please re-login.');
-        router.push('/auth');
-        return;
+      // Perform client-side sanitization
+      const { sanitizedHtml, wasModified } = sanitizeHtml(htmlContent);
+      
+      // Update store with sanitized HTML
+      await updateStore(user.uid, {
+        customHtml: sanitizedHtml
+      });
+      
+      showSuccess('Custom HTML updated successfully!');
+      
+      // Update preview with sanitized content
+      setPreviewHtml(sanitizedHtml);
+      
+      // Call onSave callback if provided
+      if (onSave) {
+        onSave(sanitizedHtml);
       }
       
-      const updateCustomHtmlFunction = httpsCallable<
-        { storeId: string; customHtml: string; idToken: string },
-        UpdateCustomHtmlResponse
-      >(functions, 'updateCustomHtml');
-
-      const result = await updateCustomHtmlFunction({ storeId, customHtml: htmlContent, idToken });
-      
-      if (result.data.success) {
-        showSuccess(result.data.message);
-        
-        // Update preview with sanitized content
-        setPreviewHtml(result.data.sanitizedHtml);
-        
-        // Call onSave callback if provided
-        if (onSave) {
-          onSave(result.data.sanitizedHtml);
-        }
-        
-        // Check if content was modified during sanitization
-        if (result.data.sanitizedHtml !== htmlContent) {
-          showWarning('Some content was sanitized for security. The saved version may differ slightly.');
-          setHtmlContent(result.data.sanitizedHtml); // Update editor with sanitized version
-        }
+      // Check if content was modified during sanitization
+      if (wasModified) {
+        showWarning('Some content was sanitized for security. The saved version may differ slightly.');
+        setHtmlContent(sanitizedHtml); // Update editor with sanitized version
+        setValidationResult({
+          wasModified: true,
+          message: 'HTML was sanitized for security. Some content may have been removed.'
+        });
       }
     } catch (error: any) {
       console.error('Save error:', error);
-      
-      if (error.code === 'unauthenticated' || error.message?.includes('must be authenticated')) {
-        showError('Your session has expired or is invalid. Please re-login.');
-        router.push('/auth');
-      } else {
-        showError('Save failed: ' + error.message);
-      }
+      showError('Save failed: ' + error.message);
     } finally {
       setIsSaving(false);
     }
@@ -218,6 +191,28 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
             <Eye className="w-4 h-4 mr-2" />
             {showPreview ? 'Hide Preview' : 'Show Preview'}
           </button>
+        </div>
+      </div>
+
+      {/* Security Notice */}
+      <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <div className="flex items-start space-x-3">
+          <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="font-medium text-blue-900 mb-2">Security Protection Enabled</h4>
+            <div className="text-sm text-blue-800 space-y-2">
+              <p>Your HTML content is automatically sanitized using DOMPurify to prevent XSS attacks.</p>
+              <div className="mt-3">
+                <p className="font-medium mb-1">Security features:</p>
+                <ul className="list-disc list-inside space-y-1 text-xs">
+                  <li>Script tags and event handlers are automatically removed</li>
+                  <li>Only safe HTML elements and attributes are allowed</li>
+                  <li>Malicious code is stripped before saving</li>
+                  <li>Content is validated in real-time</li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -319,6 +314,17 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
           </div>
         </div>
       )}
+
+      {/* Help Section */}
+      <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+        <h4 className="font-medium text-gray-900 mb-2">💡 Tips for Custom HTML</h4>
+        <div className="text-sm text-gray-600 space-y-1">
+          <p>• Use semantic HTML elements for better accessibility</p>
+          <p>• Test your HTML in the preview before saving</p>
+          <p>• Keep your HTML simple and focused for better performance</p>
+          <p>• Avoid inline styles when possible - use CSS classes instead</p>
+        </div>
+      </div>
     </div>
   );
 }
