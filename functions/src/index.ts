@@ -41,28 +41,25 @@ function sanitizeHtml(html: string): string {
 
 // Cloud Function to sanitize and update custom HTML
 export const updateCustomHtml = functions.https.onCall(async (data: any, context: CallableContext) => {
-  const { storeId, customHtml, authToken } = data;
+  const { storeId, customHtml } = data;
 
   // Validate input
-  if (!storeId || typeof customHtml !== 'string' || !authToken) {
+  if (!storeId || typeof customHtml !== 'string') {
     throw new functions.https.HttpsError(
       'invalid-argument',
-      'Store ID, custom HTML, and auth token are required.'
+      'Store ID and custom HTML are required.'
     );
   }
 
-  // Manually verify the authentication token
-  let userId: string;
-  try {
-    const decodedToken = await admin.auth().verifyIdToken(authToken);
-    userId = decodedToken.uid;
-  } catch (error) {
-    console.error('Token verification failed:', error);
+  // Check if user is authenticated
+  if (!context.auth) {
     throw new functions.https.HttpsError(
       'unauthenticated',
       'User must be authenticated to update custom HTML.'
     );
   }
+
+  const userId = context.auth.uid;
 
   try {
     // Verify that the user owns the store
@@ -120,21 +117,18 @@ export const updateCustomHtml = functions.https.onCall(async (data: any, context
 
 // Cloud Function to validate HTML without saving (for preview)
 export const validateCustomHtml = functions.https.onCall(async (data: any, context: CallableContext) => {
-  const { customHtml, authToken } = data;
+  const { customHtml } = data;
 
   // Validate input
-  if (typeof customHtml !== 'string' || !authToken) {
+  if (typeof customHtml !== 'string') {
     throw new functions.https.HttpsError(
       'invalid-argument',
-      'Custom HTML and auth token are required.'
+      'Custom HTML is required.'
     );
   }
 
-  // Verify the authentication token
-  try {
-    await admin.auth().verifyIdToken(authToken);
-  } catch (error) {
-    console.error('Token verification failed:', error);
+  // Check if user is authenticated
+  if (!context.auth) {
     throw new functions.https.HttpsError(
       'unauthenticated',
       'User must be authenticated to validate HTML.'
