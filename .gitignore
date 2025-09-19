@@ -35,5 +35,13 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Netlify
-.netlify
+# firebase
+.firebase
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# functions
+functions/node_modules/
+functions/.runtimeconfig.json
+functions/lib/

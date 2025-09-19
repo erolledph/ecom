@@ -2,6 +2,12 @@
 const nextConfig = {
   output: 'standalone',
   trailingSlash: true,
+  // Exclude functions directory from Next.js compilation
+  pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
+  experimental: {
+    esmExternals: 'loose',
+    serverComponentsExternalPackages: ['firebase-admin']
+  },
   images: {
     domains: [
       'images.unsplash.com',
@@ -12,11 +18,13 @@ const nextConfig = {
     unoptimized: true
   },
   transpilePackages: ['firebase', '@firebase/auth', '@firebase/firestore', '@firebase/app'],
-  experimental: {
-    esmExternals: 'loose',
-    serverComponentsExternalPackages: ['firebase-admin']
-  },
   webpack: (config, { isServer }) => {
+    // Exclude functions directory from webpack compilation
+    config.watchOptions = {
+      ...config.watchOptions,
+      ignored: ['**/functions/**', '**/node_modules/**']
+    };
+    
     // Add fallbacks for Node.js modules when building for client-side
     if (!isServer) {
       config.resolve.fallback = {
