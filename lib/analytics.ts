@@ -142,10 +142,7 @@ export const getAnalyticsEvents = async (ownerId: string): Promise<AnalyticsEven
   if (!db || !ownerId) return [];
   
   try {
-    const q = query(
-      collection(db, 'users', ownerId, 'stores', ownerId, 'analytics_events'),
-      where('ownerId', '==', ownerId)
-    );
+    const q = query(collection(db, 'users', ownerId, 'stores', ownerId, 'analytics_events'));
     const querySnapshot = await getDocs(q);
     
     return querySnapshot.docs.map(doc => ({
@@ -165,10 +162,7 @@ export const clearAnalyticsEvents = async (ownerId: string): Promise<void> => {
   if (!db || !ownerId) return;
   
   try {
-    const q = query(
-      collection(db, 'users', ownerId, 'stores', ownerId, 'analytics_events'),
-      where('ownerId', '==', ownerId)
-    );
+    const q = query(collection(db, 'users', ownerId, 'stores', ownerId, 'analytics_events'));
     const querySnapshot = await getDocs(q);
     
     const deletePromises = querySnapshot.docs.map(docSnapshot => 
