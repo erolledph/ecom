@@ -41,22 +41,26 @@ function sanitizeHtml(html: string): string {
 
 // Cloud Function to sanitize and update custom HTML
 export const updateCustomHtml = functions.https.onCall(async (data: any, context: CallableContext) => {
-  // Check if user is authenticated
-  if (!context.auth) {
+  const { storeId, customHtml, authToken } = data;
+
+  // Validate input
+  if (!storeId || typeof customHtml !== 'string' || !authToken) {
     throw new functions.https.HttpsError(
-      'unauthenticated',
-      'User must be authenticated to update custom HTML.'
+      'invalid-argument',
+      'Store ID, custom HTML, and auth token are required.'
     );
   }
 
-  const { storeId, customHtml } = data;
-  const userId = context.auth.uid;
-
-  // Validate input
-  if (!storeId || typeof customHtml !== 'string') {
+  // Manually verify the authentication token
+  let userId: string;
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(authToken);
+    userId = decodedToken.uid;
+  } catch (error) {
+    console.error('Token verification failed:', error);
     throw new functions.https.HttpsError(
-      'invalid-argument',
-      'Store ID and custom HTML are required.'
+      'unauthenticated',
+      'User must be authenticated to update custom HTML.'
     );
   }
 
@@ -116,21 +120,24 @@ export const updateCustomHtml = functions.https.onCall(async (data: any, context
 
 // Cloud Function to validate HTML without saving (for preview)
 export const validateCustomHtml = functions.https.onCall(async (data: any, context: CallableContext) => {
-  // Check if user is authenticated
-  if (!context.auth) {
+  const { customHtml, authToken } = data;
+
+  // Validate input
+  if (typeof customHtml !== 'string' || !authToken) {
     throw new functions.https.HttpsError(
-      'unauthenticated',
-      'User must be authenticated to validate HTML.'
+      'invalid-argument',
+      'Custom HTML and auth token are required.'
     );
   }
 
-  const { customHtml } = data;
-
-  // Validate input
-  if (typeof customHtml !== 'string') {
+  // Manually verify the authentication token
+  try {
+    await admin.auth().verifyIdToken(authToken);
+  } catch (error) {
+    console.error('Token verification failed:', error);
     throw new functions.https.HttpsError(
-      'invalid-argument',
-      'Custom HTML must be a string.'
+      'unauthenticated',
+      'User must be authenticated to validate HTML.'
     );
   }
 
