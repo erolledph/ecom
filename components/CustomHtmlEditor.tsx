@@ -13,7 +13,7 @@ interface CustomHtmlEditorProps {
 }
 
 export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: CustomHtmlEditorProps) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { showSuccess, showError, showWarning, showInfo } = useToast();
   
   const [htmlContent, setHtmlContent] = useState(initialHtml);
@@ -30,6 +30,20 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
   useEffect(() => {
     setHtmlContent(initialHtml);
   }, [initialHtml]);
+
+  // Show loading state while authentication is being resolved
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center py-12">
+          <div className="flex flex-col items-center space-y-4">
+            <Loader className="w-8 h-8 animate-spin text-primary-600" />
+            <p className="text-gray-600">Loading authentication...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Validate HTML content for preview
   const handleValidateHtml = async () => {
@@ -163,7 +177,7 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
         <div className="flex justify-between items-center">
           <button
             onClick={handleValidateHtml}
-            disabled={isValidating || !htmlContent.trim() || !user}
+            disabled={isValidating || !htmlContent.trim() || !user || loading}
             className="flex items-center px-4 py-2 bg-secondary-600 text-white rounded-lg hover:bg-secondary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isValidating ? (
@@ -176,7 +190,7 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
 
           <button
             onClick={handleSaveHtml}
-            disabled={isSaving || !htmlContent.trim() || !user}
+            disabled={isSaving || !htmlContent.trim() || !user || loading}
             className="flex items-center px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isSaving ? (
