@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
-import { getUserStore, updateStore, uploadStoreImage, uploadWidgetImage, Store } from '@/lib/store';
+import { getUserStore, updateStore, uploadStoreImage, uploadWidgetImage, uploadSubscriptionImage, Store } from '@/lib/store';
 import CustomHtmlEditor from '@/components/CustomHtmlEditor';
 import Image from 'next/image';
 import { 
