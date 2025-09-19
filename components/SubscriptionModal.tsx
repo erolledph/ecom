@@ -12,13 +12,15 @@ interface SubscriptionModalProps {
   onClose: () => void;
   storeId: string;
   storeName: string;
+  requireNameForSubscription?: boolean;
 }
 
 export default function SubscriptionModal({
   isOpen,
   onClose,
   storeId,
-  storeName
+  storeName,
+  requireNameForSubscription = true
 }: SubscriptionModalProps) {
   const { showSuccess, showError } = useToast();
   const [formData, setFormData] = useState({
@@ -34,7 +36,7 @@ export default function SubscriptionModal({
     if (isOpen && !hasTrackedView) {
       trackSubscriptionEvent('subscription_form_view', storeId, {
         store_name: storeName,
-        require_name: true
+        require_name: requireNameForSubscription
       });
       setHasTrackedView(true);
     }
@@ -92,7 +94,7 @@ export default function SubscriptionModal({
         store_name: storeName,
         subscriber_email: formData.email.trim(),
         subscriber_name: formData.name.trim(),
-        require_name: true
+        require_name: requireNameForSubscription
       });
 
       setIsSubscribed(true);
@@ -114,7 +116,7 @@ export default function SubscriptionModal({
     trackSubscriptionEvent('subscription_form_close', storeId, {
       store_name: storeName,
       had_interaction: !!(formData.name || formData.email),
-      require_name: requireName
+      require_name: requireNameForSubscription
     });
     onClose();
   };
