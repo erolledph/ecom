@@ -130,7 +130,7 @@ export const validateCustomHtml = functions.https.onCall(async (data: any, conte
     );
   }
 
-  // Manually verify the authentication token
+  // Verify the authentication token
   try {
     await admin.auth().verifyIdToken(authToken);
   } catch (error) {
@@ -144,21 +144,17 @@ export const validateCustomHtml = functions.https.onCall(async (data: any, conte
   try {
     // Sanitize the HTML content
     const sanitizedHtml = sanitizeHtml(customHtml);
-    
-    // Check if content was modified during sanitization
     const wasModified = sanitizedHtml !== customHtml;
 
     return {
       sanitizedHtml,
       wasModified,
-      message: wasModified 
+      message: wasModified
         ? 'HTML was sanitized for security. Some content may have been removed.'
         : 'HTML is safe and ready to use.'
     };
-
   } catch (error) {
     console.error('Error validating custom HTML:', error);
-    
     throw new functions.https.HttpsError(
       'internal',
       'An error occurred while validating HTML.'
