@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Store, Product, Slide } from '@/lib/store';
 import { trackEvent } from '@/lib/analytics';
+import SubscriptionModal from '@/components/SubscriptionModal';
 import { 
   Instagram, 
   Twitter, 
