@@ -38,6 +38,11 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
       return;
     }
 
+    if (!user.uid) {
+      showError('User authentication data is incomplete. Please try logging in again.');
+      return;
+    }
+
     if (!htmlContent.trim()) {
       setPreviewHtml('');
       setValidationResult(null);
@@ -72,6 +77,11 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
   const handleSaveHtml = async () => {
     if (!user) {
       showError('You must be logged in to save custom HTML.');
+      return;
+    }
+
+    if (!user.uid) {
+      showError('User authentication data is incomplete. Please try logging in again.');
       return;
     }
 
