@@ -503,6 +503,22 @@ export async function uploadSubscriptionImage(storeId: string, file: File): Prom
   }
 }
 
+export async function uploadSubscriptionImage(storeId: string, file: File): Promise<string> {
+  try {
+    // Compress and resize the image
+    const compressedBlob = await fromBlob(file, 75, 1200, 'auto', 'webp'); // 75% quality, max width 1200px, auto height, webp format
+    
+    const baseFileName = sanitizeFilename(file.name);
+    const fileName = `${baseFileName}_subscription_${Date.now()}.webp`; // Use sanitized original name + timestamp + webp extension
+    const imageRef = ref(storage, `users/${storeId}/images/store/subscription/${fileName}`);
+    await uploadBytes(imageRef, compressedBlob); // Upload the compressed blob
+    return getDownloadURL(imageRef);
+  } catch (error) {
+    console.error('Error uploading subscription image:', error);
+    throw error;
+  }
+}
+
 // Subscriber functions
 export async function addSubscriber(subscriber: Omit<Subscriber, 'id' | 'createdAt'>): Promise<string> {
   try {
