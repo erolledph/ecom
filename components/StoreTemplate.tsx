@@ -925,7 +925,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
       {/* Subscription Modal */}
       <SubscriptionModal
         isOpen={showSubscriptionModal}
-        onClose={() => setShowSubscriptionModal(false)}
+        onClose={handleSubscriptionModalClose}
         storeId={store.ownerId}
         storeName={store.name}
         requireName={store.requireNameForSubscription !== false}
