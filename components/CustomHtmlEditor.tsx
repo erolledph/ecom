@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
+import { useRouter } from 'next/navigation';
 import { updateCustomHtml, validateCustomHtml } from '@/lib/customHtml';
 import { Eye, Save, AlertTriangle, CheckCircle, Code, Loader } from 'lucide-react';
 
@@ -15,6 +16,7 @@ interface CustomHtmlEditorProps {
 export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: CustomHtmlEditorProps) {
   const { user, loading } = useAuth();
   const { showSuccess, showError, showWarning, showInfo } = useToast();
+  const router = useRouter();
   
   const [htmlContent, setHtmlContent] = useState(initialHtml);
   const [previewHtml, setPreviewHtml] = useState('');
@@ -30,6 +32,36 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
   useEffect(() => {
     setHtmlContent(initialHtml);
   }, [initialHtml]);
+
+  // Handle authentication errors with automatic retry
+  const handleAuthError = async (error: any, retryFunction: () => Promise<void>) => {
+    if (error.message === 'AUTHENTICATION_EXPIRED') {
+      showWarning('Session expired. Attempting to refresh authentication...');
+      
+      // Wait a moment for potential auth state changes
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Check if user is still available after waiting
+      if (user) {
+        try {
+          // Try the operation again
+          await retryFunction();
+          return true; // Success on retry
+        } catch (retryError: any) {
+          console.error('Retry failed:', retryError);
+          showError('Authentication failed. Please refresh the page and log in again.');
+          return false;
+        }
+      } else {
+        showError('Authentication session lost. Please refresh the page and log in again.');
+        return false;
+      }
+    } else {
+      // Handle other types of errors
+      showError('Operation failed: ' + error.message);
+      return false;
+    }
+  };
 
   // Show loading state while authentication is being resolved
   if (loading) {
@@ -64,7 +96,8 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
     }
 
     setIsValidating(true);
-    try {
+    
+    const performValidation = async () => {
       const result = await validateCustomHtml(user, htmlContent);
       setPreviewHtml(result.sanitizedHtml);
       setValidationResult({
@@ -77,19 +110,18 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
       } else {
         showInfo('HTML is safe and ready to use.');
       }
+    };
+
+    try {
+      await performValidation();
     } catch (error: any) {
       console.error('Validation error:', error);
       
-      // Check for authentication-related errors
-      if (error.message.includes('Authentication session expired') || 
-          error.message.includes('User must be authenticated')) {
-        showError('Your session has expired. Please refresh the page and log in again.');
-      } else {
-        showError('Failed to validate HTML: ' + error.message);
+      const handled = await handleAuthError(error, performValidation);
+      if (!handled) {
+        setPreviewHtml('');
+        setValidationResult(null);
       }
-      
-      setPreviewHtml('');
-      setValidationResult(null);
     } finally {
       setIsValidating(false);
     }
@@ -108,7 +140,8 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
     }
 
     setIsSaving(true);
-    try {
+    
+    const performSave = async () => {
       const result = await updateCustomHtml(user, storeId, htmlContent);
       
       if (result.success) {
@@ -128,16 +161,14 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
           setHtmlContent(result.sanitizedHtml); // Update editor with sanitized version
         }
       }
+    };
+
+    try {
+      await performSave();
     } catch (error: any) {
       console.error('Save error:', error);
       
-      // Check for authentication-related errors
-      if (error.message.includes('Authentication session expired') || 
-          error.message.includes('User must be authenticated')) {
-        showError('Your session has expired. Please refresh the page and log in again.');
-      } else {
-        showError('Failed to save custom HTML: ' + error.message);
-      }
+      await handleAuthError(error, performSave);
     } finally {
       setIsSaving(false);
     }
