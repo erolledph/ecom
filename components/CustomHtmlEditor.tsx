@@ -95,6 +95,10 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
       return;
     }
 
+    // Add detailed logging before validation
+    console.log('CustomHtmlEditor: User object before validateCustomHtml call:', user);
+    console.log('CustomHtmlEditor: User UID before validateCustomHtml call:', user?.uid);
+
     setIsValidating(true);
     
     const performValidation = async () => {
@@ -138,6 +142,10 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
       showError('User authentication data is incomplete. Please try logging in again.');
       return;
     }
+
+    // Add detailed logging before save
+    console.log('CustomHtmlEditor: User object before updateCustomHtml call:', user);
+    console.log('CustomHtmlEditor: User UID before updateCustomHtml call:', user?.uid);
 
     setIsSaving(true);
     

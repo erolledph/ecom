@@ -31,12 +31,15 @@ export const updateCustomHtml = async (user: User, storeId: string, customHtml: 
   try {
     // First try to get a fresh token
     await user.getIdToken(true);
+    console.log('lib/customHtml: ID Token refreshed successfully for updateCustomHtml.');
+    console.log('lib/customHtml: User UID after token refresh (updateCustomHtml):', user.uid);
     
     // Verify the token is valid by checking if user is still authenticated
     if (!user.uid) {
       throw new Error('User authentication is invalid');
     }
   } catch (error) {
+    console.error('lib/customHtml: Error refreshing token for updateCustomHtml:', error);
     console.error('Failed to refresh authentication token:', error);
     
     // Try one more time with force refresh
@@ -49,13 +52,23 @@ export const updateCustomHtml = async (user: User, storeId: string, customHtml: 
     }
   }
   
+  // Get the ID token to pass explicitly
+  let idToken: string;
+  try {
+    idToken = await user.getIdToken();
+    console.log('lib/customHtml: Retrieved ID token for updateCustomHtml');
+  } catch (error) {
+    console.error('lib/customHtml: Failed to get ID token:', error);
+    throw new Error('Failed to get authentication token');
+  }
+
   const updateCustomHtmlFunction = httpsCallable<
-    { storeId: string; customHtml: string },
+    { storeId: string; customHtml: string; idToken: string },
     UpdateCustomHtmlResponse
   >(functions, 'updateCustomHtml');
 
   try {
-    const result = await updateCustomHtmlFunction({ storeId, customHtml });
+    const result = await updateCustomHtmlFunction({ storeId, customHtml, idToken });
     return result.data;
   } catch (error: any) {
     console.error('Error updating custom HTML:', error);
@@ -74,12 +87,15 @@ export const validateCustomHtml = async (user: User, customHtml: string): Promis
   try {
     // First try to get a fresh token
     await user.getIdToken(true);
+    console.log('lib/customHtml: ID Token refreshed successfully for validateCustomHtml.');
+    console.log('lib/customHtml: User UID after token refresh (validateCustomHtml):', user.uid);
     
     // Verify the token is valid by checking if user is still authenticated
     if (!user.uid) {
       throw new Error('User authentication is invalid');
     }
   } catch (error) {
+    console.error('lib/customHtml: Error refreshing token for validateCustomHtml:', error);
     console.error('Failed to refresh authentication token:', error);
     
     // Try one more time with force refresh
@@ -92,13 +108,23 @@ export const validateCustomHtml = async (user: User, customHtml: string): Promis
     }
   }
 
+  // Get the ID token to pass explicitly
+  let idToken: string;
+  try {
+    idToken = await user.getIdToken();
+    console.log('lib/customHtml: Retrieved ID token for validateCustomHtml');
+  } catch (error) {
+    console.error('lib/customHtml: Failed to get ID token:', error);
+    throw new Error('Failed to get authentication token');
+  }
+
   const validateCustomHtmlFunction = httpsCallable<
-    { customHtml: string },
+    { customHtml: string; idToken: string },
     ValidateCustomHtmlResponse
   >(functions, 'validateCustomHtml');
 
   try {
-    const result = await validateCustomHtmlFunction({ customHtml });
+    const result = await validateCustomHtmlFunction({ customHtml, idToken });
     return result.data;
   } catch (error: any) {
     console.error('Error validating custom HTML:', error);

@@ -41,25 +41,30 @@ function sanitizeHtml(html: string): string {
 
 // Cloud Function to sanitize and update custom HTML
 export const updateCustomHtml = functions.https.onCall(async (data: any, context: CallableContext) => {
-  const { storeId, customHtml } = data;
+  const { storeId, customHtml, idToken } = data;
 
   // Validate input
-  if (!storeId || typeof customHtml !== 'string') {
+  if (!storeId || typeof customHtml !== 'string' || !idToken) {
     throw new functions.https.HttpsError(
       'invalid-argument',
-      'Store ID and custom HTML are required.'
+      'Store ID, custom HTML, and authentication token are required.'
     );
   }
 
-  // Check if user is authenticated
-  if (!context.auth) {
+  // Verify the ID token manually
+  let decodedToken;
+  try {
+    decodedToken = await admin.auth().verifyIdToken(idToken);
+    console.log('updateCustomHtml: Token verified successfully for user:', decodedToken.uid);
+  } catch (error) {
+    console.error('updateCustomHtml: Token verification failed:', error);
     throw new functions.https.HttpsError(
       'unauthenticated',
-      'User must be authenticated to update custom HTML.'
+      'Invalid authentication token.'
     );
   }
 
-  const userId = context.auth.uid;
+  const userId = decodedToken.uid;
 
   try {
     // Verify that the user owns the store
@@ -117,21 +122,26 @@ export const updateCustomHtml = functions.https.onCall(async (data: any, context
 
 // Cloud Function to validate HTML without saving (for preview)
 export const validateCustomHtml = functions.https.onCall(async (data: any, context: CallableContext) => {
-  const { customHtml } = data;
+  const { customHtml, idToken } = data;
 
   // Validate input
-  if (typeof customHtml !== 'string') {
+  if (typeof customHtml !== 'string' || !idToken) {
     throw new functions.https.HttpsError(
       'invalid-argument',
-      'Custom HTML is required.'
+      'Custom HTML and authentication token are required.'
     );
   }
 
-  // Check if user is authenticated
-  if (!context.auth) {
+  // Verify the ID token manually
+  let decodedToken;
+  try {
+    decodedToken = await admin.auth().verifyIdToken(idToken);
+    console.log('validateCustomHtml: Token verified successfully for user:', decodedToken.uid);
+  } catch (error) {
+    console.error('validateCustomHtml: Token verification failed:', error);
     throw new functions.https.HttpsError(
       'unauthenticated',
-      'User must be authenticated to validate HTML.'
+      'Invalid authentication token.'
     );
   }
 
