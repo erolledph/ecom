@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Store, Product, Slide } from '@/lib/store';
 import { trackEvent } from '@/lib/analytics';
+import { trackSubscriptionEvent } from '@/lib/analytics';
 import SubscriptionModal from '@/components/SubscriptionModal';
 import { 
   Instagram, 
@@ -273,6 +274,17 @@ export default function StoreTemplate({ store, products, slides, categories, ini
       store_name: store.name,
       destination_link: url,
     });
+  };
+
+  const handleSubscriptionModalClose = () => {
+    // Track subscription modal close event
+    trackSubscriptionEvent('subscription_form_close', store.ownerId, {
+      store_slug: store.slug,
+      store_name: store.name,
+      had_interaction: false, // Could be enhanced to track if user interacted with form
+    });
+    
+    setShowSubscriptionModal(false);
   };
 
   // Get header layout style
