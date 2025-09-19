@@ -53,8 +53,8 @@ export const trackEvent = async (eventName: string, ownerId: string, properties?
       url: typeof window !== 'undefined' ? window.location.href : undefined,
     };
 
-    // Store event in Firestore
-    await addDoc(collection(db, 'analytics_events'), event);
+    // Store event in nested Firestore collection
+    await addDoc(collection(db, 'users', ownerId, 'stores', ownerId, 'analytics_events'), event);
 
     // Log to console for debugging
     console.log('📊 Analytics Event:', event);
@@ -143,7 +143,7 @@ export const getAnalyticsEvents = async (ownerId: string): Promise<AnalyticsEven
   
   try {
     const q = query(
-      collection(db, 'analytics_events'),
+      collection(db, 'users', ownerId, 'stores', ownerId, 'analytics_events'),
       where('ownerId', '==', ownerId)
     );
     const querySnapshot = await getDocs(q);
@@ -166,13 +166,13 @@ export const clearAnalyticsEvents = async (ownerId: string): Promise<void> => {
   
   try {
     const q = query(
-      collection(db, 'analytics_events'),
+      collection(db, 'users', ownerId, 'stores', ownerId, 'analytics_events'),
       where('ownerId', '==', ownerId)
     );
     const querySnapshot = await getDocs(q);
     
     const deletePromises = querySnapshot.docs.map(docSnapshot => 
-      deleteDoc(doc(db, 'analytics_events', docSnapshot.id))
+      deleteDoc(doc(db, 'users', ownerId, 'stores', ownerId, 'analytics_events', docSnapshot.id))
     );
     
     await Promise.all(deletePromises);
