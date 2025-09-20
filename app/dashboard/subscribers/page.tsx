@@ -134,7 +134,7 @@ export default function SubscribersPage() {
   return (
     <div className="space-y-6 md:space-y-8">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+      <div className="p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-primary-100 rounded-lg">
@@ -182,7 +182,7 @@ export default function SubscribersPage() {
 
       {/* Subscribers Table */}
       {subscribers.length > 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -232,7 +232,7 @@ export default function SubscribersPage() {
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm p-8 border border-gray-100">
+        <div className="p-8">
           <div className="text-center py-12">
             <div className="w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center mx-auto mb-6">
               <Users className="w-8 h-8 text-primary-600" />

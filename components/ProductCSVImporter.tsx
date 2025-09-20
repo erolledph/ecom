@@ -187,7 +187,7 @@ export default function ProductCSVImporter() {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+    <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
           <div className="p-2 bg-secondary-100 rounded-lg">

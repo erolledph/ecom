@@ -268,7 +268,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
   return (
     <div className="space-y-6 md:space-y-8">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+      <div className="p-6">
         <div className="flex items-center mb-4">
           <button
             onClick={handleCancel}
@@ -288,7 +288,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
       </div>
       
       {/* Form */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+      <div className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Product URL Scraping Section */}
           <div className="space-y-4 pb-6 border-b border-gray-200">
@@ -505,7 +505,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
           </div>
 
           {/* Form Actions */}
-          <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+          <div className="flex justify-end space-x-3 pt-6">
             <button
               type="button"
               onClick={handleCancel}

@@ -314,7 +314,7 @@ export default function StoreSettingsPage() {
   return (
     <div className="space-y-6 md:space-y-8">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+      <div className="p-6">
         <div className="flex items-center mb-4">
           <button
             onClick={() => router.push('/dashboard')}
@@ -341,7 +341,7 @@ export default function StoreSettingsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="overflow-hidden">
         <div className="border-b border-gray-200">
           <nav className="flex overflow-x-auto">
             {tabs.map((tab) => {
@@ -916,7 +916,7 @@ export default function StoreSettingsPage() {
 
           {/* Save Button - Only show for non-custom-html tabs */}
           {activeTab !== 'custom-html' && (
-            <div className="flex justify-end pt-6 border-t border-gray-200">
+            <div className="flex justify-end pt-6">
               <button
                 type="submit"
                 disabled={saving}

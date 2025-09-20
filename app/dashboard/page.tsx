@@ -127,7 +127,7 @@ export default function DashboardOverview() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header */}
-      <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-md p-8 border border-gray-200">
+      <div className="p-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-primary-100 rounded-lg">
@@ -234,7 +234,7 @@ export default function DashboardOverview() {
       {/* Quick Actions */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
         {/* Products Section */}
-        <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-md p-8 border border-gray-200">
+        <div className="p-8">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-3">
               <Package className="w-6 h-6 text-primary-600" />
@@ -277,7 +277,7 @@ export default function DashboardOverview() {
         </div>
 
         {/* Slides Section */}
-        <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-md p-8 border border-gray-200">
+        <div className="p-8">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-3">
               <ImageIcon className="w-6 h-6 text-primary-600" />
@@ -321,7 +321,7 @@ export default function DashboardOverview() {
       </div>
 
       {/* Getting Started Tips */}
-      <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-md p-8 border border-gray-200">
+      <div className="p-8">
         <h3 className="text-xl font-semibold text-gray-800 mb-6">Getting Started Tips</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div className="p-4 bg-blue-50 rounded-lg shadow-sm">

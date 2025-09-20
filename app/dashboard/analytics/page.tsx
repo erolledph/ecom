@@ -199,7 +199,7 @@ export default function AnalyticsPage() {
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-6 md:space-y-8">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100">
+      <div className="p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div className="flex items-start sm:items-center gap-3 sm:gap-4">
             <div className="p-2 sm:p-3 bg-gradient-to-br from-primary-100 to-primary-200 rounded-xl">
@@ -231,7 +231,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Key Metrics Cards */}
-       <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100">
+       <div className="p-4 sm:p-6">
         <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center">
           <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-primary-600" />
           Key Metrics
@@ -304,7 +304,7 @@ export default function AnalyticsPage() {
        </div>
 
       {/* Detailed Insights */}
-      <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100">
+      <div className="p-4 sm:p-6">
         <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center">
           <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-primary-600" />
           Detailed Insights
@@ -359,7 +359,7 @@ export default function AnalyticsPage() {
 
       {/* Top Performing Products */}
       {topPerformingProducts.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100">
+        <div className="p-4 sm:p-6">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center">
             <Package className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-primary-600" />
             Top Performing Products
@@ -403,7 +403,7 @@ export default function AnalyticsPage() {
 
       {/* Most Filtered Categories */}
       {topCategories.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100">
+        <div className="p-4 sm:p-6">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center">
             <Filter className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-primary-600" />
             Most Filtered Categories
@@ -430,7 +430,7 @@ export default function AnalyticsPage() {
 
       {/* Most Searched Products */}
       {mostSearchedTerms.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100">
+        <div className="p-4 sm:p-6">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center">
             <Search className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-primary-600" />
             Most Searched Products
@@ -469,7 +469,7 @@ export default function AnalyticsPage() {
 
       {/* No Data Message */}
       {events.length === 0 && (
-        <div className="bg-white rounded-xl shadow-sm p-6 sm:p-8 border border-gray-100">
+        <div className="p-6 sm:p-8">
           <div className="text-center py-8 sm:py-12">
             <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
               <TrendingUp className="w-8 h-8 sm:w-10 sm:h-10 text-primary-600" />

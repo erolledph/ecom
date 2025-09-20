@@ -104,7 +104,7 @@ export default function ProductsPage() {
   return (
     <div className="space-y-6 md:space-y-8">
       {/* Header */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+      <div className="p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Manage Products</h1>
@@ -135,7 +135,7 @@ export default function ProductsPage() {
 
       {/* Products Table */}
       {products.length > 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -221,7 +221,7 @@ export default function ProductsPage() {
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm p-8 border border-gray-100">
+        <div className="p-8">
           <div className="text-center py-12">
             <span className="text-6xl mb-4 block">🛍️</span>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
