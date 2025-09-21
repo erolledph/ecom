@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
-import { getStoreSubscribers, clearStoreSubscribers, Subscriber } from '@/lib/store';
+import { getStoreSubscribers, deleteSubscriber, Subscriber } from '@/lib/store';
 import { Users, Download, Trash2, RefreshCcw, Mail, User } from 'lucide-react';
 import Papa from 'papaparse';
 
@@ -94,22 +94,21 @@ export default function SubscribersPage() {
     }
   };
 
-  const handleClearAll = async () => {
+  const handleDeleteSubscriber = async (subscriberId: string) => {
     if (!user) return;
     
-    const confirmed = window.confirm(
-      `Are you sure you want to delete all ${subscribers.length} subscribers? This action cannot be undone.`
-    );
+    const confirmed = window.confirm('Are you sure you want to delete this subscriber? This action cannot be undone.');
     
     if (!confirmed) return;
 
     try {
-      await clearStoreSubscribers(user.uid);
-      setSubscribers([]);
-      showSuccess('All subscribers have been cleared');
+      await deleteSubscriber(user.uid, subscriberId);
+      // Remove the deleted subscriber from the local state
+      setSubscribers(prev => prev.filter(sub => sub.id !== subscriberId));
+      showSuccess('Subscriber deleted successfully');
     } catch (error) {
-      console.error('Error clearing subscribers:', error);
-      showError('Failed to clear subscribers');
+      console.error('Error deleting subscriber:', error);
+      showError('Failed to delete subscriber');
     }
   };
 
@@ -166,16 +165,6 @@ export default function SubscribersPage() {
               <Download className={`w-4 h-4 mr-2 ${exporting ? 'animate-bounce' : ''}`} />
               {exporting ? 'Exporting...' : 'Export CSV'}
             </button>
-            
-            {subscribers.length > 0 && (
-              <button
-                onClick={handleClearAll}
-                className="flex items-center px-4 py-2 bg-danger-600 text-white rounded-lg hover:bg-danger-700 transition-colors"
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Clear All
-              </button>
-            )}
           </div>
         </div>
       </div>
@@ -202,6 +191,9 @@ export default function SubscribersPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Subscription Date
                   </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -224,6 +216,15 @@ export default function SubscribersPage() {
                           new Date(subscriber.createdAt).toLocaleDateString()
                         }
                       </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <button
+                        onClick={() => handleDeleteSubscriber(subscriber.id!)}
+                        className="inline-flex items-center px-3 py-1.5 border border-danger-300 shadow-sm text-xs font-medium rounded text-danger-700 bg-danger-50 hover:bg-danger-100 transition-colors"
+                        title="Delete subscriber"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </td>
                   </tr>
                 ))}

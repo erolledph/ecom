@@ -552,6 +552,16 @@ export async function clearStoreSubscribers(storeId: string): Promise<void> {
   }
 }
 
+export async function deleteSubscriber(storeId: string, subscriberId: string): Promise<void> {
+  try {
+    const subscriberRef = doc(db, 'users', storeId, 'stores', storeId, 'subscribers', subscriberId);
+    await deleteDoc(subscriberRef);
+  } catch (error) {
+    console.error('Error deleting subscriber:', error);
+    throw error;
+  }
+}
+
 // Utility functions
 export async function generateCategoriesFromProducts(storeId: string): Promise<Array<{ id: string; name: string; image: string }>> {
   try {

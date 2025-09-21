@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { logout } from '@/lib/auth';
@@ -14,23 +14,29 @@ import {
   Menu, 
   X, 
   User,
-  ChevronLeft,
-  ChevronRight,
   PlusCircle,
   PlusSquare,
   TrendingUp,
-  Users
+  Users,
+  Settings
 } from 'lucide-react';
 
 const navigation = [
+  { type: 'header', name: 'Dashboard' },
   { name: 'Overview', href: '/dashboard', icon: BarChart3 },
-  { name: 'Store Settings', href: '/dashboard/store', icon: Store },
   { name: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp },
+  
+  { type: 'header', name: 'Store Management' },
+  { name: 'Store Settings', href: '/dashboard/store', icon: Settings },
   { name: 'Subscribers', href: '/dashboard/subscribers', icon: Users },
-  { name: 'Add Slide', href: '/dashboard/slides/add', icon: PlusSquare },
-  { name: 'Manage Slides', href: '/dashboard/slides', icon: Image },
+  
+  { type: 'header', name: 'Products' },
+  { name: 'Products', href: '/dashboard/products', icon: Package },
   { name: 'Add Product', href: '/dashboard/products/add', icon: PlusCircle },
-  { name: 'Manage Products', href: '/dashboard/products', icon: Package },
+  
+  { type: 'header', name: 'Slides' },
+  { name: 'Slides', href: '/dashboard/slides', icon: Image },
+  { name: 'Add Slide', href: '/dashboard/slides/add', icon: PlusSquare },
 ];
 
 interface DashboardNavProps {
@@ -44,6 +50,44 @@ export default function DashboardNav({ isCollapsed, toggleCollapse }: DashboardN
   const { userProfile } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [autoCollapseTimer, setAutoCollapseTimer] = useState<NodeJS.Timeout | null>(null);
+
+  // Auto-collapse functionality
+  useEffect(() => {
+    const handleMouseMove = () => {
+      // Clear existing timer
+      if (autoCollapseTimer) {
+        clearTimeout(autoCollapseTimer);
+      }
+
+      // Set new timer to collapse after 3 seconds of inactivity
+      const timer = setTimeout(() => {
+        if (!isHovered) {
+          // Auto-collapse only on desktop
+          if (window.innerWidth >= 768) {
+            // Force collapse if not already collapsed
+            if (!isCollapsed) {
+              toggleCollapse();
+            }
+          }
+        }
+      }, 3000);
+
+      setAutoCollapseTimer(timer);
+    };
+
+    // Add mouse move listener to document
+    document.addEventListener('mousemove', handleMouseMove);
+
+    // Cleanup
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      if (autoCollapseTimer) {
+        clearTimeout(autoCollapseTimer);
+      }
+    };
+  }, [isHovered, isCollapsed, toggleCollapse, autoCollapseTimer]);
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -63,6 +107,23 @@ export default function DashboardNav({ isCollapsed, toggleCollapse }: DashboardN
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
+  };
+
+  const handleSidebarMouseEnter = () => {
+    setIsHovered(true);
+    // Clear auto-collapse timer when hovering
+    if (autoCollapseTimer) {
+      clearTimeout(autoCollapseTimer);
+      setAutoCollapseTimer(null);
+    }
+    // Auto-expand on hover if collapsed (desktop only)
+    if (isCollapsed && window.innerWidth >= 768) {
+      toggleCollapse();
+    }
+  };
+
+  const handleSidebarMouseLeave = () => {
+    setIsHovered(false);
   };
 
   return (
@@ -97,6 +158,8 @@ export default function DashboardNav({ isCollapsed, toggleCollapse }: DashboardN
           ${isCollapsed ? 'md:w-16' : 'md:w-72'}
           md:translate-x-0 w-64
         `}
+        onMouseEnter={handleSidebarMouseEnter}
+        onMouseLeave={handleSidebarMouseLeave}
       >
         {/* Header */}
         <div className={`flex items-center justify-between h-16 px-4 bg-gradient-to-r from-primary-500 to-secondary-500 ${isCollapsed ? 'md:px-2' : ''}`}>
@@ -115,24 +178,26 @@ export default function DashboardNav({ isCollapsed, toggleCollapse }: DashboardN
               </div>
             )}
           </div>
-          
-          {/* Desktop Collapse Button */}
-          <button
-            onClick={toggleCollapse}
-            className="hidden md:flex p-1 text-white hover:bg-white hover:bg-opacity-20 rounded transition-colors"
-            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            {isCollapsed ? (
-              <ChevronRight className="w-4 h-4" />
-            ) : (
-              <ChevronLeft className="w-4 h-4" />
-            )}
-          </button>
         </div>
 
         {/* Navigation */}
         <nav className={`flex-1 px-2 py-4 space-y-1 border-t border-gray-200 ${isCollapsed ? 'md:px-1' : ''}`}>
           {navigation.map((item) => {
+            // Render group headers
+            if (item.type === 'header') {
+              return (
+                <div
+                  key={item.name}
+                  className={`px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider ${
+                    isCollapsed ? 'md:hidden' : ''
+                  }`}
+                >
+                  {item.name}
+                </div>
+              );
+            }
+            
+            // Render navigation links
             const isActive = pathname === item.href;
             const IconComponent = item.icon;
             
@@ -143,29 +208,28 @@ export default function DashboardNav({ isCollapsed, toggleCollapse }: DashboardN
                 onClick={closeMobileMenu}
                 className={`
                   group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200
-                  min-h-11 relative
+                  min-h-12 relative
                   ${isActive
                     ? 'bg-primary-50 text-primary-700 border-r-2 border-primary-600'
                     : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
                   }
-                  ${isCollapsed ? 'md:px-2 md:justify-center' : ''}
+                  ${isCollapsed ? 'md:px-3 md:justify-center md:w-12 md:mx-auto' : ''}
                 `}
                 title={isCollapsed ? item.name : undefined}
               >
                 <IconComponent 
                   className={`
-                    flex-shrink-0 transition-colors
+                    flex-shrink-0 transition-colors w-5 h-5
                     ${isActive ? 'text-primary-600' : 'text-gray-500 group-hover:text-gray-700'}
-                    ${isCollapsed ? 'w-6 h-6' : 'w-5 h-5'}
                   `} 
                 />
                 {!isCollapsed && (
-                  <span className="ml-3 truncate">{item.name}</span>
+                  <span className="ml-3 truncate flex-1">{item.name}</span>
                 )}
                 
                 {/* Tooltip for collapsed state */}
                 {isCollapsed && (
-                  <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 hidden md:block">
+                  <div className="absolute left-full ml-3 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 hidden md:block">
                     {item.name}
                   </div>
                 )}
@@ -175,33 +239,32 @@ export default function DashboardNav({ isCollapsed, toggleCollapse }: DashboardN
         </nav>
 
         {/* Logout Button */}
-        <div className={`p-4 border-t border-gray-200 ${isCollapsed ? 'md:px-2' : ''}`}>
+        <div className={`p-4 border-t border-gray-200 ${isCollapsed ? 'md:px-3' : ''}`}>
           <button
             onClick={handleLogout}
             disabled={isLoggingOut}
             className={`
               group flex items-center w-full px-3 py-3 text-sm font-medium text-gray-600 rounded-lg 
               hover:bg-danger-50 hover:text-danger-700 transition-all duration-200 disabled:opacity-50
-              min-h-11 relative
-              ${isCollapsed ? 'md:px-2 md:justify-center' : ''}
+              min-h-12 relative
+              ${isCollapsed ? 'md:px-3 md:justify-center md:w-12 md:mx-auto' : ''}
             `}
             title={isCollapsed ? (isLoggingOut ? 'Logging out...' : 'Logout') : undefined}
           >
             <LogOut 
               className={`
-                flex-shrink-0 text-gray-500 group-hover:text-danger-600 transition-colors
-                ${isCollapsed ? 'w-6 h-6' : 'w-5 h-5'}
+                flex-shrink-0 text-gray-500 group-hover:text-danger-600 transition-colors w-5 h-5
               `} 
             />
             {!isCollapsed && (
-              <span className="ml-3 truncate text-gray-700 group-hover:text-danger-700">
+              <span className="ml-3 truncate text-gray-700 group-hover:text-danger-700 flex-1">
                 {isLoggingOut ? 'Logging out...' : 'Logout'}
               </span>
             )}
             
             {/* Tooltip for collapsed state */}
             {isCollapsed && (
-              <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 hidden md:block">
+              <div className="absolute left-full ml-3 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 hidden md:block">
                 {isLoggingOut ? 'Logging out...' : 'Logout'}
               </div>
             )}
