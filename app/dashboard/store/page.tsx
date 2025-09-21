@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
-import { getUserStore, updateStore, uploadStoreImage, uploadWidgetImage, uploadSubscriptionImage, Store } from '@/lib/store';
+import { getUserStore, updateStore, uploadStoreImage, uploadWidgetImage, uploadSubscriptionImage, Store, deleteImageFromStorage } from '@/lib/store';
 import CustomHtmlEditor from '@/components/CustomHtmlEditor';
 import Image from 'next/image';
 import { 
@@ -21,7 +21,8 @@ import {
   Smartphone,
   Monitor,
   Tablet,
-  Users
+  Users,
+  Trash2
 } from 'lucide-react';
 
 const SOCIAL_PLATFORMS = [
@@ -160,6 +161,58 @@ export default function StoreSettingsPage() {
     fetchStore();
   }, [user]);
 
+  // NEW FUNCTION: Handle image removal
+  const handleRemoveImage = async (type: 'avatar' | 'background' | 'widget' | 'banner' | 'subscription', imageUrl: string) => {
+    if (!user || !store) return;
+
+    if (!window.confirm('Are you sure you want to remove this image? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      // Delete from Firebase Storage
+      await deleteImageFromStorage(imageUrl);
+
+      // Update Firestore to clear the image URL and reset local state
+      let updateField: Partial<Store> = {};
+      switch (type) {
+        case 'avatar':
+          updateField = { avatar: '' };
+          setAvatarPreview('');
+          setAvatarFile(null);
+          break;
+        case 'background':
+          updateField = { backgroundImage: '' };
+          setBackgroundPreview('');
+          setBackgroundFile(null);
+          break;
+        case 'widget':
+          updateField = { widgetImage: '' };
+          setWidgetPreview('');
+          setWidgetFile(null);
+          break;
+        case 'banner':
+          updateField = { bannerImage: '' };
+          setBannerPreview('');
+          setBannerFile(null);
+          break;
+        case 'subscription':
+          updateField = { subscriptionBackgroundImage: '' };
+          setSubscriptionPreview('');
+          setSubscriptionFile(null);
+          break;
+      }
+      await updateStore(user.uid, updateField);
+      showSuccess('Image removed successfully!');
+      
+      // Update local store state
+      setStore(prev => prev ? { ...prev, ...updateField } : null);
+    } catch (error) {
+      console.error('Error removing image:', error);
+      showError('Failed to remove image. Please try again.');
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     if (name.startsWith('customization.')) {
@@ -239,18 +292,28 @@ export default function StoreSettingsPage() {
       // Upload images if new files are selected
       if (avatarFile) {
         avatarUrl = await uploadStoreImage(user.uid, avatarFile, 'avatar');
+      } else if (store.avatar && !avatarPreview) {
+        avatarUrl = '';
       }
       if (backgroundFile) {
         backgroundUrl = await uploadStoreImage(user.uid, backgroundFile, 'background');
+      } else if (store.backgroundImage && !backgroundPreview) {
+        backgroundUrl = '';
       }
       if (widgetFile) {
         widgetUrl = await uploadWidgetImage(user.uid, widgetFile);
+      } else if (store.widgetImage && !widgetPreview) {
+        widgetUrl = '';
       }
       if (bannerFile) {
         bannerUrl = await uploadStoreImage(user.uid, bannerFile, 'banner');
+      } else if (store.bannerImage && !bannerPreview) {
+        bannerUrl = '';
       }
       if (subscriptionFile) {
         subscriptionUrl = await uploadSubscriptionImage(user.uid, subscriptionFile);
+      } else if (store.subscriptionBackgroundImage && !subscriptionPreview) {
+        subscriptionUrl = '';
       }
 
       const updateData = {
@@ -259,7 +322,7 @@ export default function StoreSettingsPage() {
         backgroundImage: backgroundUrl,
         widgetImage: widgetUrl,
         bannerImage: bannerUrl,
-        subscriptionBackgroundImage: '',
+        subscriptionBackgroundImage: subscriptionUrl,
         requireNameForSubscription: true,
         socialLinks: socialLinks.filter(link => link.url.trim() !== '')
       };
@@ -579,7 +642,7 @@ export default function StoreSettingsPage() {
                   Store Avatar
                 </label>
                 {avatarPreview && (
-                  <div className="mb-4">
+                  <div className="mb-4 relative group w-20 h-20">
                     <Image
                       src={avatarPreview}
                       alt="Avatar preview"
@@ -587,6 +650,14 @@ export default function StoreSettingsPage() {
                       height={100}
                       className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
                     />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage('avatar', avatarPreview)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      title="Remove avatar"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 )}
                 <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
@@ -609,7 +680,7 @@ export default function StoreSettingsPage() {
                   Header Background Image
                 </label>
                 {backgroundPreview && (
-                  <div className="mb-4">
+                  <div className="mb-4 relative group w-full max-w-md h-32">
                     <Image
                       src={backgroundPreview}
                       alt="Background preview"
@@ -617,6 +688,14 @@ export default function StoreSettingsPage() {
                       height={150}
                       className="w-full max-w-md h-32 rounded-lg object-cover border-2 border-gray-200"
                     />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage('background', backgroundPreview)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      title="Remove background image"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 )}
                 <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
@@ -639,7 +718,7 @@ export default function StoreSettingsPage() {
                   Widget Image
                 </label>
                 {widgetPreview && (
-                  <div className="mb-4">
+                  <div className="mb-4 relative group w-16 h-16">
                     <Image
                       src={widgetPreview}
                       alt="Widget preview"
@@ -647,6 +726,14 @@ export default function StoreSettingsPage() {
                       height={80}
                       className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
                     />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage('widget', widgetPreview)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      title="Remove widget image"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 )}
                 <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
@@ -669,7 +756,7 @@ export default function StoreSettingsPage() {
                   Pop-up Banner Image
                 </label>
                 {bannerPreview && (
-                  <div className="mb-4">
+                  <div className="mb-4 relative group w-full max-w-md h-40">
                     <Image
                       src={bannerPreview}
                       alt="Banner preview"
@@ -677,6 +764,14 @@ export default function StoreSettingsPage() {
                       height={200}
                       className="w-full max-w-md h-40 rounded-lg object-cover border-2 border-gray-200"
                     />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage('banner', bannerPreview)}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      title="Remove banner image"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 )}
                 <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">

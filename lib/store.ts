@@ -634,3 +634,20 @@ export function generateCategoriesWithCountSync(products: Product[]): Array<{ id
     ...categories
   ];
 }
+
+// NEW FUNCTION: Delete image from Firebase Storage
+export async function deleteImageFromStorage(imageUrl: string): Promise<void> {
+  if (!imageUrl || !imageUrl.includes('firebasestorage.googleapis.com')) {
+    console.warn('Not a Firebase Storage URL or URL is empty, skipping deletion:', imageUrl);
+    return;
+  }
+  try {
+    // Create a storage reference from the image URL
+    const imageRef = ref(storage, imageUrl);
+    await deleteObject(imageRef);
+    console.log('Image deleted from storage:', imageUrl);
+  } catch (error) {
+    console.error('Error deleting image from storage:', error);
+    throw error;
+  }
+}
