@@ -505,14 +505,19 @@ export default function StoreTemplate({ store, products, slides, categories, ini
             
             {/* Pagination Dots */}
             {slides.length > 1 && (
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-[5px]">
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-[5px] pagination-dots">
                 {slides.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => goToSlide(index)}
-                    className={`w-3 h-3 rounded-full transition-all store-name-color ${
+                    className={`w-3 h-3 rounded-full transition-all pagination-dot ${
                       index === currentSlide ? 'w-8' : 'opacity-50'
                     }`}
+                    style={{
+                      backgroundColor: index === currentSlide 
+                        ? store.customization?.slidePaginationActiveDotColor || storeNameColor
+                        : store.customization?.slidePaginationDotColor || storeNameColor
+                    }}
                   />
                 ))}
               </div>
@@ -581,7 +586,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                   <span 
                     className="text-[0.8rem] font-semibold mt-1 whitespace-nowrap"
                     style={{ 
-                      color: priceColor,
+                      color: store.customization?.categoryTextColor || priceColor,
                       fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
                     }}
                   >
@@ -633,7 +638,12 @@ export default function StoreTemplate({ store, products, slides, categories, ini
               placeholder="Search products&hellip;"
               value={searchTerm}
               onChange={handleSearchChange}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm text-gray-900"
+              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm search-input"
+              style={{
+                backgroundColor: store.customization?.searchInputBgColor || '#ffffff',
+                borderColor: store.customization?.searchInputBorderColor || '#d1d5db',
+                color: store.customization?.searchInputTextColor || '#111827'
+              }}
             />
           </div>
         </div>
@@ -657,7 +667,13 @@ export default function StoreTemplate({ store, products, slides, categories, ini
             <div
               key={product.id}
               onClick={() => handleProductClickWithDetails(product)}
-              className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+              className="rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+              style={{
+                backgroundColor: store.customization?.productCardBgColor || '#ffffff',
+                borderColor: store.customization?.productCardBorderColor || 'transparent',
+                borderWidth: store.customization?.productCardBorderColor ? '1px' : '0',
+                borderStyle: 'solid'
+              }}
             >
               <div className="aspect-square overflow-hidden">
                 {product.images && product.images[0] && (
@@ -733,8 +749,10 @@ export default function StoreTemplate({ store, products, slides, categories, ini
             </p>
             <button
               onClick={() => setSearchTerm('')}
-              className="mt-4 inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+              className="mt-4 inline-flex items-center px-4 py-2 rounded-lg transition-colors"
               style={{
+                backgroundColor: store.customization?.clearSearchButtonBgColor || '#4f46e5',
+                color: store.customization?.clearSearchButtonTextColor || '#ffffff',
                 fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
               }}
             >
@@ -810,7 +828,11 @@ export default function StoreTemplate({ store, products, slides, categories, ini
             <div className="text-center mt-6">
               <button
                 onClick={loadMoreAllProducts}
-                className="inline-flex items-center px-6 py-3 bg-secondary-600 text-white rounded-lg hover:bg-secondary-700 transition-colors font-medium"
+                className="inline-flex items-center px-6 py-3 rounded-lg transition-colors font-medium"
+                style={{
+                  backgroundColor: store.customization?.loadMoreButtonBgColor || '#84cc16',
+                  color: store.customization?.loadMoreButtonTextColor || '#ffffff'
+                }}
               >
                 Load More Products
               </button>

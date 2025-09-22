@@ -145,7 +145,11 @@ export default function DashboardOverview() {
               href={`/${store.slug}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all shadow-md"
+              className="flex items-center px-6 py-3 rounded-lg transition-all shadow-md"
+              style={{
+                backgroundColor: store.customization?.dashboardViewStoreButtonBgColor || '#4f46e5',
+                color: store.customization?.dashboardViewStoreButtonTextColor || '#ffffff'
+              }}
               aria-label="View Store"
               onClick={() => showInfo('Opening your store in a new tab!')}
             >

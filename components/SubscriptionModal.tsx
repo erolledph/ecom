@@ -168,7 +168,7 @@ export default function SubscriptionModal({
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>
-              <label htmlFor="name" className="block text-xs font-medium text-gray-700 mb-1">
+              <label htmlFor="name" className="block text-xs font-medium mb-1" style={{ color: modalTextColor }}>
                 Your Name *
               </label>
               <div className="relative">
@@ -182,14 +182,15 @@ export default function SubscriptionModal({
                   value={formData.name}
                   onChange={handleInputChange}
                   required
-                  className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 text-sm"
+                  className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-sm"
+                  style={{ color: modalTextColor }}
                   placeholder="Enter your name"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-xs font-medium text-gray-700 mb-1">
+              <label htmlFor="email" className="block text-xs font-medium mb-1" style={{ color: modalTextColor }}>
                 Email Address *
               </label>
               <div className="relative">
@@ -203,7 +204,8 @@ export default function SubscriptionModal({
                   value={formData.email}
                   onChange={handleInputChange}
                   required
-                  className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 text-sm"
+                  className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-sm"
+                  style={{ color: modalTextColor }}
                   placeholder="Enter your email"
                 />
               </div>
@@ -212,7 +214,11 @@ export default function SubscriptionModal({
             <button
               type="submit"
               disabled={isSubmitting || isSubscribed}
-              className="w-full flex items-center justify-center px-4 py-2 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-lg hover:from-primary-700 hover:to-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium shadow-lg hover:shadow-xl text-sm"
+              className="w-full flex items-center justify-center px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium shadow-lg hover:shadow-xl text-sm"
+              style={{
+                backgroundColor: buttonBgColor,
+                color: buttonTextColor
+              }}
             >
               {isSubmitting ? (
                 <>
@@ -232,7 +238,7 @@ export default function SubscriptionModal({
 
           {/* Footer */}
           <div className="mt-4 text-center">
-            <p className="text-xs text-gray-500 text-xs">
+            <p className="text-xs" style={{ color: modalTextColor, opacity: 0.6 }}>
               We respect your privacy. Unsubscribe at any time.
             </p>
           </div>

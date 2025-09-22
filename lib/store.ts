@@ -68,6 +68,36 @@ export interface Store {
     slideOverlayOpacity?: number;
     slideTitleColor?: string;
     slideDescriptionColor?: string;
+    // Header customization
+    storeHeaderBgColor?: string;
+    // Category customization
+    categoryTextColor?: string;
+    categoryImageBorderColor?: string;
+    // Product card customization
+    productCardBgColor?: string;
+    productCardBorderColor?: string;
+    productTitleColor?: string;
+    // Button customization
+    loadMoreButtonBgColor?: string;
+    loadMoreButtonTextColor?: string;
+    clearSearchButtonBgColor?: string;
+    clearSearchButtonTextColor?: string;
+    // Slide pagination customization
+    slidePaginationDotColor?: string;
+    slidePaginationActiveDotColor?: string;
+    // Subscription modal customization
+    subscribeModalBgColor?: string;
+    subscribeModalTextColor?: string;
+    subscribeButtonBgColor?: string;
+    subscribeButtonTextColor?: string;
+    // Dashboard customization
+    dashboardViewStoreButtonBgColor?: string;
+    dashboardViewStoreButtonTextColor?: string;
+    // Search input customization
+    searchInputBgColor?: string;
+    searchInputBorderColor?: string;
+    searchInputTextColor?: string;
+    searchInputPlaceholderColor?: string;
   };
   createdAt: any;
   updatedAt: any;

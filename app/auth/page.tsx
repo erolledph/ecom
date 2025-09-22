@@ -170,7 +170,7 @@ export default function AuthPage() {
                 </label>
                 <div className="flex">
                   <span className="inline-flex items-center px-3 rounded-l-none border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                    yourdomain.com/
+                    tiangge.shop/
                   </span>
                   <input
                     id="storeSlug"

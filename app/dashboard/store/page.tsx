@@ -100,7 +100,29 @@ export default function StoreSettingsPage() {
       slideOverlayColor: '#000000',
       slideOverlayOpacity: 0.4,
       slideTitleColor: '#ffffff',
-      slideDescriptionColor: '#e5e7eb'
+      slideDescriptionColor: '#e5e7eb',
+      storeHeaderBgColor: 'transparent',
+      categoryTextColor: '#059669',
+      categoryImageBorderColor: '#6366f1',
+      productCardBgColor: '#ffffff',
+      productCardBorderColor: '#e5e7eb',
+      productTitleColor: '#1f2937',
+      loadMoreButtonBgColor: '#4f46e5',
+      loadMoreButtonTextColor: '#ffffff',
+      clearSearchButtonBgColor: '#4f46e5',
+      clearSearchButtonTextColor: '#ffffff',
+      slidePaginationDotColor: '#ffffff',
+      slidePaginationActiveDotColor: '#ffffff',
+      subscribeModalBgColor: '#ffffff',
+      subscribeModalTextColor: '#1f2937',
+      subscribeButtonBgColor: '#4f46e5',
+      subscribeButtonTextColor: '#ffffff',
+      dashboardViewStoreButtonBgColor: '#4f46e5',
+      dashboardViewStoreButtonTextColor: '#ffffff',
+      searchInputBgColor: '#ffffff',
+      searchInputBorderColor: '#d1d5db',
+      searchInputTextColor: '#111827',
+      searchInputPlaceholderColor: '#9ca3af'
     }
   });
 
@@ -499,6 +521,26 @@ export default function StoreSettingsPage() {
           {/* Appearance Tab */}
           {activeTab === 'appearance' && (
             <div className="space-y-6">
+              {/* Header Colors */}
+              <div>
+                <h4 className="text-md font-medium text-gray-900 mb-4">Header Colors</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="customization.storeHeaderBgColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Header Background Color
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.storeHeaderBgColor"
+                      name="customization.storeHeaderBgColor"
+                      value={formData.customization.storeHeaderBgColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="customization.headingFontFamily" className="block text-sm font-medium text-gray-700 mb-2">
@@ -539,65 +581,397 @@ export default function StoreSettingsPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="customization.storeNameFontColor" className="block text-sm font-medium text-gray-700 mb-2">
-                    Store Name Color
-                  </label>
-                  <input
-                    type="color"
-                    id="customization.storeNameFontColor"
-                    name="customization.storeNameFontColor"
-                    value={formData.customization.storeNameFontColor}
-                    onChange={handleInputChange}
-                    className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                  />
-                </div>
+              {/* Text Colors */}
+              <div>
+                <h4 className="text-md font-medium text-gray-900 mb-4">Text Colors</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="customization.storeNameFontColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Store Name Color
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.storeNameFontColor"
+                      name="customization.storeNameFontColor"
+                      value={formData.customization.storeNameFontColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
 
-                <div>
-                  <label htmlFor="customization.storeBioFontColor" className="block text-sm font-medium text-gray-700 mb-2">
-                    Store Bio Color
-                  </label>
-                  <input
-                    type="color"
-                    id="customization.storeBioFontColor"
-                    name="customization.storeBioFontColor"
-                    value={formData.customization.storeBioFontColor}
-                    onChange={handleInputChange}
-                    className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                  />
+                  <div>
+                    <label htmlFor="customization.storeBioFontColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Store Bio Color
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.storeBioFontColor"
+                      name="customization.storeBioFontColor"
+                      value={formData.customization.storeBioFontColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="customization.priceFontColor" className="block text-sm font-medium text-gray-700 mb-2">
-                    Price Color
-                  </label>
-                  <input
-                    type="color"
-                    id="customization.priceFontColor"
-                    name="customization.priceFontColor"
-                    value={formData.customization.priceFontColor}
-                    onChange={handleInputChange}
-                    className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                  />
-                </div>
+              {/* Category & Product Colors */}
+              <div>
+                <h4 className="text-md font-medium text-gray-900 mb-4">Category & Product Colors</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="customization.categoryTextColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Category Text Color
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.categoryTextColor"
+                      name="customization.categoryTextColor"
+                      value={formData.customization.categoryTextColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
 
-                <div>
-                  <label htmlFor="customization.currencySymbol" className="block text-sm font-medium text-gray-700 mb-2">
-                    Currency Symbol
-                  </label>
-                  <input
-                    type="text"
-                    id="customization.currencySymbol"
-                    name="customization.currencySymbol"
-                    value={formData.customization.currencySymbol}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    placeholder="$"
-                    maxLength={3}
-                  />
+                  <div>
+                    <label htmlFor="customization.categoryImageBorderColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Category Image Border Color
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.categoryImageBorderColor"
+                      name="customization.categoryImageBorderColor"
+                      value={formData.customization.categoryImageBorderColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="customization.productCardBgColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Product Card Background
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.productCardBgColor"
+                      name="customization.productCardBgColor"
+                      value={formData.customization.productCardBgColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="customization.productCardBorderColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Product Card Border Color
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.productCardBorderColor"
+                      name="customization.productCardBorderColor"
+                      value={formData.customization.productCardBorderColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="customization.productTitleColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Product Title Color
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.productTitleColor"
+                      name="customization.productTitleColor"
+                      value={formData.customization.productTitleColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="customization.priceFontColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Price Color
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.priceFontColor"
+                      name="customization.priceFontColor"
+                      value={formData.customization.priceFontColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Button Colors */}
+              <div>
+                <h4 className="text-md font-medium text-gray-900 mb-4">Button Colors</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="customization.loadMoreButtonBgColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Load More Button Background
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.loadMoreButtonBgColor"
+                      name="customization.loadMoreButtonBgColor"
+                      value={formData.customization.loadMoreButtonBgColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="customization.loadMoreButtonTextColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Load More Button Text Color
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.loadMoreButtonTextColor"
+                      name="customization.loadMoreButtonTextColor"
+                      value={formData.customization.loadMoreButtonTextColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="customization.clearSearchButtonBgColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Clear Search Button Background
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.clearSearchButtonBgColor"
+                      name="customization.clearSearchButtonBgColor"
+                      value={formData.customization.clearSearchButtonBgColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="customization.clearSearchButtonTextColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Clear Search Button Text Color
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.clearSearchButtonTextColor"
+                      name="customization.clearSearchButtonTextColor"
+                      value={formData.customization.clearSearchButtonTextColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="customization.dashboardViewStoreButtonBgColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Dashboard View Store Button Background
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.dashboardViewStoreButtonBgColor"
+                      name="customization.dashboardViewStoreButtonBgColor"
+                      value={formData.customization.dashboardViewStoreButtonBgColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="customization.dashboardViewStoreButtonTextColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Dashboard View Store Button Text Color
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.dashboardViewStoreButtonTextColor"
+                      name="customization.dashboardViewStoreButtonTextColor"
+                      value={formData.customization.dashboardViewStoreButtonTextColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Search Input Colors */}
+              <div>
+                <h4 className="text-md font-medium text-gray-900 mb-4">Search Input Colors</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="customization.searchInputBgColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Search Input Background
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.searchInputBgColor"
+                      name="customization.searchInputBgColor"
+                      value={formData.customization.searchInputBgColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="customization.searchInputBorderColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Search Input Border Color
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.searchInputBorderColor"
+                      name="customization.searchInputBorderColor"
+                      value={formData.customization.searchInputBorderColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="customization.searchInputTextColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Search Input Text Color
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.searchInputTextColor"
+                      name="customization.searchInputTextColor"
+                      value={formData.customization.searchInputTextColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="customization.searchInputPlaceholderColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Search Input Placeholder Color
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.searchInputPlaceholderColor"
+                      name="customization.searchInputPlaceholderColor"
+                      value={formData.customization.searchInputPlaceholderColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Slide Pagination Colors */}
+              <div>
+                <h4 className="text-md font-medium text-gray-900 mb-4">Slide Pagination Colors</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="customization.slidePaginationDotColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Pagination Dot Color
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.slidePaginationDotColor"
+                      name="customization.slidePaginationDotColor"
+                      value={formData.customization.slidePaginationDotColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="customization.slidePaginationActiveDotColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Active Pagination Dot Color
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.slidePaginationActiveDotColor"
+                      name="customization.slidePaginationActiveDotColor"
+                      value={formData.customization.slidePaginationActiveDotColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Subscription Modal Colors */}
+              <div>
+                <h4 className="text-md font-medium text-gray-900 mb-4">Subscription Modal Colors</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="customization.subscribeModalBgColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Modal Background Color
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.subscribeModalBgColor"
+                      name="customization.subscribeModalBgColor"
+                      value={formData.customization.subscribeModalBgColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="customization.subscribeModalTextColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Modal Text Color
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.subscribeModalTextColor"
+                      name="customization.subscribeModalTextColor"
+                      value={formData.customization.subscribeModalTextColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="customization.subscribeButtonBgColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Subscribe Button Background
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.subscribeButtonBgColor"
+                      name="customization.subscribeButtonBgColor"
+                      value={formData.customization.subscribeButtonBgColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="customization.subscribeButtonTextColor" className="block text-sm font-medium text-gray-700 mb-2">
+                      Subscribe Button Text Color
+                    </label>
+                    <input
+                      type="color"
+                      id="customization.subscribeButtonTextColor"
+                      name="customization.subscribeButtonTextColor"
+                      value={formData.customization.subscribeButtonTextColor}
+                      onChange={handleInputChange}
+                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Currency Symbol */}
+              <div>
+                <h4 className="text-md font-medium text-gray-900 mb-4">Currency Settings</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="customization.currencySymbol" className="block text-sm font-medium text-gray-700 mb-2">
+                      Currency Symbol
+                    </label>
+                    <input
+                      type="text"
+                      id="customization.currencySymbol"
+                      name="customization.currencySymbol"
+                      value={formData.customization.currencySymbol}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                      placeholder="$"
+                      maxLength={3}
+                    />
+                  </div>
                 </div>
               </div>
 
