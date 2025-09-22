@@ -7,6 +7,7 @@ import { Store, Product, Slide } from '@/lib/store';
 import { trackEvent } from '@/lib/analytics';
 import { trackSubscriptionEvent } from '@/lib/analytics';
 import SubscriptionModal from '@/components/SubscriptionModal';
+import StoreFooter from '@/components/StoreFooter';
 import { 
   Instagram, 
   Twitter, 
@@ -599,7 +600,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
           <h2 
             className="text-[0.8rem] font-bold mb-2"
             style={{ 
-              color: priceColor,
+              color: store.customization?.headingTextColor || priceColor,
               fontFamily: store.customization?.headingFontFamily || store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
             }}
           >
@@ -609,7 +610,13 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                 ? 'All Products'
                 : `${categories.find(c => c.id === selectedCategory)?.name || 'Category'} Products`}
           </h2>
-          <p className="text-[0.8rem] text-gray-600">
+          <p 
+            className="text-[0.8rem]"
+            style={{ 
+              color: store.customization?.bodyTextColor || '#6b7280',
+              fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+            }}
+          >
             {searchTerm
               ? `Found ${finalFilteredProducts.length} result${finalFilteredProducts.length !== 1 ? 's' : ''}`
               : ''
@@ -633,7 +640,13 @@ export default function StoreTemplate({ store, products, slides, categories, ini
         
         {searchTerm && (
           <div className="mb-4">
-            <p className="text-sm text-gray-600">
+            <p 
+              className="text-sm"
+              style={{ 
+                color: store.customization?.bodyTextColor || '#6b7280',
+                fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+              }}
+            >
               {finalFilteredProducts.length} result{finalFilteredProducts.length !== 1 ? 's' : ''} found for &ldquo;{searchTerm}&rdquo;
             </p>
           </div>
@@ -658,7 +671,15 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                 )}
               </div>
               <div className="p-[5px]">
-                <h3 className="font-semibold text-gray-800 line-clamp-2 text-[0.8rem] mb-[5px] min-h-[2.4rem]">{product.title}</h3>
+                <h3 
+                  className="font-semibold line-clamp-2 text-[0.8rem] mb-[5px] min-h-[2.4rem]"
+                  style={{ 
+                    color: store.customization?.headingTextColor || '#1f2937',
+                    fontFamily: store.customization?.headingFontFamily || store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+                  }}
+                >
+                  {product.title}
+                </h3>
                 {store.displayPriceOnProducts !== false && (
                   <div className="flex items-center justify-between">
                     <span 
@@ -693,8 +714,23 @@ export default function StoreTemplate({ store, products, slides, categories, ini
         {searchTerm && finalFilteredProducts.length === 0 && (
           <div className="text-center py-12">
             <div className="text-gray-400 text-4xl mb-4">🔍</div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
-            <p className="text-gray-600">Try adjusting your search terms or browse all products.</p>
+            <h3 
+              className="text-lg font-medium mb-2"
+              style={{ 
+                color: store.customization?.headingTextColor || '#111827',
+                fontFamily: store.customization?.headingFontFamily || store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+              }}
+            >
+              No products found
+            </h3>
+            <p 
+              style={{ 
+                color: store.customization?.bodyTextColor || '#6b7280',
+                fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+              }}
+            >
+              Try adjusting your search terms or browse all products.
+            </p>
             <button
               onClick={() => setSearchTerm('')}
               className="mt-4 inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
@@ -715,7 +751,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
             <h2 
               className="text-[0.8rem] font-bold mb-2"
               style={{ 
-                color: priceColor,
+                color: store.customization?.headingTextColor || priceColor,
                 fontFamily: store.customization?.headingFontFamily || store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
               }}
             >
@@ -742,7 +778,15 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                   )}
                 </div>
                 <div className="p-[5px]">
-                  <h3 className="font-semibold text-gray-800 line-clamp-2 text-[0.8rem] mb-[5px] min-h-[2.4rem]">{product.title}</h3>
+                  <h3 
+                    className="font-semibold line-clamp-2 text-[0.8rem] mb-[5px] min-h-[2.4rem]"
+                    style={{ 
+                      color: store.customization?.headingTextColor || '#1f2937',
+                      fontFamily: store.customization?.headingFontFamily || store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+                    }}
+                  >
+                    {product.title}
+                  </h3>
                   {store.displayPriceOnProducts !== false && (
                     <div className="flex items-center justify-between">
                       <span 
@@ -789,63 +833,8 @@ export default function StoreTemplate({ store, products, slides, categories, ini
         </section>
       )}
 
-      {/* Footer */}
-      <footer className="bg-white shadow-inner rounded-t-lg mt-4 p-4 md:p-6 text-center text-gray-600">
-        <div className="space-y-4">
-          {/* Tagline */}
-          <div>
-            <p 
-              className="text-sm font-medium text-gray-800 mb-2"
-              style={{
-                fontFamily: store.customization?.headingFontFamily || store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
-              }}
-            >
-              Discover Amazing Products & Deals
-            </p>
-            <p className="text-xs text-gray-500">Your trusted affiliate marketplace</p>
-          </div>
-          
-          {/* Navigation Links */}
-          <div className="flex flex-wrap justify-center gap-4 text-xs">
-            <a 
-              href="#" 
-              className="text-gray-600 hover:text-gray-800 transition-colors"
-              style={{
-                fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
-              }}
-            >
-              Terms & Privacy
-            </a>
-            <span className="text-gray-400">•</span>
-            <a 
-              href="#" 
-              className="text-gray-600 hover:text-gray-800 transition-colors"
-              style={{
-                fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
-              }}
-            >
-              Contact
-            </a>
-            <span className="text-gray-400">•</span>
-            <a 
-              href="#" 
-              className="text-gray-600 hover:text-gray-800 transition-colors"
-              style={{
-                fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
-              }}
-            >
-              Career
-            </a>
-          </div>
-          
-          {/* Copyright */}
-          <div className="border-t border-gray-200 pt-4">
-            <p className="text-[0.8rem] text-gray-500">
-              &copy; {new Date().getFullYear()} Affiliate Store. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
+      {/* Footer - Independent of store customization */}
+      <StoreFooter />
 
       {/* Floating Widget */}
       {store.widgetEnabled !== false && (store.widgetImage || store.avatar) && (
