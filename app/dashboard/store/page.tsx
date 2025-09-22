@@ -181,14 +181,14 @@ export default function StoreSettingsPage() {
     
     if (type === 'widget') {
       imageUrl = await uploadWidgetImage(user.uid, file);
-    } else {
+    } else if (type === 'avatar' || type === 'banner') {
       imageUrl = await uploadStoreImage(user.uid, file, type);
     }
 
     // Update form data
     if (type === 'widget') {
       handleInputChange('widgetImage', imageUrl);
-    } else {
+    } else if (type === 'avatar' || type === 'banner') {
       handleInputChange(type, imageUrl);
     }
 
@@ -200,7 +200,7 @@ export default function StoreSettingsPage() {
     
     if (type === 'widget') {
       currentImageUrl = formData.widgetImage;
-    } else {
+    } else if (type === 'avatar' || type === 'banner') {
       currentImageUrl = formData[type];
     }
 
@@ -215,7 +215,7 @@ export default function StoreSettingsPage() {
     // Update form data
     if (type === 'widget') {
       handleInputChange('widgetImage', '');
-    } else {
+    } else if (type === 'avatar' || type === 'banner') {
       handleInputChange(type, '');
     }
   };
