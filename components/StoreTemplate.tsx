@@ -651,12 +651,6 @@ export default function StoreTemplate({ store, products, slides, categories, ini
               key={product.id}
               onClick={() => handleProductClickWithDetails(product)}
               className="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
-              style={{
-                backgroundColor: store.customization?.productCardBgColor || '#ffffff',
-                borderColor: store.customization?.productCardBorderColor || 'transparent',
-                borderWidth: store.customization?.productCardBorderColor ? '1px' : '0',
-                borderStyle: 'solid'
-              }}
             >
               <div className="aspect-square overflow-hidden">
                 {product.images && product.images[0] && (
