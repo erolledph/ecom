@@ -33,6 +33,11 @@ export default function SubscriptionModal({
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [hasTrackedView, setHasTrackedView] = useState(false);
 
+  // Define color variables with fallback values
+  const modalTextColor = '#374151'; // gray-700
+  const buttonBgColor = '#4f46e5'; // indigo-600
+  const buttonTextColor = '#ffffff'; // white
+
   // Track modal view when it opens
   useEffect(() => {
     if (isOpen && !hasTrackedView) {
