@@ -600,7 +600,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
               ? `Search Results for "${searchTerm}"` 
               : selectedCategory === 'all'
                 ? 'All Products'
-                : `${categories.find(c => c.id === selectedCategory)?.name || 'Category'} Products`}
+                : `${categories.find(c => c.id === selectedCategory)?.name || 'Category'}`}
           </h2>
           <p 
             className="text-[0.8rem]"

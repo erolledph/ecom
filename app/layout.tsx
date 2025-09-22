@@ -7,7 +7,7 @@ import { AnalyticsProvider } from '@/components/AnalyticsProvider';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Tiangge - Create Your Online Affiliate Store',
+  title: 'Tiangge 🏪 - Create Your Online Affiliate Store',
   description: 'Build and customize your own affiliate store. Add products, create promotional slides, and start earning commissions through affiliate marketing.',
 };
 

@@ -614,13 +614,13 @@ export function generateCategoriesWithCountSync(products: Product[]): Array<{ id
   
   const categories = Array.from(categoryMap.entries()).map(([name, data]) => ({
     id: name,
-    name: `${name} (${data.count})`,
+    name: name,
     image: data.image,
     count: data.count
   }));
   
   return [
-    { id: 'all', name: 'All Products', image: '', count: products.length },
+    { id: 'all', name: 'All', image: '', count: products.length },
     ...categories
   ];
 }
