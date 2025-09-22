@@ -25,12 +25,16 @@ export async function generateMetadata({ params, searchParams }: StorePageProps)
       };
     }
 
-    // Ensure avatar URL is absolute
-    const avatarUrl = store.avatar && store.avatar.startsWith('http') 
-      ? store.avatar 
-      : store.avatar 
-        ? `${process.env.NEXT_PUBLIC_SITE_URL || 'https://your-domain.com'}${store.avatar}`
-        : null;
+    // Ensure avatar URL is absolute, with fallback to default avatar
+    let avatarUrl: string;
+    if (store.avatar && store.avatar.startsWith('http')) {
+      avatarUrl = store.avatar;
+    } else if (store.avatar) {
+      avatarUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://tiangge.shop'}${store.avatar}`;
+    } else {
+      // Fallback to default avatar SVG
+      avatarUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://tiangge.shop'}/avatar-default.svg`;
+    }
 
     return {
       title: store.name,
@@ -39,26 +43,22 @@ export async function generateMetadata({ params, searchParams }: StorePageProps)
         title: store.name,
         description: store.description,
         type: 'website',
-        url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://your-domain.com'}/${storeSlug}`,
+        url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://tiangge.shop'}/${storeSlug}`,
         siteName: store.name,
-        ...(avatarUrl && {
-          images: [
-            {
-              url: avatarUrl,
-              width: 1200,
-              height: 630,
-              alt: `${store.name} - Store Avatar`,
-            },
-          ],
-        }),
+        images: [
+          {
+            url: avatarUrl,
+            width: 1200,
+            height: 630,
+            alt: `${store.name} - Store Avatar`,
+          },
+        ],
       },
       twitter: {
         card: 'summary_large_image',
         title: store.name,
         description: store.description,
-        ...(avatarUrl && {
-          images: [avatarUrl],
-        }),
+        images: [avatarUrl],
       },
     };
   } catch (error) {
