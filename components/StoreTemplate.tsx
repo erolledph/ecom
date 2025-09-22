@@ -519,7 +519,6 @@ export default function StoreTemplate({ store, products, slides, categories, ini
         <section className="container mx-auto px-4 pt-6 overflow-x-auto category-scroller">
           <div className="flex space-x-[5px] px-4">
             {categories.map((category) => {
-              const categoryDisplayName = category.name.replace(/\s*\(\d+\)$/, '');
               return (
                 <div
                   key={category.id}
@@ -567,7 +566,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                         className="text-[0.8rem] font-semibold"
                         style={{ color: priceColor }}
                       >
-                        {category.id === 'all' ? 'All' : categoryDisplayName}
+                        {category.id === 'all' ? 'All' : category.name}
                       </span>
                     )}
                   </div>
@@ -578,7 +577,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                       fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
                     }}
                   >
-                    {category.id === 'all' ? 'All Products' : categoryDisplayName}
+                    {category.name}
                   </span>
                 </div>
               );
@@ -650,7 +649,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
             <div
               key={product.id}
               onClick={() => handleProductClickWithDetails(product)}
-              className="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+              className="bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
             >
               <div className="aspect-square overflow-hidden">
                 {product.images && product.images[0] && (
@@ -763,7 +762,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
               <div
                 key={`all-${product.id}`}
                 onClick={() => handleProductClickWithDetails(product)}
-                className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+                className="bg-white rounded-md shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
               >
                 <div className="aspect-square overflow-hidden">
                   {product.images && product.images[0] && (

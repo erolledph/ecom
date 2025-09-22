@@ -620,7 +620,7 @@ export function generateCategoriesWithCountSync(products: Product[]): Array<{ id
   }));
   
   return [
-    { id: 'all', name: `All Products (${products.length})`, image: '', count: products.length },
+    { id: 'all', name: 'All Products', image: '', count: products.length },
     ...categories
   ];
 }

@@ -1,11 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/useToast';
-import { updateStore } from '@/lib/store';
+import React from 'react';
 import DOMPurify from 'dompurify';
-import { Save, Code } from 'lucide-react';
+import { Code } from 'lucide-react';
 
 // Configure DOMPurify with safe HTML elements and attributes
 const ALLOWED_TAGS = [
@@ -20,22 +17,11 @@ const ALLOWED_ATTR = [
 ];
 
 interface CustomHtmlEditorProps {
-  storeId: string;
-  initialHtml?: string;
-  onSave?: (sanitizedHtml: string) => void;
+  value: string;
+  onChange: (sanitizedHtml: string) => void;
 }
 
-export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: CustomHtmlEditorProps) {
-  const { user, loading } = useAuth();
-  const { showSuccess, showError } = useToast();
-  
-  const [htmlContent, setHtmlContent] = useState(initialHtml);
-  const [isSaving, setIsSaving] = useState(false);
-
-  // Update local state when initialHtml changes
-  useEffect(() => {
-    setHtmlContent(initialHtml);
-  }, [initialHtml]);
+export default function CustomHtmlEditor({ value, onChange }: CustomHtmlEditorProps) {
 
   // Client-side HTML sanitization function
   const sanitizeHtml = (html: string): { sanitizedHtml: string; wasModified: boolean } => {
@@ -60,52 +46,14 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
     return { sanitizedHtml, wasModified };
   };
 
-  // Save HTML content with client-side sanitization
-  const handleSaveHtml = async () => {
-    if (!user) {
-      showError('You must be logged in to save custom HTML.');
-      return;
-    }
-
-    setIsSaving(true);
+  // Handle content change with sanitization
+  const handleContentChange = (newContent: string) => {
+    // Perform client-side sanitization
+    const { sanitizedHtml } = sanitizeHtml(newContent);
     
-    try {
-      // Perform client-side sanitization
-      const { sanitizedHtml, wasModified } = sanitizeHtml(htmlContent);
-      
-      // Update store with sanitized HTML
-      await updateStore(user.uid, {
-        customHtml: sanitizedHtml
-      });
-      
-      showSuccess('Custom HTML updated successfully!');
-      
-      // Call onSave callback if provided
-      if (onSave) {
-        onSave(sanitizedHtml);
-      }
-      
-      if (wasModified) {
-        setHtmlContent(sanitizedHtml); // Update editor with sanitized version
-      }
-    } catch (error: any) {
-      console.error('Save error:', error);
-      showError('Save failed: ' + error.message);
-    } finally {
-      setIsSaving(false);
-    }
+    // Call onChange with sanitized content
+    onChange(sanitizedHtml);
   };
-
-  // Show loading state while authentication is being resolved
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-center py-12">
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -126,8 +74,8 @@ export default function CustomHtmlEditor({ storeId, initialHtml = '', onSave }: 
           </label>
           <textarea
             id="customHtml"
-            value={htmlContent}
-            onChange={(e) => setHtmlContent(e.target.value)}
+            value={value}
+            onChange={(e) => handleContentChange(e.target.value)}
             rows={12}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono text-sm resize-none"
             placeholder="Enter your custom HTML here..."

@@ -4,7 +4,7 @@ import React from 'react';
 
 export default function StoreFooter() {
   return (
-    <footer className="bg-white shadow-inner rounded-t-lg mt-4 p-4 md:p-6 text-center text-gray-600">
+    <footer className="bg-white shadow-inner mt-4 p-4 md:p-6 text-center text-gray-600">
       <div className="space-y-4">
         {/* Tagline */}
         <div>

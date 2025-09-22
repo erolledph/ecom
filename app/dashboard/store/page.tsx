@@ -72,6 +72,7 @@ export default function StoreSettingsPage() {
     subscriptionEnabled: true,
     slidesEnabled: true,
     displayPriceOnProducts: true,
+    customHtml: '',
     customization: {
       storeNameFontColor: '#ffffff',
       storeBioFontColor: '#e5e7eb',
@@ -116,6 +117,7 @@ export default function StoreSettingsPage() {
             subscriptionEnabled: storeData.subscriptionEnabled !== false,
             slidesEnabled: storeData.slidesEnabled !== false,
             displayPriceOnProducts: storeData.displayPriceOnProducts !== false,
+            customHtml: storeData.customHtml || '',
             customization: {
               ...formData.customization,
               ...storeData.customization
@@ -237,6 +239,7 @@ export default function StoreSettingsPage() {
         subscriptionEnabled: formData.subscriptionEnabled,
         slidesEnabled: formData.slidesEnabled,
         displayPriceOnProducts: formData.displayPriceOnProducts,
+        customHtml: formData.customHtml,
         customization: formData.customization
       });
 
@@ -786,12 +789,8 @@ export default function StoreSettingsPage() {
         </div>
 
         <CustomHtmlEditor
-          storeId={user?.uid || ''}
-          initialHtml={store?.customHtml || ''}
-          onSave={(sanitizedHtml) => {
-            // Update local state when HTML is saved
-            setFormData(prev => ({ ...prev, customHtml: sanitizedHtml }));
-          }}
+          value={formData.customHtml}
+          onChange={(sanitizedHtml) => handleInputChange('customHtml', sanitizedHtml)}
         />
       </div>
 
