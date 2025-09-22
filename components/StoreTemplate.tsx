@@ -963,6 +963,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
         storeName={store.name}
         storeAvatar={store.avatar}
         requireNameForSubscription={store.requireNameForSubscription !== false}
+        customization={store.customization}
       />
 
       {/* Inline Styles */}

@@ -7,6 +7,18 @@ import { trackSubscriptionEvent } from '@/lib/analytics';
 import { useToast } from '@/hooks/useToast';
 import { X, Mail, User, Send } from 'lucide-react';
 
+interface StoreCustomization {
+  subscribeModalBgColor?: string;
+  subscribeModalTextColor?: string;
+  subscribeButtonBgColor?: string;
+  subscribeButtonTextColor?: string;
+  subscribeModalBorderColor?: string;
+  subscribeInputBgColor?: string;
+  subscribeInputBorderColor?: string;
+  subscribeInputTextColor?: string;
+  subscribeInputPlaceholderColor?: string;
+}
+
 interface SubscriptionModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -14,6 +26,7 @@ interface SubscriptionModalProps {
   storeName: string;
   storeAvatar?: string;
   requireNameForSubscription?: boolean;
+  customization?: StoreCustomization;
 }
 
 export default function SubscriptionModal({
@@ -22,7 +35,8 @@ export default function SubscriptionModal({
   storeId,
   storeName,
   storeAvatar,
-  requireNameForSubscription = true
+  requireNameForSubscription = true,
+  customization
 }: SubscriptionModalProps) {
   const { showSuccess, showError } = useToast();
   const [formData, setFormData] = useState({
@@ -33,10 +47,16 @@ export default function SubscriptionModal({
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [hasTrackedView, setHasTrackedView] = useState(false);
 
-  // Define color variables with fallback values
-  const modalTextColor = '#374151'; // gray-700
-  const buttonBgColor = '#4f46e5'; // indigo-600
-  const buttonTextColor = '#ffffff'; // white
+  // Define color variables with customization support and fallback values
+  const modalBgColor = customization?.subscribeModalBgColor || '#ffffff'; // white
+  const modalTextColor = customization?.subscribeModalTextColor || '#374151'; // gray-700
+  const buttonBgColor = customization?.subscribeButtonBgColor || '#4f46e5'; // indigo-600
+  const buttonTextColor = customization?.subscribeButtonTextColor || '#ffffff'; // white
+  const modalBorderColor = customization?.subscribeModalBorderColor || '#e5e7eb'; // gray-200
+  const inputBgColor = customization?.subscribeInputBgColor || '#ffffff'; // white
+  const inputBorderColor = customization?.subscribeInputBorderColor || '#d1d5db'; // gray-300
+  const inputTextColor = customization?.subscribeInputTextColor || '#374151'; // gray-700
+  const inputPlaceholderColor = customization?.subscribeInputPlaceholderColor || '#9ca3af'; // gray-400
 
   // Track modal view when it opens
   useEffect(() => {
@@ -132,12 +152,19 @@ export default function SubscriptionModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-xs w-full max-h-[80vh] overflow-hidden relative">
+      <div 
+        className="rounded-xl shadow-2xl max-w-xs w-full max-h-[80vh] overflow-hidden relative border"
+        style={{
+          backgroundColor: modalBgColor,
+          borderColor: modalBorderColor
+        }}
+      >
 
         {/* Close Button */}
         <button
           onClick={handleClose}
-          className="absolute top-3 right-3 z-20 bg-white bg-opacity-80 hover:bg-opacity-100 text-gray-600 hover:text-gray-800 rounded-full w-6 h-6 flex items-center justify-center transition-all shadow-sm"
+          className="absolute top-3 right-3 z-20 bg-opacity-80 hover:bg-opacity-100 text-gray-600 hover:text-gray-800 rounded-full w-6 h-6 flex items-center justify-center transition-all shadow-sm"
+          style={{ backgroundColor: modalBgColor }}
           aria-label="Close subscription form"
         >
           <X className="w-3 h-3" />
@@ -165,7 +192,7 @@ export default function SubscriptionModal({
             <h2 className="text-xl font-bold text-gray-900 mb-1">
               Stay Updated!
             </h2>
-            <p className="text-gray-600 text-xs leading-snug">
+            <p className="text-xs leading-snug" style={{ color: modalTextColor, opacity: 0.8 }}>
               Subscribe to <strong>{storeName}</strong> and be the first to know about new products, exclusive deals, and special offers.
             </p>
           </div>
@@ -187,8 +214,12 @@ export default function SubscriptionModal({
                   value={formData.name}
                   onChange={handleInputChange}
                   required
-                  className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-sm"
-                  style={{ color: modalTextColor }}
+                  className="w-full pl-8 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-sm"
+                  style={{ 
+                    backgroundColor: inputBgColor,
+                    borderColor: inputBorderColor,
+                    color: inputTextColor
+                  }}
                   placeholder="Enter your name"
                 />
               </div>
@@ -209,8 +240,12 @@ export default function SubscriptionModal({
                   value={formData.email}
                   onChange={handleInputChange}
                   required
-                  className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-sm"
-                  style={{ color: modalTextColor }}
+                  className="w-full pl-8 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-sm"
+                  style={{ 
+                    backgroundColor: inputBgColor,
+                    borderColor: inputBorderColor,
+                    color: inputTextColor
+                  }}
                   placeholder="Enter your email"
                 />
               </div>
@@ -243,12 +278,34 @@ export default function SubscriptionModal({
 
           {/* Footer */}
           <div className="mt-4 text-center">
-            <p className="text-xs" style={{ color: modalTextColor, opacity: 0.6 }}>
+            <p className="text-xs" style={{ color: modalTextColor, opacity: 0.7 }}>
               We respect your privacy. Unsubscribe at any time.
             </p>
           </div>
         </div>
       </div>
+      
+      {/* Custom styles for placeholder text */}
+      <style jsx>{`
+        input::placeholder {
+          color: ${inputPlaceholderColor} !important;
+          opacity: 1;
+        }
+        input::-webkit-input-placeholder {
+          color: ${inputPlaceholderColor} !important;
+        }
+        input::-moz-placeholder {
+          color: ${inputPlaceholderColor} !important;
+          opacity: 1;
+        }
+        input:-ms-input-placeholder {
+          color: ${inputPlaceholderColor} !important;
+        }
+        input:-moz-placeholder {
+          color: ${inputPlaceholderColor} !important;
+          opacity: 1;
+        }
+      `}</style>
     </div>
   );
 }

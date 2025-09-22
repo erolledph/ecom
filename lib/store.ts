@@ -90,6 +90,11 @@ export interface Store {
     subscribeModalTextColor?: string;
     subscribeButtonBgColor?: string;
     subscribeButtonTextColor?: string;
+    subscribeModalBorderColor?: string;
+    subscribeInputBgColor?: string;
+    subscribeInputBorderColor?: string;
+    subscribeInputTextColor?: string;
+    subscribeInputPlaceholderColor?: string;
     // Dashboard customization
     dashboardViewStoreButtonBgColor?: string;
     dashboardViewStoreButtonTextColor?: string;

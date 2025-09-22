@@ -4,139 +4,153 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
-import { getUserStore, updateStore, uploadStoreImage, uploadWidgetImage, uploadSubscriptionImage, Store, deleteImageFromStorage } from '@/lib/store';
+import { getUserStore, updateStore, uploadStoreImage, Store } from '@/lib/store';
 import CustomHtmlEditor from '@/components/CustomHtmlEditor';
 import Image from 'next/image';
 import { 
   Save, 
   Upload, 
   Eye, 
-  ArrowLeft,
-  Store as StoreIcon,
-  Palette,
-  Image as ImageIcon,
-  Globe,
+  Palette, 
+  Type, 
+  Layout, 
   Settings,
-  Code,
-  Smartphone,
+  Globe,
+  Plus,
+  Trash2,
+  RefreshCw,
   Monitor,
-  Tablet,
+  Smartphone,
   Users,
-  Trash2
+  Mail,
+  Image as ImageIcon,
+  MousePointer
 } from 'lucide-react';
 
 const SOCIAL_PLATFORMS = [
-  'instagram',
-  'twitter', 
-  'facebook',
-  'youtube',
-  'linkedin',
-  'tiktok',
-  'snapchat',
-  'pinterest',
-  'github',
-  'website'
+  'instagram', 'twitter', 'facebook', 'youtube', 'linkedin', 
+  'tiktok', 'snapchat', 'pinterest', 'github', 'website'
 ];
 
 const FONT_FAMILIES = [
   { name: 'Inter', value: 'Inter, system-ui, -apple-system, sans-serif' },
-  { name: 'Roboto', value: 'Roboto, system-ui, -apple-system, sans-serif' },
-  { name: 'Open Sans', value: '"Open Sans", system-ui, -apple-system, sans-serif' },
-  { name: 'Lato', value: 'Lato, system-ui, -apple-system, sans-serif' },
-  { name: 'Montserrat', value: 'Montserrat, system-ui, -apple-system, sans-serif' },
-  { name: 'Poppins', value: 'Poppins, system-ui, -apple-system, sans-serif' },
-  { name: 'Nunito', value: 'Nunito, system-ui, -apple-system, sans-serif' },
-  { name: 'Source Sans Pro', value: '"Source Sans Pro", system-ui, -apple-system, sans-serif' },
-  { name: 'Ubuntu', value: 'Ubuntu, system-ui, -apple-system, sans-serif' },
-  { name: 'Playfair Display', value: '"Playfair Display", Georgia, serif' },
-  { name: 'Merriweather', value: 'Merriweather, Georgia, serif' },
-  { name: 'Lora', value: 'Lora, Georgia, serif' }
+  { name: 'Roboto', value: 'Roboto, sans-serif' },
+  { name: 'Open Sans', value: '"Open Sans", sans-serif' },
+  { name: 'Lato', value: 'Lato, sans-serif' },
+  { name: 'Montserrat', value: 'Montserrat, sans-serif' },
+  { name: 'Poppins', value: 'Poppins, sans-serif' },
+  { name: 'Nunito', value: 'Nunito, sans-serif' },
+  { name: 'Source Sans Pro', value: '"Source Sans Pro", sans-serif' },
+  { name: 'Ubuntu', value: 'Ubuntu, sans-serif' },
+  { name: 'Raleway', value: 'Raleway, sans-serif' }
 ];
 
 const HEADER_LAYOUTS = [
-  { id: 'left-right', name: 'Avatar Left, Social Right', icon: '👤 ➡️ 📱' },
-  { id: 'right-left', name: 'Social Left, Avatar Right', icon: '📱 ➡️ 👤' },
-  { id: 'center', name: 'Centered Layout', icon: '🎯' }
+  { value: 'left-right', label: 'Avatar Left, Social Right' },
+  { value: 'right-left', label: 'Avatar Right, Social Left' },
+  { value: 'center', label: 'Centered Layout' }
 ];
 
 export default function StoreSettingsPage() {
   const { user } = useAuth();
   const router = useRouter();
-  const { showSuccess, showError, showWarning } = useToast();
+  const { showSuccess, showError, showInfo } = useToast();
+  
   const [store, setStore] = useState<Store | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('general');
 
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    headerLayout: 'left-right' as 'left-right' | 'right-left' | 'center',
-    slidesEnabled: true,
-    displayPriceOnProducts: true,
-    displayHeaderBackgroundImage: true,
-    widgetEnabled: true,
-    widgetLink: '',
-    bannerEnabled: true,
-    bannerDescription: '',
-    bannerLink: '',
-    subscriptionEnabled: true,
-    requireNameForSubscription: true,
-    customization: {
-      storeNameFontColor: '#ffffff',
-      storeBioFontColor: '#e5e7eb',
-      avatarBorderColor: '#ffffff',
-      activeCategoryBorderColor: '#6366f1',
-      fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-      headingFontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-      bodyFontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-      headingTextColor: '#1f2937',
-      bodyTextColor: '#374151',
-      mainBackgroundGradientStartColor: '#f3f4f6',
-      mainBackgroundGradientEndColor: '#f3f4f6',
-      storeBackgroundColor: '#f3f4f6',
-      currencySymbol: '$',
-      priceFontColor: '#059669',
-      slideOverlayColor: '#000000',
-      slideOverlayOpacity: 0.4,
-      slideTitleColor: '#ffffff',
-      slideDescriptionColor: '#e5e7eb',
-      storeHeaderBgColor: 'transparent',
-      categoryTextColor: '#059669',
-      categoryImageBorderColor: '#6366f1',
-      productCardBgColor: '#ffffff',
-      productCardBorderColor: '#e5e7eb',
-      productTitleColor: '#1f2937',
-      loadMoreButtonBgColor: '#4f46e5',
-      loadMoreButtonTextColor: '#ffffff',
-      clearSearchButtonBgColor: '#4f46e5',
-      clearSearchButtonTextColor: '#ffffff',
-      slidePaginationDotColor: '#ffffff',
-      slidePaginationActiveDotColor: '#ffffff',
-      subscribeModalBgColor: '#ffffff',
-      subscribeModalTextColor: '#1f2937',
-      subscribeButtonBgColor: '#4f46e5',
-      subscribeButtonTextColor: '#ffffff',
-      dashboardViewStoreButtonBgColor: '#4f46e5',
-      dashboardViewStoreButtonTextColor: '#ffffff',
-      searchInputBgColor: '#ffffff',
-      searchInputBorderColor: '#d1d5db',
-      searchInputTextColor: '#111827',
-      searchInputPlaceholderColor: '#9ca3af'
-    }
-  });
+  // General Settings
+  const [storeName, setStoreName] = useState('');
+  const [storeDescription, setStoreDescription] = useState('');
+  const [headerLayout, setHeaderLayout] = useState<'left-right' | 'right-left' | 'center'>('left-right');
+  const [isActive, setIsActive] = useState(true);
 
-  const [socialLinks, setSocialLinks] = useState<Array<{ platform: string; url: string }>>([]);
+  // Images
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
-  const [widgetFile, setWidgetFile] = useState<File | null>(null);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
+  const [widgetFile, setWidgetFile] = useState<File | null>(null);
   const [subscriptionFile, setSubscriptionFile] = useState<File | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState('');
-  const [backgroundPreview, setBackgroundPreview] = useState('');
-  const [widgetPreview, setWidgetPreview] = useState('');
-  const [bannerPreview, setBannerPreview] = useState('');
-  const [subscriptionPreview, setSubscriptionPreview] = useState('');
+
+  // Social Links
+  const [socialLinks, setSocialLinks] = useState<Array<{ platform: string; url: string }>>([]);
+
+  // Typography & Colors
+  const [fontFamily, setFontFamily] = useState('');
+  const [headingFontFamily, setHeadingFontFamily] = useState('');
+  const [bodyFontFamily, setBodyFontFamily] = useState('');
+  const [headingTextColor, setHeadingTextColor] = useState('#1f2937');
+  const [bodyTextColor, setBodyTextColor] = useState('#374151');
+  const [storeNameFontColor, setStoreNameFontColor] = useState('#ffffff');
+  const [storeBioFontColor, setStoreBioFontColor] = useState('#e5e7eb');
+
+  // Layout & Background
+  const [storeBackgroundColor, setStoreBackgroundColor] = useState('#f3f4f6');
+  const [mainBackgroundGradientStartColor, setMainBackgroundGradientStartColor] = useState('');
+  const [mainBackgroundGradientEndColor, setMainBackgroundGradientEndColor] = useState('');
+  const [storeHeaderBgColor, setStoreHeaderBgColor] = useState('');
+
+  // Avatar & Category Borders
+  const [avatarBorderColor, setAvatarBorderColor] = useState('#ffffff');
+  const [activeCategoryBorderColor, setActiveCategoryBorderColor] = useState('#6366f1');
+  const [categoryTextColor, setCategoryTextColor] = useState('#059669');
+  const [categoryImageBorderColor, setCategoryImageBorderColor] = useState('');
+
+  // Product Cards
+  const [productCardBgColor, setProductCardBgColor] = useState('#ffffff');
+  const [productCardBorderColor, setProductCardBorderColor] = useState('');
+  const [productTitleColor, setProductTitleColor] = useState('#1f2937');
+  const [priceFontColor, setPriceFontColor] = useState('#059669');
+  const [currencySymbol, setCurrencySymbol] = useState('$');
+
+  // Buttons & CTAs
+  const [loadMoreButtonBgColor, setLoadMoreButtonBgColor] = useState('#4f46e5');
+  const [loadMoreButtonTextColor, setLoadMoreButtonTextColor] = useState('#ffffff');
+  const [clearSearchButtonBgColor, setClearSearchButtonBgColor] = useState('#4f46e5');
+  const [clearSearchButtonTextColor, setClearSearchButtonTextColor] = useState('#ffffff');
+  const [dashboardViewStoreButtonBgColor, setDashboardViewStoreButtonBgColor] = useState('#4f46e5');
+  const [dashboardViewStoreButtonTextColor, setDashboardViewStoreButtonTextColor] = useState('#ffffff');
+
+  // Search Input
+  const [searchInputBgColor, setSearchInputBgColor] = useState('#ffffff');
+  const [searchInputBorderColor, setSearchInputBorderColor] = useState('#d1d5db');
+  const [searchInputTextColor, setSearchInputTextColor] = useState('#111827');
+  const [searchInputPlaceholderColor, setSearchInputPlaceholderColor] = useState('#9ca3af');
+
+  // Slides
+  const [slideOverlayColor, setSlideOverlayColor] = useState('#000000');
+  const [slideOverlayOpacity, setSlideOverlayOpacity] = useState(0.4);
+  const [slideTitleColor, setSlideTitleColor] = useState('#ffffff');
+  const [slideDescriptionColor, setSlideDescriptionColor] = useState('#e5e7eb');
+  const [slidePaginationDotColor, setSlidePaginationDotColor] = useState('#ffffff');
+  const [slidePaginationActiveDotColor, setSlidePaginationActiveDotColor] = useState('#ffffff');
+
+  // Subscription Modal
+  const [subscribeModalBgColor, setSubscribeModalBgColor] = useState('#ffffff');
+  const [subscribeModalTextColor, setSubscribeModalTextColor] = useState('#374151');
+  const [subscribeButtonBgColor, setSubscribeButtonBgColor] = useState('#4f46e5');
+  const [subscribeButtonTextColor, setSubscribeButtonTextColor] = useState('#ffffff');
+  const [subscribeModalBorderColor, setSubscribeModalBorderColor] = useState('#e5e7eb');
+  const [subscribeInputBgColor, setSubscribeInputBgColor] = useState('#ffffff');
+  const [subscribeInputBorderColor, setSubscribeInputBorderColor] = useState('#d1d5db');
+  const [subscribeInputTextColor, setSubscribeInputTextColor] = useState('#374151');
+  const [subscribeInputPlaceholderColor, setSubscribeInputPlaceholderColor] = useState('#9ca3af');
+
+  // Feature Toggles
+  const [displayPriceOnProducts, setDisplayPriceOnProducts] = useState(true);
+  const [displayHeaderBackgroundImage, setDisplayHeaderBackgroundImage] = useState(true);
+  const [slidesEnabled, setSlidesEnabled] = useState(true);
+  const [widgetEnabled, setWidgetEnabled] = useState(true);
+  const [bannerEnabled, setBannerEnabled] = useState(true);
+  const [subscriptionEnabled, setSubscriptionEnabled] = useState(true);
+  const [requireNameForSubscription, setRequireNameForSubscription] = useState(true);
+
+  // Widget & Banner
+  const [widgetLink, setWidgetLink] = useState('');
+  const [bannerDescription, setBannerDescription] = useState('');
+  const [bannerLink, setBannerLink] = useState('');
 
   useEffect(() => {
     const fetchStore = async () => {
@@ -146,31 +160,93 @@ export default function StoreSettingsPage() {
         const storeData = await getUserStore(user.uid);
         if (storeData) {
           setStore(storeData);
-          setFormData({
-            name: storeData.name,
-            description: storeData.description,
-            headerLayout: storeData.headerLayout || 'left-right',
-            slidesEnabled: storeData.slidesEnabled !== false,
-            displayPriceOnProducts: storeData.displayPriceOnProducts !== false,
-            displayHeaderBackgroundImage: storeData.displayHeaderBackgroundImage !== false,
-            widgetEnabled: storeData.widgetEnabled !== false,
-            widgetLink: storeData.widgetLink || '',
-            bannerEnabled: storeData.bannerEnabled !== false,
-            bannerDescription: storeData.bannerDescription || '',
-            bannerLink: storeData.bannerLink || '',
-            subscriptionEnabled: storeData.subscriptionEnabled !== false,
-            requireNameForSubscription: storeData.requireNameForSubscription !== false,
-            customization: {
-              ...formData.customization,
-              ...storeData.customization
-            }
-          });
+          
+          // General Settings
+          setStoreName(storeData.name || '');
+          setStoreDescription(storeData.description || '');
+          setHeaderLayout(storeData.headerLayout || 'left-right');
+          setIsActive(storeData.isActive !== false);
+          
+          // Social Links
           setSocialLinks(storeData.socialLinks || []);
-          setAvatarPreview(storeData.avatar || '');
-          setBackgroundPreview(storeData.backgroundImage || '');
-          setWidgetPreview(storeData.widgetImage || '');
-          setBannerPreview(storeData.bannerImage || '');
-          setSubscriptionPreview(storeData.subscriptionBackgroundImage || '');
+          
+          // Feature Toggles
+          setDisplayPriceOnProducts(storeData.displayPriceOnProducts !== false);
+          setDisplayHeaderBackgroundImage(storeData.displayHeaderBackgroundImage !== false);
+          setSlidesEnabled(storeData.slidesEnabled !== false);
+          setWidgetEnabled(storeData.widgetEnabled !== false);
+          setBannerEnabled(storeData.bannerEnabled !== false);
+          setSubscriptionEnabled(storeData.subscriptionEnabled !== false);
+          setRequireNameForSubscription(storeData.requireNameForSubscription !== false);
+          
+          // Widget & Banner
+          setWidgetLink(storeData.widgetLink || '');
+          setBannerDescription(storeData.bannerDescription || '');
+          setBannerLink(storeData.bannerLink || '');
+          
+          // Customization
+          const customization = storeData.customization || {};
+          
+          // Typography & Colors
+          setFontFamily(customization.fontFamily || '');
+          setHeadingFontFamily(customization.headingFontFamily || '');
+          setBodyFontFamily(customization.bodyFontFamily || '');
+          setHeadingTextColor(customization.headingTextColor || '#1f2937');
+          setBodyTextColor(customization.bodyTextColor || '#374151');
+          setStoreNameFontColor(customization.storeNameFontColor || '#ffffff');
+          setStoreBioFontColor(customization.storeBioFontColor || '#e5e7eb');
+          
+          // Layout & Background
+          setStoreBackgroundColor(customization.storeBackgroundColor || '#f3f4f6');
+          setMainBackgroundGradientStartColor(customization.mainBackgroundGradientStartColor || '');
+          setMainBackgroundGradientEndColor(customization.mainBackgroundGradientEndColor || '');
+          setStoreHeaderBgColor(customization.storeHeaderBgColor || '');
+          
+          // Avatar & Category Borders
+          setAvatarBorderColor(customization.avatarBorderColor || '#ffffff');
+          setActiveCategoryBorderColor(customization.activeCategoryBorderColor || '#6366f1');
+          setCategoryTextColor(customization.categoryTextColor || '#059669');
+          setCategoryImageBorderColor(customization.categoryImageBorderColor || '');
+          
+          // Product Cards
+          setProductCardBgColor(customization.productCardBgColor || '#ffffff');
+          setProductCardBorderColor(customization.productCardBorderColor || '');
+          setProductTitleColor(customization.productTitleColor || '#1f2937');
+          setPriceFontColor(customization.priceFontColor || '#059669');
+          setCurrencySymbol(customization.currencySymbol || '$');
+          
+          // Buttons & CTAs
+          setLoadMoreButtonBgColor(customization.loadMoreButtonBgColor || '#4f46e5');
+          setLoadMoreButtonTextColor(customization.loadMoreButtonTextColor || '#ffffff');
+          setClearSearchButtonBgColor(customization.clearSearchButtonBgColor || '#4f46e5');
+          setClearSearchButtonTextColor(customization.clearSearchButtonTextColor || '#ffffff');
+          setDashboardViewStoreButtonBgColor(customization.dashboardViewStoreButtonBgColor || '#4f46e5');
+          setDashboardViewStoreButtonTextColor(customization.dashboardViewStoreButtonTextColor || '#ffffff');
+          
+          // Search Input
+          setSearchInputBgColor(customization.searchInputBgColor || '#ffffff');
+          setSearchInputBorderColor(customization.searchInputBorderColor || '#d1d5db');
+          setSearchInputTextColor(customization.searchInputTextColor || '#111827');
+          setSearchInputPlaceholderColor(customization.searchInputPlaceholderColor || '#9ca3af');
+          
+          // Slides
+          setSlideOverlayColor(customization.slideOverlayColor || '#000000');
+          setSlideOverlayOpacity(customization.slideOverlayOpacity || 0.4);
+          setSlideTitleColor(customization.slideTitleColor || '#ffffff');
+          setSlideDescriptionColor(customization.slideDescriptionColor || '#e5e7eb');
+          setSlidePaginationDotColor(customization.slidePaginationDotColor || '#ffffff');
+          setSlidePaginationActiveDotColor(customization.slidePaginationActiveDotColor || '#ffffff');
+          
+          // Subscription Modal
+          setSubscribeModalBgColor(customization.subscribeModalBgColor || '#ffffff');
+          setSubscribeModalTextColor(customization.subscribeModalTextColor || '#374151');
+          setSubscribeButtonBgColor(customization.subscribeButtonBgColor || '#4f46e5');
+          setSubscribeButtonTextColor(customization.subscribeButtonTextColor || '#ffffff');
+          setSubscribeModalBorderColor(customization.subscribeModalBorderColor || '#e5e7eb');
+          setSubscribeInputBgColor(customization.subscribeInputBgColor || '#ffffff');
+          setSubscribeInputBorderColor(customization.subscribeInputBorderColor || '#d1d5db');
+          setSubscribeInputTextColor(customization.subscribeInputTextColor || '#374151');
+          setSubscribeInputPlaceholderColor(customization.subscribeInputPlaceholderColor || '#9ca3af');
         }
       } catch (error) {
         console.error('Error fetching store:', error);
@@ -181,202 +257,209 @@ export default function StoreSettingsPage() {
     };
 
     fetchStore();
-  }, [user]);
+  }, [user, showError]);
 
-  // NEW FUNCTION: Handle image removal
-  const handleRemoveImage = async (type: 'avatar' | 'background' | 'widget' | 'banner' | 'subscription', imageUrl: string) => {
+  const handleSaveStore = async () => {
     if (!user || !store) return;
-
-    if (!window.confirm('Are you sure you want to remove this image? This action cannot be undone.')) {
-      return;
-    }
-
-    try {
-      // Delete from Firebase Storage
-      await deleteImageFromStorage(imageUrl);
-
-      // Update Firestore to clear the image URL and reset local state
-      let updateField: Partial<Store> = {};
-      switch (type) {
-        case 'avatar':
-          updateField = { avatar: '' };
-          setAvatarPreview('');
-          setAvatarFile(null);
-          break;
-        case 'background':
-          updateField = { backgroundImage: '' };
-          setBackgroundPreview('');
-          setBackgroundFile(null);
-          break;
-        case 'widget':
-          updateField = { widgetImage: '' };
-          setWidgetPreview('');
-          setWidgetFile(null);
-          break;
-        case 'banner':
-          updateField = { bannerImage: '' };
-          setBannerPreview('');
-          setBannerFile(null);
-          break;
-        case 'subscription':
-          updateField = { subscriptionBackgroundImage: '' };
-          setSubscriptionPreview('');
-          setSubscriptionFile(null);
-          break;
-      }
-      await updateStore(user.uid, updateField);
-      showSuccess('Image removed successfully!');
-      
-      // Update local store state
-      setStore(prev => prev ? { ...prev, ...updateField } : null);
-    } catch (error) {
-      console.error('Error removing image:', error);
-      showError('Failed to remove image. Please try again.');
-    }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    if (name.startsWith('customization.')) {
-      const customizationKey = name.replace('customization.', '');
-      setFormData(prev => ({
-        ...prev,
-        customization: {
-          ...prev.customization,
-          [customizationKey]: type === 'number' ? parseFloat(value) : value
-        }
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
-      }));
-    }
-  };
-
-  const handleImageChange = (type: 'avatar' | 'background' | 'widget' | 'banner' | 'subscription', e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const preview = URL.createObjectURL(file);
-      
-      switch (type) {
-        case 'avatar':
-          setAvatarFile(file);
-          setAvatarPreview(preview);
-          break;
-        case 'background':
-          setBackgroundFile(file);
-          setBackgroundPreview(preview);
-          break;
-        case 'widget':
-          setWidgetFile(file);
-          setWidgetPreview(preview);
-          break;
-        case 'banner':
-          setBannerFile(file);
-          setBannerPreview(preview);
-          break;
-        case 'subscription':
-          setSubscriptionFile(file);
-          setSubscriptionPreview(preview);
-          break;
-      }
-    }
-  };
-
-  const handleSocialLinkChange = (index: number, field: 'platform' | 'url', value: string) => {
-    setSocialLinks(prev => prev.map((link, i) => 
-      i === index ? { ...link, [field]: value } : link
-    ));
-  };
-
-  const addSocialLink = () => {
-    setSocialLinks(prev => [...prev, { platform: 'instagram', url: '' }]);
-  };
-
-  const removeSocialLink = (index: number) => {
-    setSocialLinks(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user || !store) return;
-
+    
     setSaving(true);
-
+    
     try {
-      let avatarUrl = store.avatar || '';
-      let backgroundUrl = store.backgroundImage || '';
-      let widgetUrl = store.widgetImage || '';
-      let bannerUrl = store.bannerImage || '';
-      let subscriptionUrl = store.subscriptionBackgroundImage || '';
-
-      // Upload images if new files are selected
+      let avatarUrl = store.avatar;
+      let backgroundUrl = store.backgroundImage;
+      let bannerUrl = store.bannerImage;
+      let widgetUrl = store.widgetImage;
+      let subscriptionUrl = store.subscriptionBackgroundImage;
+      
+      // Upload new images if selected
       if (avatarFile) {
         avatarUrl = await uploadStoreImage(user.uid, avatarFile, 'avatar');
-      } else if (store.avatar && !avatarPreview) {
-        avatarUrl = '';
       }
       if (backgroundFile) {
         backgroundUrl = await uploadStoreImage(user.uid, backgroundFile, 'background');
-      } else if (store.backgroundImage && !backgroundPreview) {
-        backgroundUrl = '';
-      }
-      if (widgetFile) {
-        widgetUrl = await uploadWidgetImage(user.uid, widgetFile);
-      } else if (store.widgetImage && !widgetPreview) {
-        widgetUrl = '';
       }
       if (bannerFile) {
         bannerUrl = await uploadStoreImage(user.uid, bannerFile, 'banner');
-      } else if (store.bannerImage && !bannerPreview) {
-        bannerUrl = '';
+      }
+      if (widgetFile) {
+        widgetUrl = await uploadStoreImage(user.uid, widgetFile, 'avatar'); // Using avatar type for widget
       }
       if (subscriptionFile) {
-        subscriptionUrl = await uploadSubscriptionImage(user.uid, subscriptionFile);
-      } else if (store.subscriptionBackgroundImage && !subscriptionPreview) {
-        subscriptionUrl = '';
+        subscriptionUrl = await uploadStoreImage(user.uid, subscriptionFile, 'background');
       }
-
-      const updateData = {
-        ...formData,
+      
+      const updates = {
+        name: storeName,
+        description: storeDescription,
+        headerLayout,
+        isActive,
         avatar: avatarUrl,
         backgroundImage: backgroundUrl,
-        widgetImage: widgetUrl,
         bannerImage: bannerUrl,
+        widgetImage: widgetUrl,
         subscriptionBackgroundImage: subscriptionUrl,
-        requireNameForSubscription: true,
-        socialLinks: socialLinks.filter(link => link.url.trim() !== '')
+        socialLinks,
+        displayPriceOnProducts,
+        displayHeaderBackgroundImage,
+        slidesEnabled,
+        widgetEnabled,
+        bannerEnabled,
+        subscriptionEnabled,
+        requireNameForSubscription,
+        widgetLink,
+        bannerDescription,
+        bannerLink,
+        customization: {
+          fontFamily,
+          headingFontFamily,
+          bodyFontFamily,
+          headingTextColor,
+          bodyTextColor,
+          storeNameFontColor,
+          storeBioFontColor,
+          storeBackgroundColor,
+          mainBackgroundGradientStartColor,
+          mainBackgroundGradientEndColor,
+          storeHeaderBgColor,
+          avatarBorderColor,
+          activeCategoryBorderColor,
+          categoryTextColor,
+          categoryImageBorderColor,
+          productCardBgColor,
+          productCardBorderColor,
+          productTitleColor,
+          priceFontColor,
+          currencySymbol,
+          loadMoreButtonBgColor,
+          loadMoreButtonTextColor,
+          clearSearchButtonBgColor,
+          clearSearchButtonTextColor,
+          dashboardViewStoreButtonBgColor,
+          dashboardViewStoreButtonTextColor,
+          searchInputBgColor,
+          searchInputBorderColor,
+          searchInputTextColor,
+          searchInputPlaceholderColor,
+          slideOverlayColor,
+          slideOverlayOpacity,
+          slideTitleColor,
+          slideDescriptionColor,
+          slidePaginationDotColor,
+          slidePaginationActiveDotColor,
+          subscribeModalBgColor,
+          subscribeModalTextColor,
+          subscribeButtonBgColor,
+          subscribeButtonTextColor,
+          subscribeModalBorderColor,
+          subscribeInputBgColor,
+          subscribeInputBorderColor,
+          subscribeInputTextColor,
+          subscribeInputPlaceholderColor
+        }
       };
-
-      await updateStore(user.uid, updateData);
-      showSuccess('Store settings updated successfully!');
       
-      // Update local store state
-      setStore(prev => prev ? { ...prev, ...updateData } : null);
+      await updateStore(user.uid, updates);
+      showSuccess('Store settings saved successfully!');
+      
+      // Reset file inputs
+      setAvatarFile(null);
+      setBackgroundFile(null);
+      setBannerFile(null);
+      setWidgetFile(null);
+      setSubscriptionFile(null);
+      
+      // Refresh store data
+      const updatedStore = await getUserStore(user.uid);
+      if (updatedStore) {
+        setStore(updatedStore);
+      }
+      
     } catch (error) {
-      console.error('Error updating store:', error);
-      showError('Failed to update store settings. Please try again.');
+      console.error('Error saving store:', error);
+      showError('Failed to save store settings');
     } finally {
       setSaving(false);
     }
   };
 
-  const handleCustomHtmlSave = (sanitizedHtml: string) => {
-    // Update local store state with the new custom HTML
-    setStore(prev => prev ? { ...prev, customHtml: sanitizedHtml } : null);
-    showSuccess('Custom HTML updated successfully!');
+  const addSocialLink = () => {
+    setSocialLinks([...socialLinks, { platform: 'instagram', url: '' }]);
   };
+
+  const removeSocialLink = (index: number) => {
+    setSocialLinks(socialLinks.filter((_, i) => i !== index));
+  };
+
+  const updateSocialLink = (index: number, field: 'platform' | 'url', value: string) => {
+    const updated = [...socialLinks];
+    updated[index][field] = value;
+    setSocialLinks(updated);
+  };
+
+  const ColorInput = ({ label, value, onChange, description }: {
+    label: string;
+    value: string;
+    onChange: (value: string) => void;
+    description?: string;
+  }) => (
+    <div className="space-y-2">
+      <label className="block text-sm font-medium text-gray-700">{label}</label>
+      <div className="flex space-x-2">
+        <input
+          type="color"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
+        />
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          placeholder="#000000"
+        />
+      </div>
+      {description && <p className="text-xs text-gray-500">{description}</p>}
+    </div>
+  );
+
+  const ImageUpload = ({ label, currentImage, onFileChange, description }: {
+    label: string;
+    currentImage?: string;
+    onFileChange: (file: File | null) => void;
+    description?: string;
+  }) => (
+    <div className="space-y-2">
+      <label className="block text-sm font-medium text-gray-700">{label}</label>
+      {currentImage && (
+        <div className="mb-2">
+          <Image
+            src={currentImage}
+            alt={label}
+            width={100}
+            height={100}
+            className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+          />
+        </div>
+      )}
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => onFileChange(e.target.files?.[0] || null)}
+        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+      />
+      {description && <p className="text-xs text-gray-500">{description}</p>}
+    </div>
+  );
 
   if (loading) {
     return (
       <div className="space-y-6">
         <div className="animate-pulse">
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
+          <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+          <div className="bg-white rounded-lg shadow p-6">
             <div className="space-y-4">
-              {[1, 2, 3, 4].map((i) => (
+              {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className="h-10 bg-gray-200 rounded"></div>
               ))}
             </div>
@@ -387,966 +470,193 @@ export default function StoreSettingsPage() {
   }
 
   const tabs = [
-    { id: 'general', name: 'General', icon: StoreIcon },
-    { id: 'appearance', name: 'Appearance', icon: Palette },
-    { id: 'images', name: 'Images', icon: ImageIcon },
-    { id: 'features', name: 'Features', icon: Settings },
-    { id: 'subscriptions', name: 'Subscriptions', icon: Users },
-    { id: 'custom-html', name: 'Custom HTML', icon: Code },
-    { id: 'social', name: 'Social Links', icon: Globe }
+    { id: 'general', label: 'General', icon: Settings },
+    { id: 'appearance', label: 'Appearance', icon: Palette },
+    { id: 'typography', label: 'Typography', icon: Type },
+    { id: 'layout', label: 'Layout', icon: Layout },
+    { id: 'features', label: 'Features', icon: Monitor },
+    { id: 'subscription', label: 'Subscription', icon: Users },
+    { id: 'custom-html', label: 'Custom HTML', icon: Globe }
   ];
 
   return (
     <div className="space-y-6 md:space-y-8">
       {/* Header */}
       <div className="p-6">
-        <div className="flex items-center mb-4">
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="mr-4 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div className="flex-1">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Store Settings</h1>
-            <p className="text-gray-600 mt-1">Customize your store appearance and functionality</p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-primary-100 rounded-lg">
+              <Settings className="w-7 h-7 text-primary-600" />
+            </div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Store Settings</h1>
+              <p className="text-gray-600 mt-1">Customize your store appearance and functionality</p>
+            </div>
           </div>
-          {store && (
-            <a
-              href={`/${store.slug}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+          
+          <div className="flex space-x-3">
+            {store && (
+              <a
+                href={`/${store.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                Preview Store
+              </a>
+            )}
+            <button
+              onClick={handleSaveStore}
+              disabled={saving}
+              className="flex items-center px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              <Eye className="w-4 h-4 mr-2" />
-              Preview Store
-            </a>
-          )}
+              {saving ? (
+                <>
+                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  Save Changes
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="overflow-hidden">
+      <div className="px-6">
         <div className="border-b border-gray-200">
-          <nav className="flex overflow-x-auto">
+          <nav className="-mb-px flex space-x-8 overflow-x-auto">
             {tabs.map((tab) => {
-              const IconComponent = tab.icon;
+              const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center px-6 py-4 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                  className={`flex items-center py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                     activeTab === tab.id
-                      ? 'border-primary-500 text-primary-600 bg-primary-50'
+                      ? 'border-primary-500 text-primary-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
-                  <IconComponent className="w-4 h-4 mr-2" />
-                  {tab.name}
+                  <Icon className="w-4 h-4 mr-2" />
+                  {tab.label}
                 </button>
               );
             })}
           </nav>
         </div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="p-6">
-          {/* General Tab */}
-          {activeTab === 'general' && (
-            <div className="space-y-6">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                  Store Name *
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  required
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                  placeholder="My Awesome Store"
-                />
+      {/* Tab Content */}
+      <div className="px-6">
+        {activeTab === 'general' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Store Name</label>
+                  <input
+                    type="text"
+                    value={storeName}
+                    onChange={(e) => setStoreName(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Header Layout</label>
+                  <select
+                    value={headerLayout}
+                    onChange={(e) => setHeaderLayout(e.target.value as any)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  >
+                    {HEADER_LAYOUTS.map((layout) => (
+                      <option key={layout.value} value={layout.value}>
+                        {layout.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-
-              <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-                  Store Description *
-                </label>
+              
+              <div className="mt-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Store Description</label>
                 <textarea
-                  id="description"
-                  name="description"
-                  required
-                  rows={4}
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors resize-none"
-                  placeholder="Welcome to my store! Discover amazing products..."
+                  value={storeDescription}
+                  onChange={(e) => setStoreDescription(e.target.value)}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
                 />
               </div>
 
-              <div>
-                <label htmlFor="headerLayout" className="block text-sm font-medium text-gray-700 mb-3">
-                  Header Layout
+              <div className="mt-6">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={isActive}
+                    onChange={(e) => setIsActive(e.target.checked)}
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  />
+                  <span className="ml-2 text-sm text-gray-900">Store is active and visible to visitors</span>
                 </label>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {HEADER_LAYOUTS.map((layout) => (
-                    <label
-                      key={layout.id}
-                      className={`relative flex items-center p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-                        formData.headerLayout === layout.id
-                          ? 'border-primary-500 bg-primary-50'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="headerLayout"
-                        value={layout.id}
-                        checked={formData.headerLayout === layout.id}
-                        onChange={handleInputChange}
-                        className="sr-only"
-                      />
-                      <div className="flex-1">
-                        <div className="text-2xl mb-2">{layout.icon}</div>
-                        <div className="text-sm font-medium text-gray-900">{layout.name}</div>
-                      </div>
-                    </label>
-                  ))}
-                </div>
               </div>
             </div>
-          )}
 
-          {/* Appearance Tab */}
-          {activeTab === 'appearance' && (
-            <div className="space-y-6">
-              {/* Header Colors */}
-              <div>
-                <h4 className="text-md font-medium text-gray-900 mb-4">Header Colors</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="customization.storeHeaderBgColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Header Background Color
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.storeHeaderBgColor"
-                      name="customization.storeHeaderBgColor"
-                      value={formData.customization.storeHeaderBgColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-                </div>
-              </div>
-
+            {/* Images */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Store Images</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="customization.headingFontFamily" className="block text-sm font-medium text-gray-700 mb-2">
-                    Heading Font Family
-                  </label>
-                  <select
-                    id="customization.headingFontFamily"
-                    name="customization.headingFontFamily"
-                    value={formData.customization.headingFontFamily}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                  >
-                    {FONT_FAMILIES.map((font) => (
-                      <option key={font.value} value={font.value}>
-                        {font.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="customization.bodyFontFamily" className="block text-sm font-medium text-gray-700 mb-2">
-                    Body Font Family
-                  </label>
-                  <select
-                    id="customization.bodyFontFamily"
-                    name="customization.bodyFontFamily"
-                    value={formData.customization.bodyFontFamily}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                  >
-                    {FONT_FAMILIES.map((font) => (
-                      <option key={font.value} value={font.value}>
-                        {font.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Text Colors */}
-              <div>
-                <h4 className="text-md font-medium text-gray-900 mb-4">Text Colors</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="customization.storeNameFontColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Store Name Color
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.storeNameFontColor"
-                      name="customization.storeNameFontColor"
-                      value={formData.customization.storeNameFontColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="customization.storeBioFontColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Store Bio Color
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.storeBioFontColor"
-                      name="customization.storeBioFontColor"
-                      value={formData.customization.storeBioFontColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Category & Product Colors */}
-              <div>
-                <h4 className="text-md font-medium text-gray-900 mb-4">Category & Product Colors</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="customization.categoryTextColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Category Text Color
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.categoryTextColor"
-                      name="customization.categoryTextColor"
-                      value={formData.customization.categoryTextColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="customization.categoryImageBorderColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Category Image Border Color
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.categoryImageBorderColor"
-                      name="customization.categoryImageBorderColor"
-                      value={formData.customization.categoryImageBorderColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="customization.productCardBgColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Product Card Background
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.productCardBgColor"
-                      name="customization.productCardBgColor"
-                      value={formData.customization.productCardBgColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="customization.productCardBorderColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Product Card Border Color
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.productCardBorderColor"
-                      name="customization.productCardBorderColor"
-                      value={formData.customization.productCardBorderColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="customization.productTitleColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Product Title Color
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.productTitleColor"
-                      name="customization.productTitleColor"
-                      value={formData.customization.productTitleColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="customization.priceFontColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Price Color
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.priceFontColor"
-                      name="customization.priceFontColor"
-                      value={formData.customization.priceFontColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Button Colors */}
-              <div>
-                <h4 className="text-md font-medium text-gray-900 mb-4">Button Colors</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="customization.loadMoreButtonBgColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Load More Button Background
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.loadMoreButtonBgColor"
-                      name="customization.loadMoreButtonBgColor"
-                      value={formData.customization.loadMoreButtonBgColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="customization.loadMoreButtonTextColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Load More Button Text Color
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.loadMoreButtonTextColor"
-                      name="customization.loadMoreButtonTextColor"
-                      value={formData.customization.loadMoreButtonTextColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="customization.clearSearchButtonBgColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Clear Search Button Background
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.clearSearchButtonBgColor"
-                      name="customization.clearSearchButtonBgColor"
-                      value={formData.customization.clearSearchButtonBgColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="customization.clearSearchButtonTextColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Clear Search Button Text Color
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.clearSearchButtonTextColor"
-                      name="customization.clearSearchButtonTextColor"
-                      value={formData.customization.clearSearchButtonTextColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="customization.dashboardViewStoreButtonBgColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Dashboard View Store Button Background
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.dashboardViewStoreButtonBgColor"
-                      name="customization.dashboardViewStoreButtonBgColor"
-                      value={formData.customization.dashboardViewStoreButtonBgColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="customization.dashboardViewStoreButtonTextColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Dashboard View Store Button Text Color
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.dashboardViewStoreButtonTextColor"
-                      name="customization.dashboardViewStoreButtonTextColor"
-                      value={formData.customization.dashboardViewStoreButtonTextColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Search Input Colors */}
-              <div>
-                <h4 className="text-md font-medium text-gray-900 mb-4">Search Input Colors</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="customization.searchInputBgColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Search Input Background
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.searchInputBgColor"
-                      name="customization.searchInputBgColor"
-                      value={formData.customization.searchInputBgColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="customization.searchInputBorderColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Search Input Border Color
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.searchInputBorderColor"
-                      name="customization.searchInputBorderColor"
-                      value={formData.customization.searchInputBorderColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="customization.searchInputTextColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Search Input Text Color
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.searchInputTextColor"
-                      name="customization.searchInputTextColor"
-                      value={formData.customization.searchInputTextColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="customization.searchInputPlaceholderColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Search Input Placeholder Color
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.searchInputPlaceholderColor"
-                      name="customization.searchInputPlaceholderColor"
-                      value={formData.customization.searchInputPlaceholderColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Slide Pagination Colors */}
-              <div>
-                <h4 className="text-md font-medium text-gray-900 mb-4">Slide Pagination Colors</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="customization.slidePaginationDotColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Pagination Dot Color
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.slidePaginationDotColor"
-                      name="customization.slidePaginationDotColor"
-                      value={formData.customization.slidePaginationDotColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="customization.slidePaginationActiveDotColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Active Pagination Dot Color
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.slidePaginationActiveDotColor"
-                      name="customization.slidePaginationActiveDotColor"
-                      value={formData.customization.slidePaginationActiveDotColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Subscription Modal Colors */}
-              <div>
-                <h4 className="text-md font-medium text-gray-900 mb-4">Subscription Modal Colors</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="customization.subscribeModalBgColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Modal Background Color
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.subscribeModalBgColor"
-                      name="customization.subscribeModalBgColor"
-                      value={formData.customization.subscribeModalBgColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="customization.subscribeModalTextColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Modal Text Color
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.subscribeModalTextColor"
-                      name="customization.subscribeModalTextColor"
-                      value={formData.customization.subscribeModalTextColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="customization.subscribeButtonBgColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Subscribe Button Background
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.subscribeButtonBgColor"
-                      name="customization.subscribeButtonBgColor"
-                      value={formData.customization.subscribeButtonBgColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="customization.subscribeButtonTextColor" className="block text-sm font-medium text-gray-700 mb-2">
-                      Subscribe Button Text Color
-                    </label>
-                    <input
-                      type="color"
-                      id="customization.subscribeButtonTextColor"
-                      name="customization.subscribeButtonTextColor"
-                      value={formData.customization.subscribeButtonTextColor}
-                      onChange={handleInputChange}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Currency Symbol */}
-              <div>
-                <h4 className="text-md font-medium text-gray-900 mb-4">Currency Settings</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="customization.currencySymbol" className="block text-sm font-medium text-gray-700 mb-2">
-                      Currency Symbol
-                    </label>
-                    <input
-                      type="text"
-                      id="customization.currencySymbol"
-                      name="customization.currencySymbol"
-                      value={formData.customization.currencySymbol}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                      placeholder="$"
-                      maxLength={3}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="customization.mainBackgroundGradientStartColor" className="block text-sm font-medium text-gray-700 mb-2">
-                    Background Gradient Start
-                  </label>
-                  <input
-                    type="color"
-                    id="customization.mainBackgroundGradientStartColor"
-                    name="customization.mainBackgroundGradientStartColor"
-                    value={formData.customization.mainBackgroundGradientStartColor}
-                    onChange={handleInputChange}
-                    className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="customization.mainBackgroundGradientEndColor" className="block text-sm font-medium text-gray-700 mb-2">
-                    Background Gradient End
-                  </label>
-                  <input
-                    type="color"
-                    id="customization.mainBackgroundGradientEndColor"
-                    name="customization.mainBackgroundGradientEndColor"
-                    value={formData.customization.mainBackgroundGradientEndColor}
-                    onChange={handleInputChange}
-                    className="w-full h-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                  />
-                </div>
+                <ImageUpload
+                  label="Store Avatar"
+                  currentImage={store?.avatar}
+                  onFileChange={setAvatarFile}
+                  description="Square image recommended (200x200px)"
+                />
+                <ImageUpload
+                  label="Header Background"
+                  currentImage={store?.backgroundImage}
+                  onFileChange={setBackgroundFile}
+                  description="Wide image recommended (1200x400px)"
+                />
+                <ImageUpload
+                  label="Widget Image"
+                  currentImage={store?.widgetImage}
+                  onFileChange={setWidgetFile}
+                  description="Small square image for floating widget"
+                />
+                <ImageUpload
+                  label="Banner Image"
+                  currentImage={store?.bannerImage}
+                  onFileChange={setBannerFile}
+                  description="Image for promotional banner popup"
+                />
               </div>
             </div>
-          )}
 
-          {/* Images Tab */}
-          {activeTab === 'images' && (
-            <div className="space-y-8">
-              {/* Avatar */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Store Avatar
-                </label>
-                {avatarPreview && (
-                  <div className="mb-4 relative group w-20 h-20">
-                    <Image
-                      src={avatarPreview}
-                      alt="Avatar preview"
-                      width={100}
-                      height={100}
-                      className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveImage('avatar', avatarPreview)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                      title="Remove avatar"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
-                <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
-                  <Upload className="w-5 h-5 text-gray-400 mr-2" />
-                  <span className="text-sm text-gray-600">
-                    {avatarFile ? 'Change Avatar' : 'Upload Avatar'}
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageChange('avatar', e)}
-                    className="hidden"
-                  />
-                </label>
-              </div>
-
-              {/* Background */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Header Background Image
-                </label>
-                {backgroundPreview && (
-                  <div className="mb-4 relative group w-full max-w-md h-32">
-                    <Image
-                      src={backgroundPreview}
-                      alt="Background preview"
-                      width={300}
-                      height={150}
-                      className="w-full max-w-md h-32 rounded-lg object-cover border-2 border-gray-200"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveImage('background', backgroundPreview)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                      title="Remove background image"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
-                <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
-                  <Upload className="w-5 h-5 text-gray-400 mr-2" />
-                  <span className="text-sm text-gray-600">
-                    {backgroundFile ? 'Change Background' : 'Upload Background'}
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageChange('background', e)}
-                    className="hidden"
-                  />
-                </label>
-              </div>
-
-              {/* Widget Image */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Widget Image
-                </label>
-                {widgetPreview && (
-                  <div className="mb-4 relative group w-16 h-16">
-                    <Image
-                      src={widgetPreview}
-                      alt="Widget preview"
-                      width={80}
-                      height={80}
-                      className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveImage('widget', widgetPreview)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                      title="Remove widget image"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
-                <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
-                  <Upload className="w-5 h-5 text-gray-400 mr-2" />
-                  <span className="text-sm text-gray-600">
-                    {widgetFile ? 'Change Widget Image' : 'Upload Widget Image'}
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageChange('widget', e)}
-                    className="hidden"
-                  />
-                </label>
-              </div>
-
-              {/* Banner Image */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Pop-up Banner Image
-                </label>
-                {bannerPreview && (
-                  <div className="mb-4 relative group w-full max-w-md h-40">
-                    <Image
-                      src={bannerPreview}
-                      alt="Banner preview"
-                      width={300}
-                      height={200}
-                      className="w-full max-w-md h-40 rounded-lg object-cover border-2 border-gray-200"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveImage('banner', bannerPreview)}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                      title="Remove banner image"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
-                <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
-                  <Upload className="w-5 h-5 text-gray-400 mr-2" />
-                  <span className="text-sm text-gray-600">
-                    {bannerFile ? 'Change Banner Image' : 'Upload Banner Image'}
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageChange('banner', e)}
-                    className="hidden"
-                  />
-                </label>
-              </div>
-            </div>
-          )}
-
-          {/* Features Tab */}
-          {activeTab === 'features' && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div>
-                    <h4 className="font-medium text-gray-900">Enable Slides</h4>
-                    <p className="text-sm text-gray-600">Show promotional slides on your store</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="slidesEnabled"
-                      checked={formData.slidesEnabled}
-                      onChange={handleInputChange}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-                  </label>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div>
-                    <h4 className="font-medium text-gray-900">Display Prices</h4>
-                    <p className="text-sm text-gray-600">Show product prices on your store</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="displayPriceOnProducts"
-                      checked={formData.displayPriceOnProducts}
-                      onChange={handleInputChange}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-                  </label>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div>
-                    <h4 className="font-medium text-gray-900">Floating Widget</h4>
-                    <p className="text-sm text-gray-600">Show floating widget on your store</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="widgetEnabled"
-                      checked={formData.widgetEnabled}
-                      onChange={handleInputChange}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-                  </label>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div>
-                    <h4 className="font-medium text-gray-900">Pop-up Banner</h4>
-                    <p className="text-sm text-gray-600">Show promotional banner popup</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="bannerEnabled"
-                      checked={formData.bannerEnabled}
-                      onChange={handleInputChange}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-                  </label>
-                </div>
-              </div>
-
-              {formData.widgetEnabled && (
-                <div>
-                  <label htmlFor="widgetLink" className="block text-sm font-medium text-gray-700 mb-2">
-                    Widget Link (Optional)
-                  </label>
-                  <input
-                    type="url"
-                    id="widgetLink"
-                    name="widgetLink"
-                    value={formData.widgetLink}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                    placeholder="https://example.com/special-offer"
-                  />
-                </div>
-              )}
-
-              {formData.bannerEnabled && (
-                <div className="space-y-4">
-                  <div>
-                    <label htmlFor="bannerDescription" className="block text-sm font-medium text-gray-700 mb-2">
-                      Banner Description
-                    </label>
-                    <textarea
-                      id="bannerDescription"
-                      name="bannerDescription"
-                      rows={3}
-                      value={formData.bannerDescription}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors resize-none"
-                      placeholder="Special offer description..."
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="bannerLink" className="block text-sm font-medium text-gray-700 mb-2">
-                      Banner Link (Optional)
-                    </label>
-                    <input
-                      type="url"
-                      id="bannerLink"
-                      name="bannerLink"
-                      value={formData.bannerLink}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                      placeholder="https://example.com/special-offer"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Subscriptions Tab */}
-          {activeTab === 'subscriptions' && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div>
-                    <h4 className="font-medium text-gray-900">Enable Subscriptions</h4>
-                    <p className="text-sm text-gray-600">Allow visitors to subscribe to your mailing list</p>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="subscriptionEnabled"
-                      checked={formData.subscriptionEnabled}
-                      onChange={handleInputChange}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
-                  </label>
-                </div>
-              </div>
-            </div>
-          )}
-          {/* Custom HTML Tab */}
-          {activeTab === 'custom-html' && store && (
-            <div>
-              <CustomHtmlEditor
-                storeId={store.id}
-                initialHtml={store.customHtml || ''}
-                onSave={handleCustomHtmlSave}
-              />
-            </div>
-          )}
-
-          {/* Social Links Tab */}
-          {activeTab === 'social' && (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900">Social Media Links</h3>
-                  <p className="text-sm text-gray-600">Add links to your social media profiles</p>
-                </div>
+            {/* Social Links */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">Social Media Links</h3>
                 <button
-                  type="button"
                   onClick={addSocialLink}
-                  className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                  className="flex items-center px-3 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm"
                 >
+                  <Plus className="w-4 h-4 mr-1" />
                   Add Link
                 </button>
               </div>
-
+              
               <div className="space-y-4">
                 {socialLinks.map((link, index) => (
-                  <div key={index} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                  <div key={index} className="flex space-x-3">
                     <select
                       value={link.platform}
-                      onChange={(e) => handleSocialLinkChange(index, 'platform', e.target.value)}
+                      onChange={(e) => updateSocialLink(index, 'platform', e.target.value)}
                       className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     >
                       {SOCIAL_PLATFORMS.map((platform) => (
@@ -1358,54 +668,557 @@ export default function StoreSettingsPage() {
                     <input
                       type="url"
                       value={link.url}
-                      onChange={(e) => handleSocialLinkChange(index, 'url', e.target.value)}
-                      placeholder={`https://${link.platform}.com/yourprofile`}
+                      onChange={(e) => updateSocialLink(index, 'url', e.target.value)}
+                      placeholder="https://..."
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     />
                     <button
-                      type="button"
                       onClick={() => removeSocialLink(index)}
-                      className="px-3 py-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors"
+                      className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                     >
-                      Remove
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 ))}
-
+                
                 {socialLinks.length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
-                    <Globe className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                    <p>No social links added yet</p>
-                    <p className="text-sm">Click "Add Link" to get started</p>
+                  <p className="text-gray-500 text-sm">No social links added yet. Click "Add Link" to get started.</p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'appearance' && (
+          <div className="space-y-6">
+            {/* Background & Layout Colors */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Background & Layout</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <ColorInput
+                  label="Store Background Color"
+                  value={storeBackgroundColor}
+                  onChange={setStoreBackgroundColor}
+                  description="Main background color of your store"
+                />
+                <ColorInput
+                  label="Header Background Color"
+                  value={storeHeaderBgColor}
+                  onChange={setStoreHeaderBgColor}
+                  description="Background color for the header section"
+                />
+                <ColorInput
+                  label="Gradient Start Color"
+                  value={mainBackgroundGradientStartColor}
+                  onChange={setMainBackgroundGradientStartColor}
+                  description="Starting color for background gradient"
+                />
+                <ColorInput
+                  label="Gradient End Color"
+                  value={mainBackgroundGradientEndColor}
+                  onChange={setMainBackgroundGradientEndColor}
+                  description="Ending color for background gradient"
+                />
+              </div>
+            </div>
+
+            {/* Avatar & Category Borders */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Avatar & Category Styling</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <ColorInput
+                  label="Avatar Border Color"
+                  value={avatarBorderColor}
+                  onChange={setAvatarBorderColor}
+                  description="Border color around your store avatar"
+                />
+                <ColorInput
+                  label="Active Category Border"
+                  value={activeCategoryBorderColor}
+                  onChange={setActiveCategoryBorderColor}
+                  description="Border color for selected category"
+                />
+                <ColorInput
+                  label="Category Text Color"
+                  value={categoryTextColor}
+                  onChange={setCategoryTextColor}
+                  description="Text color for category names"
+                />
+                <ColorInput
+                  label="Category Image Border"
+                  value={categoryImageBorderColor}
+                  onChange={setCategoryImageBorderColor}
+                  description="Border color for category images"
+                />
+              </div>
+            </div>
+
+            {/* Product Cards */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Product Cards</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <ColorInput
+                  label="Product Card Background"
+                  value={productCardBgColor}
+                  onChange={setProductCardBgColor}
+                  description="Background color for product cards"
+                />
+                <ColorInput
+                  label="Product Card Border"
+                  value={productCardBorderColor}
+                  onChange={setProductCardBorderColor}
+                  description="Border color for product cards"
+                />
+                <ColorInput
+                  label="Product Title Color"
+                  value={productTitleColor}
+                  onChange={setProductTitleColor}
+                  description="Color for product titles"
+                />
+                <ColorInput
+                  label="Price Color"
+                  value={priceFontColor}
+                  onChange={setPriceFontColor}
+                  description="Color for product prices"
+                />
+              </div>
+              
+              <div className="mt-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Currency Symbol</label>
+                <input
+                  type="text"
+                  value={currencySymbol}
+                  onChange={(e) => setCurrencySymbol(e.target.value)}
+                  className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="$"
+                />
+              </div>
+            </div>
+
+            {/* Buttons & CTAs */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Buttons & Call-to-Actions</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <ColorInput
+                  label="Load More Button Background"
+                  value={loadMoreButtonBgColor}
+                  onChange={setLoadMoreButtonBgColor}
+                  description="Background color for load more button"
+                />
+                <ColorInput
+                  label="Load More Button Text"
+                  value={loadMoreButtonTextColor}
+                  onChange={setLoadMoreButtonTextColor}
+                  description="Text color for load more button"
+                />
+                <ColorInput
+                  label="Clear Search Button Background"
+                  value={clearSearchButtonBgColor}
+                  onChange={setClearSearchButtonBgColor}
+                  description="Background color for clear search button"
+                />
+                <ColorInput
+                  label="Clear Search Button Text"
+                  value={clearSearchButtonTextColor}
+                  onChange={setClearSearchButtonTextColor}
+                  description="Text color for clear search button"
+                />
+                <ColorInput
+                  label="Dashboard View Store Button Background"
+                  value={dashboardViewStoreButtonBgColor}
+                  onChange={setDashboardViewStoreButtonBgColor}
+                  description="Background color for view store button in dashboard"
+                />
+                <ColorInput
+                  label="Dashboard View Store Button Text"
+                  value={dashboardViewStoreButtonTextColor}
+                  onChange={setDashboardViewStoreButtonTextColor}
+                  description="Text color for view store button in dashboard"
+                />
+              </div>
+            </div>
+
+            {/* Search Input */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Search Input Styling</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <ColorInput
+                  label="Search Input Background"
+                  value={searchInputBgColor}
+                  onChange={setSearchInputBgColor}
+                  description="Background color for search input"
+                />
+                <ColorInput
+                  label="Search Input Border"
+                  value={searchInputBorderColor}
+                  onChange={setSearchInputBorderColor}
+                  description="Border color for search input"
+                />
+                <ColorInput
+                  label="Search Input Text"
+                  value={searchInputTextColor}
+                  onChange={setSearchInputTextColor}
+                  description="Text color for search input"
+                />
+                <ColorInput
+                  label="Search Input Placeholder"
+                  value={searchInputPlaceholderColor}
+                  onChange={setSearchInputPlaceholderColor}
+                  description="Placeholder text color for search input"
+                />
+              </div>
+            </div>
+
+            {/* Slides */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Promotional Slides</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <ColorInput
+                  label="Slide Overlay Color"
+                  value={slideOverlayColor}
+                  onChange={setSlideOverlayColor}
+                  description="Overlay color on slide images"
+                />
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Slide Overlay Opacity</label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    value={slideOverlayOpacity}
+                    onChange={(e) => setSlideOverlayOpacity(parseFloat(e.target.value))}
+                    className="w-full"
+                  />
+                  <p className="text-xs text-gray-500">Current: {Math.round(slideOverlayOpacity * 100)}%</p>
+                </div>
+                <ColorInput
+                  label="Slide Title Color"
+                  value={slideTitleColor}
+                  onChange={setSlideTitleColor}
+                  description="Color for slide titles"
+                />
+                <ColorInput
+                  label="Slide Description Color"
+                  value={slideDescriptionColor}
+                  onChange={setSlideDescriptionColor}
+                  description="Color for slide descriptions"
+                />
+                <ColorInput
+                  label="Pagination Dot Color"
+                  value={slidePaginationDotColor}
+                  onChange={setSlidePaginationDotColor}
+                  description="Color for inactive pagination dots"
+                />
+                <ColorInput
+                  label="Active Pagination Dot Color"
+                  value={slidePaginationActiveDotColor}
+                  onChange={setSlidePaginationActiveDotColor}
+                  description="Color for active pagination dot"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'typography' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Font Families</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">General Font</label>
+                  <select
+                    value={fontFamily}
+                    onChange={(e) => setFontFamily(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  >
+                    <option value="">Default</option>
+                    {FONT_FAMILIES.map((font) => (
+                      <option key={font.value} value={font.value}>
+                        {font.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Heading Font</label>
+                  <select
+                    value={headingFontFamily}
+                    onChange={(e) => setHeadingFontFamily(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  >
+                    <option value="">Use General Font</option>
+                    {FONT_FAMILIES.map((font) => (
+                      <option key={font.value} value={font.value}>
+                        {font.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Body Font</label>
+                  <select
+                    value={bodyFontFamily}
+                    onChange={(e) => setBodyFontFamily(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  >
+                    <option value="">Use General Font</option>
+                    {FONT_FAMILIES.map((font) => (
+                      <option key={font.value} value={font.value}>
+                        {font.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Text Colors</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <ColorInput
+                  label="Heading Text Color"
+                  value={headingTextColor}
+                  onChange={setHeadingTextColor}
+                  description="Color for all headings (h1, h2, etc.)"
+                />
+                <ColorInput
+                  label="Body Text Color"
+                  value={bodyTextColor}
+                  onChange={setBodyTextColor}
+                  description="Color for regular text content"
+                />
+                <ColorInput
+                  label="Store Name Color"
+                  value={storeNameFontColor}
+                  onChange={setStoreNameFontColor}
+                  description="Color for your store name in header"
+                />
+                <ColorInput
+                  label="Store Bio Color"
+                  value={storeBioFontColor}
+                  onChange={setStoreBioFontColor}
+                  description="Color for store description in header"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'subscription' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Subscription Modal Styling</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <ColorInput
+                  label="Modal Background Color"
+                  value={subscribeModalBgColor}
+                  onChange={setSubscribeModalBgColor}
+                  description="Background color for subscription modal"
+                />
+                <ColorInput
+                  label="Modal Text Color"
+                  value={subscribeModalTextColor}
+                  onChange={setSubscribeModalTextColor}
+                  description="Text color for modal content"
+                />
+                <ColorInput
+                  label="Modal Border Color"
+                  value={subscribeModalBorderColor}
+                  onChange={setSubscribeModalBorderColor}
+                  description="Border color for modal"
+                />
+                <ColorInput
+                  label="Subscribe Button Background"
+                  value={subscribeButtonBgColor}
+                  onChange={setSubscribeButtonBgColor}
+                  description="Background color for subscribe button"
+                />
+                <ColorInput
+                  label="Subscribe Button Text"
+                  value={subscribeButtonTextColor}
+                  onChange={setSubscribeButtonTextColor}
+                  description="Text color for subscribe button"
+                />
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Input Field Styling</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <ColorInput
+                  label="Input Background Color"
+                  value={subscribeInputBgColor}
+                  onChange={setSubscribeInputBgColor}
+                  description="Background color for input fields"
+                />
+                <ColorInput
+                  label="Input Border Color"
+                  value={subscribeInputBorderColor}
+                  onChange={setSubscribeInputBorderColor}
+                  description="Border color for input fields"
+                />
+                <ColorInput
+                  label="Input Text Color"
+                  value={subscribeInputTextColor}
+                  onChange={setSubscribeInputTextColor}
+                  description="Text color for input fields"
+                />
+                <ColorInput
+                  label="Input Placeholder Color"
+                  value={subscribeInputPlaceholderColor}
+                  onChange={setSubscribeInputPlaceholderColor}
+                  description="Placeholder text color for input fields"
+                />
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Subscription Settings</h3>
+              <div className="space-y-4">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={subscriptionEnabled}
+                    onChange={(e) => setSubscriptionEnabled(e.target.checked)}
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  />
+                  <span className="ml-2 text-sm text-gray-900">Enable subscription modal</span>
+                </label>
+                
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={requireNameForSubscription}
+                    onChange={(e) => setRequireNameForSubscription(e.target.checked)}
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  />
+                  <span className="ml-2 text-sm text-gray-900">Require name for subscription</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'features' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Display Options</h3>
+              <div className="space-y-4">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={displayPriceOnProducts}
+                    onChange={(e) => setDisplayPriceOnProducts(e.target.checked)}
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  />
+                  <span className="ml-2 text-sm text-gray-900">Display prices on products</span>
+                </label>
+                
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={displayHeaderBackgroundImage}
+                    onChange={(e) => setDisplayHeaderBackgroundImage(e.target.checked)}
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  />
+                  <span className="ml-2 text-sm text-gray-900">Display header background image</span>
+                </label>
+                
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={slidesEnabled}
+                    onChange={(e) => setSlidesEnabled(e.target.checked)}
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  />
+                  <span className="ml-2 text-sm text-gray-900">Enable promotional slides</span>
+                </label>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Widget Settings</h3>
+              <div className="space-y-4">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={widgetEnabled}
+                    onChange={(e) => setWidgetEnabled(e.target.checked)}
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  />
+                  <span className="ml-2 text-sm text-gray-900">Enable floating widget</span>
+                </label>
+                
+                {widgetEnabled && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Widget Link (Optional)</label>
+                    <input
+                      type="url"
+                      value={widgetLink}
+                      onChange={(e) => setWidgetLink(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="https://..."
+                    />
+                    <p className="text-xs text-gray-500 mt-1">If provided, clicking the widget will open this link</p>
                   </div>
                 )}
               </div>
             </div>
-          )}
 
-          {/* Save Button - Only show for non-custom-html tabs */}
-          {activeTab !== 'custom-html' && (
-            <div className="flex justify-end pt-6">
-              <button
-                type="submit"
-                disabled={saving}
-                className="flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-              >
-                {saving ? (
-                  <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-5 h-5 mr-2" />
-                    Save Changes
-                  </>
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Banner Settings</h3>
+              <div className="space-y-4">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={bannerEnabled}
+                    onChange={(e) => setBannerEnabled(e.target.checked)}
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  />
+                  <span className="ml-2 text-sm text-gray-900">Enable promotional banner popup</span>
+                </label>
+                
+                {bannerEnabled && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Banner Description</label>
+                      <textarea
+                        value={bannerDescription}
+                        onChange={(e) => setBannerDescription(e.target.value)}
+                        rows={3}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                        placeholder="Describe your promotional offer..."
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Banner Link (Optional)</label>
+                      <input
+                        type="url"
+                        value={bannerLink}
+                        onChange={(e) => setBannerLink(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        placeholder="https://..."
+                      />
+                      <p className="text-xs text-gray-500 mt-1">If provided, clicking the banner will open this link</p>
+                    </div>
+                  </div>
                 )}
-              </button>
+              </div>
             </div>
-          )}
-        </form>
+          </div>
+        )}
+
+        {activeTab === 'custom-html' && (
+          <div className="bg-white rounded-lg shadow p-6">
+            <CustomHtmlEditor
+              storeId={user?.uid || ''}
+              initialHtml={store?.customHtml || ''}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
