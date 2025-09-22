@@ -39,7 +39,6 @@ export interface Store {
   bannerLink?: string;
   subscriptionEnabled?: boolean;
   requireNameForSubscription?: boolean;
-  subscriptionBackgroundImage?: string;
   slidesEnabled?: boolean;
   displayPriceOnProducts?: boolean;
   displayHeaderBackgroundImage?: boolean;
@@ -51,8 +50,6 @@ export interface Store {
   customization?: {
     storeNameFontColor?: string;
     storeBioFontColor?: string;
-    avatarBorderColor?: string;
-    activeCategoryBorderColor?: string;
     fontFamily?: string;
     headingFontFamily?: string;
     bodyFontFamily?: string;
@@ -60,48 +57,17 @@ export interface Store {
     bodyTextColor?: string;
     mainBackgroundGradientStartColor?: string;
     mainBackgroundGradientEndColor?: string;
-    storeBackgroundColor?: string;
     currencySymbol?: string;
     priceFontColor?: string;
     slideOverlayColor?: string;
     slideOverlayOpacity?: number;
     slideTitleColor?: string;
     slideDescriptionColor?: string;
-    // Header customization
-    storeHeaderBgColor?: string;
-    // Category customization
-    categoryTextColor?: string;
-    categoryImageBorderColor?: string;
-    // Product card customization
-    productCardBgColor?: string;
-    productCardBorderColor?: string;
-    productTitleColor?: string;
-    // Button customization
+    avatarBorderColor?: string;
+    activeCategoryBorderColor?: string;
+    socialIconColor?: string;
     loadMoreButtonBgColor?: string;
     loadMoreButtonTextColor?: string;
-    clearSearchButtonBgColor?: string;
-    clearSearchButtonTextColor?: string;
-    // Slide pagination customization
-    slidePaginationDotColor?: string;
-    slidePaginationActiveDotColor?: string;
-    // Subscription modal customization
-    subscribeModalBgColor?: string;
-    subscribeModalTextColor?: string;
-    subscribeButtonBgColor?: string;
-    subscribeButtonTextColor?: string;
-    subscribeModalBorderColor?: string;
-    subscribeInputBgColor?: string;
-    subscribeInputBorderColor?: string;
-    subscribeInputTextColor?: string;
-    subscribeInputPlaceholderColor?: string;
-    // Dashboard customization
-    dashboardViewStoreButtonBgColor?: string;
-    dashboardViewStoreButtonTextColor?: string;
-    // Search input customization
-    searchInputBgColor?: string;
-    searchInputBorderColor?: string;
-    searchInputTextColor?: string;
-    searchInputPlaceholderColor?: string;
   };
   createdAt: any;
   updatedAt: any;
@@ -517,22 +483,6 @@ export async function uploadWidgetImage(storeId: string, file: File): Promise<st
     return getDownloadURL(imageRef);
   } catch (error) {
     console.error('Error uploading widget image:', error);
-    throw error;
-  }
-}
-
-export async function uploadSubscriptionImage(storeId: string, file: File): Promise<string> {
-  try {
-    // Compress and resize the image
-    const compressedBlob = await fromBlob(file, 75, 1200, 'auto', 'webp'); // 75% quality, max width 1200px, auto height, webp format
-    
-    const baseFileName = sanitizeFilename(file.name);
-    const fileName = `${baseFileName}_subscription_${Date.now()}.webp`; // Use sanitized original name + timestamp + webp extension
-    const imageRef = ref(storage, `users/${storeId}/images/store/subscription/${fileName}`);
-    await uploadBytes(imageRef, compressedBlob); // Upload the compressed blob
-    return getDownloadURL(imageRef);
-  } catch (error) {
-    console.error('Error uploading subscription image:', error);
     throw error;
   }
 }

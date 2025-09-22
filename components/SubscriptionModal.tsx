@@ -8,15 +8,8 @@ import { useToast } from '@/hooks/useToast';
 import { X, Mail, User, Send } from 'lucide-react';
 
 interface StoreCustomization {
-  subscribeModalBgColor?: string;
-  subscribeModalTextColor?: string;
-  subscribeButtonBgColor?: string;
-  subscribeButtonTextColor?: string;
-  subscribeModalBorderColor?: string;
-  subscribeInputBgColor?: string;
-  subscribeInputBorderColor?: string;
-  subscribeInputTextColor?: string;
-  subscribeInputPlaceholderColor?: string;
+  loadMoreButtonBgColor?: string;
+  loadMoreButtonTextColor?: string;
 }
 
 interface SubscriptionModalProps {
@@ -25,7 +18,6 @@ interface SubscriptionModalProps {
   storeId: string;
   storeName: string;
   storeAvatar?: string;
-  requireNameForSubscription?: boolean;
   customization?: StoreCustomization;
 }
 
@@ -35,7 +27,6 @@ export default function SubscriptionModal({
   storeId,
   storeName,
   storeAvatar,
-  requireNameForSubscription = true,
   customization
 }: SubscriptionModalProps) {
   const { showSuccess, showError } = useToast();
@@ -48,22 +39,21 @@ export default function SubscriptionModal({
   const [hasTrackedView, setHasTrackedView] = useState(false);
 
   // Define color variables with customization support and fallback values
-  const modalBgColor = customization?.subscribeModalBgColor || '#ffffff'; // white
-  const modalTextColor = customization?.subscribeModalTextColor || '#374151'; // gray-700
-  const buttonBgColor = customization?.subscribeButtonBgColor || '#4f46e5'; // indigo-600
-  const buttonTextColor = customization?.subscribeButtonTextColor || '#ffffff'; // white
-  const modalBorderColor = customization?.subscribeModalBorderColor || '#e5e7eb'; // gray-200
-  const inputBgColor = customization?.subscribeInputBgColor || '#ffffff'; // white
-  const inputBorderColor = customization?.subscribeInputBorderColor || '#d1d5db'; // gray-300
-  const inputTextColor = customization?.subscribeInputTextColor || '#374151'; // gray-700
-  const inputPlaceholderColor = customization?.subscribeInputPlaceholderColor || '#9ca3af'; // gray-400
+  const modalBgColor = '#ffffff'; // white
+  const modalTextColor = '#374151'; // gray-700
+  const buttonBgColor = customization?.loadMoreButtonBgColor || '#84cc16'; // Use CTA button color
+  const buttonTextColor = customization?.loadMoreButtonTextColor || '#ffffff'; // white
+  const modalBorderColor = '#e5e7eb'; // gray-200
+  const inputBgColor = '#ffffff'; // white
+  const inputBorderColor = '#d1d5db'; // gray-300
+  const inputTextColor = '#374151'; // gray-700
+  const inputPlaceholderColor = '#9ca3af'; // gray-400
 
   // Track modal view when it opens
   useEffect(() => {
     if (isOpen && !hasTrackedView) {
       trackSubscriptionEvent('subscription_form_view', storeId, {
-        store_name: storeName,
-        require_name: requireNameForSubscription
+        store_name: storeName
       });
       setHasTrackedView(true);
     }
@@ -120,8 +110,7 @@ export default function SubscriptionModal({
       await trackSubscriptionEvent('subscription_form_submit', storeId, {
         store_name: storeName,
         subscriber_email: formData.email.trim(),
-        subscriber_name: formData.name.trim(),
-        require_name: requireNameForSubscription
+        subscriber_name: formData.name.trim()
       });
 
       setIsSubscribed(true);
@@ -142,8 +131,7 @@ export default function SubscriptionModal({
     // Track modal close
     trackSubscriptionEvent('subscription_form_close', storeId, {
       store_name: storeName,
-      had_interaction: !!(formData.name || formData.email),
-      require_name: requireNameForSubscription
+      had_interaction: !!(formData.name || formData.email)
     });
     onClose();
   };

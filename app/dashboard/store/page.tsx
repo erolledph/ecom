@@ -8,7 +8,6 @@ import {
   updateStore, 
   uploadStoreImage, 
   uploadWidgetImage,
-  uploadSubscriptionImage,
   deleteImageFromStorage,
   Store 
 } from '@/lib/store';
@@ -71,8 +70,6 @@ export default function StoreSettingsPage() {
     bannerDescription: '',
     bannerLink: '',
     subscriptionEnabled: true,
-    requireNameForSubscription: true,
-    subscriptionBackgroundImage: '',
     slidesEnabled: true,
     displayPriceOnProducts: true,
     customization: {
@@ -80,6 +77,7 @@ export default function StoreSettingsPage() {
       storeBioFontColor: '#e5e7eb',
       avatarBorderColor: '#ffffff',
       activeCategoryBorderColor: '#6366f1',
+      socialIconColor: '#ffffff',
       fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
       headingFontFamily: 'Inter, system-ui, -apple-system, sans-serif',
       bodyFontFamily: 'Inter, system-ui, -apple-system, sans-serif',
@@ -87,40 +85,14 @@ export default function StoreSettingsPage() {
       bodyTextColor: '#374151',
       mainBackgroundGradientStartColor: '#f3f4f6',
       mainBackgroundGradientEndColor: '#f3f4f6',
-      storeBackgroundColor: '#f3f4f6',
       currencySymbol: '$',
       priceFontColor: '#059669',
       slideOverlayColor: '#000000',
       slideOverlayOpacity: 0.4,
       slideTitleColor: '#ffffff',
       slideDescriptionColor: '#e5e7eb',
-      storeHeaderBgColor: '#ffffff',
-      categoryTextColor: '#059669',
-      categoryImageBorderColor: '#d1d5db',
-      productCardBgColor: '#ffffff',
-      productCardBorderColor: 'transparent',
-      productTitleColor: '#1f2937',
       loadMoreButtonBgColor: '#84cc16',
       loadMoreButtonTextColor: '#ffffff',
-      clearSearchButtonBgColor: '#4f46e5',
-      clearSearchButtonTextColor: '#ffffff',
-      slidePaginationDotColor: '#ffffff',
-      slidePaginationActiveDotColor: '#ffffff',
-      subscribeModalBgColor: '#ffffff',
-      subscribeModalTextColor: '#374151',
-      subscribeButtonBgColor: '#4f46e5',
-      subscribeButtonTextColor: '#ffffff',
-      subscribeModalBorderColor: '#e5e7eb',
-      subscribeInputBgColor: '#ffffff',
-      subscribeInputBorderColor: '#d1d5db',
-      subscribeInputTextColor: '#374151',
-      subscribeInputPlaceholderColor: '#9ca3af',
-      dashboardViewStoreButtonBgColor: '#4f46e5',
-      dashboardViewStoreButtonTextColor: '#ffffff',
-      searchInputBgColor: '#ffffff',
-      searchInputBorderColor: '#d1d5db',
-      searchInputTextColor: '#111827',
-      searchInputPlaceholderColor: '#9ca3af'
     }
   });
 
@@ -146,8 +118,6 @@ export default function StoreSettingsPage() {
             bannerDescription: storeData.bannerDescription || '',
             bannerLink: storeData.bannerLink || '',
             subscriptionEnabled: storeData.subscriptionEnabled !== false,
-            requireNameForSubscription: storeData.requireNameForSubscription !== false,
-            subscriptionBackgroundImage: storeData.subscriptionBackgroundImage || '',
             slidesEnabled: storeData.slidesEnabled !== false,
             displayPriceOnProducts: storeData.displayPriceOnProducts !== false,
             customization: {
@@ -211,8 +181,6 @@ export default function StoreSettingsPage() {
     
     if (type === 'widget') {
       imageUrl = await uploadWidgetImage(user.uid, file);
-    } else if (type === 'subscription') {
-      imageUrl = await uploadSubscriptionImage(user.uid, file);
     } else {
       imageUrl = await uploadStoreImage(user.uid, file, type);
     }
@@ -220,8 +188,6 @@ export default function StoreSettingsPage() {
     // Update form data
     if (type === 'widget') {
       handleInputChange('widgetImage', imageUrl);
-    } else if (type === 'subscription') {
-      handleInputChange('subscriptionBackgroundImage', imageUrl);
     } else {
       handleInputChange(type, imageUrl);
     }
@@ -234,8 +200,6 @@ export default function StoreSettingsPage() {
     
     if (type === 'widget') {
       currentImageUrl = formData.widgetImage;
-    } else if (type === 'subscription') {
-      currentImageUrl = formData.subscriptionBackgroundImage;
     } else {
       currentImageUrl = formData[type];
     }
@@ -251,8 +215,6 @@ export default function StoreSettingsPage() {
     // Update form data
     if (type === 'widget') {
       handleInputChange('widgetImage', '');
-    } else if (type === 'subscription') {
-      handleInputChange('subscriptionBackgroundImage', '');
     } else {
       handleInputChange(type, '');
     }
@@ -277,8 +239,6 @@ export default function StoreSettingsPage() {
         bannerDescription: formData.bannerDescription,
         bannerLink: formData.bannerLink,
         subscriptionEnabled: formData.subscriptionEnabled,
-        requireNameForSubscription: formData.requireNameForSubscription,
-        subscriptionBackgroundImage: formData.subscriptionBackgroundImage,
         slidesEnabled: formData.slidesEnabled,
         displayPriceOnProducts: formData.displayPriceOnProducts,
         customization: formData.customization
@@ -327,24 +287,6 @@ export default function StoreSettingsPage() {
             <p className="text-gray-600 mt-1">Customize your store appearance and functionality</p>
           </div>
         </div>
-        
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-        >
-          {saving ? (
-            <>
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-              Saving...
-            </>
-          ) : (
-            <>
-              <Save className="w-5 h-5 mr-2" />
-              Save Changes
-            </>
-          )}
-        </button>
       </div>
 
       {/* General Information */}
@@ -592,22 +534,7 @@ export default function StoreSettingsPage() {
 
           {formData.subscriptionEnabled && (
             <>
-              <CustomToggle
-                id="requireNameForSubscription"
-                label="Require Name for Subscription"
-                description="Ask subscribers to provide their name along with their email address."
-                checked={formData.requireNameForSubscription}
-                onChange={(checked) => handleInputChange('requireNameForSubscription', checked)}
-              />
 
-              <ImageUploadWithDelete
-                label="Subscription Background Image"
-                description="Upload a background image for the subscription modal (optional)."
-                currentImageUrl={formData.subscriptionBackgroundImage}
-                onImageUpload={(file) => handleImageUpload(file, 'subscription')}
-                onImageDelete={() => handleImageDelete('subscription')}
-                maxSizeText="Recommended: 400x300px, Max: 5MB"
-              />
             </>
           )}
         </div>
@@ -646,65 +573,97 @@ export default function StoreSettingsPage() {
           <h2 className="text-xl font-semibold text-gray-900">Typography & Colors</h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-8">
           {/* Font Settings */}
-          <div className="space-y-4">
+          <div>
             <h3 className="text-lg font-medium text-gray-900">Font Settings</h3>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Heading Font Family
-              </label>
-              <select
-                value={formData.customization.headingFontFamily}
-                onChange={(e) => handleCustomizationChange('headingFontFamily', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              >
-                {FONT_FAMILIES.map((font) => (
-                  <option key={font.value} value={font.value}>
-                    {font.label}
-                  </option>
-                ))}
-              </select>
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Body Font Family
-              </label>
-              <select
-                value={formData.customization.bodyFontFamily}
-                onChange={(e) => handleCustomizationChange('bodyFontFamily', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              >
-                {FONT_FAMILIES.map((font) => (
-                  <option key={font.value} value={font.value}>
-                    {font.label}
-                  </option>
-                ))}
-              </select>
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Currency Symbol
-              </label>
-              <input
-                type="text"
-                value={formData.customization.currencySymbol}
-                onChange={(e) => handleCustomizationChange('currencySymbol', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                placeholder="$"
-                maxLength={3}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  Heading Font Family
+                </label>
+                <select
+                  value={formData.customization.headingFontFamily}
+                  onChange={(e) => handleCustomizationChange('headingFontFamily', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                >
+                  {FONT_FAMILIES.map((font) => (
+                    <option key={font.value} value={font.value}>
+                      {font.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  Body Font Family
+                </label>
+                <select
+                  value={formData.customization.bodyFontFamily}
+                  onChange={(e) => handleCustomizationChange('bodyFontFamily', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                >
+                  {FONT_FAMILIES.map((font) => (
+                    <option key={font.value} value={font.value}>
+                      {font.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  Currency Symbol
+                </label>
+                <input
+                  type="text"
+                  value={formData.customization.currencySymbol}
+                  onChange={(e) => handleCustomizationChange('currencySymbol', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="$"
+                  maxLength={3}
+                />
+              </div>
             </div>
           </div>
 
-          {/* Color Settings */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">Color Settings</h3>
-            
-            <div className="grid grid-cols-2 gap-4">
+          {/* Background Colors */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Background Colors</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  Background Gradient Start
+                </label>
+                <input
+                  type="color"
+                  value={formData.customization.mainBackgroundGradientStartColor}
+                  onChange={(e) => handleCustomizationChange('mainBackgroundGradientStartColor', e.target.value)}
+                  className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  Background Gradient End
+                </label>
+                <input
+                  type="color"
+                  value={formData.customization.mainBackgroundGradientEndColor}
+                  onChange={(e) => handleCustomizationChange('mainBackgroundGradientEndColor', e.target.value)}
+                  className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Text Colors */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Text Colors</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Store Name Color
@@ -740,15 +699,81 @@ export default function StoreSettingsPage() {
                   className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
                 />
               </div>
+            </div>
+          </div>
 
+          {/* Border Colors */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Border Colors</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Background Color
+                  Avatar Border Color
                 </label>
                 <input
                   type="color"
-                  value={formData.customization.storeBackgroundColor}
-                  onChange={(e) => handleCustomizationChange('storeBackgroundColor', e.target.value)}
+                  value={formData.customization.avatarBorderColor}
+                  onChange={(e) => handleCustomizationChange('avatarBorderColor', e.target.value)}
+                  className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  Active Category Border Color
+                </label>
+                <input
+                  type="color"
+                  value={formData.customization.activeCategoryBorderColor}
+                  onChange={(e) => handleCustomizationChange('activeCategoryBorderColor', e.target.value)}
+                  className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Icon Colors */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Icon Colors</h3>
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  Social Icon Color
+                </label>
+                <input
+                  type="color"
+                  value={formData.customization.socialIconColor}
+                  onChange={(e) => handleCustomizationChange('socialIconColor', e.target.value)}
+                  className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Button Colors */}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Button Colors (CTA Buttons - Load More & Subscribe)</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  Button Background Color
+                </label>
+                <input
+                  type="color"
+                  value={formData.customization.loadMoreButtonBgColor}
+                  onChange={(e) => handleCustomizationChange('loadMoreButtonBgColor', e.target.value)}
+                  className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  Button Text Color
+                </label>
+                <input
+                  type="color"
+                  value={formData.customization.loadMoreButtonTextColor}
+                  onChange={(e) => handleCustomizationChange('loadMoreButtonTextColor', e.target.value)}
                   className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
                 />
               </div>

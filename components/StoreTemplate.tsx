@@ -316,10 +316,9 @@ export default function StoreTemplate({ store, products, slides, categories, ini
       style={{
         fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'Inter, system-ui, -apple-system, sans-serif',
         color: store.customization?.bodyTextColor || '#374151',
-        backgroundColor: store.customization?.storeBackgroundColor || '#f3f4f6',
         background: store.customization?.mainBackgroundGradientStartColor && store.customization?.mainBackgroundGradientEndColor
           ? `linear-gradient(135deg, ${store.customization.mainBackgroundGradientStartColor}, ${store.customization.mainBackgroundGradientEndColor})`
-          : store.customization?.storeBackgroundColor || '#f3f4f6'
+          : '#f3f4f6'
       }}
     >
       {/* Header Section */}
@@ -363,7 +362,8 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                       href={socialLink.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-white hover:text-gray-300 transition-colors"
+                      className="hover:opacity-75 transition-opacity"
+                      style={{ color: store.customization?.socialIconColor || '#ffffff' }}
                       onClick={() => handleSocialLinkClick(socialLink.platform, socialLink.url)}
                     >
                       <IconComponent className="w-6 h-6" />
@@ -404,7 +404,8 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                       href={socialLink.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-white hover:text-gray-300 transition-colors"
+                      className="hover:opacity-75 transition-opacity"
+                      style={{ color: store.customization?.socialIconColor || '#ffffff' }}
                       onClick={() => handleSocialLinkClick(socialLink.platform, socialLink.url)}
                     >
                       <IconComponent className="w-6 h-6" />
@@ -579,7 +580,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                   <span 
                     className="text-[0.8rem] font-semibold mt-1 whitespace-nowrap"
                     style={{ 
-                      color: store.customization?.categoryTextColor || priceColor,
+                      color: '#000000',
                       fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
                     }}
                   >
@@ -631,12 +632,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
               placeholder="Search products&hellip;"
               value={searchTerm}
               onChange={handleSearchChange}
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm search-input"
-              style={{
-                backgroundColor: store.customization?.searchInputBgColor || '#ffffff',
-                borderColor: store.customization?.searchInputBorderColor || '#d1d5db',
-                color: store.customization?.searchInputTextColor || '#111827'
-              }}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-400 text-sm bg-white text-gray-900 placeholder-gray-500"
             />
           </div>
         </div>
@@ -712,7 +708,11 @@ export default function StoreTemplate({ store, products, slides, categories, ini
           <div className="text-center mt-6">
             <button
               onClick={loadMoreProducts}
-              className="inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium"
+              className="inline-flex items-center px-6 py-3 rounded-lg transition-colors font-medium"
+              style={{
+                backgroundColor: store.customization?.loadMoreButtonBgColor || '#84cc16',
+                color: store.customization?.loadMoreButtonTextColor || '#ffffff'
+              }}
             >
               Load More Products
             </button>
@@ -742,10 +742,10 @@ export default function StoreTemplate({ store, products, slides, categories, ini
             </p>
             <button
               onClick={() => setSearchTerm('')}
-              className="mt-4 inline-flex items-center px-4 py-2 rounded-lg transition-colors"
+              className="mt-4 inline-flex items-center px-4 py-2 rounded-lg transition-colors font-medium"
               style={{
-                backgroundColor: store.customization?.clearSearchButtonBgColor || '#4f46e5',
-                color: store.customization?.clearSearchButtonTextColor || '#ffffff',
+                backgroundColor: store.customization?.loadMoreButtonBgColor || '#84cc16',
+                color: store.customization?.loadMoreButtonTextColor || '#ffffff',
                 fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
               }}
             >
@@ -955,7 +955,6 @@ export default function StoreTemplate({ store, products, slides, categories, ini
         storeId={store.ownerId}
         storeName={store.name}
         storeAvatar={store.avatar}
-        requireNameForSubscription={store.requireNameForSubscription !== false}
         customization={store.customization}
       />
 
