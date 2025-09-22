@@ -236,15 +236,10 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
         });
       }
       
-      // Track successful save
-      // Removed dashboard action tracking - focusing on public store interactions only
-      
       showSuccess('Product saved successfully!');
       router.push('/dashboard/products');
     } catch (error) {
       console.error('Save error:', error);
-      
-      // Removed dashboard action tracking - focusing on public store interactions only
       
       showError('Failed to save product. Please try again.');
     } finally {

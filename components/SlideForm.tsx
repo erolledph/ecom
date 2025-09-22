@@ -98,15 +98,11 @@ export default function SlideForm({ slide, mode }: SlideFormProps) {
         });
       }
 
-      // Track successful save
-      // Removed dashboard action tracking - focusing on public store interactions only
 
       showSuccess(mode === 'edit' ? 'Slide updated successfully!' : 'Slide created successfully!');
       router.push('/dashboard/slides');
     } catch (error) {
       console.error('Error saving slide:', error);
-      
-      // Removed dashboard action tracking - focusing on public store interactions only
       
       showError('Failed to save slide. Please try again.');
     } finally {

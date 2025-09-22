@@ -54,18 +54,14 @@ export default function ProductsPage() {
   const handleDeleteProduct = async (productId: string) => {
     if (!user) return;
     
-    // Removed dashboard action tracking - focusing on public store interactions only
-    
     showWarning('Deleting product...');
     
     try {
       await deleteProduct(user.uid, productId);
-      // Removed dashboard action tracking - focusing on public store interactions only
       showSuccess('Product deleted successfully');
       fetchProducts();
     } catch (error) {
       console.error('Error deleting product:', error);
-      // Removed dashboard action tracking - focusing on public store interactions only
       showError('Failed to delete product. Please try again.');
     }
   };

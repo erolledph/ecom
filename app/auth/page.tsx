@@ -27,24 +27,6 @@ export default function AuthPage() {
     }
   }, [user, router]);
 
-  const validatePassword = (password: string): string => {
-    if (password.length < 8) {
-      return 'Password must be at least 8 characters long';
-    }
-    if (!/[A-Z]/.test(password)) {
-      return 'Password must contain at least one uppercase letter';
-    }
-    if (!/[a-z]/.test(password)) {
-      return 'Password must contain at least one lowercase letter';
-    }
-    if (!/\d/.test(password)) {
-      return 'Password must contain at least one number';
-    }
-    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-      return 'Password must contain at least one special character';
-    }
-    return '';
-  };
 
   const checkSlug = async (slug: string) => {
     if (!slug || slug.length < 3) {
@@ -82,7 +64,28 @@ export default function AuthPage() {
     setPassword(value);
     
     if (!isLogin) {
-      const error = validatePassword(value);
+      // Use the validatePassword function from lib/auth.ts
+      let error = '';
+      try {
+        // This will throw an error if password is invalid
+        if (value) {
+          // We can't directly call the validatePassword from lib/auth.ts here
+          // since it throws errors, so we'll do basic validation
+          if (value.length < 8) {
+            error = 'Password must be at least 8 characters long';
+          } else if (!/[A-Z]/.test(value)) {
+            error = 'Password must contain at least one uppercase letter';
+          } else if (!/[a-z]/.test(value)) {
+            error = 'Password must contain at least one lowercase letter';
+          } else if (!/\d/.test(value)) {
+            error = 'Password must contain at least one number';
+          } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) {
+            error = 'Password must contain at least one special character';
+          }
+        }
+      } catch (err: any) {
+        error = err.message;
+      }
       setPasswordError(error);
     }
   };

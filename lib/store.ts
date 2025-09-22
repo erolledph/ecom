@@ -59,10 +59,6 @@ export interface Store {
     mainBackgroundGradientEndColor?: string;
     currencySymbol?: string;
     priceFontColor?: string;
-    slideOverlayColor?: string;
-    slideOverlayOpacity?: number;
-    slideTitleColor?: string;
-    slideDescriptionColor?: string;
     avatarBorderColor?: string;
     activeCategoryBorderColor?: string;
     socialIconColor?: string;

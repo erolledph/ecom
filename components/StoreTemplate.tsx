@@ -464,18 +464,14 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                   />
                   {/* Overlay layer */}
                   <div 
-                    className="absolute inset-0"
-                    style={{
-                      backgroundColor: store.customization?.slideOverlayColor || '#000000',
-                      opacity: store.customization?.slideOverlayOpacity || 0.4
-                    }}
+                    className="absolute inset-0 opacity-0"
                   />
                   {/* Text content layer */}
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 z-10">
                     <h2 
                       className="text-2xl font-bold mb-2"
                       style={{
-                        color: store.customization?.slideTitleColor || '#ffffff',
+                        color: '#ffffff',
                         fontFamily: store.customization?.headingFontFamily || store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
                       }}
                     >
@@ -485,7 +481,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                       <p 
                         className="text-sm max-w-2xl"
                         style={{
-                          color: store.customization?.slideDescriptionColor || '#e5e7eb',
+                          color: '#e5e7eb',
                           fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
                         }}
                       >
@@ -508,9 +504,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                       index === currentSlide ? 'w-8' : 'opacity-50'
                     }`}
                     style={{
-                      backgroundColor: index === currentSlide 
-                        ? store.customization?.slidePaginationActiveDotColor || storeNameColor
-                        : store.customization?.slidePaginationDotColor || storeNameColor
+                      backgroundColor: '#ffffff'
                     }}
                   />
                 ))}

@@ -87,10 +87,6 @@ export default function StoreSettingsPage() {
       mainBackgroundGradientEndColor: '#f3f4f6',
       currencySymbol: '$',
       priceFontColor: '#059669',
-      slideOverlayColor: '#000000',
-      slideOverlayOpacity: 0.4,
-      slideTitleColor: '#ffffff',
-      slideDescriptionColor: '#e5e7eb',
       loadMoreButtonBgColor: '#84cc16',
       loadMoreButtonTextColor: '#ffffff',
     }

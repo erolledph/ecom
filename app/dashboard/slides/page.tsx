@@ -47,18 +47,14 @@ export default function SlidesPage() {
   const handleDelete = async (slideId: string) => {
     if (!user) return;
     
-    // Removed dashboard action tracking - focusing on public store interactions only
-    
     showWarning('Deleting slide...');
     
     try {
       await deleteSlide(user.uid, slideId);
-      // Removed dashboard action tracking - focusing on public store interactions only
       showSuccess('Slide deleted successfully');
       await fetchSlides();
     } catch (error) {
       console.error('Error deleting slide:', error);
-      // Removed dashboard action tracking - focusing on public store interactions only
       showError('Failed to delete slide. Please try again.');
     }
   };
@@ -113,7 +109,6 @@ export default function SlidesPage() {
             </button>
             <button
               onClick={() => {
-               // Removed dashboard action tracking - focusing on public store interactions only
                 router.push('/dashboard/slides/add');
               }}
               className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
@@ -212,7 +207,6 @@ export default function SlidesPage() {
                       <div className="flex space-x-2">
                         <button
                           onClick={() => {
-                            // Removed dashboard action tracking - focusing on public store interactions only
                             router.push(`/dashboard/slides/edit/${slide.id}`);
                           }}
                           className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 transition-colors"
@@ -247,7 +241,6 @@ export default function SlidesPage() {
             </p>
             <button 
               onClick={() => {
-                // Removed dashboard action tracking - focusing on public store interactions only
                 router.push('/dashboard/slides/add');
               }}
               className="inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
