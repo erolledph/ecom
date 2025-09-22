@@ -650,7 +650,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
             <div
               key={product.id}
               onClick={() => handleProductClickWithDetails(product)}
-              className="rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+              className="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
               style={{
                 backgroundColor: store.customization?.productCardBgColor || '#ffffff',
                 borderColor: store.customization?.productCardBorderColor || 'transparent',
