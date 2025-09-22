@@ -326,16 +326,9 @@ export default function StoreTemplate({ store, products, slides, categories, ini
       <header 
         className="relative text-white py-4 overflow-hidden"
         style={{
-          background: store.displayHeaderBackgroundImage !== false && store.backgroundImage
-            ? `url('${store.backgroundImage}') center/cover, linear-gradient(135deg, #667eea 0%, #764ba2 100%)`
-            : 'transparent'
+          background: 'transparent'
         }}
       >
-        {/* Overlay for better text readability when using background image */}
-        {store.displayHeaderBackgroundImage !== false && store.backgroundImage && (
-          <div className="absolute inset-0 bg-black opacity-50"></div>
-        )}
-        
         <div className="relative z-10">
           {/* Header layout based on user preference */}
           {store.headerLayout === 'center' ? (

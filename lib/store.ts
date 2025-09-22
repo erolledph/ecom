@@ -30,7 +30,6 @@ export interface Store {
   slug: string;
   description: string;
   avatar: string;
-  backgroundImage: string;
   widgetImage?: string;
   widgetLink?: string;
   widgetEnabled?: boolean;
@@ -488,7 +487,7 @@ export async function uploadStoreImage(storeId: string, file: File, type: 'avata
     
     if (type === 'avatar') {
       maxWidth = 200; // Smaller size for avatar
-    } else if (type === 'background' || type === 'banner') {
+    } else if (type === 'banner') {
       maxWidth = 1200; // Larger size for background/banner
     }
     
