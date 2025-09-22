@@ -950,6 +950,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
         onClose={handleSubscriptionModalClose}
         storeId={store.ownerId}
         storeName={store.name}
+        storeAvatar={store.avatar}
         requireNameForSubscription={store.requireNameForSubscription !== false}
       />
 

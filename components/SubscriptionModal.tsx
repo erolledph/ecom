@@ -12,6 +12,7 @@ interface SubscriptionModalProps {
   onClose: () => void;
   storeId: string;
   storeName: string;
+  storeAvatar?: string;
   requireNameForSubscription?: boolean;
 }
 
@@ -20,6 +21,7 @@ export default function SubscriptionModal({
   onClose,
   storeId,
   storeName,
+  storeAvatar,
   requireNameForSubscription = true
 }: SubscriptionModalProps) {
   const { showSuccess, showError } = useToast();
@@ -124,7 +126,7 @@ export default function SubscriptionModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-2xl max-w-xs w-full max-h-[80vh] overflow-hidden relative">
 
         {/* Close Button */}
@@ -140,8 +142,20 @@ export default function SubscriptionModal({
         <div className="relative z-10 p-4 sm:p-5">
           {/* Header */}
           <div className="text-center mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center mx-auto mb-3">
-              <Mail className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+              {storeAvatar ? (
+                <Image
+                  src={storeAvatar}
+                  alt={storeName}
+                  width={48}
+                  height={48}
+                  className="w-12 h-12 rounded-full object-cover border-2 border-primary-200"
+                />
+              ) : (
+                <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
+                  <Mail className="w-6 h-6 text-white" />
+                </div>
+              )}
             </div>
             <h2 className="text-xl font-bold text-gray-900 mb-1">
               Stay Updated!
