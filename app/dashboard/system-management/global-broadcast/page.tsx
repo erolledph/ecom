@@ -129,7 +129,8 @@ export default function GlobalBroadcastPage() {
         imageUrl: bannerForm.imageUrl,
         description: bannerForm.description.trim() || undefined,
         link: bannerForm.link.trim() || undefined,
-        isActive: bannerForm.isActive
+        isActive: bannerForm.isActive,
+        ownerId: user.uid
       };
 
       if (selectedBanner) {
@@ -158,7 +159,6 @@ export default function GlobalBroadcastPage() {
         const newBanner = { 
           id: bannerId, 
           ...bannerData, 
-          ownerId: user.uid,
           createdAt: new Date(), 
           updatedAt: new Date() 
         };
