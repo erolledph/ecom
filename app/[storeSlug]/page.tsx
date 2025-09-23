@@ -32,8 +32,8 @@ export async function generateMetadata({ params, searchParams }: StorePageProps)
     } else if (store.avatar) {
       avatarUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://tiangge.shop'}${store.avatar}`;
     } else {
-      // Fallback to default avatar SVG
-      avatarUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://tiangge.shop'}/avatar-default.svg`;
+      // Fallback to default avatar WebP
+      avatarUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://tiangge.shop'}/default-avatar.webp`;
     }
 
     return {
