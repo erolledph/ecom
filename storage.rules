@@ -16,5 +16,17 @@ service firebase.storage {
     match /users/{userId}/images/store/subscription/{fileName} {
       allow write, delete: if request.auth != null && request.auth.uid == userId;
     }
+
+    // Global banners: Public read, admin write
+    match /global_banners/{allPaths=**} {
+      allow read: if true;
+      allow write, delete: if request.auth != null;
+    }
+
+    // Sponsored products: Public read, admin write
+    match /sponsored_products/{sponsoredProductId}/{fileName} {
+      allow read: if true;
+      allow write, delete: if request.auth != null;
+    }
   }
 }

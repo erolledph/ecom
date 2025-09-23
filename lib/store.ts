@@ -107,6 +107,33 @@ export interface Slide {
   updatedAt: any;
 }
 
+export interface SponsoredProduct {
+  id?: string;
+  title: string;
+  description: string;
+  price: number;
+  category: string;
+  images?: string[];
+  productLink: string;
+  ownerId: string;
+  isActive?: boolean;
+  clickCount?: number;
+  createdAt?: any;
+  updatedAt?: any;
+  isSponsored?: boolean;
+}
+
+export interface GlobalBanner {
+  id: string;
+  imageUrl: string;
+  description?: string;
+  link?: string;
+  ownerId: string;
+  isActive: boolean;
+  createdAt: any;
+  updatedAt: any;
+}
+
 // Utility function to sanitize filename
 function sanitizeFilename(filename: string): string {
   const baseName = filename.split('.').slice(0, -1).join('.');
@@ -639,5 +666,255 @@ export async function deleteImageFromStorage(imageUrl: string): Promise<void> {
   } catch (error) {
     console.error('Error deleting image from storage:', error);
     throw error;
+  }
+}
+
+// Global Banner functions
+export async function addGlobalBanner(banner: Omit<GlobalBanner, 'id' | 'createdAt' | 'updatedAt'>, ownerId: string): Promise<string> {
+  try {
+    const bannersRef = collection(db, 'global_banners');
+    const docRef = await addDoc(bannersRef, {
+      ...banner,
+      ownerId,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding global banner:', error);
+    throw error;
+  }
+}
+
+export async function getAllGlobalBanners(): Promise<GlobalBanner[]> {
+  try {
+    const bannersRef = collection(db, 'global_banners');
+    const q = query(bannersRef, orderBy('createdAt', 'desc'));
+    const querySnapshot = await getDocs(q);
+    
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as GlobalBanner[];
+  } catch (error) {
+    console.error('Error getting all global banners:', error);
+    return [];
+  }
+}
+
+export async function getActiveGlobalBanner(): Promise<GlobalBanner | null> {
+  try {
+    const bannersRef = collection(db, 'global_banners');
+    const q = query(bannersRef, where('isActive', '==', true));
+    const querySnapshot = await getDocs(q);
+    
+    if (querySnapshot.empty) {
+      return null;
+    }
+    
+    // Get the first active banner
+    const bannerDoc = querySnapshot.docs[0];
+    return {
+      id: bannerDoc.id,
+      ...bannerDoc.data()
+    } as GlobalBanner;
+  } catch (error) {
+    console.error('Error getting active global banner:', error);
+    return null;
+  }
+}
+
+export async function updateGlobalBanner(bannerId: string, updates: Partial<GlobalBanner>): Promise<void> {
+  try {
+    const bannerRef = doc(db, 'global_banners', bannerId);
+    await updateDoc(bannerRef, {
+      ...updates,
+      updatedAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error('Error updating global banner:', error);
+    throw error;
+  }
+}
+
+export async function deleteGlobalBanner(bannerId: string): Promise<void> {
+  try {
+    const bannerRef = doc(db, 'global_banners', bannerId);
+    await deleteDoc(bannerRef);
+  } catch (error) {
+    console.error('Error deleting global banner:', error);
+    throw error;
+  }
+}
+
+export async function uploadGlobalBannerImage(file: File): Promise<string> {
+  try {
+    // Compress and resize the image
+    const compressedBlob = await fromBlob(file, 75, 1200, 'auto', 'webp');
+    
+    const baseFileName = sanitizeFilename(file.name);
+    const fileName = `${baseFileName}_global_banner_${Date.now()}.webp`;
+    const imageRef = ref(storage, `global_banners/${fileName}`);
+    await uploadBytes(imageRef, compressedBlob);
+    return getDownloadURL(imageRef);
+  } catch (error) {
+    console.error('Error uploading global banner image:', error);
+    throw error;
+  }
+}
+
+// Sponsored Product functions
+export async function getSponsoredProducts(): Promise<SponsoredProduct[]> {
+  try {
+    const sponsoredProductsRef = collection(db, 'sponsored_products');
+    const q = query(sponsoredProductsRef, where('isActive', '==', true));
+    const querySnapshot = await getDocs(q);
+    
+    const sponsoredProducts = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as SponsoredProduct[];
+    
+    // Sort by createdAt in JavaScript
+    return sponsoredProducts.sort((a, b) => {
+      if (!a.createdAt || !b.createdAt) return 0;
+      return b.createdAt.toMillis() - a.createdAt.toMillis();
+    });
+  } catch (error) {
+    console.error('Error getting sponsored products:', error);
+    throw error;
+  }
+}
+
+export async function getAllSponsoredProducts(): Promise<SponsoredProduct[]> {
+  try {
+    const sponsoredProductsRef = collection(db, 'sponsored_products');
+    const q = query(sponsoredProductsRef);
+    const querySnapshot = await getDocs(q);
+    
+    const sponsoredProducts = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as SponsoredProduct[];
+    
+    // Sort by createdAt in JavaScript
+    return sponsoredProducts.sort((a, b) => {
+      if (!a.createdAt || !b.createdAt) return 0;
+      return b.createdAt.toMillis() - a.createdAt.toMillis();
+    });
+  } catch (error) {
+    console.error('Error getting all sponsored products:', error);
+    throw error;
+  }
+}
+
+export async function addSponsoredProduct(product: Omit<SponsoredProduct, 'id' | 'createdAt' | 'updatedAt'>, adminId: string): Promise<string> {
+  try {
+    const sponsoredProductsRef = collection(db, 'sponsored_products');
+    const docRef = await addDoc(sponsoredProductsRef, {
+      ...product,
+      ownerId: adminId,
+      isActive: true,
+      clickCount: 0,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding sponsored product:', error);
+    throw error;
+  }
+}
+
+export async function updateSponsoredProduct(sponsoredProductId: string, updates: Partial<SponsoredProduct>): Promise<void> {
+  try {
+    const sponsoredProductRef = doc(db, 'sponsored_products', sponsoredProductId);
+    await updateDoc(sponsoredProductRef, {
+      ...updates,
+      updatedAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error('Error updating sponsored product:', error);
+    throw error;
+  }
+}
+
+export async function deleteSponsoredProduct(sponsoredProductId: string): Promise<void> {
+  try {
+    const sponsoredProductRef = doc(db, 'sponsored_products', sponsoredProductId);
+    await deleteDoc(sponsoredProductRef);
+  } catch (error) {
+    console.error('Error deleting sponsored product:', error);
+    throw error;
+  }
+}
+
+export async function getSponsoredProductById(sponsoredProductId: string): Promise<SponsoredProduct | null> {
+  try {
+    const sponsoredProductRef = doc(db, 'sponsored_products', sponsoredProductId);
+    const sponsoredProductSnap = await getDoc(sponsoredProductRef);
+    
+    if (sponsoredProductSnap.exists()) {
+      return {
+        id: sponsoredProductSnap.id,
+        ...sponsoredProductSnap.data()
+      } as SponsoredProduct;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error getting sponsored product by ID:', error);
+    throw error;
+  }
+}
+
+export async function uploadSponsoredProductImage(file: File, sponsoredProductId: string): Promise<string> {
+  try {
+    // Compress and resize the image
+    const compressedBlob = await fromBlob(file, 75, 1200, 'auto', 'webp');
+    
+    const baseFileName = sanitizeFilename(file.name);
+    const fileName = `${baseFileName}_${Date.now()}.webp`;
+    const imageRef = ref(storage, `sponsored_products/${sponsoredProductId}/${fileName}`);
+    await uploadBytes(imageRef, compressedBlob);
+    return getDownloadURL(imageRef);
+  } catch (error) {
+    console.error('Error uploading sponsored product image:', error);
+    throw error;
+  }
+}
+
+export async function incrementSponsoredProductClickCount(sponsoredProductId: string): Promise<void> {
+  try {
+    const sponsoredProductRef = doc(db, 'sponsored_products', sponsoredProductId);
+    await updateDoc(sponsoredProductRef, {
+      clickCount: increment(1),
+      updatedAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error('Error incrementing sponsored product click count:', error);
+    throw error;
+  }
+}
+
+// Get all store slugs for admin purposes
+export async function getAllStoreSlugs(): Promise<Map<string, string>> {
+  try {
+    // Use collection group query to get all stores across all users
+    const storesRef = collectionGroup(db, 'stores');
+    const querySnapshot = await getDocs(storesRef);
+    
+    const storeSlugsMap = new Map<string, string>();
+    
+    querySnapshot.forEach((doc) => {
+      const storeData = doc.data();
+      if (storeData.ownerId && storeData.slug) {
+        storeSlugsMap.set(storeData.ownerId, storeData.slug);
+      }
+    });
+    
+    return storeSlugsMap;
+  } catch (error) {
+    console.error('Error fetching all store slugs:', error);
+    return new Map();
   }
 }

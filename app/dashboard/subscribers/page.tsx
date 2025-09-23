@@ -3,12 +3,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
+import PremiumFeatureGate from '@/components/PremiumFeatureGate';
+import { canAccessFeature } from '@/lib/auth';
 import { getStoreSubscribers, deleteSubscriber, Subscriber } from '@/lib/store';
-import { Users, Download, Trash2, RefreshCcw, Mail, User } from 'lucide-react';
+import { Users, Download, Trash2, RefreshCcw, Mail, User, TrendingUp } from 'lucide-react';
 import Papa from 'papaparse';
 
 export default function SubscribersPage() {
   const { user } = useAuth();
+  const { userProfile } = useAuth();
   const { showSuccess, showError, showWarning } = useToast();
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,6 +58,11 @@ export default function SubscribersPage() {
   };
 
   const handleExportCSV = async () => {
+    if (!canAccessFeature(userProfile, 'export')) {
+      showWarning('Export feature is available for premium users only');
+      return;
+    }
+
     if (subscribers.length === 0) {
       showWarning('No subscribers to export');
       return;
@@ -159,12 +167,24 @@ export default function SubscribersPage() {
             
             <button
               onClick={handleExportCSV}
-              disabled={exporting || subscribers.length === 0}
+              disabled={exporting || subscribers.length === 0 || !canAccessFeature(userProfile, 'export')}
               className="flex items-center px-4 py-2 bg-secondary-600 text-white rounded-lg hover:bg-secondary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              title="Export subscribers to CSV"
             >
               <Download className={`w-4 h-4 mr-2 ${exporting ? 'animate-bounce' : ''}`} />
               {exporting ? 'Exporting...' : 'Export CSV'}
             </button>
+
+            {!canAccessFeature(userProfile, 'export') && (
+              <PremiumFeatureGate feature="export" showUpgrade={false}>
+                <div className="text-xs text-yellow-600 mt-1">
+                  <span className="inline-flex items-center">
+                    <span className="w-2 h-2 bg-yellow-400 rounded-full mr-1"></span>
+                    Premium feature
+                  </span>
+                </div>
+              </PremiumFeatureGate>
+            )}
           </div>
         </div>
       </div>

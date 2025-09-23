@@ -12,6 +12,7 @@ interface ImageUploadWithDeleteProps {
   onImageDelete: () => Promise<void>;
   accept?: string;
   maxSizeText?: string;
+  disabled?: boolean;
 }
 
 export default function ImageUploadWithDelete({
@@ -21,12 +22,15 @@ export default function ImageUploadWithDelete({
   onImageUpload,
   onImageDelete,
   accept = "image/*",
-  maxSizeText = "Max file size: 5MB"
+  maxSizeText = "Max file size: 5MB",
+  disabled = false
 }: ImageUploadWithDeleteProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (disabled) return;
+    
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -43,6 +47,8 @@ export default function ImageUploadWithDelete({
   };
 
   const handleDelete = async () => {
+    if (disabled) return;
+    
     if (!currentImageUrl) return;
     
     setIsDeleting(true);
@@ -83,7 +89,7 @@ export default function ImageUploadWithDelete({
           <button
             type="button"
             onClick={handleDelete}
-            disabled={isDeleting}
+            disabled={isDeleting || disabled}
             className="absolute -top-2 -right-2 p-1.5 bg-red-600 text-white rounded-full shadow-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             title="Delete image"
           >
@@ -98,7 +104,11 @@ export default function ImageUploadWithDelete({
 
       {/* Upload Area */}
       <div className="relative">
-        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
+        <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg transition-colors ${
+          disabled 
+            ? 'cursor-not-allowed opacity-50' 
+            : 'cursor-pointer hover:border-primary-400 hover:bg-primary-50'
+        }`}>
           <div className="flex flex-col items-center justify-center pt-5 pb-6">
             {isUploading ? (
               <>
@@ -113,7 +123,10 @@ export default function ImageUploadWithDelete({
                   <ImageIcon className="w-8 h-8 mb-2 text-gray-400" />
                 )}
                 <p className="text-sm text-gray-500">
-                  <span className="font-medium">Click to upload</span> or drag and drop
+                  <span className="font-medium">
+                    {disabled ? 'Upload disabled' : 'Click to upload'}
+                  </span> 
+                  {!disabled && ' or drag and drop'}
                 </p>
                 <p className="text-xs text-gray-400">{maxSizeText}</p>
               </>
@@ -123,7 +136,7 @@ export default function ImageUploadWithDelete({
             type="file"
             accept={accept}
             onChange={handleFileChange}
-            disabled={isUploading}
+            disabled={isUploading || disabled}
             className="hidden"
           />
         </label>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { logout } from '@/lib/auth';
+import { canAccessFeature } from '@/lib/auth';
 import { useAuth } from '@/hooks/useAuth';
 import { 
   BarChart3, 
@@ -18,7 +19,9 @@ import {
   PlusSquare,
   TrendingUp,
   Users,
-  Settings
+  Settings,
+  DollarSign,
+  Radio,
 } from 'lucide-react';
 
 const navigation = [
@@ -52,6 +55,7 @@ export default function DashboardNav({ isCollapsed, toggleCollapse }: DashboardN
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [autoCollapseTimer, setAutoCollapseTimer] = useState<NodeJS.Timeout | null>(null);
+
 
   // Auto-collapse functionality
   useEffect(() => {
@@ -89,6 +93,53 @@ export default function DashboardNav({ isCollapsed, toggleCollapse }: DashboardN
     };
   }, [isHovered, isCollapsed, toggleCollapse, autoCollapseTimer]);
 
+  // Close system menu on mobile menu close
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
+  // Generate navigation items based on user role and premium status
+  const getNavigationItems = () => {
+    let navigation = [
+      { type: 'header', name: 'Dashboard' },
+      { name: 'Overview', href: '/dashboard', icon: BarChart3 },
+      
+      { type: 'header', name: 'Store Management' },
+      { name: 'Store Settings', href: '/dashboard/store', icon: Settings },
+      { name: 'Subscribers', href: '/dashboard/subscribers', icon: Users },
+      
+      { type: 'header', name: 'Products' },
+      { name: 'Products', href: '/dashboard/products', icon: Package },
+      { name: 'Add Product', href: '/dashboard/products/add', icon: PlusCircle },
+      
+      { type: 'header', name: 'Slides' },
+      { name: 'Slides', href: '/dashboard/slides', icon: Image },
+      { name: 'Add Slide', href: '/dashboard/slides/add', icon: PlusSquare },
+    ];
+
+    // Add analytics for premium users
+    if (canAccessFeature(userProfile, 'analytics')) {
+      const analyticsIndex = navigation.findIndex(item => item.name === 'Store Settings');
+      if (analyticsIndex !== -1) {
+        navigation.splice(analyticsIndex + 1, 0, 
+          { name: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp }
+        );
+      }
+    }
+
+    // Add admin-only features
+    if (canAccessFeature(userProfile, 'admin')) {
+      navigation.push(
+        { type: 'header', name: 'Administration' },
+        { name: 'Manage Users', href: '/dashboard/system-management/users', icon: Users },
+        { name: 'Global Broadcast', href: '/dashboard/system-management/global-broadcast', icon: Radio },
+        { name: 'Sponsor Products', href: '/dashboard/system-management/sponsor-products', icon: DollarSign },
+      );
+    }
+
+    return navigation;
+  };
+
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
@@ -103,10 +154,6 @@ export default function DashboardNav({ isCollapsed, toggleCollapse }: DashboardN
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
   };
 
   const handleSidebarMouseEnter = () => {
@@ -182,12 +229,12 @@ export default function DashboardNav({ isCollapsed, toggleCollapse }: DashboardN
 
         {/* Navigation */}
         <nav className={`flex-1 px-2 py-4 space-y-1 border-t border-gray-200 ${isCollapsed ? 'md:px-1' : ''}`}>
-          {navigation.map((item) => {
+          {getNavigationItems().map((item, index) => {
             // Render group headers
             if (item.type === 'header') {
               return (
                 <div
-                  key={item.name}
+                  key={`${item.name}-${index}`}
                   className={`px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider ${
                     isCollapsed ? 'md:hidden' : ''
                   }`}
@@ -203,7 +250,7 @@ export default function DashboardNav({ isCollapsed, toggleCollapse }: DashboardN
             
             return (
               <Link
-                key={item.name}
+                key={`${item.name}-${index}`}
                 href={item.href}
                 onClick={closeMobileMenu}
                 className={`
@@ -236,6 +283,7 @@ export default function DashboardNav({ isCollapsed, toggleCollapse }: DashboardN
               </Link>
             );
           })}
+
         </nav>
 
         {/* Logout Button */}

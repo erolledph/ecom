@@ -118,7 +118,8 @@ export default function StoreTemplate({ store, products, slides, categories, ini
   const getDisplayedProducts = () => {
     // If search term is active, filter all products by search
     if (searchTerm) {
-      return products.filter(product =>
+      return products.filter(product => 
+        !product.isSponsored && // Exclude sponsored products from search
         product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.category.toLowerCase().includes(searchTerm.toLowerCase())
@@ -127,7 +128,10 @@ export default function StoreTemplate({ store, products, slides, categories, ini
     
     // If specific category is selected, show only that category
     if (selectedCategory !== 'all') {
-      return products.filter(product => product.category === selectedCategory);
+      return products.filter(product => 
+        !product.isSponsored && // Exclude sponsored products from category filtering
+        product.category === selectedCategory
+      );
     }
     
     // Default: show all products
@@ -202,7 +206,8 @@ export default function StoreTemplate({ store, products, slides, categories, ini
   };
 
   const loadMoreAllProducts = () => {
-    setVisibleAllProductsCount(prev => Math.min(prev + 9, products.length));
+    const nonSponsoredProducts = products.filter(p => !p.isSponsored);
+    setVisibleAllProductsCount(prev => Math.min(prev + 9, nonSponsoredProducts.length));
   };
 
   const handleProductClick = (productLink?: string) => {
@@ -219,15 +224,29 @@ export default function StoreTemplate({ store, products, slides, categories, ini
 
   const handleProductClickWithDetails = (product: Product) => {
     // Track product click with detailed information
-    trackEvent('product_click', store.ownerId, {
-      product_id: product.id,
-      product_title: product.title,
-      product_category: product.category,
-      product_price: product.price,
-      store_slug: store.slug,
-      store_name: store.name,
-      destination_link: product.productLink,
-    });
+    if (product.isSponsored) {
+      // Track sponsored product click
+      trackEvent('sponsored_product_click', product.ownerId || store.ownerId, {
+        sponsored_product_id: product.id,
+        product_title: product.title,
+        product_category: product.category,
+        product_price: product.price,
+        store_slug: store.slug,
+        store_name: store.name,
+        destination_link: product.productLink,
+      });
+    } else {
+      // Track regular product click
+      trackEvent('product_click', store.ownerId, {
+        product_id: product.id,
+        product_title: product.title,
+        product_category: product.category,
+        product_price: product.price,
+        store_slug: store.slug,
+        store_name: store.name,
+        destination_link: product.productLink,
+      });
+    }
     
     if (product.productLink) {
       window.open(product.productLink, '_blank', 'noopener,noreferrer');
@@ -649,8 +668,17 @@ export default function StoreTemplate({ store, products, slides, categories, ini
             <div
               key={product.id}
               onClick={() => handleProductClickWithDetails(product)}
-              className="bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+              className={`bg-white border rounded-md shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow ${
+                product.isSponsored 
+                  ? 'border-yellow-300 ring-1 ring-yellow-200' 
+                  : 'border-gray-200'
+              }`}
             >
+              {product.isSponsored && (
+                <div className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white text-xs font-bold px-2 py-1 text-center">
+                  SPONSORED
+                </div>
+              )}
               <div className="aspect-square overflow-hidden">
                 {product.images && product.images[0] && (
                   <Image
@@ -758,7 +786,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
           </div>
           
           <div className="grid grid-cols-3 lg:grid-cols-4 gap-[5px]">
-            {products.slice(0, visibleAllProductsCount).map((product) => (
+            {products.filter(p => !p.isSponsored).slice(0, visibleAllProductsCount).map((product) => (
               <div
                 key={`all-${product.id}`}
                 onClick={() => handleProductClickWithDetails(product)}
@@ -804,7 +832,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
           </div>
           
           {/* Load More Button for All Products */}
-          {products.length > visibleAllProductsCount && (
+          {products.filter(p => !p.isSponsored).length > visibleAllProductsCount && (
             <div className="text-center mt-6">
               <button
                 onClick={loadMoreAllProducts}

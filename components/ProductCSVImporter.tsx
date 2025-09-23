@@ -3,6 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
+import PremiumFeatureGate from '@/components/PremiumFeatureGate';
 import { addProductsBatch, Product } from '@/lib/store';
 import Papa from 'papaparse';
 import { Upload, Download, FileText, AlertCircle, CheckCircle, X } from 'lucide-react';
@@ -35,6 +36,7 @@ export default function ProductCSVImporter() {
     successful: number;
     failed: number;
   } | null>(null);
+
 
   const validateProduct = (product: CSVProduct, rowIndex: number): ValidationError[] => {
     const errors: ValidationError[] = [];
@@ -187,6 +189,7 @@ export default function ProductCSVImporter() {
   };
 
   return (
+    <PremiumFeatureGate feature="csv_import" showUpgrade={false}>
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
@@ -314,5 +317,6 @@ export default function ProductCSVImporter() {
         </div>
       )}
     </div>
+    </PremiumFeatureGate>
   );
 }

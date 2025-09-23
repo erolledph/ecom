@@ -1,6 +1,6 @@
 import { auth, db } from './firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { checkSlugAvailability } from './store';
 
 export interface UserProfile {
@@ -9,6 +9,10 @@ export interface UserProfile {
   displayName?: string;
   createdAt: Date;
   storeId?: string;
+  storeSlug?: string;
+  role?: 'user' | 'admin';
+  isPremium?: boolean;
+  updatedAt?: Date;
 }
 
 const validatePassword = (password: string): void => {
@@ -84,6 +88,10 @@ export const signUp = async (email: string, password: string, displayName?: stri
       email: user.email!,
       displayName: displayName || '',
       createdAt: new Date(),
+      updatedAt: new Date(),
+      updatedAt: new Date(),
+      role: 'user',
+      isPremium: false,
     };
     
     console.log('Creating user profile:', userProfile);
@@ -149,11 +157,118 @@ export const getUserProfile = async (uid: string): Promise<UserProfile | null> =
     const docSnap = await getDoc(docRef);
     
     if (docSnap.exists()) {
-      return docSnap.data() as UserProfile;
+      const data = docSnap.data();
+      return {
+        ...data,
+        createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
+        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt
+      } as UserProfile;
     }
     return null;
   } catch (error) {
     console.error('Error fetching user profile:', error);
     return null;
+  }
+};
+
+export const updateUserRoleAndPremiumStatus = async (userId: string, updates: { role?: 'user' | 'admin', isPremium?: boolean }): Promise<void> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+    
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, {
+      ...updates,
+      updatedAt: new Date()
+    });
+  } catch (error) {
+    console.error('Error updating user role/premium status:', error);
+    throw error;
+  }
+};
+
+export const getUserByEmail = async (email: string): Promise<UserProfile | null> => {
+  try {
+    if (!db) return null;
+    
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where('email', '==', email));
+    const querySnapshot = await getDocs(q);
+    
+    if (querySnapshot.empty) {
+      return null;
+    }
+    
+    const userDoc = querySnapshot.docs[0];
+    return {
+      uid: userDoc.id,
+      ...userDoc.data()
+    } as UserProfile;
+  } catch (error) {
+    console.error('Error fetching user by email:', error);
+    return null;
+  }
+};
+
+export const getAllUserProfiles = async (): Promise<UserProfile[]> => {
+  try {
+    if (!db) return [];
+    
+    console.log('Fetching all user profiles...');
+    const usersRef = collection(db, 'users');
+    const querySnapshot = await getDocs(usersRef);
+    
+    console.log('Query snapshot size:', querySnapshot.size);
+    
+    const users: UserProfile[] = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      console.log('Processing user doc:', doc.id, data);
+      users.push({
+        uid: doc.id,
+        ...data,
+        createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
+        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt
+      } as UserProfile);
+    });
+    
+    console.log('Processed users:', users.length);
+    
+    // Sort users by creation date (newest first)
+    const sortedUsers = users.sort((a, b) => {
+      if (!a.createdAt || !b.createdAt) return 0;
+      return b.createdAt.getTime() - a.createdAt.getTime();
+    });
+    
+    console.log('Returning sorted users:', sortedUsers.length);
+    return sortedUsers;
+  } catch (error) {
+    console.error('Error fetching all user profiles:', error);
+    throw error; // Re-throw to handle in UI
+  }
+};
+
+// Helper function to check if user is admin
+export const isAdmin = (userProfile: UserProfile | null): boolean => {
+  return userProfile?.role === 'admin';
+};
+
+// Helper function to check if user is premium
+export const isPremium = (userProfile: UserProfile | null): boolean => {
+  return userProfile?.isPremium === true || isAdmin(userProfile);
+};
+
+// Helper function to check if user can access feature
+export const canAccessFeature = (userProfile: UserProfile | null, feature: 'analytics' | 'csv_import' | 'export' | 'admin'): boolean => {
+  if (!userProfile) return false;
+  
+  switch (feature) {
+    case 'admin':
+      return isAdmin(userProfile);
+    case 'analytics':
+    case 'csv_import':
+    case 'export':
+      return isPremium(userProfile);
+    default:
+      return false;
   }
 };

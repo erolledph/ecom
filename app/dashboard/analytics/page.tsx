@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
+import PremiumFeatureGate from '@/components/PremiumFeatureGate';
 import { getAnalyticsEvents, clearAnalyticsEvents, AnalyticsEvent } from '@/lib/analytics';
 import { getStoreProducts, Product } from '@/lib/store';
 import { 
@@ -21,7 +22,8 @@ import {
   Filter,
   Share2,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Download
 } from 'lucide-react';
 
 interface TopProduct {
@@ -43,6 +45,7 @@ interface TopSearchTerm {
 
 export default function AnalyticsPage() {
   const { user } = useAuth();
+  const { userProfile } = useAuth();
   const [events, setEvents] = useState<AnalyticsEvent[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -197,6 +200,7 @@ export default function AnalyticsPage() {
   }
 
   return (
+    <PremiumFeatureGate feature="analytics">
     <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-6 md:space-y-8">
       {/* Header */}
       <div className="p-4 sm:p-6">
@@ -513,5 +517,6 @@ export default function AnalyticsPage() {
         </div>
       )}
     </div>
+    </PremiumFeatureGate>
   );
 }
