@@ -253,7 +253,8 @@ export default function SystemManagementPage() {
         imageUrl: bannerForm.imageUrl,
         description: bannerForm.description.trim() || undefined,
         link: bannerForm.link.trim() || undefined,
-        isActive: bannerForm.isActive
+        isActive: bannerForm.isActive,
+        ownerId: user.uid
       };
 
       if (selectedBanner) {
