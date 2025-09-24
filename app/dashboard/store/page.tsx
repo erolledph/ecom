@@ -72,6 +72,7 @@ export default function StoreSettingsPage() {
     subscriptionEnabled: true,
     slidesEnabled: true,
     displayPriceOnProducts: true,
+    displayCategories: true,
     customHtml: '',
     customization: {
       storeNameFontColor: '#ffffff',
@@ -561,6 +562,14 @@ export default function StoreSettingsPage() {
             description="Show product prices on product cards throughout your store."
             checked={formData.displayPriceOnProducts}
             onChange={(checked) => handleInputChange('displayPriceOnProducts', checked)}
+          />
+
+          <CustomToggle
+            id="displayCategories"
+            label="Display Product Categories"
+            description="Show product categories for filtering products. When disabled, only the 'All Products' section will be visible."
+            checked={formData.displayCategories}
+            onChange={(checked) => handleInputChange('displayCategories', checked)}
           />
         </div>
       </div>
