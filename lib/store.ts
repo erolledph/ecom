@@ -45,7 +45,6 @@ export interface Store {
   subscriptionEnabled?: boolean;
   slidesEnabled?: boolean;
   displayPriceOnProducts?: boolean;
-  displayCategories?: boolean;
   customHtml?: string;
   customization?: {
     storeNameFontColor?: string;
