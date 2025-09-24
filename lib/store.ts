@@ -22,7 +22,7 @@ import {
   getDownloadURL, 
   deleteObject 
 } from 'firebase/storage';
-import { compressImage } from 'image-resize-compress';
+import compressImage from 'image-resize-compress';
 
 // Interfaces
 export interface Store {
