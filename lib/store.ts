@@ -89,6 +89,7 @@ export interface Product {
   // add optional productLink field
   productLink?: string;
   clickCount?: number;
+  isSponsored?: boolean;
   createdAt?: any;
   updatedAt?: any;
 }
