@@ -324,7 +324,7 @@ export const getProductById = async (storeId: string, productId: string): Promis
   }
 };
 
-export const addProduct = async (product: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> => {
+export const addProduct = async (product: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>, isPremiumUser: boolean): Promise<string> => {
   try {
     if (!db) throw new Error('Firebase not initialized');
     
@@ -402,7 +402,7 @@ export const uploadProductImage = async (userId: string, file: File, productId: 
   }
 };
 
-export const addProductsBatch = async (products: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>[], storeId: string): Promise<void> => {
+export const addProductsBatch = async (products: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>[], storeId: string, isPremiumUser: boolean): Promise<void> => {
   try {
     if (!db) throw new Error('Firebase not initialized');
     
