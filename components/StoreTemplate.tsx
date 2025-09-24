@@ -330,7 +330,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
   };
 
   return (
-    <div 
+    <main 
       className="min-h-screen max-w-md mx-auto"
       style={{
         fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'Inter, system-ui, -apple-system, sans-serif',
@@ -534,8 +534,9 @@ export default function StoreTemplate({ store, products, slides, categories, ini
       )}
 
       {/* Categories */}
-      {categories.length > 0 && (
+      {store.showCategories !== false && categories.length > 0 && (
         <section className="container mx-auto px-4 pt-6 overflow-x-auto category-scroller">
+          <h2 className="sr-only">Product Categories</h2>
           <div className="flex space-x-[5px] px-4">
             {categories.map((category) => {
               return (
@@ -606,9 +607,10 @@ export default function StoreTemplate({ store, products, slides, categories, ini
       )}
 
       {/* All Products Section */}
-      <section className="container mx-auto px-4 py-6" id="products">
+      <section className="container mx-auto px-4 py-6" id="products" aria-labelledby="products-heading">
         <div className="mb-6">
-          <h2 
+          <h2
+            id="products-heading"
             className="text-[0.8rem] font-bold mb-2"
             style={{ 
               color: store.customization?.headingTextColor || priceColor,
@@ -771,10 +773,10 @@ export default function StoreTemplate({ store, products, slides, categories, ini
       </section>
 
       {/* All Products Section - Only show when category filtering is active (not for search) */}
-      {selectedCategory !== 'all' && !searchTerm && (
+      {store.showCategories !== false && selectedCategory !== 'all' && !searchTerm && (
         <section className="container mx-auto px-4 pt-6 pb-6" id="all-products">
           <div className="mb-6">
-            <h2 
+            <h2
               className="text-[0.8rem] font-bold mb-2"
               style={{ 
                 color: store.customization?.headingTextColor || priceColor,
@@ -852,6 +854,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
       {/* Custom HTML Section */}
       {store.customHtml && store.customHtml.trim() && (
         <section className="container mx-auto px-4 py-6">
+          <h2 className="sr-only">Custom Content</h2>
           <div 
             dangerouslySetInnerHTML={{ __html: store.customHtml }}
             className="prose prose-sm max-w-none"
@@ -1001,6 +1004,6 @@ export default function StoreTemplate({ store, products, slides, categories, ini
           background-color: ${storeNameColor};
         }
       `}</style>
-    </div>
+    </main>
   );
 }

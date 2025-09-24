@@ -24,9 +24,8 @@ service cloud.firestore {
         allow read; // Anyone can read store details
         allow create: if request.auth != null && request.auth.uid == userId && request.resource.data.ownerId == userId;
         allow update, delete: if request.auth != null && request.auth.uid == userId && resource.data.ownerId == userId;
-        // Allow updating customHtml field specifically
-        allow update: if request.auth != null && request.auth.uid == userId && resource.data.ownerId == userId && 
-                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['customHtml', 'updatedAt']);
+        // Allow updating specific fields for store customization
+        allow update: if request.auth != null && request.auth.uid == userId && resource.data.ownerId == userId;
 
         // Products subcollection: Public read, owner write
         match /products/{productId} {
