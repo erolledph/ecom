@@ -670,18 +670,18 @@ export default function StoreTemplate({ store, products, slides, categories, ini
             <div
               key={product.id}
               onClick={() => handleProductClickWithDetails(product)}
-              className={`bg-white border rounded-md shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow ${
+              className={`border rounded-md shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow ${
                 product.isSponsored 
-                  ? 'border-yellow-300 ring-1 ring-yellow-200' 
-                  : 'border-gray-200'
+                  ? 'bg-yellow-50 border-yellow-300 ring-1 ring-yellow-200' 
+                  : 'bg-white border-gray-200'
               }`}
             >
-              {product.isSponsored && (
-                <div className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white text-xs font-bold px-2 py-1 text-center">
-                  SPONSORED
-                </div>
-              )}
-              <div className="aspect-square overflow-hidden">
+              <div className="aspect-square overflow-hidden relative">
+                {product.isSponsored && (
+                  <div className="absolute bottom-2 left-2 z-10 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-br-md">
+                    SPONSORED
+                  </div>
+                )}
                 {product.images && product.images[0] && (
                   <Image
                     src={product.images[0]}
