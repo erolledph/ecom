@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { trackEvent } from '@/lib/analytics';
+import { isPremium } from '@/lib/auth';
 import { 
   getStoreProducts, 
   deleteProduct,
@@ -18,13 +19,14 @@ import { RefreshCcw } from 'lucide-react';
 import ProductCSVImporter from '@/components/ProductCSVImporter';
 
 export default function ProductsPage() {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const router = useRouter();
   const { showSuccess, showError, showWarning } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [storeSlug, setStoreSlug] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [isAtProductLimit, setIsAtProductLimit] = useState(false);
 
   const fetchProducts = useCallback(async () => {
     if (!user) return;
@@ -32,6 +34,13 @@ export default function ProductsPage() {
     try {
       const productsData = await getStoreProducts(user.uid);
       setProducts(productsData);
+      
+      // Check product limit for normal users
+      if (userProfile && !isPremium(userProfile)) {
+        setIsAtProductLimit(productsData.length >= 30);
+      } else {
+        setIsAtProductLimit(false);
+      }
       
       // Fetch store data for URL
       const storeData = await getUserStore(user.uid);
@@ -43,7 +52,7 @@ export default function ProductsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, userProfile]);
 
   useEffect(() => {
     if (user) {
@@ -90,6 +99,16 @@ export default function ProductsPage() {
               {[1, 2, 3].map((i) => (
                 <div key={i} className="h-12 bg-gray-200 rounded"></div>
               ))}
+              {userProfile && !isPremium(userProfile) && (
+                <p className="text-sm text-gray-600 mt-1">
+                  {products.length}/30 products used
+                  {isAtProductLimit && (
+                    <span className="text-red-600 font-medium ml-2">
+                      • Limit reached
+                    </span>
+                  )}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -116,14 +135,40 @@ export default function ProductsPage() {
              {refreshing ? 'Refreshing...' : 'Refresh'}
            </button>
             <button
-              onClick={() => router.push('/dashboard/products/add')}
+              onClick={() => {
+                if (isAtProductLimit) {
+                  showError('Cannot add more products. You have reached the 30-product limit for normal users.');
+                  return;
+                }
+                router.push('/dashboard/products/add');
+              }}
+              disabled={isAtProductLimit}
               className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+              title={isAtProductLimit ? 'Product limit reached. Upgrade to premium for unlimited products.' : 'Add new product'}
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Product
             </button>
           </div>
         </div>
+        
+        {/* Product Limit Warning */}
+        {userProfile && !isPremium(userProfile) && isAtProductLimit && (
+          <div className="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
+            <div className="flex items-start space-x-3">
+              <div className="w-5 h-5 bg-red-100 rounded-full flex items-center justify-center mt-0.5">
+                <span className="text-red-600 text-xs font-bold">!</span>
+              </div>
+              <div className="flex-1">
+                <h4 className="font-medium text-red-900 mb-1">Product Limit Reached</h4>
+                <p className="text-sm text-red-800">
+                  You have reached the maximum of 30 products for normal users. 
+                  Upgrade to premium to add unlimited products and access advanced features.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* CSV Import Section */}

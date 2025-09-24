@@ -266,7 +266,7 @@ export const canAccessFeature = (userProfile: UserProfile | null, feature: 'anal
     case 'analytics':
     case 'csv_import':
     case 'export':
-      return isPremium(userProfile);
+      return true; // All authenticated users can access analytics
     default:
       return false;
   }

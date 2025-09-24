@@ -4,6 +4,14 @@ This is a [Next.js](https://nextjs.org/) project for building affiliate stores. 
 
 ## Features
 
+### 👥 User Roles & Permissions
+The platform supports three distinct user roles with different access levels:
+- **Standard Users**: Full access to store creation, product management, and analytics
+- **Premium Users**: Additional access to bulk import and data export features  
+- **Administrators**: Complete platform control including user management and system features
+
+For detailed information about user roles and their specific permissions, see [User Roles Documentation](user-roles.md).
+
 ### 🏪 Store Management
 - **Store Customization**: Personalize your store with custom branding, colors, layouts, and typography
 - **Advanced Theming**: Custom font families, color schemes, background gradients, and responsive design

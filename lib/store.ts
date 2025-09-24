@@ -328,6 +328,14 @@ export const addProduct = async (product: Omit<Product, 'id' | 'createdAt' | 'up
   try {
     if (!db) throw new Error('Firebase not initialized');
     
+    // Check product limit for non-premium users
+    if (!isPremiumUser) {
+      const currentProducts = await getStoreProducts(product.storeId);
+      if (currentProducts.length >= 30) {
+        throw new Error('Product limit reached. Normal users can add up to 30 products. Upgrade to premium for unlimited products.');
+      }
+    }
+    
     const productData = {
       ...product,
       createdAt: new Date(),
@@ -397,6 +405,17 @@ export const uploadProductImage = async (userId: string, file: File, productId: 
 export const addProductsBatch = async (products: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>[], storeId: string): Promise<void> => {
   try {
     if (!db) throw new Error('Firebase not initialized');
+    
+    // Check product limit for non-premium users
+    if (!isPremiumUser) {
+      const currentProducts = await getStoreProducts(storeId);
+      const totalAfterImport = currentProducts.length + products.length;
+      
+      if (totalAfterImport > 30) {
+        const remainingSlots = Math.max(0, 30 - currentProducts.length);
+        throw new Error(`Product limit exceeded. Normal users can have up to 30 products. You currently have ${currentProducts.length} products and can add ${remainingSlots} more. Upgrade to premium for unlimited products.`);
+      }
+    }
     
     const batch = writeBatch(db);
     
