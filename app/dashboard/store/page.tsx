@@ -118,6 +118,7 @@ export default function StoreSettingsPage() {
             subscriptionEnabled: storeData.subscriptionEnabled !== false,
             slidesEnabled: storeData.slidesEnabled !== false,
             displayPriceOnProducts: storeData.displayPriceOnProducts !== false,
+            showCategories: storeData.showCategories !== false,
             customHtml: storeData.customHtml || '',
             customization: {
               ...formData.customization,
