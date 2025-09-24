@@ -22,7 +22,7 @@ import {
   getDownloadURL, 
   deleteObject 
 } from 'firebase/storage';
-import { ImageCompressor } from 'image-resize-compress';
+import { fromBlob } from 'image-resize-compress';
 
 // Interfaces
 export interface Store {
@@ -227,13 +227,13 @@ export const uploadStoreImage = async (userId: string, file: File, type: 'avatar
     if (!storage) throw new Error('Firebase Storage not initialized');
     
     // Compress image
-    const imageCompressor = new ImageCompressor();
-    const compressedFile = await imageCompressor.run(file, {
-      quality: 0.75,
-      type: 'webp',
-      width: type === 'avatar' ? 200 : 1200,
-      height: type === 'avatar' ? 200 : undefined
-    });
+    const compressedFile = await fromBlob(
+      file,
+      75, // quality (0-100)
+      type === 'avatar' ? 200 : 1200, // width
+      type === 'avatar' ? 200 : 'auto', // height
+      'webp' // format
+    );
     
     const fileName = `${type}_${Date.now()}.webp`;
     const imageRef = ref(storage, `users/${userId}/images/store/${fileName}`);
@@ -250,13 +250,13 @@ export const uploadWidgetImage = async (userId: string, file: File): Promise<str
   try {
     if (!storage) throw new Error('Firebase Storage not initialized');
     
-    const imageCompressor = new ImageCompressor();
-    const compressedFile = await imageCompressor.run(file, {
-      quality: 0.75,
-      type: 'webp',
-      width: 200,
-      height: 200
-    });
+    const compressedFile = await fromBlob(
+      file,
+      75, // quality (0-100)
+      200, // width
+      200, // height
+      'webp' // format
+    );
     
     const fileName = `widget_${Date.now()}.webp`;
     const imageRef = ref(storage, `users/${userId}/images/store/${fileName}`);
@@ -375,12 +375,13 @@ export const uploadProductImage = async (userId: string, file: File, productId: 
   try {
     if (!storage) throw new Error('Firebase Storage not initialized');
     
-    const imageCompressor = new ImageCompressor();
-    const compressedFile = await imageCompressor.run(file, {
-      quality: 0.75,
-      type: 'webp',
-      width: 1200
-    });
+    const compressedFile = await fromBlob(
+      file,
+      75, // quality (0-100)
+      1200, // width
+      'auto', // height
+      'webp' // format
+    );
     
     const fileName = `product_${productId}_${Date.now()}.webp`;
     const imageRef = ref(storage, `users/${userId}/images/products/${fileName}`);
@@ -513,12 +514,13 @@ export const uploadSlideImage = async (userId: string, file: File, slideId: stri
   try {
     if (!storage) throw new Error('Firebase Storage not initialized');
     
-    const imageCompressor = new ImageCompressor();
-    const compressedFile = await imageCompressor.run(file, {
-      quality: 0.75,
-      type: 'webp',
-      width: 1200
-    });
+    const compressedFile = await fromBlob(
+      file,
+      75, // quality (0-100)
+      1200, // width
+      'auto', // height
+      'webp' // format
+    );
     
     const fileName = `slide_${slideId}_${Date.now()}.webp`;
     const imageRef = ref(storage, `users/${userId}/images/slides/${fileName}`);
@@ -675,12 +677,13 @@ export const uploadGlobalBannerImage = async (file: File): Promise<string> => {
   try {
     if (!storage) throw new Error('Firebase Storage not initialized');
     
-    const imageCompressor = new ImageCompressor();
-    const compressedFile = await imageCompressor.run(file, {
-      quality: 0.75,
-      type: 'webp',
-      width: 1200
-    });
+    const compressedFile = await fromBlob(
+      file,
+      75, // quality (0-100)
+      1200, // width
+      'auto', // height
+      'webp' // format
+    );
     
     const fileName = `global_banner_${Date.now()}.webp`;
     const imageRef = ref(storage, `global_banners/${fileName}`);
@@ -810,12 +813,13 @@ export const uploadSponsoredProductImage = async (file: File, sponsoredProductId
   try {
     if (!storage) throw new Error('Firebase Storage not initialized');
     
-    const imageCompressor = new ImageCompressor();
-    const compressedFile = await imageCompressor.run(file, {
-      quality: 0.75,
-      type: 'webp',
-      width: 1200
-    });
+    const compressedFile = await fromBlob(
+      file,
+      75, // quality (0-100)
+      1200, // width
+      'auto', // height
+      'webp' // format
+    );
     
     const fileName = `sponsored_product_${sponsoredProductId}_${Date.now()}.webp`;
     const imageRef = ref(storage, `sponsored_products/${sponsoredProductId}/${fileName}`);
