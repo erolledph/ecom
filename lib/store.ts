@@ -1,273 +1,903 @@
-import { auth, db } from './firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
-import { doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
-import { checkSlugAvailability } from './store';
+import { db, storage } from './firebase';
+import { 
+  doc, 
+  setDoc, 
+  getDoc, 
+  updateDoc, 
+  deleteDoc,
+  collection, 
+  query, 
+  where, 
+  getDocs, 
+  addDoc,
+  collectionGroup,
+  orderBy,
+  limit,
+  writeBatch,
+  increment
+} from 'firebase/firestore';
+import { 
+  ref, 
+  uploadBytes, 
+  getDownloadURL, 
+  deleteObject 
+} from 'firebase/storage';
+import { compressImage } from 'image-resize-compress';
 
-export interface UserProfile {
-  uid: string;
-  email: string;
-  displayName?: string;
+// Interfaces
+export interface Store {
+  id: string;
+  ownerId: string;
+  name: string;
+  description: string;
+  slug: string;
+  avatar?: string;
+  backgroundImage?: string;
+  socialLinks?: Array<{ platform: string; url: string; }>;
+  headerLayout?: 'left-right' | 'right-left' | 'center';
+  widgetImage?: string;
+  widgetLink?: string;
+  widgetEnabled?: boolean;
+  bannerEnabled?: boolean;
+  bannerImage?: string;
+  bannerDescription?: string;
+  bannerLink?: string;
+  subscriptionEnabled?: boolean;
+  slidesEnabled?: boolean;
+  displayPriceOnProducts?: boolean;
+  customHtml?: string;
+  customization?: {
+    storeNameFontColor?: string;
+    storeBioFontColor?: string;
+    avatarBorderColor?: string;
+    activeCategoryBorderColor?: string;
+    socialIconColor?: string;
+    fontFamily?: string;
+    headingFontFamily?: string;
+    bodyFontFamily?: string;
+    headingTextColor?: string;
+    bodyTextColor?: string;
+    mainBackgroundGradientStartColor?: string;
+    mainBackgroundGradientEndColor?: string;
+    currencySymbol?: string;
+    priceFontColor?: string;
+    loadMoreButtonBgColor?: string;
+    loadMoreButtonTextColor?: string;
+  };
   createdAt: Date;
-  storeId?: string;
-  storeSlug?: string;
-  role?: 'user' | 'admin';
-  isPremium?: boolean;
+  updatedAt: Date;
+  isActive: boolean;
+}
+
+export interface Product {
+  id?: string;
+  storeId: string;
+  title: string;
+  description: string;
+  price: number;
+  images?: string[];
+  productLink?: string;
+  category: string;
+  isActive?: boolean;
+  clickCount?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+  isSponsored?: boolean;
+  ownerId?: string;
+}
+
+export interface Slide {
+  id: string;
+  storeId: string;
+  title: string;
+  description?: string;
+  image: string;
+  link?: string;
+  order: number;
+  isActive: boolean;
+  clickCount?: number;
+  createdAt?: Date;
   updatedAt?: Date;
 }
 
-const validatePassword = (password: string): void => {
-  if (password.length < 8) {
-    throw new Error('Password must be at least 8 characters long');
-  }
-  if (!/[A-Z]/.test(password)) {
-    throw new Error('Password must contain at least one uppercase letter');
-  }
-  if (!/[a-z]/.test(password)) {
-    throw new Error('Password must contain at least one lowercase letter');
-  }
-  if (!/\d/.test(password)) {
-    throw new Error('Password must contain at least one number');
-  }
-  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-    throw new Error('Password must contain at least one special character');
-  }
-};
-export const signIn = async (email: string, password: string) => {
+export interface Subscriber {
+  id?: string;
+  storeId: string;
+  name?: string;
+  email: string;
+  createdAt: any;
+}
+
+export interface GlobalBanner {
+  id: string;
+  ownerId: string;
+  imageUrl: string;
+  description?: string;
+  link?: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface SponsoredProduct {
+  id?: string;
+  ownerId: string;
+  title: string;
+  description: string;
+  price: number;
+  images?: string[];
+  productLink?: string;
+  category: string;
+  isActive?: boolean;
+  clickCount?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+// Store Management Functions
+export const checkSlugAvailability = async (slug: string): Promise<boolean> => {
   try {
-    if (!auth) throw new Error('Firebase not initialized');
-
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    if (!db) return false;
     
-    return userCredential.user;
-  } catch (error: any) {
-    throw new Error(error.message);
+    const storesQuery = query(
+      collectionGroup(db, 'stores'),
+      where('slug', '==', slug)
+    );
+    
+    const querySnapshot = await getDocs(storesQuery);
+    return querySnapshot.empty;
+  } catch (error) {
+    console.error('Error checking slug availability:', error);
+    return false;
   }
 };
 
-export const signUp = async (email: string, password: string, displayName?: string, storeSlug?: string) => {
-  try {
-    if (!auth || !db) throw new Error('Firebase not initialized');
-
-    // Validate password strength
-    validatePassword(password);
-
-    // Validate and check store slug availability
-    if (storeSlug) {
-      if (storeSlug.length < 3) {
-        throw new Error('Store URL must be at least 3 characters long');
-      }
-      
-      const isSlugAvailable = await checkSlugAvailability(storeSlug);
-      if (!isSlugAvailable) {
-        throw new Error('Store URL is already taken. Please choose a different one.');
-      }
-    }
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    
-    // Use provided slug or generate one as fallback
-    let finalStoreSlug = storeSlug;
-    if (!finalStoreSlug) {
-      const generateSlug = (name: string, uid: string): string => {
-        const baseName = name || 'store';
-        const sanitized = baseName
-          .toLowerCase()
-          .replace(/[^a-z0-9]/g, '')
-          .substring(0, 10);
-        const timestamp = Date.now().toString().slice(-6);
-        return `${sanitized}${timestamp}`;
-      };
-      finalStoreSlug = generateSlug(displayName || 'mystore', user.uid);
-    }
-    
-    console.log('Using store slug:', finalStoreSlug);
-    
-    // Create user profile and store in Firestore
-    const userProfile: UserProfile = {
-      uid: user.uid,
-      email: user.email!,
-      displayName: displayName || '',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      role: 'user',
-      isPremium: false,
-    };
-    
-    console.log('Creating user profile:', userProfile);
-    
-    await setDoc(doc(db, 'users', user.uid), userProfile);
-    console.log('User profile created successfully');
-    
-    // Create a default store for the user
-    const defaultStore = {
-      ownerId: user.uid,
-      name: `${displayName || 'My'} Store`,
-      description: 'Welcome to my awesome store! Discover unique products curated just for you.',
-      slug: finalStoreSlug,
-      avatar: '',
-      backgroundImage: '',
-      socialLinks: [],
-      headerLayout: 'left-right',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      isActive: true
-    };
-    
-    console.log('Creating default store with data:', defaultStore);
-    // Create store document nested under user document
-    const storeRef = doc(db, 'users', user.uid, 'stores', user.uid);
-    
-    await setDoc(storeRef, defaultStore);
-    
-    console.log('Store created successfully with slug:', finalStoreSlug, 'and ID:', user.uid);
-    
-    // Update user profile with store reference
-    const userRef = doc(db, 'users', user.uid);
-    
-    await setDoc(userRef, {
-      ...userProfile,
-      storeId: user.uid
-    }, { merge: true });
-    
-    console.log('User profile updated with store reference. Store ID:', user.uid);
-    
-    return user;
-  } catch (error: any) {
-    throw new Error(error.message);
-  }
-};
-
-export const logout = async () => {
-  try {
-    if (!auth) throw new Error('Firebase not initialized');
-
-    await signOut(auth);
-  } catch (error: any) {
-    throw new Error(error.message);
-  }
-};
-
-export const getUserProfile = async (uid: string): Promise<UserProfile | null> => {
+export const getUserStore = async (userId: string): Promise<Store | null> => {
   try {
     if (!db) return null;
-
-
-    const docRef = doc(db, 'users', uid);
-    const docSnap = await getDoc(docRef);
     
-    if (docSnap.exists()) {
-      const data = docSnap.data();
+    const storeRef = doc(db, 'users', userId, 'stores', userId);
+    const storeSnap = await getDoc(storeRef);
+    
+    if (storeSnap.exists()) {
+      const data = storeSnap.data();
       return {
+        id: storeSnap.id,
         ...data,
         createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
         updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt
-      } as UserProfile;
+      } as Store;
     }
+    
     return null;
   } catch (error) {
-    console.error('Error fetching user profile:', error);
+    console.error('Error fetching user store:', error);
     return null;
   }
 };
 
-export const updateUserRoleAndPremiumStatus = async (userId: string, updates: { role?: 'user' | 'admin', isPremium?: boolean }): Promise<void> => {
+export const getStoreBySlug = async (slug: string): Promise<Store | null> => {
+  try {
+    if (!db) return null;
+    
+    const storesQuery = query(
+      collectionGroup(db, 'stores'),
+      where('slug', '==', slug),
+      limit(1)
+    );
+    
+    const querySnapshot = await getDocs(storesQuery);
+    
+    if (!querySnapshot.empty) {
+      const doc = querySnapshot.docs[0];
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
+        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt
+      } as Store;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error fetching store by slug:', error);
+    return null;
+  }
+};
+
+export const updateStore = async (userId: string, updates: Partial<Store>): Promise<void> => {
   try {
     if (!db) throw new Error('Firebase not initialized');
     
-    const userRef = doc(db, 'users', userId);
-    await updateDoc(userRef, {
+    const storeRef = doc(db, 'users', userId, 'stores', userId);
+    await updateDoc(storeRef, {
       ...updates,
       updatedAt: new Date()
     });
   } catch (error) {
-    console.error('Error updating user role/premium status:', error);
+    console.error('Error updating store:', error);
     throw error;
   }
 };
 
-export const getUserByEmail = async (email: string): Promise<UserProfile | null> => {
+// Image Upload Functions
+export const uploadStoreImage = async (userId: string, file: File, type: 'avatar' | 'banner'): Promise<string> => {
+  try {
+    if (!storage) throw new Error('Firebase Storage not initialized');
+    
+    // Compress image
+    const compressedFile = await compressImage(file, {
+      quality: 0.75,
+      type: 'webp',
+      width: type === 'avatar' ? 200 : 1200,
+      height: type === 'avatar' ? 200 : undefined
+    });
+    
+    const fileName = `${type}_${Date.now()}.webp`;
+    const imageRef = ref(storage, `users/${userId}/images/store/${fileName}`);
+    
+    await uploadBytes(imageRef, compressedFile);
+    return await getDownloadURL(imageRef);
+  } catch (error) {
+    console.error('Error uploading store image:', error);
+    throw error;
+  }
+};
+
+export const uploadWidgetImage = async (userId: string, file: File): Promise<string> => {
+  try {
+    if (!storage) throw new Error('Firebase Storage not initialized');
+    
+    const compressedFile = await compressImage(file, {
+      quality: 0.75,
+      type: 'webp',
+      width: 200,
+      height: 200
+    });
+    
+    const fileName = `widget_${Date.now()}.webp`;
+    const imageRef = ref(storage, `users/${userId}/images/store/${fileName}`);
+    
+    await uploadBytes(imageRef, compressedFile);
+    return await getDownloadURL(imageRef);
+  } catch (error) {
+    console.error('Error uploading widget image:', error);
+    throw error;
+  }
+};
+
+export const deleteImageFromStorage = async (imageUrl: string): Promise<void> => {
+  try {
+    if (!storage || !imageUrl) return;
+    
+    const imageRef = ref(storage, imageUrl);
+    await deleteObject(imageRef);
+  } catch (error) {
+    console.warn('Error deleting image from storage:', error);
+  }
+};
+
+// Product Management Functions
+export const getStoreProducts = async (storeId: string): Promise<Product[]> => {
+  try {
+    if (!db) return [];
+    
+    const productsRef = collection(db, 'users', storeId, 'stores', storeId, 'products');
+    const querySnapshot = await getDocs(productsRef);
+    
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : doc.data().createdAt,
+      updatedAt: doc.data().updatedAt?.toDate ? doc.data().updatedAt.toDate() : doc.data().updatedAt
+    })) as Product[];
+  } catch (error) {
+    console.error('Error fetching store products:', error);
+    return [];
+  }
+};
+
+export const getProductById = async (storeId: string, productId: string): Promise<Product | null> => {
   try {
     if (!db) return null;
     
-    const usersRef = collection(db, 'users');
-    const q = query(usersRef, where('email', '==', email));
-    const querySnapshot = await getDocs(q);
+    const productRef = doc(db, 'users', storeId, 'stores', storeId, 'products', productId);
+    const productSnap = await getDoc(productRef);
     
-    if (querySnapshot.empty) {
-      return null;
+    if (productSnap.exists()) {
+      const data = productSnap.data();
+      return {
+        id: productSnap.id,
+        ...data,
+        createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
+        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt
+      } as Product;
     }
     
-    const userDoc = querySnapshot.docs[0];
-    return {
-      uid: userDoc.id,
-      ...userDoc.data()
-    } as UserProfile;
+    return null;
   } catch (error) {
-    console.error('Error fetching user by email:', error);
+    console.error('Error fetching product by ID:', error);
     return null;
   }
 };
 
-export const getAllUserProfiles = async (): Promise<UserProfile[]> => {
+export const addProduct = async (product: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+    
+    const productData = {
+      ...product,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isActive: true,
+      clickCount: 0
+    };
+    
+    const docRef = await addDoc(collection(db, 'users', product.storeId, 'stores', product.storeId, 'products'), productData);
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding product:', error);
+    throw error;
+  }
+};
+
+export const updateProduct = async (storeId: string, productId: string, updates: Partial<Product>): Promise<void> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+    
+    const productRef = doc(db, 'users', storeId, 'stores', storeId, 'products', productId);
+    await updateDoc(productRef, {
+      ...updates,
+      updatedAt: new Date()
+    });
+  } catch (error) {
+    console.error('Error updating product:', error);
+    throw error;
+  }
+};
+
+export const deleteProduct = async (storeId: string, productId: string): Promise<void> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+    
+    const productRef = doc(db, 'users', storeId, 'stores', storeId, 'products', productId);
+    await deleteDoc(productRef);
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    throw error;
+  }
+};
+
+export const uploadProductImage = async (userId: string, file: File, productId: string): Promise<string> => {
+  try {
+    if (!storage) throw new Error('Firebase Storage not initialized');
+    
+    const compressedFile = await compressImage(file, {
+      quality: 0.75,
+      type: 'webp',
+      width: 1200
+    });
+    
+    const fileName = `product_${productId}_${Date.now()}.webp`;
+    const imageRef = ref(storage, `users/${userId}/images/products/${fileName}`);
+    
+    await uploadBytes(imageRef, compressedFile);
+    return await getDownloadURL(imageRef);
+  } catch (error) {
+    console.error('Error uploading product image:', error);
+    throw error;
+  }
+};
+
+export const addProductsBatch = async (products: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>[], storeId: string): Promise<void> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+    
+    const batch = writeBatch(db);
+    
+    products.forEach(product => {
+      const productRef = doc(collection(db, 'users', storeId, 'stores', storeId, 'products'));
+      const productData = {
+        ...product,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        isActive: true,
+        clickCount: 0
+      };
+      batch.set(productRef, productData);
+    });
+    
+    await batch.commit();
+  } catch (error) {
+    console.error('Error adding products batch:', error);
+    throw error;
+  }
+};
+
+// Slide Management Functions
+export const getStoreSlides = async (storeId: string): Promise<Slide[]> => {
   try {
     if (!db) return [];
     
-    console.log('Fetching all user profiles...');
-    const usersRef = collection(db, 'users');
-    const querySnapshot = await getDocs(usersRef);
+    const slidesRef = collection(db, 'users', storeId, 'stores', storeId, 'slides');
+    const q = query(slidesRef, orderBy('order', 'asc'));
+    const querySnapshot = await getDocs(q);
     
-    console.log('Query snapshot size:', querySnapshot.size);
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : doc.data().createdAt,
+      updatedAt: doc.data().updatedAt?.toDate ? doc.data().updatedAt.toDate() : doc.data().updatedAt
+    })) as Slide[];
+  } catch (error) {
+    console.error('Error fetching store slides:', error);
+    return [];
+  }
+};
+
+export const getSlideById = async (storeId: string, slideId: string): Promise<Slide | null> => {
+  try {
+    if (!db) return null;
     
-    const users: UserProfile[] = [];
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      console.log('Processing user doc:', doc.id, data);
-      users.push({
-        uid: doc.id,
+    const slideRef = doc(db, 'users', storeId, 'stores', storeId, 'slides', slideId);
+    const slideSnap = await getDoc(slideRef);
+    
+    if (slideSnap.exists()) {
+      const data = slideSnap.data();
+      return {
+        id: slideSnap.id,
         ...data,
         createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
         updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt
-      } as UserProfile);
-    });
+      } as Slide;
+    }
     
-    console.log('Processed users:', users.length);
-    
-    // Sort users by creation date (newest first)
-    const sortedUsers = users.sort((a, b) => {
-      if (!a.createdAt || !b.createdAt) return 0;
-      return b.createdAt.getTime() - a.createdAt.getTime();
-    });
-    
-    console.log('Returning sorted users:', sortedUsers.length);
-    return sortedUsers;
+    return null;
   } catch (error) {
-    console.error('Error fetching all user profiles:', error);
-    throw error; // Re-throw to handle in UI
+    console.error('Error fetching slide by ID:', error);
+    return null;
   }
 };
 
-// Helper function to check if user is admin
-export const isAdmin = (userProfile: UserProfile | null): boolean => {
-  return userProfile?.role === 'admin';
+export const addSlide = async (slide: Omit<Slide, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+    
+    const slideData = {
+      ...slide,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      clickCount: 0
+    };
+    
+    const docRef = await addDoc(collection(db, 'users', slide.storeId, 'stores', slide.storeId, 'slides'), slideData);
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding slide:', error);
+    throw error;
+  }
 };
 
-// Helper function to check if user is premium
-export const isPremium = (userProfile: UserProfile | null): boolean => {
-  return userProfile?.isPremium === true || isAdmin(userProfile);
+export const updateSlide = async (storeId: string, slideId: string, updates: Partial<Slide>): Promise<void> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+    
+    const slideRef = doc(db, 'users', storeId, 'stores', storeId, 'slides', slideId);
+    await updateDoc(slideRef, {
+      ...updates,
+      updatedAt: new Date()
+    });
+  } catch (error) {
+    console.error('Error updating slide:', error);
+    throw error;
+  }
 };
 
-// Helper function to check if user can access feature
-export const canAccessFeature = (userProfile: UserProfile | null, feature: 'analytics' | 'csv_import' | 'export' | 'admin'): boolean => {
-  if (!userProfile) return false;
+export const deleteSlide = async (storeId: string, slideId: string): Promise<void> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+    
+    const slideRef = doc(db, 'users', storeId, 'stores', storeId, 'slides', slideId);
+    await deleteDoc(slideRef);
+  } catch (error) {
+    console.error('Error deleting slide:', error);
+    throw error;
+  }
+};
+
+export const uploadSlideImage = async (userId: string, file: File, slideId: string): Promise<string> => {
+  try {
+    if (!storage) throw new Error('Firebase Storage not initialized');
+    
+    const compressedFile = await compressImage(file, {
+      quality: 0.75,
+      type: 'webp',
+      width: 1200
+    });
+    
+    const fileName = `slide_${slideId}_${Date.now()}.webp`;
+    const imageRef = ref(storage, `users/${userId}/images/slides/${fileName}`);
+    
+    await uploadBytes(imageRef, compressedFile);
+    return await getDownloadURL(imageRef);
+  } catch (error) {
+    console.error('Error uploading slide image:', error);
+    throw error;
+  }
+};
+
+// Subscriber Management Functions
+export const addSubscriber = async (subscriber: Omit<Subscriber, 'id' | 'createdAt'>): Promise<string> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+    
+    const subscriberData = {
+      ...subscriber,
+      createdAt: new Date()
+    };
+    
+    const docRef = await addDoc(collection(db, 'users', subscriber.storeId, 'stores', subscriber.storeId, 'subscribers'), subscriberData);
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding subscriber:', error);
+    throw error;
+  }
+};
+
+export const getStoreSubscribers = async (storeId: string): Promise<Subscriber[]> => {
+  try {
+    if (!db) return [];
+    
+    const subscribersRef = collection(db, 'users', storeId, 'stores', storeId, 'subscribers');
+    const querySnapshot = await getDocs(subscribersRef);
+    
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as Subscriber[];
+  } catch (error) {
+    console.error('Error fetching store subscribers:', error);
+    return [];
+  }
+};
+
+export const deleteSubscriber = async (storeId: string, subscriberId: string): Promise<void> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+    
+    const subscriberRef = doc(db, 'users', storeId, 'stores', storeId, 'subscribers', subscriberId);
+    await deleteDoc(subscriberRef);
+  } catch (error) {
+    console.error('Error deleting subscriber:', error);
+    throw error;
+  }
+};
+
+// Global Banner Management Functions
+export const getActiveGlobalBanner = async (): Promise<GlobalBanner | null> => {
+  try {
+    if (!db) return null;
+    
+    const bannersRef = collection(db, 'global_banners');
+    const q = query(bannersRef, where('isActive', '==', true), limit(1));
+    const querySnapshot = await getDocs(q);
+    
+    if (!querySnapshot.empty) {
+      const doc = querySnapshot.docs[0];
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
+        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt
+      } as GlobalBanner;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error fetching active global banner:', error);
+    return null;
+  }
+};
+
+export const getAllGlobalBanners = async (): Promise<GlobalBanner[]> => {
+  try {
+    if (!db) return [];
+    
+    const bannersRef = collection(db, 'global_banners');
+    const q = query(bannersRef, orderBy('createdAt', 'desc'));
+    const querySnapshot = await getDocs(q);
+    
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : doc.data().createdAt,
+      updatedAt: doc.data().updatedAt?.toDate ? doc.data().updatedAt.toDate() : doc.data().updatedAt
+    })) as GlobalBanner[];
+  } catch (error) {
+    console.error('Error fetching all global banners:', error);
+    return [];
+  }
+};
+
+export const addGlobalBanner = async (banner: Omit<GlobalBanner, 'id' | 'createdAt' | 'updatedAt'>, userId: string): Promise<string> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+    
+    const bannerData = {
+      ...banner,
+      ownerId: userId,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    const docRef = await addDoc(collection(db, 'global_banners'), bannerData);
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding global banner:', error);
+    throw error;
+  }
+};
+
+export const updateGlobalBanner = async (bannerId: string, updates: Partial<GlobalBanner>): Promise<void> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+    
+    const bannerRef = doc(db, 'global_banners', bannerId);
+    await updateDoc(bannerRef, {
+      ...updates,
+      updatedAt: new Date()
+    });
+  } catch (error) {
+    console.error('Error updating global banner:', error);
+    throw error;
+  }
+};
+
+export const deleteGlobalBanner = async (bannerId: string): Promise<void> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+    
+    const bannerRef = doc(db, 'global_banners', bannerId);
+    await deleteDoc(bannerRef);
+  } catch (error) {
+    console.error('Error deleting global banner:', error);
+    throw error;
+  }
+};
+
+export const uploadGlobalBannerImage = async (file: File): Promise<string> => {
+  try {
+    if (!storage) throw new Error('Firebase Storage not initialized');
+    
+    const compressedFile = await compressImage(file, {
+      quality: 0.75,
+      type: 'webp',
+      width: 1200
+    });
+    
+    const fileName = `global_banner_${Date.now()}.webp`;
+    const imageRef = ref(storage, `global_banners/${fileName}`);
+    
+    await uploadBytes(imageRef, compressedFile);
+    return await getDownloadURL(imageRef);
+  } catch (error) {
+    console.error('Error uploading global banner image:', error);
+    throw error;
+  }
+};
+
+// Sponsored Product Management Functions
+export const getSponsoredProducts = async (): Promise<SponsoredProduct[]> => {
+  try {
+    if (!db) return [];
+    
+    const sponsoredProductsRef = collection(db, 'sponsored_products');
+    const q = query(sponsoredProductsRef, where('isActive', '!=', false));
+    const querySnapshot = await getDocs(q);
+    
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : doc.data().createdAt,
+      updatedAt: doc.data().updatedAt?.toDate ? doc.data().updatedAt.toDate() : doc.data().updatedAt
+    })) as SponsoredProduct[];
+  } catch (error) {
+    console.error('Error fetching sponsored products:', error);
+    return [];
+  }
+};
+
+export const getAllSponsoredProducts = async (): Promise<SponsoredProduct[]> => {
+  try {
+    if (!db) return [];
+    
+    const sponsoredProductsRef = collection(db, 'sponsored_products');
+    const q = query(sponsoredProductsRef, orderBy('createdAt', 'desc'));
+    const querySnapshot = await getDocs(q);
+    
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : doc.data().createdAt,
+      updatedAt: doc.data().updatedAt?.toDate ? doc.data().updatedAt.toDate() : doc.data().updatedAt
+    })) as SponsoredProduct[];
+  } catch (error) {
+    console.error('Error fetching all sponsored products:', error);
+    return [];
+  }
+};
+
+export const getSponsoredProductById = async (sponsoredProductId: string): Promise<SponsoredProduct | null> => {
+  try {
+    if (!db) return null;
+    
+    const sponsoredProductRef = doc(db, 'sponsored_products', sponsoredProductId);
+    const sponsoredProductSnap = await getDoc(sponsoredProductRef);
+    
+    if (sponsoredProductSnap.exists()) {
+      const data = sponsoredProductSnap.data();
+      return {
+        id: sponsoredProductSnap.id,
+        ...data,
+        createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
+        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt
+      } as SponsoredProduct;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error fetching sponsored product by ID:', error);
+    return null;
+  }
+};
+
+export const addSponsoredProduct = async (sponsoredProduct: Omit<SponsoredProduct, 'id' | 'createdAt' | 'updatedAt'>, userId: string): Promise<string> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+    
+    const sponsoredProductData = {
+      ...sponsoredProduct,
+      ownerId: userId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isActive: true,
+      clickCount: 0
+    };
+    
+    const docRef = await addDoc(collection(db, 'sponsored_products'), sponsoredProductData);
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding sponsored product:', error);
+    throw error;
+  }
+};
+
+export const updateSponsoredProduct = async (sponsoredProductId: string, updates: Partial<SponsoredProduct>): Promise<void> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+    
+    const sponsoredProductRef = doc(db, 'sponsored_products', sponsoredProductId);
+    await updateDoc(sponsoredProductRef, {
+      ...updates,
+      updatedAt: new Date()
+    });
+  } catch (error) {
+    console.error('Error updating sponsored product:', error);
+    throw error;
+  }
+};
+
+export const deleteSponsoredProduct = async (sponsoredProductId: string): Promise<void> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+    
+    const sponsoredProductRef = doc(db, 'sponsored_products', sponsoredProductId);
+    await deleteDoc(sponsoredProductRef);
+  } catch (error) {
+    console.error('Error deleting sponsored product:', error);
+    throw error;
+  }
+};
+
+export const uploadSponsoredProductImage = async (file: File, sponsoredProductId: string): Promise<string> => {
+  try {
+    if (!storage) throw new Error('Firebase Storage not initialized');
+    
+    const compressedFile = await compressImage(file, {
+      quality: 0.75,
+      type: 'webp',
+      width: 1200
+    });
+    
+    const fileName = `sponsored_product_${sponsoredProductId}_${Date.now()}.webp`;
+    const imageRef = ref(storage, `sponsored_products/${sponsoredProductId}/${fileName}`);
+    
+    await uploadBytes(imageRef, compressedFile);
+    return await getDownloadURL(imageRef);
+  } catch (error) {
+    console.error('Error uploading sponsored product image:', error);
+    throw error;
+  }
+};
+
+export const incrementSponsoredProductClickCount = async (sponsoredProductId: string): Promise<void> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+    
+    const sponsoredProductRef = doc(db, 'sponsored_products', sponsoredProductId);
+    await updateDoc(sponsoredProductRef, {
+      clickCount: increment(1),
+      updatedAt: new Date()
+    });
+  } catch (error) {
+    console.error('Error incrementing sponsored product click count:', error);
+    throw error;
+  }
+};
+
+// Utility Functions
+export const getAllStoreSlugs = async (): Promise<Map<string, string>> => {
+  try {
+    if (!db) return new Map();
+    
+    const storesQuery = query(collectionGroup(db, 'stores'));
+    const querySnapshot = await getDocs(storesQuery);
+    
+    const slugMap = new Map<string, string>();
+    querySnapshot.docs.forEach(doc => {
+      const data = doc.data();
+      if (data.ownerId && data.slug) {
+        slugMap.set(data.ownerId, data.slug);
+      }
+    });
+    
+    return slugMap;
+  } catch (error) {
+    console.error('Error fetching all store slugs:', error);
+    return new Map();
+  }
+};
+
+export const generateCategoriesWithCountSync = (products: Product[]): Array<{ id: string; name: string; image: string; count?: number }> => {
+  const categoryMap = new Map<string, { count: number; image: string }>();
   
-  switch (feature) {
-    case 'admin':
-      return isAdmin(userProfile);
-    case 'analytics':
-    case 'csv_import':
-    case 'export':
-      return isPremium(userProfile);
-    default:
-      return false;
-  }
+  products.forEach(product => {
+    if (product.isSponsored) return; // Skip sponsored products for categories
+    
+    const category = product.category;
+    const existingCategory = categoryMap.get(category);
+    
+    if (existingCategory) {
+      existingCategory.count++;
+    } else {
+      categoryMap.set(category, {
+        count: 1,
+        image: product.images?.[0] || ''
+      });
+    }
+  });
+  
+  const categories = Array.from(categoryMap.entries()).map(([name, data]) => ({
+    id: name,
+    name,
+    image: data.image,
+    count: data.count
+  }));
+  
+  // Sort categories by count (descending)
+  categories.sort((a, b) => (b.count || 0) - (a.count || 0));
+  
+  // Add "All Products" category at the beginning
+  const allProductsCount = products.filter(p => !p.isSponsored).length;
+  return [
+    {
+      id: 'all',
+      name: `All Products (${allProductsCount})`,
+      image: '',
+      count: allProductsCount
+    },
+    ...categories
+  ];
 };
