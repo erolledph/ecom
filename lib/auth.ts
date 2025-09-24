@@ -1,7 +1,7 @@
 import { auth, db } from './firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
-import { checkSlugAvailability } from './store';
+import { checkSlugAvailability } from '@/lib/store';
 
 export interface UserProfile {
   uid: string;
@@ -88,7 +88,6 @@ export const signUp = async (email: string, password: string, displayName?: stri
       email: user.email!,
       displayName: displayName || '',
       createdAt: new Date(),
-      updatedAt: new Date(),
       updatedAt: new Date(),
       role: 'user',
       isPremium: false,
