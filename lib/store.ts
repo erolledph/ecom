@@ -85,6 +85,7 @@ export interface Product {
   category: string;
   images?: string[];
   storeId?: string;
+  ownerId?: string;
   isActive?: boolean;
   // add optional productLink field
   productLink?: string;
