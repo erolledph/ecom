@@ -678,7 +678,9 @@ export default function StoreTemplate({ store, products, slides, categories, ini
             >
               <div className="aspect-square overflow-hidden relative">
                 {product.isSponsored && (
-                
+                  <div className="absolute bottom-2 left-2 z-10 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-br-md">
+                    SPONSORED
+                  </div>
                 )}
                 {product.images && product.images[0] && (
                   <Image
