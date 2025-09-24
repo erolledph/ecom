@@ -144,7 +144,7 @@ export default function ProductsPage() {
               }}
               disabled={isAtProductLimit}
               className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-              title={isAtProductLimit ? 'Product limit reached. Upgrade to premium for unlimited products.' : 'Add new product'}
+              title={isAtProductLimit ? 'Product limit reached. Enhanced access required for more products.' : 'Add new product'}
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Product
@@ -162,8 +162,8 @@ export default function ProductsPage() {
               <div className="flex-1">
                 <h4 className="font-medium text-red-900 mb-1">Product Limit Reached</h4>
                 <p className="text-sm text-red-800">
-                  You have reached the maximum of 30 products for normal users. 
-                  Upgrade to premium to add unlimited products and access advanced features.
+                  You have reached the maximum of 30 products. 
+                  To add more products, you will need enhanced access.
                 </p>
               </div>
             </div>
