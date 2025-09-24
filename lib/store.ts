@@ -22,7 +22,7 @@ import {
   getDownloadURL, 
   deleteObject 
 } from 'firebase/storage';
-import { compressImage } from 'image-resize-compress';
+import { ImageCompressor } from 'image-resize-compress';
 
 // Interfaces
 export interface Store {
@@ -227,7 +227,8 @@ export const uploadStoreImage = async (userId: string, file: File, type: 'avatar
     if (!storage) throw new Error('Firebase Storage not initialized');
     
     // Compress image
-    const compressedFile = await compressImage(file, {
+    const imageCompressor = new ImageCompressor();
+    const compressedFile = await imageCompressor.run(file, {
       quality: 0.75,
       type: 'webp',
       width: type === 'avatar' ? 200 : 1200,
@@ -249,7 +250,8 @@ export const uploadWidgetImage = async (userId: string, file: File): Promise<str
   try {
     if (!storage) throw new Error('Firebase Storage not initialized');
     
-    const compressedFile = await compressImage(file, {
+    const imageCompressor = new ImageCompressor();
+    const compressedFile = await imageCompressor.run(file, {
       quality: 0.75,
       type: 'webp',
       width: 200,
@@ -373,7 +375,8 @@ export const uploadProductImage = async (userId: string, file: File, productId: 
   try {
     if (!storage) throw new Error('Firebase Storage not initialized');
     
-    const compressedFile = await compressImage(file, {
+    const imageCompressor = new ImageCompressor();
+    const compressedFile = await imageCompressor.run(file, {
       quality: 0.75,
       type: 'webp',
       width: 1200
@@ -510,7 +513,8 @@ export const uploadSlideImage = async (userId: string, file: File, slideId: stri
   try {
     if (!storage) throw new Error('Firebase Storage not initialized');
     
-    const compressedFile = await compressImage(file, {
+    const imageCompressor = new ImageCompressor();
+    const compressedFile = await imageCompressor.run(file, {
       quality: 0.75,
       type: 'webp',
       width: 1200
@@ -671,7 +675,8 @@ export const uploadGlobalBannerImage = async (file: File): Promise<string> => {
   try {
     if (!storage) throw new Error('Firebase Storage not initialized');
     
-    const compressedFile = await compressImage(file, {
+    const imageCompressor = new ImageCompressor();
+    const compressedFile = await imageCompressor.run(file, {
       quality: 0.75,
       type: 'webp',
       width: 1200
@@ -805,7 +810,8 @@ export const uploadSponsoredProductImage = async (file: File, sponsoredProductId
   try {
     if (!storage) throw new Error('Firebase Storage not initialized');
     
-    const compressedFile = await compressImage(file, {
+    const imageCompressor = new ImageCompressor();
+    const compressedFile = await imageCompressor.run(file, {
       quality: 0.75,
       type: 'webp',
       width: 1200
