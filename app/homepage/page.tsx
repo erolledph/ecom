@@ -541,6 +541,7 @@ export default function Homepage() {
           background-image: radial-gradient(circle, #e5e7eb 1px, transparent 1px);
           background-size: 20px 20px;
         }
-            }
-  )
-}
+       `}</style>
+     </div>
+   );
+ }
