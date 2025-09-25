@@ -211,8 +211,8 @@ export default function TermsAndServicesPage() {
               <div className="bg-gray-50 rounded-lg p-6">
                 <div className="space-y-2 text-gray-700">
                   <p><strong>Email:</strong> legal@tiangge.shop</p>
-                  <p><strong>Website:</strong> <a href="https://tiangge.shop" className="text-primary-600 hover:text-primary-700">https://tiangge.shop</a></p>
-                  <p><strong>Support:</strong> <Link href="/homepage/contact" className="text-primary-600 hover:text-primary-700">Contact Page</Link></p>
+                  <p><strong>Website:</strong> <a href="https://tiangge.shop" className=\"text-primary-600 hover:text-primary-700">https://tiangge.shop</a></p>
+                  <p><strong>Support:</strong> <Link href="/homepage/contact" className=\"text-primary-600 hover:text-primary-700">Contact Page</Link></p>
                 </div>
               </div>
             </section>
