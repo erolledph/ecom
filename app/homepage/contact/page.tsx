@@ -1,19 +1,5 @@
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft, Mail, Phone, MapPin, Clock, MessageSquare, Send, Users, Headphones, Building2 } from 'lucide-react';
-
-export const metadata: Metadata = {
-  title: 'Contact Us | Tiangge - Affiliate Store Builder Support',
-  description: 'Get in touch with the Tiangge team. Contact us for support, sales inquiries, partnerships, or general questions about our affiliate store builder platform.',
-  openGraph: {
-    title: 'Contact Us | Tiangge',
-    description: 'Get in touch with the Tiangge team for support, sales inquiries, or general questions.',
-    url: 'https://tiangge.shop/homepage/contact',
-  },
-  alternates: {
-    canonical: 'https://tiangge.shop/homepage/contact',
-  },
-};
 
 export default function ContactPage() {
   const contactMethods = [

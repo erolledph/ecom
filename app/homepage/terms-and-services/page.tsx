@@ -1,19 +1,5 @@
-import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowLeft, FileText, Shield, Users, AlertCircle } from 'lucide-react';
-
-export const metadata: Metadata = {
-  title: 'Terms and Services | Tiangge - Affiliate Store Builder',
-  description: 'Read our terms and services for using Tiangge affiliate store builder platform. Learn about user responsibilities, service usage, and platform policies.',
-  openGraph: {
-    title: 'Terms and Services | Tiangge',
-    description: 'Read our terms and services for using Tiangge affiliate store builder platform.',
-    url: 'https://tiangge.shop/homepage/terms-and-services',
-  },
-  alternates: {
-    canonical: 'https://tiangge.shop/homepage/terms-and-services',
-  },
-};
+import { ArrowLeft, FileText, Shield, Users, CircleAlert as AlertCircle } from 'lucide-react';
 
 export default function TermsAndServicesPage() {
   return (

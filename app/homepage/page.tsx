@@ -1,55 +1,6 @@
-'use client';
-
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { 
-  Store, 
-  Package, 
-  BarChart3, 
-  Palette, 
-  Users, 
-  Zap, 
-  Shield, 
-  Globe,
-  CheckCircle,
-  Star,
-  ArrowRight,
-  Play,
-  TrendingUp,
-  Image as ImageIcon,
-  Mail,
-  Crown,
-  Building2
-} from 'lucide-react';
-
-export const metadata: Metadata = {
-  title: 'Tiangge - Build Your Online Affiliate Store | Free Store Builder',
-  description: 'Create and customize your own affiliate store with Tiangge. Add products, track analytics, and start earning commissions. Free forever plan available with 30 products.',
-  keywords: 'affiliate store builder, online store creator, affiliate marketing platform, e-commerce builder, store customization, affiliate products, commission tracking',
-  openGraph: {
-    title: 'Tiangge - Build Your Online Affiliate Store',
-    description: 'Create and customize your own affiliate store with Tiangge. Add products, track analytics, and start earning commissions.',
-    url: 'https://tiangge.shop/homepage',
-    images: [
-      {
-        url: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=1200',
-        width: 1200,
-        height: 630,
-        alt: 'Tiangge Affiliate Store Builder',
-      },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Tiangge - Build Your Online Affiliate Store',
-    description: 'Create and customize your own affiliate store with Tiangge. Add products, track analytics, and start earning commissions.',
-    images: ['https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=1200'],
-  },
-  alternates: {
-    canonical: 'https://tiangge.shop/homepage',
-  },
-};
+import { Store, Package, ChartBar as BarChart3, Palette, Users, Zap, Shield, Globe, CircleCheck as CheckCircle, Star, ArrowRight, Play, TrendingUp, Image as ImageIcon, Mail, Crown, Building2 } from 'lucide-react';
 
 export default function Homepage() {
   return (

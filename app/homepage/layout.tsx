@@ -205,6 +205,6 @@ export default function HomepageLayout({
           </div>
         </div>
       </footer>
-    </div>
-  );
+}
+  )
 }

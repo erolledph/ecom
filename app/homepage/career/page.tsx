@@ -1,19 +1,5 @@
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft, Briefcase, MapPin, Clock, Users, Heart, Zap, Globe, Code, Palette } from 'lucide-react';
-
-export const metadata: Metadata = {
-  title: 'Careers | Join the Tiangge Team - Affiliate Store Builder',
-  description: 'Join our team at Tiangge and help build the future of affiliate marketing. Explore career opportunities in a fast-growing startup environment.',
-  openGraph: {
-    title: 'Careers | Join the Tiangge Team',
-    description: 'Join our team at Tiangge and help build the future of affiliate marketing.',
-    url: 'https://tiangge.shop/homepage/career',
-  },
-  alternates: {
-    canonical: 'https://tiangge.shop/homepage/career',
-  },
-};
 
 export default function CareerPage() {
   const jobOpenings = [
