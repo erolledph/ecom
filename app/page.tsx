@@ -1,39 +1,19 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
+import { HeroSection } from '@/components/blocks/HeroSection';
+import { FeaturesSection } from '@/components/blocks/FeaturesSection';
+import { TestimonialsSection } from '@/components/blocks/TestimonialsSection';
+import { PricingSectionComponent } from '@/components/blocks/PricingSectionComponent';
+import StoreFooter from '@/components/StoreFooter';
 
-export default function Home() {
-  const router = useRouter();
-  const { user, loading } = useAuth();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!loading && mounted) {
-      if (user) {
-        router.push('/dashboard');
-      } else {
-        router.push('/auth');
-      }
-    }
-  }, [user, loading, router, mounted]);
-
-  if (!mounted || loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-      </div>
-    );
-  }
-
+export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+    <div className="min-h-screen flex flex-col">
+      <HeroSection />
+      <FeaturesSection />
+      <TestimonialsSection />
+      <PricingSectionComponent />
+      <StoreFooter />
     </div>
   );
 }

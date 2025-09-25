@@ -118,8 +118,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
   const getDisplayedProducts = () => {
     // If search term is active, filter all products by search
     if (searchTerm) {
-      return products.filter(product => 
-        !product.isSponsored && // Exclude sponsored products from search
+      return products.filter(product =>
         product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.category.toLowerCase().includes(searchTerm.toLowerCase())
@@ -128,10 +127,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
     
     // If specific category is selected, show only that category
     if (selectedCategory !== 'all') {
-      return products.filter(product => 
-        !product.isSponsored && // Exclude sponsored products from category filtering
-        product.category === selectedCategory
-      );
+      return products.filter(product => product.category === selectedCategory);
     }
     
     // Default: show all products
@@ -206,8 +202,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
   };
 
   const loadMoreAllProducts = () => {
-    const nonSponsoredProducts = products.filter(p => !p.isSponsored);
-    setVisibleAllProductsCount(prev => Math.min(prev + 9, nonSponsoredProducts.length));
+    setVisibleAllProductsCount(prev => Math.min(prev + 9, products.length));
   };
 
   const handleProductClick = (productLink?: string) => {
@@ -224,29 +219,15 @@ export default function StoreTemplate({ store, products, slides, categories, ini
 
   const handleProductClickWithDetails = (product: Product) => {
     // Track product click with detailed information
-    if (product.isSponsored) {
-      // Track sponsored product click
-      trackEvent('sponsored_product_click', product.ownerId || store.ownerId, {
-        sponsored_product_id: product.id,
-        product_title: product.title,
-        product_category: product.category,
-        product_price: product.price,
-        store_slug: store.slug,
-        store_name: store.name,
-        destination_link: product.productLink,
-      });
-    } else {
-      // Track regular product click
-      trackEvent('product_click', store.ownerId, {
-        product_id: product.id,
-        product_title: product.title,
-        product_category: product.category,
-        product_price: product.price,
-        store_slug: store.slug,
-        store_name: store.name,
-        destination_link: product.productLink,
-      });
-    }
+    trackEvent('product_click', store.ownerId, {
+      product_id: product.id,
+      product_title: product.title,
+      product_category: product.category,
+      product_price: product.price,
+      store_slug: store.slug,
+      store_name: store.name,
+      destination_link: product.productLink,
+    });
     
     if (product.productLink) {
       window.open(product.productLink, '_blank', 'noopener,noreferrer');
@@ -330,7 +311,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
   };
 
   return (
-    <main 
+    <div 
       className="min-h-screen max-w-md mx-auto"
       style={{
         fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'Inter, system-ui, -apple-system, sans-serif',
@@ -534,9 +515,8 @@ export default function StoreTemplate({ store, products, slides, categories, ini
       )}
 
       {/* Categories */}
-      {store.showCategories !== false && categories.length > 0 && (
+      {categories.length > 0 && (
         <section className="container mx-auto px-4 pt-6 overflow-x-auto category-scroller">
-          <h2 className="sr-only">Product Categories</h2>
           <div className="flex space-x-[5px] px-4">
             {categories.map((category) => {
               return (
@@ -607,10 +587,9 @@ export default function StoreTemplate({ store, products, slides, categories, ini
       )}
 
       {/* All Products Section */}
-      <section className="container mx-auto px-4 py-6" id="products" aria-labelledby="products-heading">
+      <section className="container mx-auto px-4 py-6" id="products">
         <div className="mb-6">
-          <h2
-            id="products-heading"
+          <h2 
             className="text-[0.8rem] font-bold mb-2"
             style={{ 
               color: store.customization?.headingTextColor || priceColor,
@@ -670,13 +649,9 @@ export default function StoreTemplate({ store, products, slides, categories, ini
             <div
               key={product.id}
               onClick={() => handleProductClickWithDetails(product)}
-              className={`border rounded-md shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow ${
-                product.isSponsored 
-                  ? 'bg-yellow-50 border-yellow-300 ring-1 ring-yellow-200' 
-                  : 'bg-white border-gray-200'
-              }`}
+              className="bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
             >
-              <div className="aspect-square overflow-hidden relative">
+              <div className="aspect-square overflow-hidden">
                 {product.images && product.images[0] && (
                   <Image
                     src={product.images[0]}
@@ -768,10 +743,10 @@ export default function StoreTemplate({ store, products, slides, categories, ini
       </section>
 
       {/* All Products Section - Only show when category filtering is active (not for search) */}
-      {store.showCategories !== false && selectedCategory !== 'all' && !searchTerm && (
+      {selectedCategory !== 'all' && !searchTerm && (
         <section className="container mx-auto px-4 pt-6 pb-6" id="all-products">
           <div className="mb-6">
-            <h2
+            <h2 
               className="text-[0.8rem] font-bold mb-2"
               style={{ 
                 color: store.customization?.headingTextColor || priceColor,
@@ -783,7 +758,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
           </div>
           
           <div className="grid grid-cols-3 lg:grid-cols-4 gap-[5px]">
-            {products.filter(p => !p.isSponsored).slice(0, visibleAllProductsCount).map((product) => (
+            {products.slice(0, visibleAllProductsCount).map((product) => (
               <div
                 key={`all-${product.id}`}
                 onClick={() => handleProductClickWithDetails(product)}
@@ -829,7 +804,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
           </div>
           
           {/* Load More Button for All Products */}
-          {products.filter(p => !p.isSponsored).length > visibleAllProductsCount && (
+          {products.length > visibleAllProductsCount && (
             <div className="text-center mt-6">
               <button
                 onClick={loadMoreAllProducts}
@@ -849,7 +824,6 @@ export default function StoreTemplate({ store, products, slides, categories, ini
       {/* Custom HTML Section */}
       {store.customHtml && store.customHtml.trim() && (
         <section className="container mx-auto px-4 py-6">
-          <h2 className="sr-only">Custom Content</h2>
           <div 
             dangerouslySetInnerHTML={{ __html: store.customHtml }}
             className="prose prose-sm max-w-none"
@@ -999,6 +973,6 @@ export default function StoreTemplate({ store, products, slides, categories, ini
           background-color: ${storeNameColor};
         }
       `}</style>
-    </main>
+    </div>
   );
 }

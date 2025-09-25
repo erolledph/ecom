@@ -6,8 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { trackEvent } from '@/lib/analytics';
-import { addProduct, updateProduct, Product, uploadProductImage, getStoreProducts } from '@/lib/store';
-import { isPremium } from '@/lib/auth';
+import { addProduct, updateProduct, Product, uploadProductImage } from '@/lib/store';
 import Image from 'next/image';
 import { addDoc, collection, updateDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -30,11 +29,9 @@ interface ProductData {
 }
 
 export default function ProductForm({ product, mode }: ProductFormProps) {
-  const { user, userProfile } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
   const { showSuccess, showError, showInfo } = useToast();
-  const [currentProductCount, setCurrentProductCount] = useState(0);
-  const [isAtProductLimit, setIsAtProductLimit] = useState(false);
   const [productData, setProductData] = useState<ProductData>({
     title: '',
     description: '',
@@ -67,30 +64,6 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
     }
   }, [product, mode]);
 
-  // Check product limit for normal users
-  useEffect(() => {
-    const checkProductLimit = async () => {
-      if (!user || !userProfile || mode === 'edit') return;
-      
-      try {
-        const products = await getStoreProducts(user.uid);
-        setCurrentProductCount(products.length);
-        
-        // Check if user is at product limit (30 for normal users)
-        const isUserPremium = isPremium(userProfile);
-        const atLimit = !isUserPremium && products.length >= 30;
-        setIsAtProductLimit(atLimit);
-        
-        if (atLimit) {
-          showError('You have reached the 30-product limit for normal users. Upgrade to premium for unlimited products.');
-        }
-      } catch (error) {
-        console.error('Error checking product limit:', error);
-      }
-    };
-
-    checkProductLimit();
-  }, [user, userProfile, mode, showError]);
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -199,12 +172,6 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
       return;
     }
     
-    // Check product limit for normal users when adding new products
-    if (mode === 'add' && isAtProductLimit) {
-      showError('Cannot add more products. You have reached the 30-product limit for normal users.');
-      return;
-    }
-    
     // Validate that we have an image
     if (productData.imageType === 'upload' && !productData.imageFile && mode === 'add') {
       showError('Please upload a product image');
@@ -224,48 +191,51 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
     setIsLoading(true);
 
     try {
+      // First, create/update the product to get the product ID
+      let productId: string;
+      
       if (mode === 'edit' && product) {
-        // Handle image first for editing
-        let finalImageUrl = product.images?.[0] || '';
-        
-        if (productData.imageType === 'upload' && productData.imageFile) {
-          finalImageUrl = await uploadProductImage(user.uid, productData.imageFile, product.id!);
-        } else if (productData.imageType === 'url' && productData.imageUrl.trim()) {
-          finalImageUrl = productData.imageUrl.trim();
-        }
-        
-        // Update existing product with all data including image
-        await updateProduct(user.uid, product.id!, {
+        // Update existing product
+        await updateDoc(doc(db, 'users', user.uid, 'stores', user.uid, 'products', product.id!), {
           title: productData.title,
           description: productData.description,
           price: parseFloat(productData.price),
           productLink: productData.productLink,
           category: productData.category.trim(),
-          images: finalImageUrl ? [finalImageUrl] : []
         });
+        productId = product.id!;
       } else {
-        // Handle image for new product
-        let finalImageUrl = '';
-        
-        if (productData.imageType === 'upload' && productData.imageFile) {
-          // We'll upload the image after creating the product
-          const tempProductId = `temp_${Date.now()}`;
-          finalImageUrl = await uploadProductImage(user.uid, productData.imageFile, tempProductId);
-        } else if (productData.imageType === 'url' && productData.imageUrl.trim()) {
-          finalImageUrl = productData.imageUrl.trim();
-        }
-        
-        // Create new product using the addProduct function with premium status
-        const productId = await addProduct({
+        // Create new product
+        const docRef = await addDoc(collection(db, 'users', user.uid, 'stores', user.uid, 'products'), {
           title: productData.title,
           description: productData.description,
           price: parseFloat(productData.price),
           productLink: productData.productLink,
           category: productData.category.trim(),
           storeId: user.uid,
-          images: [finalImageUrl]
-        }, isPremium(userProfile));
+          isActive: true,
+        });
+        productId = docRef.id;
       }
+      
+      // Handle image
+      let finalImageUrl = product?.images?.[0] || '';
+      
+      if (productData.imageType === 'upload' && productData.imageFile) {
+        // Upload new image file
+        finalImageUrl = await uploadProductImage(user.uid, productData.imageFile, productId);
+      } else if (productData.imageType === 'url' && productData.imageUrl.trim()) {
+        // Use provided URL
+        finalImageUrl = productData.imageUrl.trim();
+      }
+      
+      // Update the product with the final image URL
+      if (finalImageUrl) {
+        await updateProduct(user.uid, productId, {
+          images: [finalImageUrl]
+        });
+      }
+      
       showSuccess('Product saved successfully!');
       router.push('/dashboard/products');
     } catch (error) {
@@ -531,46 +501,6 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
 
           {/* Form Actions */}
           <div className="flex justify-end space-x-3 pt-6">
-            {/* Product Limit Warning for Normal Users */}
-            {mode === 'add' && !isPremium(userProfile) && (
-              <div className="flex-1 mr-4">
-                <div className={`p-3 rounded-lg border ${
-                  isAtProductLimit 
-                    ? 'bg-red-50 border-red-200' 
-                    : currentProductCount >= 25 
-                      ? 'bg-yellow-50 border-yellow-200' 
-                      : 'bg-blue-50 border-blue-200'
-                }`}>
-                  <p className={`text-sm font-medium ${
-                    isAtProductLimit 
-                      ? 'text-red-800' 
-                      : currentProductCount >= 25 
-                        ? 'text-yellow-800' 
-                        : 'text-blue-800'
-                  }`}>
-                    {isAtProductLimit 
-                      ? '⚠️ Product Limit Reached' 
-                      : currentProductCount >= 25 
-                        ? '⚠️ Approaching Product Limit' 
-                        : '📦 Product Count'
-                    }
-                  </p>
-                  <p className={`text-xs mt-1 ${
-                    isAtProductLimit 
-                      ? 'text-red-600' 
-                      : currentProductCount >= 25 
-                        ? 'text-yellow-600' 
-                        : 'text-blue-600'
-                  }`}>
-                    {isAtProductLimit 
-                      ? 'You have reached the 30-product limit. Upgrade to premium for unlimited products.' 
-                      : `${currentProductCount}/30 products used. ${30 - currentProductCount} remaining.`
-                    }
-                  </p>
-                </div>
-              </div>
-            )}
-            
             <button
               type="button"
               onClick={handleCancel}
@@ -580,7 +510,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
             </button>
             <button
               type="submit"
-              disabled={isLoading || (mode === 'add' && isAtProductLimit)}
+              disabled={isLoading}
               className="flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
             >
               {isLoading ? (

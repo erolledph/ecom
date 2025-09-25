@@ -74,6 +74,26 @@ export default function PremiumFeatureGate({
       <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 text-white">
         {featureInfo.icon}
       </div>
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">{featureInfo.title}</h3>
+      <p className="text-gray-600 mb-4">{featureInfo.description}</p>
+      
+      {feature !== 'admin' && (
+        <div className="bg-white rounded-lg p-4 mb-4">
+          <p className="text-sm font-medium text-gray-700 mb-2">Premium features include:</p>
+          <ul className="text-sm text-gray-600 space-y-1">
+            <li>• Advanced analytics and reporting</li>
+            <li>• Bulk product imports via CSV</li>
+            <li>• Data export capabilities</li>
+            <li>• Priority support</li>
+          </ul>
+        </div>
+      )}
+      
+      {feature !== 'admin' && (
+        <button className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-lg hover:from-yellow-600 hover:to-orange-600 transition-colors font-medium">
+          Upgrade to Premium
+        </button>
+      )}
     </div>
   );
 }

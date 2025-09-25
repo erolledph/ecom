@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
-import { isPremium } from '@/lib/auth';
 import { getUserStore, getStoreProducts, getStoreSlides, Store } from '@/lib/store';
 import { 
   Store as StoreIcon,
@@ -21,7 +20,7 @@ import {
 } from 'lucide-react';
 
 export default function DashboardOverview() {
-  const { user, userProfile } = useAuth();
+  const { user } = useAuth();
   const { showSuccess, showError, showInfo, showWarning } = useToast();
   const [store, setStore] = useState<Store | null>(null);
   const [stats, setStats] = useState({
@@ -32,7 +31,6 @@ export default function DashboardOverview() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [isAtProductLimit, setIsAtProductLimit] = useState(false);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -57,11 +55,6 @@ export default function DashboardOverview() {
             activeSlides: slides.filter(s => s.isActive).length
           });
           
-          // Check product limit for normal users
-          if (userProfile && !isPremium(userProfile)) {
-            setIsAtProductLimit(products.length >= 30);
-          }
-          
           // Show welcome toast for new users
           if (products.length === 0 && slides.length === 0) {
             showInfo('Welcome to your dashboard! Start by adding products or creating slides.');
@@ -79,7 +72,7 @@ export default function DashboardOverview() {
     };
 
     fetchDashboardData();
-  }, [user, userProfile]);
+  }, [user]);
 
   if (loading) {
     return (
@@ -170,11 +163,6 @@ export default function DashboardOverview() {
             <div>
               <p className="text-sm font-medium text-gray-600">Total Products</p>
               <p className="text-2xl font-bold text-gray-800">{stats.totalProducts}</p>
-              {userProfile && !isPremium(userProfile) && (
-                <p className="text-xs text-green-600 mt-1">
-                  {stats.totalProducts}/30 limit
-                </p>
-              )}
             </div>
             <div className="p-3 bg-blue-100 rounded-lg">
               <Package className="w-7 h-7 text-blue-600" />
@@ -264,42 +252,13 @@ export default function DashboardOverview() {
           <div className="space-y-4">
             <Link
               href="/dashboard/products/add"
-              className={`flex items-center p-4 border-2 border-dashed rounded-lg transition-all group ${
-                isAtProductLimit 
-                  ? 'border-red-200 bg-red-50 cursor-not-allowed' 
-                  : 'border-gray-200 hover:border-primary-400 hover:bg-primary-50'
-              }`}
-              onClick={(e) => {
-                if (isAtProductLimit) {
-                  e.preventDefault();
-                  showError('Cannot add more products. You have reached the 30-product limit for normal users.');
-                }
-              }}
+              className="flex items-center p-4 border-2 border-dashed border-gray-200 rounded-lg hover:border-primary-400 hover:bg-primary-50 transition-all group"
               aria-label="Add New Product"
             >
-              <Plus className={`w-6 h-6 mr-3 ${
-                isAtProductLimit 
-                  ? 'text-red-400' 
-                  : 'text-gray-400 group-hover:text-primary-600'
-              }`} />
+              <Plus className="w-6 h-6 text-gray-400 group-hover:text-primary-600 mr-3" />
               <div>
-                <p className={`font-medium ${
-                  isAtProductLimit 
-                    ? 'text-red-800' 
-                    : 'text-gray-800 group-hover:text-primary-700'
-                }`}>
-                  {isAtProductLimit ? 'Product Limit Reached' : 'Add New Product'}
-                </p>
-                <p className={`text-sm ${
-                  isAtProductLimit 
-                    ? 'text-red-600' 
-                    : 'text-gray-500'
-                }`}>
-                  {isAtProductLimit 
-                    ? 'Upgrade to premium for unlimited products' 
-                    : 'Add affiliate products to your store'
-                  }
-                </p>
+                <p className="font-medium text-gray-800 group-hover:text-primary-700">Add New Product</p>
+                <p className="text-sm text-gray-500">Add affiliate products to your store</p>
               </div>
             </Link>
             

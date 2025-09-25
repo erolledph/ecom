@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
-import { getStoreBySlug, getStoreProducts, getStoreSlides, generateCategoriesWithCountSync, getSponsoredProducts, SponsoredProduct } from '@/lib/store';
+import { getStoreBySlug, getStoreProducts, getStoreSlides, generateCategoriesWithCountSync } from '@/lib/store';
 import StoreTemplate from '@/components/StoreTemplate';
 
 interface StorePageProps {
@@ -87,58 +87,13 @@ export default async function StorePage({ params, searchParams }: StorePageProps
       getStoreSlides(store.id)
     ]);
 
-    // Fetch sponsored products and inject them based on product count
-    let finalProducts = [...products];
-    
-    if (products.length > 15) {
-      try {
-        const sponsoredProducts = await getSponsoredProducts();
-        
-        if (sponsoredProducts.length > 0) {
-          // Randomly select sponsored products
-          const shuffledSponsored = [...sponsoredProducts].sort(() => Math.random() - 0.5);
-          
-          let sponsoredToInject: SponsoredProduct[] = [];
-          
-          if (products.length >= 25 && shuffledSponsored.length >= 2) {
-            // Select 2 different sponsored products for stores with 25+ products
-            sponsoredToInject = shuffledSponsored.slice(0, 2);
-          } else {
-            // Select 1 sponsored product for stores with 15-24 products
-            sponsoredToInject = shuffledSponsored.slice(0, 1);
-          }
-          
-          // Convert sponsored products to regular product format with isSponsored flag
-          const convertedSponsored = sponsoredToInject.map(sp => ({
-            ...sp,
-            storeId: store.id,
-            isSponsored: true
-          }));
-          
-          // Inject sponsored products at specific positions
-          if (convertedSponsored.length >= 1) {
-            // Insert first sponsored product at position 0 (1st card)
-            finalProducts.unshift(convertedSponsored[0]);
-          }
-          
-          if (convertedSponsored.length >= 2) {
-            // Insert second sponsored product at position 6 (7th card after the first injection)
-            finalProducts.splice(6, 0, convertedSponsored[1]);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching sponsored products:', error);
-        // Continue without sponsored products if there's an error
-      }
-    }
-
     // Generate categories from products
-    const categories = generateCategoriesWithCountSync(products); // Use original products for categories, not sponsored ones
+    const categories = generateCategoriesWithCountSync(products);
 
     return (
       <StoreTemplate 
         store={store}
-        products={finalProducts}
+        products={products}
         slides={slides.filter(slide => slide.isActive)}
         categories={categories}
         initialCategory={searchParams.category}
