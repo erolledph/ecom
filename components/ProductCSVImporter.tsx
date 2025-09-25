@@ -4,6 +4,7 @@ import React, { useState, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import PremiumFeatureGate from '@/components/PremiumFeatureGate';
+import { isPremium } from '@/lib/auth';
 import { addProductsBatch, Product } from '@/lib/store';
 import Papa from 'papaparse';
 import { Upload, Download, FileText, AlertCircle, CheckCircle, X } from 'lucide-react';
@@ -24,7 +25,7 @@ interface ValidationError {
 }
 
 export default function ProductCSVImporter() {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const { showSuccess, showError, showWarning } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -131,7 +132,7 @@ export default function ProductCSVImporter() {
 
           if (validProducts.length > 0) {
             // Import valid products
-            await addProductsBatch(validProducts, user!.uid);
+            await addProductsBatch(validProducts, user!.uid, isPremium(userProfile));
             
             setImportResults({
               total: csvData.length,
@@ -154,7 +155,7 @@ export default function ProductCSVImporter() {
           }
         } catch (error) {
           console.error('Error importing products:', error);
-          showError('Failed to import products. Please try again.');
+          showError(error instanceof Error ? error.message : 'Failed to import products. Please try again.');
         } finally {
           setIsImporting(false);
           // Reset file input
@@ -189,7 +190,7 @@ export default function ProductCSVImporter() {
   };
 
   return (
-    <PremiumFeatureGate feature="csv_import">
+    <PremiumFeatureGate feature="csv_import" showUpgrade={false}>
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">

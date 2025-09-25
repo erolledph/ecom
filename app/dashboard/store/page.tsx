@@ -72,6 +72,7 @@ export default function StoreSettingsPage() {
     subscriptionEnabled: true,
     slidesEnabled: true,
     displayPriceOnProducts: true,
+    showCategories: true,
     customHtml: '',
     customization: {
       storeNameFontColor: '#ffffff',
@@ -117,6 +118,7 @@ export default function StoreSettingsPage() {
             subscriptionEnabled: storeData.subscriptionEnabled !== false,
             slidesEnabled: storeData.slidesEnabled !== false,
             displayPriceOnProducts: storeData.displayPriceOnProducts !== false,
+            showCategories: storeData.showCategories !== false,
             customHtml: storeData.customHtml || '',
             customization: {
               ...formData.customization,
@@ -239,6 +241,7 @@ export default function StoreSettingsPage() {
         subscriptionEnabled: formData.subscriptionEnabled,
         slidesEnabled: formData.slidesEnabled,
         displayPriceOnProducts: formData.displayPriceOnProducts,
+        showCategories: formData.showCategories,
         customHtml: formData.customHtml,
         customization: formData.customization
       });
@@ -561,6 +564,14 @@ export default function StoreSettingsPage() {
             description="Show product prices on product cards throughout your store."
             checked={formData.displayPriceOnProducts}
             onChange={(checked) => handleInputChange('displayPriceOnProducts', checked)}
+          />
+
+          <CustomToggle
+            id="showCategories"
+            label="Display Categories"
+            description="Show the horizontal category filter section on your store page. When disabled, only the main products section will be visible."
+            checked={formData.showCategories}
+            onChange={(checked) => handleInputChange('showCategories', checked)}
           />
         </div>
       </div>

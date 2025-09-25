@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import DashboardNav from '@/components/DashboardNav';
+import GlobalBannerDisplay from '@/components/GlobalBannerDisplay';
 
 export default function DashboardLayout({
   children,
@@ -59,6 +60,9 @@ export default function DashboardLayout({
           </div>
         </div>
       </main>
+      
+      {/* Global Banner Display - Only shown in dashboard */}
+      <GlobalBannerDisplay />
     </div>
   );
 }

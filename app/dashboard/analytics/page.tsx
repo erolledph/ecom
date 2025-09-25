@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
-import PremiumFeatureGate from '@/components/PremiumFeatureGate';
 import { getAnalyticsEvents, clearAnalyticsEvents, AnalyticsEvent } from '@/lib/analytics';
 import { getStoreProducts, Product } from '@/lib/store';
 import { 
@@ -200,7 +199,6 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <PremiumFeatureGate feature="analytics">
     <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-6 md:space-y-8">
       {/* Header */}
       <div className="p-4 sm:p-6">
@@ -222,13 +220,6 @@ export default function AnalyticsPage() {
             >
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh
-            </button>
-            <button
-              onClick={handleClearEvents}
-              className="flex items-center justify-center px-3 sm:px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Clear Data
             </button>
           </div>
         </div>
@@ -517,6 +508,5 @@ export default function AnalyticsPage() {
         </div>
       )}
     </div>
-    </PremiumFeatureGate>
   );
 }

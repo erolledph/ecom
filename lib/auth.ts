@@ -1,7 +1,7 @@
 import { auth, db } from './firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
-import { checkSlugAvailability } from './store';
+import { checkSlugAvailability } from '@/lib/store';
 
 export interface UserProfile {
   uid: string;
@@ -9,6 +9,7 @@ export interface UserProfile {
   displayName?: string;
   createdAt: Date;
   storeId?: string;
+  storeSlug?: string;
   role?: 'user' | 'admin';
   isPremium?: boolean;
   updatedAt?: Date;
@@ -87,7 +88,6 @@ export const signUp = async (email: string, password: string, displayName?: stri
       email: user.email!,
       displayName: displayName || '',
       createdAt: new Date(),
-      updatedAt: new Date(),
       updatedAt: new Date(),
       role: 'user',
       isPremium: false,
@@ -264,9 +264,10 @@ export const canAccessFeature = (userProfile: UserProfile | null, feature: 'anal
     case 'admin':
       return isAdmin(userProfile);
     case 'analytics':
+      return true; // All authenticated users can access analytics
     case 'csv_import':
     case 'export':
-      return isPremium(userProfile);
+      return isPremium(userProfile) || isAdmin(userProfile); // Only premium users and admins
     default:
       return false;
   }

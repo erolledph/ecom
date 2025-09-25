@@ -64,6 +64,10 @@ export const trackEvent = async (eventName: string, ownerId: string, properties?
       updateClickCount('product', properties.product_id, properties.store_slug);
     } else if (eventName === 'slide_click' && properties?.slide_id) {
       updateClickCount('slide', properties.slide_id, properties.store_slug);
+    } else if (eventName === 'sponsored_product_click' && properties?.sponsored_product_id) {
+      // Import the function dynamically to avoid circular dependency
+      const { incrementSponsoredProductClickCount } = await import('./store');
+      await incrementSponsoredProductClickCount(properties.sponsored_product_id);
     }
 
   } catch (error) {
@@ -172,5 +176,69 @@ export const clearAnalyticsEvents = async (ownerId: string): Promise<void> => {
     await Promise.all(deletePromises);
   } catch (error) {
     console.warn('Failed to clear analytics events:', error);
+  }
+};
+
+/**
+ * Get global banner click events for analytics
+ * @param ownerId - The ID of the admin who owns the banners
+ * @param bannerId - Optional specific banner ID to filter by
+ */
+export const getGlobalBannerClickEvents = async (ownerId: string, bannerId?: string): Promise<AnalyticsEvent[]> => {
+  if (!db || !ownerId) return [];
+  
+  try {
+    const q = query(
+      collection(db, 'users', ownerId, 'stores', ownerId, 'analytics_events'),
+      where('eventName', '==', 'global_banner_click')
+    );
+    const querySnapshot = await getDocs(q);
+    
+    let events = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as AnalyticsEvent[];
+    
+    // Filter by banner ID if provided
+    if (bannerId) {
+      events = events.filter(event => event.properties?.banner_id === bannerId);
+    }
+    
+    return events;
+  } catch (error) {
+    console.warn('Failed to retrieve global banner click events:', error);
+    return [];
+  }
+};
+
+/**
+ * Get sponsored product click events for analytics
+ * @param adminId - The ID of the admin who owns the sponsored products
+ * @param sponsoredProductId - Optional specific sponsored product ID to filter by
+ */
+export const getSponsoredProductClickEvents = async (adminId: string, sponsoredProductId?: string): Promise<AnalyticsEvent[]> => {
+  if (!db || !adminId) return [];
+  
+  try {
+    const q = query(
+      collection(db, 'users', adminId, 'stores', adminId, 'analytics_events'),
+      where('eventName', '==', 'sponsored_product_click')
+    );
+    const querySnapshot = await getDocs(q);
+    
+    let events = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as AnalyticsEvent[];
+    
+    // Filter by sponsored product ID if provided
+    if (sponsoredProductId) {
+      events = events.filter(event => event.properties?.sponsored_product_id === sponsoredProductId);
+    }
+    
+    return events;
+  } catch (error) {
+    console.warn('Failed to retrieve sponsored product click events:', error);
+    return [];
   }
 };

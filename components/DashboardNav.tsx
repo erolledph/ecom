@@ -19,7 +19,9 @@ import {
   PlusSquare,
   TrendingUp,
   Users,
-  Settings
+  Settings,
+  DollarSign,
+  Radio,
 } from 'lucide-react';
 
 const navigation = [
@@ -53,6 +55,7 @@ export default function DashboardNav({ isCollapsed, toggleCollapse }: DashboardN
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [autoCollapseTimer, setAutoCollapseTimer] = useState<NodeJS.Timeout | null>(null);
+
 
   // Auto-collapse functionality
   useEffect(() => {
@@ -90,6 +93,11 @@ export default function DashboardNav({ isCollapsed, toggleCollapse }: DashboardN
     };
   }, [isHovered, isCollapsed, toggleCollapse, autoCollapseTimer]);
 
+  // Close system menu on mobile menu close
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
   // Generate navigation items based on user role and premium status
   const getNavigationItems = () => {
     let navigation = [
@@ -123,7 +131,9 @@ export default function DashboardNav({ isCollapsed, toggleCollapse }: DashboardN
     if (canAccessFeature(userProfile, 'admin')) {
       navigation.push(
         { type: 'header', name: 'Administration' },
-        { name: 'System Management', href: '/dashboard/system-management', icon: Settings }
+        { name: 'Manage Users', href: '/dashboard/system-management/users', icon: Users },
+        { name: 'Global Broadcast', href: '/dashboard/system-management/global-broadcast', icon: Radio },
+        { name: 'Sponsor Products', href: '/dashboard/system-management/sponsor-products', icon: DollarSign },
       );
     }
 
@@ -144,10 +154,6 @@ export default function DashboardNav({ isCollapsed, toggleCollapse }: DashboardN
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
   };
 
   const handleSidebarMouseEnter = () => {
@@ -277,6 +283,7 @@ export default function DashboardNav({ isCollapsed, toggleCollapse }: DashboardN
               </Link>
             );
           })}
+
         </nav>
 
         {/* Logout Button */}

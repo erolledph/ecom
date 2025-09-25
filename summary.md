@@ -6,217 +6,299 @@ This is a comprehensive affiliate store builder application built with Next.js, 
 ## Tech Stack
 - **Frontend**: Next.js 14, React 18, TypeScript, Tailwind CSS
 - **Backend**: Firebase (Firestore, Authentication, Storage)
-- **Image Processing**: image-resize-compress library
-- **Deployment**: Netlify
-- **UI Components**: Lucide React icons
+- **Image Processing**: image-resize-compress library with WebP conversion
+- **Analytics**: Custom analytics system with Firestore persistence
+- **Deployment**: Netlify with optimized build configuration
+- **UI Components**: Lucide React icons, custom component library
 
 ## Key Features Implemented
 
-### 🔐 Authentication System
-- Email/password authentication with Firebase Auth
-- Strong password validation (8+ chars, uppercase, lowercase, numbers, special chars)
-- User profile management
-- Automatic store creation on signup
-- Protected dashboard routes
+### 🔐 Authentication & User Management System
+- **Strong Authentication**: Email/password with comprehensive validation (8+ chars, mixed case, numbers, special chars)
+- **Automatic Store Creation**: Each user gets a unique store with custom URL on signup
+- **User Roles**: Admin and user roles with different permission levels
+- **Premium Features**: Tiered access system with premium user benefits
+- **Protected Routes**: Dashboard routes protected with authentication checks
 
-### 🏪 Store Management
-- **Store Customization**: 
-  - Custom branding, colors, and layouts
-  - Avatar and background image uploads
-  - Social media integration
-  - Header layout options (left-right, right-left, center)
-  - Custom font families and color schemes (heading and body fonts)
-  - Custom font families and color schemes
-- **Store Settings**: Name, description, slug management
-- **Responsive Design**: Mobile-friendly stores
-- **SEO Optimization**: Meta tags, Open Graph, Twitter cards
+### 🏪 Advanced Store Management & Customization
+- **Store Branding**: Custom avatars, background images, and social media integration
+- **Typography System**: Custom font families for headings and body text with extensive options
+- **Color Customization**: Comprehensive color system including:
+  - Store name and bio colors
+  - Background gradients (start/end colors)
+  - Border colors (avatar, active categories)
+  - Social icon colors
+  - Button colors (CTA buttons)
+  - Price display colors
+- **Layout Options**: Multiple header layouts (left-right, right-left, center)
+- **Responsive Design**: Mobile-first design optimized for all devices
+- **SEO Optimization**: Meta tags, Open Graph, Twitter cards for better visibility
 
-### 📦 Product Management
-- Add/edit/delete affiliate products
-- Product images with automatic compression
-- Categories with auto-generation from products
-- Price display with custom currency symbols
-- Product linking to affiliate URLs
-  - Product linking to affiliate URLs
-- Bulk product management interface
+### 📦 Product Management System
+- **Full CRUD Operations**: Add, edit, delete affiliate products with comprehensive forms
+- **Product Scraping**: Auto-fill product details by scraping product URLs using external API
+- **Bulk Import**: CSV import functionality for adding hundreds of products at once (Premium feature)
+- **Image Management**: Upload or URL-based images with automatic optimization
+- **Category System**: Auto-generated categories from products with filtering capabilities
+- **Click Tracking**: Monitor product performance with detailed analytics
+- **Affiliate Integration**: Direct linking to affiliate URLs with tracking
 
-### 🎨 Promotional Slides
-- Create promotional slides for homepage
-- Image upload with automatic optimization
-- Slide ordering and management
-- Click-through to affiliate links
-  - Click-through to affiliate links
-- Auto-advancing slideshow
+### 🎨 Content & Promotional Features
+- **Promotional Slides**: Create carousel slides with images, descriptions, and affiliate links
+- **Floating Widget**: Customizable floating widgets with images and links
+- **Pop-up Banners**: Promotional banners with custom images, descriptions, and links
+- **Custom HTML**: Sanitized HTML content sections for advanced customization
+- **Auto-advancing Slideshow**: Slides automatically advance with manual navigation options
 
-### 🖼️ Advanced Image Optimization (Latest Implementation)
-- **Automatic Compression**: All uploaded images compressed to 75% quality
-- **Format Conversion**: All images automatically converted to WebP format
-- **Smart Resizing**: 
+### 🖼️ Advanced Image Optimization System
+- **Automatic Compression**: All uploaded images compressed to 75% quality for optimal performance
+- **Format Conversion**: Automatic conversion to WebP format for better compression
+- **Smart Resizing**: Intelligent resizing based on image type:
   - Avatar/Widget images: Max 200px width
   - Product/Slide/Background/Banner images: Max 1200px width
   - Maintains aspect ratio automatically
-- **Filename Preservation**: Original filenames sanitized and preserved
-- **Storage Optimization**: Significant reduction in storage costs and faster loading
-- **Invisible to Users**: Completely behind-the-scenes optimization
+- **Filename Sanitization**: Original filenames preserved and sanitized
+- **Storage Optimization**: Significant reduction in storage costs and faster loading times
 
-### 🎯 Widget & Banner System
-- Floating widget with custom image and link
-- Pop-up banner system with custom images and descriptions
-- Configurable display settings
+### 📊 Analytics & Performance Tracking
+- **Comprehensive Event Tracking**: Tracks various user interactions including:
+  - Store views and visitor traffic
+  - Product clicks with detailed product information
+  - Slide clicks and promotional content engagement
+  - Social link clicks and platform engagement
+  - Widget and banner clicks
+  - Search queries and category filters
+  - Subscription form interactions
+- **Persistent Storage**: All analytics events stored in Firestore for reliable tracking
+- **Performance Insights**: 
+  - Top performing products by click count
+  - Most filtered categories
+  - Most searched terms and user intent
+  - Conversion tracking and user behavior analysis
+- **Data Export**: CSV export capabilities for subscribers and analytics data (Premium feature)
+- **Real-time Dashboard**: Live analytics dashboard with actionable insights
 
-### 📊 Dashboard
-- Comprehensive overview with statistics
-- Quick actions for common tasks
-- Product and slide management interfaces
-- Store analytics and insights
+### 💬 Customer Engagement Features
+- **Email Subscriptions**: Popup subscription forms with customizable timing and appearance
+- **Subscriber Management**: Full CRUD operations for email subscribers
+- **Toast Notification System**: User-friendly feedback for all interactions
+- **Search Functionality**: Product search with real-time filtering and tracking
+- **Category Filtering**: Dynamic category filtering with user behavior tracking
 
-### 📊 Analytics Dashboard (New)
-- **Comprehensive Tracking**: Tracks various user interactions including store views, product clicks, slide clicks, social link clicks, widget clicks, banner clicks, product searches, and category filters.
-- **Persistent Storage**: All analytics events are stored in Firestore for reliable tracking.
-- **Key Metrics**: Displays total product clicks, store views, slide clicks, social link clicks, and searches.
-- **Detailed Insights**:
-  - **Top Performing Products**: Lists the top 10 products by click count.
-  - **Most Filtered Categories**: Shows the top 10 categories that users filter by.
-  - **Most Searched Terms**: Displays the top 10 most frequent search queries.
-- **Actionable Data**: Provides insights to improve product strategy, inventory, SEO, and conversion rates.
-- **Data Management**: Allows refreshing and clearing of analytics data.
+### 🎯 Admin & System Management
+- **User Management Panel**: 
+  - Search users by email address
+  - View all registered users with store information
+  - Toggle user roles between User and Admin
+  - Grant or revoke Premium access
+  - Direct links to user stores
+- **Global Broadcast System**: 
+  - Create system-wide announcement banners
+  - Upload custom images with descriptions and links
+  - Control banner visibility and timing
+  - Track banner click performance
+- **Sponsored Products Management**:
+  - Admin-managed products that appear in user stores
+  - Automatic placement in stores with 15+ products
+  - Revenue sharing through sponsored product clicks
+  - Performance tracking and analytics
 
-### 💬 Toast Notification System (New)
-- Provides user feedback for actions (success, error, info, warning).
-- Integrated with `ToastProvider` and `useToast` hook for easy usage across the application.
+### 🔒 Security & Data Protection
+- **Row Level Security**: Comprehensive Firestore security rules
+- **Data Validation**: Client and server-side validation for all inputs
+- **HTML Sanitization**: Safe HTML content with DOMPurify
+- **Authentication Checks**: Protected routes and API endpoints
+- **Privacy Controls**: User data ownership and access controls
 
-## File Structure
+## File Structure & Architecture
 
 ### Core Application Files
-- `app/page.tsx` - Main landing page with auth redirect
-- `app/layout.tsx` - Root layout with toast provider
+- `app/page.tsx` - Main landing page with authentication redirect
+- `app/layout.tsx` - Root layout with toast provider and analytics
 - `app/globals.css` - Global styles and Tailwind configuration
 
-### Authentication
-- `app/auth/page.tsx` - Login/signup page
-- `lib/auth.ts` - Authentication functions and user management
-- `hooks/useAuth.ts` - Authentication hook
+### Authentication System
+- `app/auth/page.tsx` - Comprehensive login/signup page with validation
+- `lib/auth.ts` - Authentication functions, user management, and role controls
+- `hooks/useAuth.ts` - Authentication hook with user profile management
 
-### Dashboard
-- `app/dashboard/layout.tsx` - Dashboard layout with navigation
-- `app/dashboard/page.tsx` - Dashboard overview
-- `app/dashboard/store/page.tsx` - Store settings (referenced but not shown)
-- `app/dashboard/products/` - Product management pages
-- `app/dashboard/slides/` - Slide management pages
-- `app/dashboard/analytics/page.tsx` - Analytics dashboard page (New)
-
-### Core Application Files
-- `app/page.tsx` - Main landing page with auth redirect
-- `app/layout.tsx` - Root layout with toast provider
-- `app/globals.css` - Global styles and Tailwind configuration
-
-### Authentication
-- `app/auth/page.tsx` - Login/signup page
-- `lib/auth.ts` - Authentication functions and user management
-- `hooks/useAuth.ts` - Authentication hook
-
-### Dashboard
-- `app/dashboard/layout.tsx` - Dashboard layout with navigation
-- `app/dashboard/page.tsx` - Dashboard overview
-- `app/dashboard/store/page.tsx` - Store settings (referenced but not shown)
-- `app/dashboard/products/` - Product management pages
-- `app/dashboard/slides/` - Slide management pages
+### Dashboard System
+- `app/dashboard/layout.tsx` - Dashboard layout with responsive navigation
+- `app/dashboard/page.tsx` - Dashboard overview with statistics and quick actions
+- `app/dashboard/store/page.tsx` - Advanced store customization settings
+- `app/dashboard/products/` - Product management pages with CRUD operations
+- `app/dashboard/slides/` - Slide management pages with form handling
+- `app/dashboard/analytics/page.tsx` - Analytics dashboard with insights
+- `app/dashboard/subscribers/page.tsx` - Subscriber management interface
 
 ### Store Frontend
-- `app/[storeSlug]/page.tsx` - Public store page
-- `components/StoreTemplate.tsx` - Store display component
+- `app/[storeSlug]/page.tsx` - Public store page with SEO optimization
+- `components/StoreTemplate.tsx` - Main store display component with all features
 
 ### Core Components
-- `components/DashboardNav.tsx` - Dashboard navigation
-- `components/ProductForm.tsx` - Product add/edit form
-- `components/SlideForm.tsx` - Slide add/edit form
-- `components/Toast.tsx` - Toast notification system
-- `context/ToastContext.tsx` - Toast notification context
+- `components/DashboardNav.tsx` - Responsive dashboard navigation with auto-collapse
+- `components/ProductForm.tsx` - Product add/edit form with scraping functionality
+- `components/SlideForm.tsx` - Slide add/edit form with image handling
+- `components/Toast.tsx` - Toast notification system with animations
+- `components/SubscriptionModal.tsx` - Email subscription popup with tracking
+- `components/CustomToggle.tsx` - Reusable toggle component
+- `components/ImageUploadWithDelete.tsx` - Image upload component with optimization
 
-### Backend & Data
-- `lib/firebase.ts` - Firebase configuration
-- `lib/store.ts` - Store, product, and slide management functions
-- `context/ToastContext.tsx` - Toast notification context
+### Admin Components
+- `components/AdminRoute.tsx` - Admin access control wrapper
+- `components/PremiumFeatureGate.tsx` - Premium feature access control
+- `components/ProductCSVImporter.tsx` - Bulk product import functionality
+- `components/SponsoredProductForm.tsx` - Sponsored product management
 
-- `components/AnalyticsProvider.tsx` - Context for tracking page views (New)
-### Configuration
-- `next.config.js` - Next.js configuration
-- `tailwind.config.ts` - Tailwind CSS configuration
-- `package.json` - Dependencies and scripts
-- `firestore.rules` - Firestore security rules
-- `storage.rules` - Firebase Storage security rules
+### Backend & Data Management
+- `lib/firebase.ts` - Firebase configuration and initialization
+- `lib/store.ts` - Store, product, slide, and subscriber management functions
+- `lib/analytics.ts` - Analytics tracking and event management system
+- `context/ToastContext.tsx` - Toast notification context provider
 
-## Recent Major Updates
+### System Management
+- `app/dashboard/system-management/` - Admin panel pages
+- `app/dashboard/system-management/users/page.tsx` - User management interface
+- `app/dashboard/system-management/global-broadcast/page.tsx` - Global banner management
+- `app/dashboard/system-management/sponsor-products/` - Sponsored product management
 
-### Analytics Dashboard Implementation (New)
-- Added `lib/analytics.ts` for tracking events (`trackEvent`, `trackPageView`).
-- Implemented `app/dashboard/analytics/page.tsx` to display key metrics and detailed insights (Top Products, Categories, Searches).
-- Integrated `AnalyticsProvider` (`components/AnalyticsProvider.tsx`) for client-side page view tracking.
-- Updated `firestore.rules` to allow public creation of analytics events and owner-only read/write.
+## Database Schema & Security
 
-### Store Customization Enhancements
-- Expanded customization options in `app/dashboard/store/page.tsx` to include font families, various color settings, and background gradients.
-- Added widget and banner system controls.
+### Firestore Collections
+- **users**: User profiles, roles, premium status, and account information
+- **stores**: Store configurations nested under users (users/{userId}/stores/{storeId})
+- **products**: Affiliate products nested under stores with click tracking
+- **slides**: Promotional slides nested under stores with engagement metrics
+- **subscribers**: Email subscribers nested under stores with subscription data
+- **analytics_events**: User interaction tracking nested under stores
+- **sponsored_products**: Global sponsored products managed by admins
+- **global_banners**: System-wide announcement banners
 
-### Product Scraping Feature
-- Implemented product URL scraping functionality in `components/ProductForm.tsx` to auto-fill product details.
+### Security Implementation
+- **Firestore Rules**: Comprehensive row-level security with proper access controls
+- **Public Access**: Store data readable by anyone for public store viewing
+- **Owner Access**: Users can only modify their own data and stores
+- **Admin Access**: Special permissions for user management and system features
+- **Analytics Security**: Public can create events, owners can read their own data
 
-### Toast Notification System
-- Introduced `context/ToastContext.tsx` and `components/Toast.tsx` for a global, user-friendly notification system.
+## Recent Major Updates & Enhancements
 
-### Image Optimization Implementation
-- Added `image-resize-compress` dependency
-- Implemented automatic image compression for all uploads
-- Created filename sanitization utility
-- Updated all image upload functions:
-  - `uploadProductImage()`
-  - `uploadSlideImage()`
-  - `uploadStoreImage()`
-  - `uploadWidgetImage()`
-- Centralized image processing logic in `lib/store.ts`
+### Analytics Dashboard Implementation
+- Added comprehensive event tracking system with Firestore persistence
+- Implemented detailed analytics dashboard with key metrics and insights
+- Created top products, categories, and search terms analysis
+- Added data export capabilities for premium users
+- Integrated client-side page view tracking with AnalyticsProvider
 
-## Database Schema
+### Advanced Store Customization
+- Expanded customization options with typography and color controls
+- Added widget and banner system with engagement tracking
+- Implemented custom HTML editor with sanitization
+- Enhanced header layout options and responsive design
 
-### Collections
-- **users**: User profiles and settings
-- **stores**: Store configurations and customizations
-- **products**: Affiliate products with images and links
-- **slides**: Promotional slides for store homepage
-- **analytics_events**: Stores all tracked user interaction events (New)
+### Product Management Enhancements
+- Added product URL scraping functionality for auto-filling details
+- Implemented bulk CSV import for premium users with validation
+- Enhanced product forms with better image handling
+- Added comprehensive product analytics and performance tracking
 
-### Security
-- Row Level Security (RLS) implemented
-- Public read access for store data
-- Owner-only write access for user data
-- Proper authentication checks
-- **Firestore Rules**: Specifically configured for `analytics_events` to allow unauthenticated users to create events (for public store visitors) and authenticated owners to read/update/delete their own data.
+### Image Optimization System
+- Implemented automatic image compression and WebP conversion
+- Added smart resizing based on image type and usage
+- Created filename sanitization for better organization
+- Optimized storage costs and loading performance
 
-## Deployment
-- Configured for Netlify deployment
-- Environment variables for Firebase configuration
-- Optimized build process with standalone output
+### Admin & System Management
+- Built comprehensive user management system with role controls
+- Created global broadcast system for platform-wide announcements
+- Implemented sponsored products system for passive income
+- Added system analytics and performance monitoring
+
+### User Experience Improvements
+- Enhanced toast notification system with better feedback
+- Improved responsive design across all components
+- Added loading states and error handling throughout the application
+- Implemented auto-collapse navigation for better space utilization
 
 ## Performance Optimizations
-- Image compression and WebP conversion
-- Lazy loading for images
-- Responsive image sizing
-- Efficient Firebase queries
-- Client-side caching strategies
 
-## Future Considerations
-- Analytics integration
-- Payment processing (Stripe integration referenced)
-- Advanced SEO features
-- Performance monitoring
-- A/B testing capabilities
+### Image & Asset Optimization
+- Automatic WebP conversion for all uploaded images
+- Smart compression based on image type and usage
+- Lazy loading for images and components
+- Responsive image sizing with proper aspect ratios
 
-## Development Status
-✅ **Completed**: Core functionality, authentication, store management, product management, slide management, image optimization, analytics dashboard, toast notifications, product scraping, advanced store customization.
-🔄 **In Progress**: Further store customization features.
-📋 **Planned**: Advanced analytics, payment integration, enhanced SEO.
+### Database & Query Optimization
+- Efficient Firestore queries with proper indexing
+- Client-side caching strategies for better performance
+- Batch operations for bulk data handling
+- Optimized collection structure for faster reads
+
+### Build & Deployment Optimization
+- Next.js standalone output for better deployment
+- Optimized webpack configuration for smaller bundles
+- Proper code splitting and lazy loading
+- Netlify deployment with build optimizations
+
+## Development Status & Roadmap
+
+### ✅ Completed Features
+- Core functionality with authentication and store management
+- Advanced product and slide management systems
+- Comprehensive analytics dashboard with insights
+- Image optimization with automatic compression
+- Toast notification system for user feedback
+- Product scraping for auto-filling details
+- Advanced store customization with typography and colors
+- Admin panel with user and system management
+- Sponsored products system for monetization
+- Global broadcast system for announcements
+- Email subscription system with management
+- Bulk import functionality for premium users
+
+### 🔄 Current Focus
+- Performance optimizations and bug fixes
+- Enhanced user experience improvements
+- Additional customization options
+- Mobile app development planning
+
+### 📋 Future Enhancements
+- Advanced SEO features and optimization
+- Payment processing integration (Stripe)
+- A/B testing capabilities for store optimization
+- Advanced analytics with conversion tracking
+- Multi-language support for global reach
+- API integrations with popular affiliate networks
+
+## Deployment & Configuration
+
+### Environment Setup
+- Node.js 20+ required for optimal performance
+- Firebase project with Firestore and Storage enabled
+- Netlify deployment with automatic builds
+- Environment variables for Firebase configuration
+
+### Build Configuration
+- Next.js standalone output for efficient deployment
+- Optimized webpack configuration for performance
+- Proper TypeScript configuration with strict mode
+- Tailwind CSS with custom design system
+
+### Security Configuration
+- Firestore security rules for data protection
+- Firebase Storage rules for file access control
+- Authentication requirements for protected routes
+- Input validation and sanitization throughout
 
 ---
 
+**Project Statistics:**
+- **Total Files**: 50+ TypeScript/JavaScript files
+- **Lines of Code**: 8000+ lines
+- **Components**: 25+ reusable React components
+- **Database Collections**: 7 main collections with nested subcollections
+- **Features**: 15+ major feature sets implemented
+- **User Roles**: 2 role types (User, Admin) with premium tiers
+
 *Last Updated: December 2024*
-*Total Files: 30+ TypeScript/JavaScript files*
-*Lines of Code: 5000+ lines*
+*Status: Production Ready with Ongoing Enhancements*

@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ToastProvider } from '@/context/ToastContext';
 import { AnalyticsProvider } from '@/components/AnalyticsProvider';
-import GlobalBannerDisplay from '@/components/GlobalBannerDisplay';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -27,7 +26,6 @@ export default function RootLayout({
         <ToastProvider>
           <AnalyticsProvider>
             {children}
-            <GlobalBannerDisplay />
           </AnalyticsProvider>
         </ToastProvider>
       </body>

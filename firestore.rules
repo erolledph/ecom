@@ -24,9 +24,8 @@ service cloud.firestore {
         allow read; // Anyone can read store details
         allow create: if request.auth != null && request.auth.uid == userId && request.resource.data.ownerId == userId;
         allow update, delete: if request.auth != null && request.auth.uid == userId && resource.data.ownerId == userId;
-        // Allow updating customHtml field specifically
-        allow update: if request.auth != null && request.auth.uid == userId && resource.data.ownerId == userId && 
-                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['customHtml', 'updatedAt']);
+        // Allow updating specific fields for store customization
+        allow update: if request.auth != null && request.auth.uid == userId && resource.data.ownerId == userId;
 
         // Products subcollection: Public read, owner write
         match /products/{productId} {
@@ -41,6 +40,22 @@ service cloud.firestore {
           allow create: if request.auth != null && request.auth.uid == userId;
           allow update, delete: if request.auth != null && request.auth.uid == userId;
         }
+
+        // Subscribers subcollection: Public can create, owners can manage their own
+        match /subscribers/{subscriberId} {
+          // Allow unauthenticated users to create subscriber entries (for public store visitors)
+          allow create: if request.resource.data.storeId != null;
+          // Only authenticated store owners can read, update, or delete their own subscriber data
+          allow read, update, delete: if request.auth != null && request.auth.uid == userId;
+        }
+
+        // Analytics events subcollection: Users can only read/write their own analytics data
+        match /analytics_events/{eventId} {
+          // Allow unauthenticated users to create analytics events (for public store visitors)
+          allow create: if request.resource.data.ownerId != null;
+          // Only authenticated store owners can read, update, or delete their own analytics data
+          allow read, update, delete: if request.auth != null && request.auth.uid == userId;
+        }
       }
     }
 
@@ -50,20 +65,15 @@ service cloud.firestore {
       allow read: if true; // Public read for stores via collection group query
     }
 
-    // Analytics events collection: Users can only read/write their own analytics data
-    match /analytics_events/{eventId} {
-      // Allow unauthenticated users to create analytics events (for public store visitors)
-      allow create: if request.resource.data.ownerId != null;
-      // Only authenticated store owners can read, update, or delete their own analytics data
-      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.ownerId;
-    }
-
-    // Subscribers collection: Public can create, owners can manage their own
-    match /subscribers/{subscriberId} {
-      // Allow unauthenticated users to create subscriber entries (for public store visitors)
-      allow create: if request.resource.data.storeId != null;
-      // Only authenticated store owners can read, update, or delete their own subscriber data
-      allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.storeId;
+    // Sponsored products collection: Admin create/manage, public read
+    match /sponsored_products/{sponsoredProductId} {
+      // Allow public read access for displaying in user stores
+      allow read: if true;
+      // Allow admins to create, update, and delete sponsored products
+      allow create, update, delete: if request.auth != null && 
+                                    get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      // Allow public update of clickCount field for tracking clicks
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['clickCount', 'updatedAt']);
     }
 
     // Global banners collection: Public read, admin write
@@ -71,6 +81,8 @@ service cloud.firestore {
       allow read: if true; // Anyone can read active global banners
       allow create, update, delete: if request.auth != null && 
                                     get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow list: if request.auth != null && 
+                  get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
   }
 }
