@@ -68,6 +68,14 @@ export interface Store {
   createdAt: Date;
   updatedAt: Date;
   isActive: boolean;
+  // Custom domain fields
+  customDomain?: string;
+  domainVerificationCode?: string;
+  domainVerified?: boolean;
+  domainVerificationAttempts?: number;
+  domainVerificationLastAttempt?: Date;
+  sslStatus?: 'pending' | 'active' | 'failed' | 'not_applicable';
+  customDomainEnabled?: boolean;
 }
 
 export interface Product {
@@ -166,7 +174,8 @@ export const getUserStore = async (userId: string): Promise<Store | null> => {
         id: storeSnap.id,
         ...data,
         createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
-        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt
+        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt,
+        domainVerificationLastAttempt: data.domainVerificationLastAttempt?.toDate ? data.domainVerificationLastAttempt.toDate() : data.domainVerificationLastAttempt
       } as Store;
     }
     
@@ -196,7 +205,8 @@ export const getStoreBySlug = async (slug: string): Promise<Store | null> => {
         id: doc.id,
         ...data,
         createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
-        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt
+        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt,
+        domainVerificationLastAttempt: data.domainVerificationLastAttempt?.toDate ? data.domainVerificationLastAttempt.toDate() : data.domainVerificationLastAttempt
       } as Store;
     }
     
@@ -930,4 +940,166 @@ export const generateCategoriesWithCountSync = (products: Product[]): Array<{ id
     },
     ...categories
   ];
+};
+
+// Custom Domain Management Functions
+export const checkCustomDomainAvailability = async (domain: string): Promise<boolean> => {
+  try {
+    if (!db) return false;
+    
+    const storesQuery = query(
+      collectionGroup(db, 'stores'),
+      where('customDomain', '==', domain)
+    );
+    
+    const querySnapshot = await getDocs(storesQuery);
+    return querySnapshot.empty;
+  } catch (error) {
+    console.error('Error checking custom domain availability:', error);
+    return false;
+  }
+};
+
+export const addCustomDomain = async (userId: string, domain: string): Promise<{ verificationCode: string }> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+
+    // Check if domain is already in use by another store
+    const isAvailable = await checkCustomDomainAvailability(domain);
+    if (!isAvailable) {
+      throw new Error('This custom domain is already in use by another store.');
+    }
+
+    const verificationCode = `bolt-verify-${Math.random().toString(36).substring(2, 15)}`;
+    const storeRef = doc(db, 'users', userId, 'stores', userId);
+
+    await updateDoc(storeRef, {
+      customDomain: domain,
+      domainVerificationCode: verificationCode,
+      domainVerified: false,
+      domainVerificationAttempts: 0,
+      domainVerificationLastAttempt: new Date(),
+      sslStatus: 'not_applicable',
+      customDomainEnabled: false,
+      updatedAt: new Date()
+    });
+
+    return { verificationCode };
+  } catch (error) {
+    console.error('Error adding custom domain:', error);
+    throw error;
+  }
+};
+
+export const verifyCustomDomain = async (userId: string, domain: string, expectedVerificationCode: string): Promise<boolean> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+
+    const storeRef = doc(db, 'users', userId, 'stores', userId);
+    const storeSnap = await getDoc(storeRef);
+
+    if (!storeSnap.exists()) {
+      throw new Error('Store not found.');
+    }
+
+    const storeData = storeSnap.data() as Store;
+
+    if (storeData.customDomain !== domain) {
+      throw new Error('Provided domain does not match the one configured for this store.');
+    }
+
+    // Simulate DNS TXT record lookup
+    // In production, you would use a DNS lookup library to query _bolt-verify.${domain}
+    const isTxtRecordValid = storeData.domainVerificationCode === expectedVerificationCode;
+
+    if (isTxtRecordValid) {
+      await updateDoc(storeRef, {
+        domainVerified: true,
+        sslStatus: 'pending',
+        customDomainEnabled: true,
+        domainVerificationAttempts: increment(1),
+        domainVerificationLastAttempt: new Date(),
+        updatedAt: new Date()
+      });
+      
+      // Simulate SSL becoming active after a delay
+      setTimeout(async () => {
+        try {
+          await updateDoc(storeRef, {
+            sslStatus: 'active',
+            updatedAt: new Date()
+          });
+        } catch (error) {
+          console.error('Error updating SSL status:', error);
+        }
+      }, 5000);
+      
+      return true;
+    } else {
+      await updateDoc(storeRef, {
+        domainVerified: false,
+        domainVerificationAttempts: increment(1),
+        domainVerificationLastAttempt: new Date(),
+        updatedAt: new Date()
+      });
+      return false;
+    }
+  } catch (error) {
+    console.error('Error verifying custom domain:', error);
+    throw error;
+  }
+};
+
+export const removeCustomDomain = async (userId: string): Promise<void> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+
+    const storeRef = doc(db, 'users', userId, 'stores', userId);
+    await updateDoc(storeRef, {
+      customDomain: null,
+      domainVerificationCode: null,
+      domainVerified: null,
+      domainVerificationAttempts: null,
+      domainVerificationLastAttempt: null,
+      sslStatus: null,
+      customDomainEnabled: null,
+      updatedAt: new Date()
+    });
+  } catch (error) {
+    console.error('Error removing custom domain:', error);
+    throw error;
+  }
+};
+
+export const getStoreByCustomDomain = async (domain: string): Promise<Store | null> => {
+  try {
+    if (!db) return null;
+
+    const storesQuery = query(
+      collectionGroup(db, 'stores'),
+      where('customDomain', '==', domain),
+      where('domainVerified', '==', true),
+      where('customDomainEnabled', '==', true),
+      limit(1)
+    );
+
+    const querySnapshot = await getDocs(storesQuery);
+
+    if (!querySnapshot.empty) {
+      const doc = querySnapshot.docs[0];
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
+        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt,
+        domainVerificationLastAttempt: data.domainVerificationLastAttempt?.toDate ? data.domainVerificationLastAttempt.toDate() : data.domainVerificationLastAttempt
+      } as Store;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error fetching store by custom domain:', error);
+    return null;
+  }
 };

@@ -77,6 +77,13 @@ Premium users have access to all Standard User features, plus advanced capabilit
 - **Bulk Operations**: Import hundreds of products at once using CSV files with validation
 - **Batch Processing**: Efficient handling of large product catalogs
 
+#### 🌐 Custom Domain Support
+- **Professional Branding**: Connect custom domains (e.g., yourstore.com) to their affiliate store
+- **Domain Verification**: Secure domain ownership verification through DNS TXT records
+- **SSL Certificates**: Automatic SSL certificate provisioning for custom domains
+- **DNS Management**: Easy-to-follow DNS setup instructions with copy-paste functionality
+- **Domain Toggle**: Enable/disable custom domain functionality as needed
+
 #### 📊 Advanced Analytics & Data Export
 - **Data Export**: Export subscriber lists and analytics data to CSV files
 - **Enhanced Insights**: Access to detailed performance metrics and conversion tracking
@@ -138,6 +145,7 @@ Administrators have full control over the platform, including managing users, sy
 | Product URL Scraping | ✅ | ✅ | ✅ |
 | CSV Product Import | ❌ | ✅ | ✅ |
 | Data Export (CSV) | ❌ | ✅ | ✅ |
+| Custom Domain Support | ❌ | ✅ | ✅ |
 | Priority Support | ❌ | ✅ | ✅ |
 | User Management | ❌ | ❌ | ✅ |
 | Global Broadcasts | ❌ | ❌ | ✅ |

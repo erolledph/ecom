@@ -15,6 +15,7 @@ import { Settings, Save, Palette, Globe, Badge as Widget, Megaphone, Mail, Code 
 import CustomToggle from '@/components/CustomToggle';
 import ImageUploadWithDelete from '@/components/ImageUploadWithDelete';
 import CustomHtmlEditor from '@/components/CustomHtmlEditor';
+import CustomDomainManager from '@/components/CustomDomainManager';
 
 const SOCIAL_PLATFORMS = [
   'instagram',
@@ -93,6 +94,45 @@ export default function StoreSettingsPage() {
       loadMoreButtonTextColor: '#ffffff',
     }
   });
+
+  const fetchStore = async () => {
+    if (!user) return;
+    
+    try {
+      const storeData = await getUserStore(user.uid);
+      if (storeData) {
+        setStore(storeData);
+        setFormData({
+          name: storeData.name,
+          description: storeData.description,
+          avatar: storeData.avatar || '',
+          socialLinks: storeData.socialLinks || [],
+          headerLayout: storeData.headerLayout || 'left-right',
+          widgetImage: storeData.widgetImage || '',
+          widgetLink: storeData.widgetLink || '',
+          widgetEnabled: storeData.widgetEnabled !== false,
+          bannerEnabled: storeData.bannerEnabled !== false,
+          bannerImage: storeData.bannerImage || '',
+          bannerDescription: storeData.bannerDescription || '',
+          bannerLink: storeData.bannerLink || '',
+          subscriptionEnabled: storeData.subscriptionEnabled !== false,
+          slidesEnabled: storeData.slidesEnabled !== false,
+          displayPriceOnProducts: storeData.displayPriceOnProducts !== false,
+          showCategories: storeData.showCategories !== false,
+          customHtml: storeData.customHtml || '',
+          customization: {
+            ...formData.customization,
+            ...storeData.customization
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching store:', error);
+      showError('Failed to load store settings');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchStore = async () => {
@@ -290,6 +330,9 @@ export default function StoreSettingsPage() {
           </div>
         </div>
       </div>
+
+      {/* Custom Domain Manager */}
+      <CustomDomainManager store={store} onStoreUpdate={fetchStore} />
 
       {/* General Information */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
