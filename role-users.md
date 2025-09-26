@@ -1,4 +1,4 @@
-### User Roles and Permissions
+# User Roles and Permissions
 
 This document outlines the different user roles within the Affiliate Store Builder application and the features accessible to each role.
 
@@ -29,8 +29,8 @@ Standard users are the primary users of the platform, responsible for creating a
 
 #### 📦 Product Management
 - Add, edit, and delete affiliate products with comprehensive forms
-- **Product Limit**: A standard user can have a maximum of 30 products in their store.
-- Auto-fill product details by scraping product URLs
+- **Product Limit**: A standard user can have a maximum of 30 products in their store
+- Auto-fill product details by scraping product URLs using external API
 - Upload or link product images with automatic optimization (WebP conversion, compression)
 - Manage product categories (auto-generated with filtering capabilities)
 - Track product performance with click analytics
@@ -49,15 +49,16 @@ Standard users are the primary users of the platform, responsible for creating a
 
 #### 📊 Analytics & Insights
 - View comprehensive analytics for their store including:
-  - Store views and visitor traffic
-  - Product clicks with detailed performance metrics
-  - Slide clicks and promotional content engagement
-  - Social link clicks and platform engagement
-  - Search queries and user intent analysis
-  - Category filters and browsing behavior
-  - Top performing products by click count
-  - Most filtered categories
-  - Most searched terms
+  - Store views and visitor traffic
+  - Product clicks with detailed performance metrics
+  - Slide clicks and promotional content engagement
+  - Social link clicks and platform engagement
+  - Search queries and user intent analysis
+  - Category filters and browsing behavior
+  - Widget and banner click tracking
+  - Top performing products by click count
+  - Most filtered categories
+  - Most searched terms
 
 #### 🖼️ Image Optimization
 - Automatic compression of all uploaded images to 75% quality
@@ -72,7 +73,7 @@ Premium users have access to all Standard User features, plus advanced capabilit
 ### Additional Features (beyond Standard User):
 
 #### 📦 Product Management
-- **Product Limit**: A premium user can have an unlimited number of products in their store.
+- **Product Limit**: A premium user can have an unlimited number of products in their store
 - **Bulk Operations**: Import hundreds of products at once using CSV files with validation
 - **Batch Processing**: Efficient handling of large product catalogs
 
@@ -96,26 +97,31 @@ Administrators have full control over the platform, including managing users, sy
 - **Role Management**: Toggle user roles between Standard User and Admin
 - **Premium Control**: Grant or revoke Premium access for any user
 - **Store Access**: Directly visit any user's store for monitoring and support
+- **Bulk User Operations**: Manage multiple users efficiently
 
 #### 📢 Global Broadcast System
 - **System Announcements**: Create, edit, and delete system-wide announcement banners
 - **Rich Content**: Upload custom images, descriptions, and links for global banners
 - **Visibility Control**: Control banner visibility with active/inactive status
 - **Performance Tracking**: Track global banner click performance and engagement
+- **Banner Management**: Full CRUD operations for global banners
 
 #### 💰 Sponsored Products Management
 - **Revenue Generation**: Add, edit, and delete sponsored products for passive income
 - **Smart Placement**: Manage products that automatically appear in user stores:
-  - Stores with 15-24 products: 1 sponsored product (1st position)
-  - Stores with 25+ products: 2 sponsored products (1st and 6th positions)
+  - Stores with 15-24 products: 1 sponsored product (1st position)
+  - Stores with 25+ products: 2 sponsored products (1st and 6th positions)
 - **Performance Analytics**: Track sponsored product clicks and revenue metrics
 - **Content Control**: Only displayed in "All Products" section, not in filters or search
+- **Full CRUD Operations**: Complete management of sponsored product lifecycle
 
 #### 🔧 System Analytics & Management
 - Track global platform usage and performance metrics
 - Monitor system health and user engagement
 - Access to comprehensive platform-wide analytics
 - System configuration and maintenance capabilities
+- Global banner click analytics
+- Sponsored product performance tracking
 
 ## Feature Access Matrix
 
@@ -128,6 +134,8 @@ Administrators have full control over the platform, including managing users, sy
 | Basic Analytics | ✅ | ✅ | ✅ |
 | Email Subscribers | ✅ | ✅ | ✅ |
 | Image Optimization | ✅ | ✅ | ✅ |
+| Custom HTML Editor | ✅ | ✅ | ✅ |
+| Product URL Scraping | ✅ | ✅ | ✅ |
 | CSV Product Import | ❌ | ✅ | ✅ |
 | Data Export (CSV) | ❌ | ✅ | ✅ |
 | Priority Support | ❌ | ✅ | ✅ |
@@ -148,7 +156,7 @@ Administrators have full control over the platform, including managing users, sy
 - **Public Store Access**: Store pages are publicly viewable for affiliate marketing
 - **Admin Privileges**: Admins have read access to user data for management purposes
 - **Firestore Rules**: Comprehensive security rules enforce access controls
-- **Product Limits**: The application's database and backend logic will enforce the product limits for each user role.
+- **Product Limits**: Backend logic enforces product limits for each user role
 
 ### Premium Feature Enforcement
 - Premium features are enforced at the component level
@@ -178,7 +186,20 @@ Administrators have full control over the platform, including managing users, sy
 - User roles stored in the `users` collection
 - Premium status tracked as a boolean field
 - Role-based queries ensure proper data access
-- The number of products per user is limited by a counter or database query and checked before allowing a new product to be added for standard users.
+- Product count validation enforced in backend functions
+
+### Admin System Management
+- Complete user management interface with search and filtering
+- Global broadcast system for platform-wide communications
+- Sponsored products system for revenue generation
+- Comprehensive analytics tracking for admin insights
+
+### Product Limit Enforcement
+- Standard users: Maximum 30 products per store
+- Premium users: Unlimited products
+- Administrators: Unlimited products
+- Backend validation prevents exceeding limits
+- UI feedback shows current usage and limits
 
 ---
 

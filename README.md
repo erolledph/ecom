@@ -6,11 +6,11 @@ This is a [Next.js](https://nextjs.org/) project for building affiliate stores. 
 
 ### 👥 User Roles & Permissions
 The platform supports three distinct user roles with different access levels:
-- **Standard Users**: Full access to store creation, product management, and analytics
-- **Premium Users**: Additional access to bulk import and data export features  
-- **Administrators**: Complete platform control including user management and system features
+- **Standard Users**: Full access to store creation, product management (up to 30 products), and analytics
+- **Premium Users**: Additional access to unlimited products, bulk import, and data export features  
+- **Administrators**: Complete platform control including user management, sponsored products, and global broadcast system
 
-For detailed information about user roles and their specific permissions, see [User Roles Documentation](user-roles.md).
+For detailed information about user roles and their specific permissions, see [User Roles Documentation](role-users.md).
 
 ### 🏪 Store Management
 - **Store Customization**: Personalize your store with custom branding, colors, layouts, and typography
@@ -18,34 +18,38 @@ For detailed information about user roles and their specific permissions, see [U
 - **Social Integration**: Connect your social media accounts to drive traffic
 - **SEO Friendly**: Optimized for search engines with meta tags, Open Graph, and Twitter cards
 - **Header Layout Options**: Choose between left-right, right-left, or centered layouts
+- **Custom HTML**: Add sanitized custom HTML content sections to your store
 
 ### 📦 Product Management
 - **Product Management**: Add affiliate products with images, descriptions, and affiliate links
-- **Product Scraping**: Auto-fill product details by scraping product URLs
+- **Product Scraping**: Auto-fill product details by scraping product URLs using external API
 - **Bulk Import**: Import hundreds of products at once using CSV files (Premium feature)
 - **Category Management**: Automatic category generation from products with filtering
 - **Click Tracking**: Monitor product performance with detailed click analytics
+- **Product Limits**: Standard users limited to 30 products, Premium users have unlimited products
 
 ### 🎨 Promotional Features
 - **Slider Management**: Create promotional slides to highlight featured products or offers
 - **Floating Widget**: Engage visitors with customizable floating widgets
 - **Pop-up Banner**: Promotional banners with custom images and descriptions
-- **Custom HTML**: Add custom HTML content sections to your store
+- **Auto-advancing Slideshow**: Slides automatically advance with manual navigation options
 
 ### 📊 Analytics & Insights
-- **Analytics Dashboard**: Track store views, product clicks, slide clicks, social link engagement, search queries, and category filters (Premium feature)
+- **Analytics Dashboard**: Track store views, product clicks, slide clicks, social link engagement, search queries, and category filters
 - **Performance Metrics**: Detailed insights into user behavior and conversion tracking
 - **Export Capabilities**: Export subscriber and analytics data to CSV files (Premium feature)
+- **Real-time Tracking**: Persistent analytics storage in Firestore for reliable data
 
 ### 💬 Customer Engagement
 - **Email Subscriptions**: Allow visitors to subscribe to your mailing list with popup forms
 - **Subscriber Management**: Manage your email subscribers with export capabilities
 - **Toast Notifications**: User-friendly feedback system for all interactions
+- **Search Functionality**: Product search with real-time filtering and tracking
 
 ### 🖼️ Advanced Image Optimization
 - **Automatic Compression**: All uploaded images compressed to 75% quality
 - **Format Conversion**: Automatic conversion to WebP format for better performance
-- **Smart Resizing**: Intelligent resizing based on image type (avatars, products, banners)
+- **Smart Resizing**: Intelligent resizing based on image type (avatars: 200px, products/slides: 1200px)
 - **Storage Optimization**: Significant reduction in storage costs and faster loading times
 
 ### 🔐 User Management & Security
@@ -64,7 +68,7 @@ For detailed information about user roles and their specific permissions, see [U
 
 1. **Sign Up**: Create your account with a custom store URL
 2. **Customize Store**: Set up your store branding, colors, and layout preferences
-3. **Add Products**: Add affiliate products manually or use the bulk import feature
+3. **Add Products**: Add affiliate products manually or use the bulk import feature (Premium)
 4. **Create Content**: Design promotional slides and add custom HTML sections
 5. **Configure Features**: Enable widgets, banners, and subscription forms
 6. **Share Your Store**: Share your unique store URL to start earning commissions
@@ -102,24 +106,34 @@ When visitors interact with your store:
 - **Colors**: Comprehensive color system with gradients and themes
 - **Layout**: Multiple header layouts and responsive design
 - **Branding**: Avatar, background images, and social media integration
+- **Custom Content**: Sanitized HTML editor for custom content sections
 
 ### 📦 Product & Content Management
 - **Products**: Full CRUD operations with image optimization
 - **Categories**: Auto-generated from products with filtering
 - **Slides**: Promotional carousel with click tracking
-- **Custom HTML**: Sanitized HTML content sections
+- **Product Scraping**: Auto-fill product details from URLs
+- **Bulk Import**: CSV import for premium users with validation
 
 ### 📊 Analytics & Performance
 - **Event Tracking**: Store views, clicks, searches, and interactions
 - **Performance Metrics**: Top products, categories, and search terms
 - **Data Export**: CSV export for subscribers and analytics (Premium)
 - **Real-time Insights**: Live dashboard with actionable data
+- **Persistent Storage**: All analytics events stored in Firestore
 
 ### 🎯 Monetization Features
 - **Affiliate Links**: Direct product linking with click tracking
 - **Sponsored Products**: Admin-managed products for passive income
 - **Premium Subscriptions**: Tiered feature access
 - **Email Marketing**: Subscriber collection and management
+
+### 🛡️ Admin System Management
+- **User Management**: Search, view, and manage all users
+- **Role Control**: Toggle user roles and premium status
+- **Global Broadcast**: System-wide announcement banners
+- **Sponsored Products**: Manage products that appear in user stores
+- **Analytics Tracking**: Monitor global platform performance
 
 ## Getting Started
 
@@ -194,6 +208,7 @@ The application is configured for Netlify deployment:
 
 ## Premium Features
 
+- **Unlimited Products**: No product limits for premium users
 - **Advanced Analytics**: Detailed user behavior tracking and insights
 - **Bulk Import**: CSV import for hundreds of products at once
 - **Data Export**: Export subscribers and analytics to CSV
