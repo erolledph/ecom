@@ -29,7 +29,7 @@ export async function getFirebaseAdminApp() {
         credential: admin.credential.cert({
           projectId: projectId,
           clientEmail: clientEmail,
-          privateKey: privateKey.replace(/\\n/g, '\n'), // Handle escaped newlines
+          privateKey: privateKey.replace(/\\n/g, '\n').trim(), // Handle escaped newlines and remove whitespace
         }),
         // Add other config if needed
         storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
