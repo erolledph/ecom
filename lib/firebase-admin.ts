@@ -24,14 +24,21 @@ export async function getFirebaseAdminApp() {
         throw new Error('Missing required Firebase Admin SDK environment variables. Please check NEXT_PUBLIC_FIREBASE_PROJECT_ID, FIREBASE_ADMIN_CLIENT_EMAIL, and FIREBASE_ADMIN_PRIVATE_KEY in your environment.');
       }
 
+      // Clean and validate the private key
+      const cleanPrivateKey = privateKey.replace(/\\n/g, '\n').trim();
+      
+      // Validate private key format
+      if (!cleanPrivateKey.includes('-----BEGIN PRIVATE KEY-----') || !cleanPrivateKey.includes('-----END PRIVATE KEY-----')) {
+        throw new Error('Invalid private key format. Please ensure the private key includes the BEGIN and END markers.');
+      }
+
       // Initialize with proper credential object
       adminApp = admin.initializeApp({
         credential: admin.credential.cert({
           projectId: projectId,
           clientEmail: clientEmail,
-          privateKey: privateKey.replace(/\\n/g, '\n').trim(), // Handle escaped newlines and remove whitespace
+          privateKey: cleanPrivateKey,
         }),
-        // Add other config if needed
         storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
       });
     } else {

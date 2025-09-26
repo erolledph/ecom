@@ -947,15 +947,25 @@ export const checkCustomDomainAvailability = async (domain: string): Promise<boo
   try {
     if (!db) return false;
     
+    console.log('Checking domain availability in Firestore for:', domain);
+    
     const storesQuery = query(
       collectionGroup(db, 'stores'),
       where('customDomain', '==', domain)
     );
     
     const querySnapshot = await getDocs(storesQuery);
+    console.log('Query snapshot size:', querySnapshot.size);
+    console.log('Domain is available:', querySnapshot.empty);
+    
     return querySnapshot.empty;
   } catch (error) {
     console.error('Error checking custom domain availability:', error);
+    console.error('Error details:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    });
     return false;
   }
 };
@@ -964,15 +974,22 @@ export const addCustomDomain = async (userId: string, domain: string): Promise<{
   try {
     if (!db) throw new Error('Firebase not initialized');
 
+    console.log('Checking domain availability for:', domain);
     // Check if domain is already in use by another store
     const isAvailable = await checkCustomDomainAvailability(domain);
+    console.log('Domain availability:', isAvailable);
+    
     if (!isAvailable) {
       throw new Error('This custom domain is already in use by another store.');
     }
 
     const verificationCode = `bolt-verify-${Math.random().toString(36).substring(2, 15)}`;
+    console.log('Generated verification code:', verificationCode);
+    
     const storeRef = doc(db, 'users', userId, 'stores', userId);
+    console.log('Store reference path:', `users/${userId}/stores/${userId}`);
 
+    console.log('Updating store with custom domain data...');
     await updateDoc(storeRef, {
       customDomain: domain,
       domainVerificationCode: verificationCode,
@@ -983,10 +1000,16 @@ export const addCustomDomain = async (userId: string, domain: string): Promise<{
       customDomainEnabled: false,
       updatedAt: new Date()
     });
+    console.log('Store updated successfully');
 
     return { verificationCode };
   } catch (error) {
     console.error('Error adding custom domain:', error);
+    console.error('Error details:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    });
     throw error;
   }
 };
