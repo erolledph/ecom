@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { addCustomDomain } from '@/lib/store';
-import admin from '@/lib/firebase-admin';
+import { getFirebaseAdminApp } from '@/lib/firebase-admin';
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, message: 'Unauthorized.' }, { status: 401 });
     }
 
+    const admin = await getFirebaseAdminApp();
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     const userId = decodedToken.uid;
 

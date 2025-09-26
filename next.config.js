@@ -34,6 +34,12 @@ const nextConfig = {
         'encoding': false,
         'buffer': false
       };
+      
+      // Prevent firebase-admin from being bundled on client-side
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'firebase-admin': false
+      };
     } else {
       // Mark grpc-js as external for server-side to prevent bundling issues
       config.externals = config.externals || [];
