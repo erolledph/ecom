@@ -27,15 +27,6 @@ service cloud.firestore {
         // Allow updating specific fields for store customization
         allow update: if request.auth != null && request.auth.uid == userId && resource.data.ownerId == userId;
 
-        // Allow premium users to update custom domain fields
-        allow update: if request.auth != null && request.auth.uid == userId && resource.data.ownerId == userId &&
-                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isPremium == true &&
-                      request.resource.data.diff(resource.data).affectedKeys().hasAny([
-                        'customDomain', 'domainVerificationCode', 'domainVerified', 
-                        'domainVerificationAttempts', 'domainVerificationLastAttempt', 
-                        'sslStatus', 'customDomainEnabled', 'updatedAt'
-                      ]);
-
         // Products subcollection: Public read, owner write
         match /products/{productId} {
           allow read; // Anyone can read products from any store
@@ -92,6 +83,20 @@ service cloud.firestore {
                                     get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
       allow list: if request.auth != null && 
                   get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Notifications collection: Public read for active notifications, admin write
+    match /notifications/{notificationId} {
+      allow read: if request.auth != null; // Authenticated users can read notifications
+      allow create, update, delete: if request.auth != null && 
+                                    get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow list: if request.auth != null && 
+                  get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // User read notifications subcollection: Users can only manage their own read status
+    match /users/{userId}/read_notifications/{readNotificationId} {
+      allow read, create, update, delete: if request.auth != null && request.auth.uid == userId;
     }
   }
 }

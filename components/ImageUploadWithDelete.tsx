@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Upload, Trash2, ImageIcon } from 'lucide-react';
+import { Upload, Trash2, Image as ImageIcon } from 'lucide-react';
 
 interface ImageUploadWithDeleteProps {
   label: string;
@@ -62,25 +62,25 @@ export default function ImageUploadWithDelete({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-900 mb-2">
+        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
           {label}
         </label>
         {description && (
-          <p className="text-sm text-gray-500 mb-4">{description}</p>
+          <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">{description}</p>
         )}
       </div>
 
       {/* Current Image Display */}
       {currentImageUrl && (
         <div className="relative inline-block">
-          <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+          <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
             <Image
               src={currentImageUrl}
               alt={label}
-              width={128}
-              height={128}
+              width={96}
+              height={96}
               className="w-full h-full object-cover"
             />
           </div>
@@ -90,13 +90,13 @@ export default function ImageUploadWithDelete({
             type="button"
             onClick={handleDelete}
             disabled={isDeleting || disabled}
-            className="absolute -top-2 -right-2 p-1.5 bg-red-600 text-white rounded-full shadow-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 p-1 sm:p-1.5 bg-red-600 text-white rounded-full shadow-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center"
             title="Delete image"
           >
             {isDeleting ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white"></div>
             ) : (
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
             )}
           </button>
         </div>
@@ -109,26 +109,26 @@ export default function ImageUploadWithDelete({
             ? 'cursor-not-allowed opacity-50' 
             : 'cursor-pointer hover:border-primary-400 hover:bg-primary-50'
         }`}>
-          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+          <div className="flex flex-col items-center justify-center pt-3 sm:pt-5 pb-3 sm:pb-6">
             {isUploading ? (
               <>
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mb-2"></div>
-                <p className="text-sm text-primary-600 font-medium">Uploading...</p>
+                <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-primary-600 mb-2"></div>
+                <p className="text-xs sm:text-sm text-primary-600 font-medium">Uploading...</p>
               </>
             ) : (
               <>
                 {currentImageUrl ? (
-                  <Upload className="w-8 h-8 mb-2 text-gray-400" />
+                  <Upload className="w-6 h-6 sm:w-8 sm:h-8 mb-2 text-gray-400" />
                 ) : (
-                  <ImageIcon className="w-8 h-8 mb-2 text-gray-400" />
+                  <ImageIcon className="w-6 h-6 sm:w-8 sm:h-8 mb-2 text-gray-400" />
                 )}
-                <p className="text-sm text-gray-500">
+                <p className="text-xs sm:text-sm text-gray-500 text-center px-2">
                   <span className="font-medium">
                     {disabled ? 'Upload disabled' : 'Click to upload'}
                   </span> 
                   {!disabled && ' or drag and drop'}
                 </p>
-                <p className="text-xs text-gray-400">{maxSizeText}</p>
+                <p className="text-xs text-gray-400 text-center">{maxSizeText}</p>
               </>
             )}
           </div>

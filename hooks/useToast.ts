@@ -12,9 +12,9 @@ export const useToast = () => {
   return {
     showToast: context.addToast,
     hideToast: context.removeToast,
-    showSuccess: (message: string, duration?: number) => context.addToast(message, 'success', duration),
-    showError: (message: string, duration?: number) => context.addToast(message, 'error', duration),
-    showInfo: (message: string, duration?: number) => context.addToast(message, 'info', duration),
-    showWarning: (message: string, duration?: number) => context.addToast(message, 'warning', duration),
+    showSuccess: (message: string) => context.addToast(message, 'success'),
+    showError: (message: string) => context.addToast(message, 'error'),
+    showInfo: (message: string) => context.addToast(message, 'info'),
+    showWarning: (message: string) => context.addToast(message, 'warning'),
   };
 };

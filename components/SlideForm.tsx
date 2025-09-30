@@ -115,32 +115,21 @@ export default function SlideForm({ slide, mode }: SlideFormProps) {
   };
 
   return (
-    <div className="space-y-6 md:space-y-8">
+    <div className="space-y-4 sm:space-y-6 md:space-y-8">
       {/* Header */}
-      <div className="p-6">
-        <div className="flex items-center mb-4">
-          <button
-            onClick={handleCancel}
-            className="mr-4 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-              {mode === 'edit' ? 'Edit Slide' : 'Add New Slide'}
-            </h1>
-            <p className="text-gray-600 mt-1">
-              {mode === 'edit' ? 'Update your promotional slide' : 'Create a new promotional slide for your store'}
-            </p>
-          </div>
+      <div className="p-3 sm:p-4 lg:p-6">
+        <div className="mb-4">
+          <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900">
+            {mode === 'edit' ? 'Edit Slide' : 'Add New Slide'}
+          </h1>
         </div>
       </div>
 
       {/* Form */}
-      <div className="p-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="p-3 sm:p-4 lg:p-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="title" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
               Title *
             </label>
             <input
@@ -150,7 +139,7 @@ export default function SlideForm({ slide, mode }: SlideFormProps) {
               required
               value={formData.title}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 text-sm min-h-[44px]"
               placeholder="New Summer Collection!"
             />
             <p className="mt-1 text-xs text-gray-500">
@@ -159,7 +148,7 @@ export default function SlideForm({ slide, mode }: SlideFormProps) {
           </div>
 
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="description" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
               Description
             </label>
             <textarea
@@ -168,13 +157,13 @@ export default function SlideForm({ slide, mode }: SlideFormProps) {
               rows={3}
               value={formData.description}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors resize-none text-gray-900"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors resize-none text-gray-900 text-sm"
               placeholder="Promote your best affiliate products or special offers"
             />
           </div>
 
           <div>
-            <label htmlFor="link" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="link" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
               Affiliate Link (Optional)
             </label>
             <input
@@ -183,7 +172,7 @@ export default function SlideForm({ slide, mode }: SlideFormProps) {
               name="link"
               value={formData.link}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 text-sm min-h-[44px]"
               placeholder="https://affiliate-link.com/product"
             />
             <p className="mt-1 text-xs text-gray-500">
@@ -192,7 +181,7 @@ export default function SlideForm({ slide, mode }: SlideFormProps) {
           </div>
 
           <div>
-            <label htmlFor="order" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="order" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
               Display Order
             </label>
             <input
@@ -202,7 +191,7 @@ export default function SlideForm({ slide, mode }: SlideFormProps) {
               min="0"
               value={formData.order}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 text-sm min-h-[44px]"
             />
             <p className="mt-1 text-xs text-gray-500">
               Lower numbers appear first in the slider
@@ -210,23 +199,23 @@ export default function SlideForm({ slide, mode }: SlideFormProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3">
               Slide Image *
             </label>
             {imagePreview && (
-              <div className="mb-4">
+              <div className="mb-3 sm:mb-4">
                 <Image
                   src={imagePreview}
                   alt="Preview"
-                  width={400}
-                  height={200}
-                  className="w-full max-w-md h-48 object-cover rounded-lg border border-gray-200"
+                  width={320}
+                  height={160}
+                  className="w-full max-w-xs sm:max-w-md h-32 sm:h-48 object-cover rounded-lg border border-gray-200"
                 />
               </div>
             )}
-            <label className="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
-              <Upload className="w-5 h-5 text-gray-400 mr-2" />
-              <span className="text-sm text-gray-600">
+            <label className="flex items-center justify-center w-full px-3 sm:px-4 py-4 sm:py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors min-h-[60px]">
+              <Upload className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 mr-2" />
+              <span className="text-xs sm:text-sm text-gray-600">
                 {imageFile ? 'Change Image' : 'Upload Slide Image'}
               </span>
               <input
@@ -238,41 +227,41 @@ export default function SlideForm({ slide, mode }: SlideFormProps) {
             </label>
           </div>
 
-          <div className="flex items-center">
+          <div className="flex items-center min-h-[44px]">
             <input
               type="checkbox"
               id="isActive"
               name="isActive"
               checked={formData.isActive}
               onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
-              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded mr-2"
             />
-            <label htmlFor="isActive" className="ml-2 block text-sm text-gray-900">
+            <label htmlFor="isActive" className="block text-xs sm:text-sm text-gray-900">
               Active (visible on store)
             </label>
           </div>
 
-          <div className="flex justify-end space-x-3 pt-6">
+          <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4 sm:pt-6">
             <button
               type="button"
               onClick={handleCancel}
-              className="px-6 py-3 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+              className="w-full sm:w-auto px-4 sm:px-6 py-3 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors font-medium text-sm min-h-[44px]"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+              className="w-full sm:w-auto flex items-center justify-center px-4 sm:px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm min-h-[44px]"
             >
               {saving ? (
                 <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mr-2"></div>
                   Saving...
                 </>
               ) : (
                 <>
-                  <Save className="w-5 h-5 mr-2" />
+                  <Save className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                   {mode === 'edit' ? 'Update Slide' : 'Create Slide'}
                 </>
               )}

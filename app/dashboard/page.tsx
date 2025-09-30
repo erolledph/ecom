@@ -7,18 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { isPremium } from '@/lib/auth';
 import { getUserStore, getStoreProducts, getStoreSlides, Store } from '@/lib/store';
-import { 
-  Store as StoreIcon,
-  Package,
-  Image as ImageIcon,
-  Users,
-  ExternalLink,
-  Plus,
-  BarChart3,
-  Eye,
-  Settings,
-  TrendingUp
-} from 'lucide-react';
+import { Store as StoreIcon, Package, Image as ImageIcon, Users, ExternalLink, Plus, ChartBar as BarChart3, Eye, Settings, TrendingUp } from 'lucide-react';
 
 export default function DashboardOverview() {
   const { user, userProfile } = useAuth();
@@ -132,31 +121,23 @@ export default function DashboardOverview() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="p-8">
+      <div className="p-4 sm:p-6 lg:p-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-primary-100 rounded-lg">
-              <BarChart3 className="w-7 h-7 text-primary-600" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800">Dashboard Overview</h1>
-              <p className="text-sm text-gray-500 mt-1">
-                Welcome back! Here's what's happening with your store.
-              </p>
-            </div>
+          <div>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">Dashboard Overview</h1>
           </div>
           {store && (
             <Link
               href={`/${store.slug}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all shadow-md"
+              className="flex items-center px-4 sm:px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-all shadow-md text-sm sm:text-base min-h-[44px]"
               aria-label="View Store"
               onClick={() => showInfo('Opening your store in a new tab!')}
             >
-              <Eye className="w-5 h-5 mr-2" />
+              <Eye className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
               View Store
             </Link>
           )}
@@ -164,77 +145,77 @@ export default function DashboardOverview() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-md p-8 border border-gray-200">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+        <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-md p-4 sm:p-6 lg:p-8 border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Products</p>
-              <p className="text-2xl font-bold text-gray-800">{stats.totalProducts}</p>
+              <p className="text-xs sm:text-sm font-medium text-gray-600">Total Products</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-800">{stats.totalProducts}</p>
               {userProfile && !isPremium(userProfile) && (
                 <p className="text-xs text-green-600 mt-1">
                   {stats.totalProducts}/30 limit
                 </p>
               )}
             </div>
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Package className="w-7 h-7 text-blue-600" />
+            <div className="p-2 sm:p-3 bg-blue-100 rounded-lg">
+              <Package className="w-5 h-5 sm:w-7 sm:h-7 text-blue-600" />
             </div>
           </div>
-          <div className="mt-4 flex items-center text-sm">
+          <div className="mt-3 sm:mt-4 flex items-center text-xs sm:text-sm">
             <span className="text-green-600 font-medium">{stats.activeProducts}</span>
             <span className="text-gray-500 ml-1">active</span>
           </div>
         </div>
 
-        <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-md p-8 border border-gray-200">
+        <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-md p-4 sm:p-6 lg:p-8 border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Slides</p>
-              <p className="text-2xl font-bold text-gray-800">{stats.totalSlides}</p>
+              <p className="text-xs sm:text-sm font-medium text-gray-600">Total Slides</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-800">{stats.totalSlides}</p>
             </div>
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <ImageIcon className="w-7 h-7 text-purple-600" />
+            <div className="p-2 sm:p-3 bg-purple-100 rounded-lg">
+              <ImageIcon className="w-5 h-5 sm:w-7 sm:h-7 text-purple-600" />
             </div>
           </div>
-          <div className="mt-4 flex items-center text-sm">
+          <div className="mt-3 sm:mt-4 flex items-center text-xs sm:text-sm">
             <span className="text-green-600 font-medium">{stats.activeSlides}</span>
             <span className="text-gray-500 ml-1">active</span>
           </div>
         </div>
 
-        <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-md p-8 border border-gray-200">
+        <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-md p-4 sm:p-6 lg:p-8 border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Store Status</p>
-              <p className="text-2xl font-bold text-gray-800">
+              <p className="text-xs sm:text-sm font-medium text-gray-600">Store Status</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-800">
                 {store?.isActive ? 'Active' : 'Inactive'}
               </p>
             </div>
-            <div className={`p-3 rounded-lg ${store?.isActive ? 'bg-green-100' : 'bg-red-100'}`}>
-              <StoreIcon className={`w-7 h-7 ${store?.isActive ? 'text-green-600' : 'text-red-600'}`} />
+            <div className={`p-2 sm:p-3 rounded-lg ${store?.isActive ? 'bg-green-100' : 'bg-red-100'}`}>
+              <StoreIcon className={`w-5 h-5 sm:w-7 sm:h-7 ${store?.isActive ? 'text-green-600' : 'text-red-600'}`} />
             </div>
           </div>
-          <div className="mt-4 flex items-center text-sm">
+          <div className="mt-3 sm:mt-4 flex items-center text-xs sm:text-sm">
             <span className={store?.isActive ? 'text-green-600' : 'text-red-600'}>
               {store?.isActive ? 'Live' : 'Offline'}
             </span>
           </div>
         </div>
 
-        <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-md p-8 border border-gray-200">
+        <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-md p-4 sm:p-6 lg:p-8 border border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Quick Actions</p>
-              <p className="text-2xl font-bold text-gray-800">Manage</p>
+              <p className="text-xs sm:text-sm font-medium text-gray-600">Quick Actions</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-800">Manage</p>
             </div>
-            <div className="p-3 bg-indigo-100 rounded-lg">
-              <Settings className="w-7 h-7 text-indigo-600" />
+            <div className="p-2 sm:p-3 bg-indigo-100 rounded-lg">
+              <Settings className="w-5 h-5 sm:w-7 sm:h-7 text-indigo-600" />
             </div>
           </div>
-          <div className="mt-4">
+          <div className="mt-3 sm:mt-4">
             <Link
               href="/dashboard/store"
-              className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+              className="text-xs sm:text-sm text-primary-600 hover:text-primary-700 font-medium"
               aria-label="Go to Settings"
             >
               Go to Settings
@@ -244,17 +225,17 @@ export default function DashboardOverview() {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
         {/* Products Section */}
-        <div className="p-8">
+        <div className="p-4 sm:p-6 lg:p-8">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-3">
-              <Package className="w-6 h-6 text-primary-600" />
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-800 flex items-center gap-2 sm:gap-3">
+              <Package className="w-5 h-5 sm:w-6 sm:h-6 text-primary-600" />
               Products
             </h3>
             <Link
               href="/dashboard/products"
-              className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+              className="text-primary-600 hover:text-primary-700 text-xs sm:text-sm font-medium"
               aria-label="View All Products"
             >
               View All
@@ -264,7 +245,7 @@ export default function DashboardOverview() {
           <div className="space-y-4">
             <Link
               href="/dashboard/products/add"
-              className={`flex items-center p-4 border-2 border-dashed rounded-lg transition-all group ${
+              className={`flex items-center p-3 sm:p-4 border-2 border-dashed rounded-lg transition-all group min-h-[60px] ${
                 isAtProductLimit 
                   ? 'border-red-200 bg-red-50 cursor-not-allowed' 
                   : 'border-gray-200 hover:border-primary-400 hover:bg-primary-50'
@@ -277,20 +258,20 @@ export default function DashboardOverview() {
               }}
               aria-label="Add New Product"
             >
-              <Plus className={`w-6 h-6 mr-3 ${
+              <Plus className={`w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 ${
                 isAtProductLimit 
                   ? 'text-red-400' 
                   : 'text-gray-400 group-hover:text-primary-600'
               }`} />
               <div>
-                <p className={`font-medium ${
+                <p className={`font-medium text-sm sm:text-base ${
                   isAtProductLimit 
                     ? 'text-red-800' 
                     : 'text-gray-800 group-hover:text-primary-700'
                 }`}>
                   {isAtProductLimit ? 'Product Limit Reached' : 'Add New Product'}
                 </p>
-                <p className={`text-sm ${
+                <p className={`text-xs sm:text-sm ${
                   isAtProductLimit 
                     ? 'text-red-600' 
                     : 'text-gray-500'
@@ -305,28 +286,28 @@ export default function DashboardOverview() {
             
             <Link
               href="/dashboard/products"
-              className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all"
+              className="flex items-center p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all min-h-[60px]"
               aria-label="Manage Products"
             >
-              <Package className="w-6 h-6 text-gray-600 mr-3" />
+              <Package className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600 mr-2 sm:mr-3" />
               <div>
-                <p className="font-medium text-gray-800">Manage Products</p>
-                <p className="text-sm text-gray-500">Edit, organize, and manage your products</p>
+                <p className="font-medium text-gray-800 text-sm sm:text-base">Manage Products</p>
+                <p className="text-xs sm:text-sm text-gray-500">Edit, organize, and manage your products</p>
               </div>
             </Link>
           </div>
         </div>
 
         {/* Slides Section */}
-        <div className="p-8">
+        <div className="p-4 sm:p-6 lg:p-8">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-3">
-              <ImageIcon className="w-6 h-6 text-primary-600" />
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-800 flex items-center gap-2 sm:gap-3">
+              <ImageIcon className="w-5 h-5 sm:w-6 sm:h-6 text-primary-600" />
               Promotional Slides
             </h3>
             <Link
               href="/dashboard/slides"
-              className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+              className="text-primary-600 hover:text-primary-700 text-xs sm:text-sm font-medium"
               aria-label="View All Slides"
             >
               View All
@@ -336,25 +317,25 @@ export default function DashboardOverview() {
           <div className="space-y-4">
             <Link
               href="/dashboard/slides/add"
-              className="flex items-center p-4 border-2 border-dashed border-gray-200 rounded-lg hover:border-primary-400 hover:bg-primary-50 transition-all group"
+              className="flex items-center p-3 sm:p-4 border-2 border-dashed border-gray-200 rounded-lg hover:border-primary-400 hover:bg-primary-50 transition-all group min-h-[60px]"
               aria-label="Create New Slide"
             >
-              <Plus className="w-6 h-6 text-gray-400 group-hover:text-primary-600 mr-3" />
+              <Plus className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-hover:text-primary-600 mr-2 sm:mr-3" />
               <div>
-                <p className="font-medium text-gray-800 group-hover:text-primary-700">Create New Slide</p>
-                <p className="text-sm text-gray-500">Add promotional slides to showcase offers</p>
+                <p className="font-medium text-gray-800 group-hover:text-primary-700 text-sm sm:text-base">Create New Slide</p>
+                <p className="text-xs sm:text-sm text-gray-500">Add promotional slides to showcase offers</p>
               </div>
             </Link>
             
             <Link
               href="/dashboard/slides"
-              className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all"
+              className="flex items-center p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all min-h-[60px]"
               aria-label="Manage Slides"
             >
-              <ImageIcon className="w-6 h-6 text-gray-600 mr-3" />
+              <ImageIcon className="w-5 h-5 sm:w-6 sm:h-6 text-gray-600 mr-2 sm:mr-3" />
               <div>
-                <p className="font-medium text-gray-800">Manage Slides</p>
-                <p className="text-sm text-gray-500">Edit and organize your promotional slides</p>
+                <p className="font-medium text-gray-800 text-sm sm:text-base">Manage Slides</p>
+                <p className="text-xs sm:text-sm text-gray-500">Edit and organize your promotional slides</p>
               </div>
             </Link>
           </div>
@@ -362,35 +343,35 @@ export default function DashboardOverview() {
       </div>
 
       {/* Getting Started Tips */}
-      <div className="p-8">
-        <h3 className="text-xl font-semibold text-gray-800 mb-6">Getting Started Tips</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <div className="p-4 bg-blue-50 rounded-lg shadow-sm">
-            <div className="flex items-center mb-3">
-              <StoreIcon className="w-6 h-6 text-blue-600 mr-2" />
-              <h4 className="font-medium text-blue-900">Customize Your Store</h4>
+      <div className="p-4 sm:p-6 lg:p-8">
+        <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4 sm:mb-6">Getting Started Tips</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+          <div className="p-3 sm:p-4 bg-blue-50 rounded-lg shadow-sm">
+            <div className="flex items-center mb-2 sm:mb-3">
+              <StoreIcon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 mr-2" />
+              <h4 className="font-medium text-blue-900 text-sm sm:text-base">Customize Your Store</h4>
             </div>
-            <p className="text-sm text-blue-700">
+            <p className="text-xs sm:text-sm text-blue-700">
               Set up your store branding, colors, and social media links in store settings.
             </p>
           </div>
           
-          <div className="p-4 bg-green-50 rounded-lg shadow-sm">
-            <div className="flex items-center mb-3">
-              <Package className="w-6 h-6 text-green-600 mr-2" />
-              <h4 className="font-medium text-green-900">Add Products</h4>
+          <div className="p-3 sm:p-4 bg-green-50 rounded-lg shadow-sm">
+            <div className="flex items-center mb-2 sm:mb-3">
+              <Package className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 mr-2" />
+              <h4 className="font-medium text-green-900 text-sm sm:text-base">Add Products</h4>
             </div>
-            <p className="text-sm text-green-700">
+            <p className="text-xs sm:text-sm text-green-700">
               Start adding affiliate products with compelling descriptions and competitive prices.
             </p>
           </div>
           
-          <div className="p-4 bg-purple-50 rounded-lg shadow-sm">
-            <div className="flex items-center mb-3">
-              <ImageIcon className="w-6 h-6 text-purple-600 mr-2" />
-              <h4 className="font-medium text-purple-900">Create Slides</h4>
+          <div className="p-3 sm:p-4 bg-purple-50 rounded-lg shadow-sm">
+            <div className="flex items-center mb-2 sm:mb-3">
+              <ImageIcon className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 mr-2" />
+              <h4 className="font-medium text-purple-900 text-sm sm:text-base">Create Slides</h4>
             </div>
-            <p className="text-sm text-purple-700">
+            <p className="text-xs sm:text-sm text-purple-700">
               Design eye-catching promotional slides to highlight your best offers and deals.
             </p>
           </div>

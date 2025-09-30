@@ -25,25 +25,10 @@ import {
 import { getGlobalBannerClickEvents } from '@/lib/analytics';
 import ImageUploadWithDelete from '@/components/ImageUploadWithDelete';
 import CustomToggle from '@/components/CustomToggle';
-import { 
-  Settings, 
-  Users, 
-  Search, 
-  Shield, 
-  Crown, 
-  Megaphone, 
-  Save, 
-  Trash2,
-  AlertTriangle,
-  CheckCircle,
-  XCircle,
-  Radio,
-  RefreshCw,
-  ExternalLink,
-  DollarSign
-} from 'lucide-react';
+import { Settings, Users, Search, Shield, Crown, Megaphone, Save, Trash2, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle, Circle as XCircle, Radio, RefreshCw, ExternalLink, DollarSign } from 'lucide-react';
+import { Bell } from 'lucide-react';
 
-type TabType = 'user-management' | 'global-broadcast' | 'sponsor-products';
+type TabType = 'user-management' | 'global-broadcast' | 'broadcast-notifications' | 'sponsor-products';
 
 export default function SystemManagementPage() {
   const { user, userProfile } = useAuth();
@@ -374,6 +359,12 @@ export default function SystemManagementPage() {
       description: 'System-wide announcements'
     },
     {
+      id: 'broadcast-notifications' as TabType,
+      name: 'Broadcast Notifications',
+      icon: Bell,
+      description: 'User dashboard notifications'
+    },
+    {
       id: 'sponsor-products' as TabType,
       name: 'Sponsor Products',
       icon: DollarSign,
@@ -386,21 +377,15 @@ export default function SystemManagementPage() {
       <div className="space-y-6 md:space-y-8">
         {/* Header */}
         <div className="p-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-gradient-to-br from-red-100 to-orange-100 rounded-lg">
-              <Settings className="w-7 h-7 text-red-600" />
-            </div>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">System Management</h1>
-              <p className="text-gray-600 mt-1">Administrator tools and system configuration</p>
-            </div>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">System Management</h1>
           </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="p-6">
+        <div className="p-3 sm:p-6">
           <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8">
+            <nav className="-mb-px flex space-x-2 sm:space-x-4 lg:space-x-8 overflow-x-auto">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
@@ -409,19 +394,20 @@ export default function SystemManagementPage() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    className={`group inline-flex items-center py-3 sm:py-4 px-1 sm:px-2 border-b-2 font-medium text-xs sm:text-sm transition-colors whitespace-nowrap ${
                       isActive
                         ? 'border-primary-500 text-primary-600'
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     }`}
                   >
-                    <Icon className={`mr-2 h-5 w-5 ${
+                    <Icon className={`mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5 ${
                       isActive ? 'text-primary-500' : 'text-gray-400 group-hover:text-gray-500'
                     }`} />
-                    <div className="text-left">
-                      <div>{tab.name}</div>
-                      <div className="text-xs text-gray-400 font-normal">{tab.description}</div>
+                    <div className="text-left hidden sm:block">
+                      <div className="text-xs sm:text-sm">{tab.name}</div>
+                      <div className="text-xs text-gray-400 font-normal hidden lg:block">{tab.description}</div>
                     </div>
+                    <span className="sm:hidden text-xs">{tab.name}</span>
                   </button>
                 );
               })}
@@ -430,29 +416,29 @@ export default function SystemManagementPage() {
         </div>
 
         {/* Tab Content */}
-        <div className="p-6">
+        <div className="p-3 sm:p-6">
           {/* User Management Tab */}
           {activeTab === 'user-management' && (
             <div className="space-y-6">
               {/* User Management Header */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg">
-                      <Users className="w-7 h-7 text-blue-600" />
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="p-2 sm:p-3 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg">
+                      <Users className="w-5 h-5 sm:w-7 sm:h-7 text-blue-600" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-semibold text-gray-900">User Management</h2>
-                      <p className="text-gray-600 mt-1">
+                      <h2 className="text-lg sm:text-xl font-semibold text-gray-900">User Management</h2>
+                      <p className="text-sm sm:text-base text-gray-600 mt-1">
                         Manage user roles and permissions
                       </p>
                     </div>
                   </div>
                   
-                  <div className="flex space-x-3">
+                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
                     <button
                       onClick={() => router.push('/dashboard/system-management/users')}
-                      className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                      className="flex items-center justify-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm min-h-[44px]"
                     >
                       <Users className="w-4 h-4 mr-2" />
                       Manage Users
@@ -461,12 +447,12 @@ export default function SystemManagementPage() {
                 </div>
 
                 {/* Info Banner */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200">
-                  <div className="flex items-start space-x-3">
-                    <Users className="w-5 h-5 text-blue-600 mt-0.5" />
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 sm:p-4 border border-blue-200">
+                  <div className="flex items-start space-x-2 sm:space-x-3">
+                    <Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                     <div className="flex-1">
-                      <h4 className="font-medium text-blue-900 mb-1">User Management Features</h4>
-                      <div className="text-sm text-blue-800 space-y-1">
+                      <h4 className="font-medium text-blue-900 mb-1 text-sm sm:text-base">User Management Features</h4>
+                      <div className="text-xs sm:text-sm text-blue-800 space-y-1">
                         <p>• Search for users by email address</p>
                         <p>• View all registered users with their store information</p>
                         <p>• Toggle user roles between User and Admin</p>
@@ -484,24 +470,24 @@ export default function SystemManagementPage() {
           {activeTab === 'sponsor-products' && (
             <div className="space-y-6">
               {/* Sponsor Products Header */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg">
-                      <DollarSign className="w-7 h-7 text-green-600" />
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="p-2 sm:p-3 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg">
+                      <DollarSign className="w-5 h-5 sm:w-7 sm:h-7 text-green-600" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-semibold text-gray-900">Sponsor Products</h2>
-                      <p className="text-gray-600 mt-1">
+                      <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Sponsor Products</h2>
+                      <p className="text-sm sm:text-base text-gray-600 mt-1">
                         Manage sponsored products that appear in user stores
                       </p>
                     </div>
                   </div>
                   
-                  <div className="flex space-x-3">
+                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
                     <button
                       onClick={() => router.push('/dashboard/system-management/sponsor-products')}
-                      className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                      className="flex items-center justify-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm min-h-[44px]"
                     >
                       <DollarSign className="w-4 h-4 mr-2" />
                       Manage Sponsor Products
@@ -510,12 +496,12 @@ export default function SystemManagementPage() {
                 </div>
 
                 {/* Info Banner */}
-                <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border border-green-200">
-                  <div className="flex items-start space-x-3">
-                    <DollarSign className="w-5 h-5 text-green-600 mt-0.5" />
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-3 sm:p-4 border border-green-200">
+                  <div className="flex items-start space-x-2 sm:space-x-3">
+                    <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 mt-0.5 flex-shrink-0" />
                     <div className="flex-1">
-                      <h4 className="font-medium text-green-900 mb-1">How Sponsored Products Work</h4>
-                      <div className="text-sm text-green-800 space-y-1">
+                      <h4 className="font-medium text-green-900 mb-1 text-sm sm:text-base">How Sponsored Products Work</h4>
+                      <div className="text-xs sm:text-sm text-green-800 space-y-1">
                         <p>• Sponsored products appear randomly in user stores with 15+ products</p>
                         <p>• Stores with 15-24 products show 1 sponsored product (1st position)</p>
                         <p>• Stores with 25+ products show 2 sponsored products (1st and 6th positions)</p>
@@ -528,28 +514,77 @@ export default function SystemManagementPage() {
               </div>
             </div>
           )}
+
+          {/* Broadcast Notifications Tab */}
+          {activeTab === 'broadcast-notifications' && (
+            <div className="space-y-6">
+              {/* Broadcast Notifications Header */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="p-2 sm:p-3 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg">
+                      <Bell className="w-5 h-5 sm:w-7 sm:h-7 text-blue-600" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Broadcast Notifications</h2>
+                      <p className="text-sm sm:text-base text-gray-600 mt-1">
+                        Manage system-wide notifications for all users
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                    <button
+                      onClick={() => router.push('/dashboard/system-management/broadcast-notifications')}
+                      className="flex items-center justify-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm min-h-[44px]"
+                    >
+                      <Bell className="w-4 h-4 mr-2" />
+                      Manage Notifications
+                    </button>
+                  </div>
+                </div>
+
+                {/* Info Banner */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 sm:p-4 border border-blue-200">
+                  <div className="flex items-start space-x-2 sm:space-x-3">
+                    <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h4 className="font-medium text-blue-900 mb-1 text-sm sm:text-base">Broadcast Notification Features</h4>
+                      <div className="text-xs sm:text-sm text-blue-800 space-y-1">
+                        <p>• Create system-wide notifications that appear in all user dashboards</p>
+                        <p>• Support for Markdown formatting in notification descriptions</p>
+                        <p>• Real-time badge count updates when users read notifications</p>
+                        <p>• Track notification read status per user</p>
+                        <p>• Control notification visibility with active/inactive status</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           {/* Global Broadcast Tab */}
           {activeTab === 'global-broadcast' && (
             <div className="space-y-6">
               {/* Global Broadcast Header */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg">
-                      <Radio className="w-7 h-7 text-purple-600" />
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="p-2 sm:p-3 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg">
+                      <Radio className="w-5 h-5 sm:w-7 sm:h-7 text-purple-600" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-semibold text-gray-900">Global Broadcast</h2>
-                      <p className="text-gray-600 mt-1">
+                      <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Global Broadcast</h2>
+                      <p className="text-sm sm:text-base text-gray-600 mt-1">
                         Manage system-wide announcement banners
                       </p>
                     </div>
                   </div>
                   
-                  <div className="flex space-x-3">
+                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
                     <button
                       onClick={() => router.push('/dashboard/system-management/global-broadcast')}
-                      className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                      className="flex items-center justify-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm min-h-[44px]"
                     >
                       <Radio className="w-4 h-4 mr-2" />
                       Manage Broadcasts
@@ -558,17 +593,16 @@ export default function SystemManagementPage() {
                 </div>
 
                 {/* Info Banner */}
-                <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-4 border border-purple-200">
-                  <div className="flex items-start space-x-3">
-                    <Radio className="w-5 h-5 text-purple-600 mt-0.5" />
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-3 sm:p-4 border border-purple-200">
+                  <div className="flex items-start space-x-2 sm:space-x-3">
+                    <Radio className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 mt-0.5 flex-shrink-0" />
                     <div className="flex-1">
-                      <h4 className="font-medium text-purple-900 mb-1">Global Broadcast Features</h4>
-                      <div className="text-sm text-purple-800 space-y-1">
+                      <h4 className="font-medium text-purple-900 mb-1 text-sm sm:text-base">Global Broadcast Features</h4>
+                      <div className="text-xs sm:text-sm text-purple-800 space-y-1">
                         <p>• Create system-wide announcement banners for all users</p>
                         <p>• Upload custom images and add descriptions or links</p>
                         <p>• Control banner visibility with active/inactive status</p>
                         <p>• Track banner click performance and engagement</p>
-                        <p>• Banners appear as popups after a 3-second delay</p>
                       </div>
                     </div>
                   </div>

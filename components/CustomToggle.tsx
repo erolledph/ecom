@@ -9,6 +9,7 @@ interface CustomToggleProps {
   checked: boolean;
   onChange: (checked: boolean) => void;
   disabled?: boolean;
+  title?: string;
 }
 
 export default function CustomToggle({
@@ -17,7 +18,8 @@ export default function CustomToggle({
   description,
   checked,
   onChange,
-  disabled = false
+  disabled = false,
+  title
 }: CustomToggleProps) {
   const handleToggle = () => {
     if (!disabled) {
@@ -26,17 +28,17 @@ export default function CustomToggle({
   };
 
   return (
-    <div className="flex items-start justify-between py-4">
-      <div className="flex-1 min-w-0 mr-4">
-        <label htmlFor={id} className="block text-sm font-medium text-gray-900 cursor-pointer">
+    <div className="flex items-start justify-between py-3 sm:py-4">
+      <div className="flex-1 min-w-0 mr-3 sm:mr-4">
+        <label htmlFor={id} className="block text-xs sm:text-sm font-medium text-gray-900 cursor-pointer">
           {label}
         </label>
         {description && (
-          <p className="mt-1 text-sm text-gray-500">{description}</p>
+          <p className="mt-1 text-xs sm:text-sm text-gray-500">{description}</p>
         )}
       </div>
       
-      <div className="flex-shrink-0">
+      <div className="flex-shrink-0 relative group">
         <button
           type="button"
           role="switch"
@@ -48,7 +50,7 @@ export default function CustomToggle({
             relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent 
             transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-600 focus:ring-offset-2
             ${checked ? 'bg-primary-600' : 'bg-gray-200'}
-            ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+            ${disabled ? 'opacity-30 cursor-not-allowed' : ''}
           `}
         >
           <span
@@ -59,6 +61,12 @@ export default function CustomToggle({
             `}
           />
         </button>
+
+        {disabled && (
+          <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-xs sm:text-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+            {title || "Premium"}
+          </div>
+        )}
         
         {/* Hidden checkbox for form compatibility */}
         <input

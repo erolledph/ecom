@@ -138,39 +138,31 @@ export default function SubscribersPage() {
   }
 
   return (
-    <div className="space-y-6 md:space-y-8">
+    <div className="space-y-4 sm:space-y-6 md:space-y-8">
       {/* Header */}
-      <div className="p-6">
+      <div className="p-3 sm:p-4 lg:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-primary-100 rounded-lg">
-              <Users className="w-7 h-7 text-primary-600" />
-            </div>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Subscribers</h1>
-              <p className="text-gray-600 mt-1">
-                Manage your mailing list subscribers ({subscribers.length} total)
-              </p>
-            </div>
+          <div>
+            <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900">Subscribers</h1>
           </div>
           
-          <div className="flex space-x-3">
+          <div className="flex flex-col sm:flex-row space-y-2  sm:space-y-0 sm:space-x-3">
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center justify-center px-3 sm:px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm min-h-[44px]"
             >
-              <RefreshCcw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+              <RefreshCcw className={`w-3 h-3 sm:w-4 sm:h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
               {refreshing ? 'Refreshing...' : 'Refresh'}
             </button>
-            
+
             <button
               onClick={handleExportCSV}
               disabled={exporting || subscribers.length === 0}
-              className="flex items-center px-4 py-2 bg-secondary-600 text-white rounded-lg hover:bg-secondary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center justify-center px-3 sm:px-4 py-2 bg-secondary-600 text-white rounded-lg hover:bg-secondary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm min-h-[44px]"
               title="Export subscribers to CSV"
             >
-              <Download className={`w-4 h-4 mr-2 ${exporting ? 'animate-bounce' : ''}`} />
+              <Download className={`w-3 h-3 sm:w-4 sm:h-4 mr-2 ${exporting ? 'animate-bounce' : ''}`} />
               {exporting ? 'Exporting...' : 'Export CSV'}
             </button>
           </div>
@@ -179,27 +171,27 @@ export default function SubscribersPage() {
 
       {/* Subscribers Table */}
       {subscribers.length > 0 ? (
-        <div className="overflow-hidden">
+        <div className="overflow-hidden mx-2 sm:mx-0">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <div className="flex items-center">
-                      <User className="w-4 h-4 mr-2" />
+                      <User className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                       Name
                     </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <div className="flex items-center">
-                      <Mail className="w-4 h-4 mr-2" />
+                      <Mail className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                       Email
                     </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                     Subscription Date
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -207,28 +199,28 @@ export default function SubscribersPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {subscribers.map((subscriber) => (
                   <tr key={subscriber.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                      <div className="text-xs sm:text-sm font-medium text-gray-900">
                         {subscriber.name || (
                           <span className="text-gray-400 italic">Not provided</span>
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{subscriber.email}</div>
+                    <td className="px-3 sm:px-6 py-4">
+                      <div className="text-xs sm:text-sm text-gray-900 truncate max-w-[150px] sm:max-w-none">{subscriber.email}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-500">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                      <div className="text-xs sm:text-sm text-gray-500">
                         {subscriber.createdAt?.toDate ? 
                           subscriber.createdAt.toDate().toLocaleDateString() : 
                           new Date(subscriber.createdAt).toLocaleDateString()
                         }
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                       <button
                         onClick={() => handleDeleteSubscriber(subscriber.id!)}
-                        className="inline-flex items-center px-3 py-1.5 border border-danger-300 shadow-sm text-xs font-medium rounded text-danger-700 bg-danger-50 hover:bg-danger-100 transition-colors"
+                        className="inline-flex items-center justify-center px-2 sm:px-3 py-1.5 border border-danger-300 shadow-sm text-xs font-medium rounded text-danger-700 bg-danger-50 hover:bg-danger-100 transition-colors min-h-[36px] min-w-[36px]"
                         title="Delete subscriber"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -241,31 +233,31 @@ export default function SubscribersPage() {
           </div>
         </div>
       ) : (
-        <div className="p-8">
-          <div className="text-center py-12">
-            <div className="w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Users className="w-8 h-8 text-primary-600" />
+        <div className="p-4 sm:p-6 lg:p-8">
+          <div className="text-center py-8 sm:py-12">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6">
+              <Users className="w-6 h-6 sm:w-8 sm:h-8 text-primary-600" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
               No subscribers yet
             </h3>
-            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+            <p className="text-gray-600 mb-4 sm:mb-6 max-w-md mx-auto text-sm sm:text-base px-4">
               When visitors subscribe to your store's mailing list, they will appear here. 
               Enable the subscription form in your store settings to start collecting subscribers.
             </p>
-            <div className="bg-gray-50 rounded-lg p-6 max-w-lg mx-auto">
-              <p className="text-sm font-medium text-gray-700 mb-3">To enable subscriptions:</p>
-              <ol className="text-sm text-gray-600 space-y-2 text-left">
+            <div className="bg-gray-50 rounded-lg p-4 sm:p-6 max-w-lg mx-auto">
+              <p className="text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3">To enable subscriptions:</p>
+              <ol className="text-xs sm:text-sm text-gray-600 space-y-1 sm:space-y-2 text-left">
                 <li className="flex items-start">
-                  <span className="w-5 h-5 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5">1</span>
+                  <span className="w-4 h-4 sm:w-5 sm:h-5 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-xs font-bold mr-2 sm:mr-3 mt-0.5 flex-shrink-0">1</span>
                   Go to Store Settings
                 </li>
                 <li className="flex items-start">
-                  <span className="w-5 h-5 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5">2</span>
+                  <span className="w-4 h-4 sm:w-5 sm:h-5 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-xs font-bold mr-2 sm:mr-3 mt-0.5 flex-shrink-0">2</span>
                   Navigate to the Subscriptions tab
                 </li>
                 <li className="flex items-start">
-                  <span className="w-5 h-5 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-xs font-bold mr-3 mt-0.5">3</span>
+                  <span className="w-4 h-4 sm:w-5 sm:h-5 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-xs font-bold mr-2 sm:mr-3 mt-0.5 flex-shrink-0">3</span>
                   Enable the subscription form
                 </li>
               </ol>

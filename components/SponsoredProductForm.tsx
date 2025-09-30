@@ -199,21 +199,10 @@ export default function SponsoredProductForm({ sponsoredProduct, mode }: Sponsor
     <div className="space-y-6 md:space-y-8">
       {/* Header */}
       <div className="p-6">
-        <div className="flex items-center mb-4">
-          <button
-            onClick={handleCancel}
-            className="mr-4 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-              {mode === 'edit' ? 'Edit Sponsored Product' : 'Add New Sponsored Product'}
-            </h1>
-            <p className="text-gray-600 mt-1">
-              {mode === 'edit' ? 'Update your sponsored product' : 'Create a new sponsored product to display in user stores'}
-            </p>
-          </div>
+        <div className="mb-4">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            {mode === 'edit' ? 'Edit Sponsored Product' : 'Add New Sponsored Product'}
+          </h1>
         </div>
       </div>
       

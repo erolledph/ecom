@@ -8,7 +8,7 @@ interface ToastMessage extends Omit<ToastProps, 'onClose'> {
 }
 
 interface ToastContextType {
-  addToast: (message: string, type?: ToastType, duration?: number) => void;
+  addToast: (message: string, type?: ToastType) => void;
   removeToast: (id: string) => void;
 }
 
@@ -17,9 +17,9 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined);
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
-  const addToast = useCallback((message: string, type: ToastType = 'info', duration?: number) => {
+  const addToast = useCallback((message: string, type: ToastType = 'info') => {
     const id = Date.now().toString() + Math.random().toString(36).substr(2, 9); // More unique ID
-    setToasts((prevToasts) => [...prevToasts, { id, message, type, duration }]);
+    setToasts((prevToasts) => [...prevToasts, { id, message, type }]);
   }, []);
 
   const removeToast = useCallback((id: string) => {

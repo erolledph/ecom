@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { CheckCircle, XCircle, Info, AlertTriangle, X } from 'lucide-react';
+import { CircleCheck as CheckCircle, Circle as XCircle, Info, TriangleAlert as AlertTriangle, X } from 'lucide-react';
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
@@ -10,10 +10,9 @@ export interface ToastProps {
   message: string;
   type: ToastType;
   onClose: (id: string) => void;
-  duration?: number; // in milliseconds, default to 5000
 }
 
-const Toast: React.FC<ToastProps> = ({ id, message, type, onClose, duration = 5000 }) => {
+const Toast: React.FC<ToastProps> = ({ id, message, type, onClose }) => {
   const getColors = () => {
     switch (type) {
       case 'success':
@@ -43,14 +42,6 @@ const Toast: React.FC<ToastProps> = ({ id, message, type, onClose, duration = 50
         return null;
     }
   };
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onClose(id);
-    }, duration);
-
-    return () => clearTimeout(timer);
-  }, [duration, id, onClose]);
 
   return (
     <div

@@ -291,40 +291,29 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
   };
 
   return (
-    <div className="space-y-6 md:space-y-8">
+    <div className="space-y-4 sm:space-y-6 md:space-y-8">
       {/* Header */}
-      <div className="p-6">
-        <div className="flex items-center mb-4">
-          <button
-            onClick={handleCancel}
-            className="mr-4 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-              {mode === 'edit' ? 'Edit Product' : 'Add New Product'}
-            </h1>
-            <p className="text-gray-600 mt-1">
-              {mode === 'edit' ? 'Update your affiliate product' : 'Add a new affiliate product to your store'}
-            </p>
-          </div>
+      <div className="p-3 sm:p-4 lg:p-6">
+        <div className="mb-4">
+          <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900">
+            {mode === 'edit' ? 'Edit Product' : 'Add New Product'}
+          </h1>
         </div>
       </div>
       
       {/* Form */}
-      <div className="p-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="p-3 sm:p-4 lg:p-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           {/* Product URL Scraping Section */}
-          <div className="space-y-4 pb-6 border-b border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900">Auto-Fill Product Information</h3>
-            <p className="text-sm text-gray-600">
+          <div className="space-y-3 sm:space-y-4 pb-4 sm:pb-6 border-b border-gray-200">
+            <h3 className="text-base sm:text-lg font-medium text-gray-900">Auto-Fill Product Information</h3>
+            <p className="text-xs sm:text-sm text-gray-600">
               Enter a product URL to automatically scrape and fill the product details below.
             </p>
             
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <div className="flex-1">
-                <label htmlFor="productUrl" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="productUrl" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   Product URL
                 </label>
                 <input
@@ -332,20 +321,20 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
                   id="productUrl"
                   value={productUrl}
                   onChange={(e) => setProductUrl(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 text-sm min-h-[44px]"
                   placeholder="https://example.com/product-page"
                 />
               </div>
-              <div className="flex items-end">
+              <div className="flex items-end sm:items-end">
                 <button
                   type="button"
                   onClick={handleScrape}
                   disabled={isScraping || !productUrl.trim()}
-                  className="flex items-center px-6 py-3 bg-secondary-600 text-white rounded-lg hover:bg-secondary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium whitespace-nowrap"
+                  className="flex items-center px-4 sm:px-6 py-2.5 sm:py-3 bg-secondary-600 text-white rounded-lg hover:bg-secondary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium whitespace-nowrap text-sm min-h-[44px] w-full sm:w-auto justify-center"
                 >
                   {isScraping ? (
                     <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mr-2"></div>
                       Scraping...
                     </>
                   ) : (
@@ -355,7 +344,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
               </div>
             </div>
             
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-gray-500 space-y-1">
               <p>• The scraper will attempt to extract product title, description, price, and image</p>
               <p>• You can still manually edit all fields after scraping</p>
               <p>• If price is not found, you'll need to enter it manually</p>
@@ -363,12 +352,12 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
           </div>
 
           {/* Product Image Section */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">Product Image</h3>
+          <div className="space-y-3 sm:space-y-4">
+            <h3 className="text-base sm:text-lg font-medium text-gray-900">Product Image</h3>
             
             {/* Image Type Selection */}
-            <div className="flex space-x-4 mb-4">
-              <label className="flex items-center border border-gray-300 rounded-md px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mb-3 sm:mb-4">
+              <label className="flex items-center border border-gray-300 rounded-md px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors min-h-[44px]">
                 <input
                   type="radio"
                   name="imageType"
@@ -377,9 +366,9 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
                   onChange={() => handleImageTypeChange('upload')}
                   className="mr-2"
                 />
-                <span className="text-gray-700">Upload Image</span>
+                <span className="text-gray-700 text-sm">Upload Image</span>
               </label>
-              <label className="flex items-center border border-gray-300 rounded-md px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors">
+              <label className="flex items-center border border-gray-300 rounded-md px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors min-h-[44px]">
                 <input
                   type="radio"
                   name="imageType"
@@ -388,33 +377,33 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
                   onChange={() => handleImageTypeChange('url')}
                   className="mr-2"
                 />
-                <span className="text-gray-700">Image URL</span>
+                <span className="text-gray-700 text-sm">Image URL</span>
               </label>
             </div>
             
-            <div className="border border-gray-300 rounded-lg p-4">
+            <div className="border border-gray-300 rounded-lg p-3 sm:p-4">
               {productData.imageType === 'upload' ? (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                     Upload Image *
                   </label>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleImageFileChange}
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+                    className="block w-full text-xs sm:text-sm text-gray-500 file:mr-2 sm:file:mr-4 file:py-2 file:px-3 sm:file:px-4 file:rounded-md file:border-0 file:text-xs sm:file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
                   />
                 </div>
               ) : (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                     Image URL *
                   </label>
                   <input
                     type="url"
                     value={productData.imageUrl}
                     onChange={handleImageUrlChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 text-sm min-h-[44px]"
                     placeholder="https://example.com/image.jpg"
                   />
                   <p className="mt-1 text-xs text-gray-500">
@@ -424,13 +413,13 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
               )}
               
               {imagePreview && (
-                <div className="mt-3">
+                <div className="mt-2 sm:mt-3">
                   <Image
                     src={imagePreview}
                     alt="Preview"
-                    width={200}
-                    height={200}
-                    className="w-32 h-32 object-cover rounded-lg border border-gray-200"
+                    width={128}
+                    height={128}
+                    className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-lg border border-gray-200"
                   />
                 </div>
               )}
@@ -439,7 +428,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
 
           {/* Product Name */}
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="title" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
               Product Name *
             </label>
             <input
@@ -449,32 +438,32 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
               required
               value={productData.title}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 text-sm min-h-[44px]"
               placeholder="Enter product name"
             />
           </div>
 
           {/* Description */}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="description" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
               Description *
             </label>
             <textarea
               id="description"
               name="description"
               required
-              rows={4}
+              rows={3}
               value={productData.description}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors resize-none text-gray-900"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors resize-none text-gray-900 text-sm"
               placeholder="Enter product description"
             />
           </div>
 
           {/* Price and Category */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
-              <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="price" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                 Price *
               </label>
               <input
@@ -484,13 +473,13 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
                 required
                 value={productData.price}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
+                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 text-sm min-h-[44px]"
                 placeholder="0.00"
               />
             </div>
 
             <div>
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="category" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                 Category Name *
               </label>
               <input
@@ -500,7 +489,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
                 required
                 value={productData.category}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
+                className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 text-sm min-h-[44px]"
                 placeholder="Enter category (e.g., Electronics, Fashion)"
               />
               <p className="mt-1 text-xs text-gray-500">
@@ -511,7 +500,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
 
           {/* Product Link */}
           <div>
-            <label htmlFor="productLink" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="productLink" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
               Affiliate Product Link *
             </label>
             <input
@@ -521,27 +510,27 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
               required
               value={productData.productLink}
               onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-gray-900 text-sm min-h-[44px]"
               placeholder="https://affiliate-link.com/product"
             />
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-xs sm:text-sm text-gray-500">
               Visitors will be redirected to this affiliate URL when they click on the product
             </p>
           </div>
 
           {/* Form Actions */}
-          <div className="flex justify-end space-x-3 pt-6">
+          <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3 pt-4 sm:pt-6">
             {/* Product Limit Warning for Normal Users */}
             {mode === 'add' && !isPremium(userProfile) && (
-              <div className="flex-1 mr-4">
-                <div className={`p-3 rounded-lg border ${
+              <div className="w-full sm:flex-1 sm:mr-4 order-1 sm:order-none">
+                <div className={`p-2 sm:p-3 rounded-lg border ${
                   isAtProductLimit 
                     ? 'bg-red-50 border-red-200' 
                     : currentProductCount >= 25 
                       ? 'bg-yellow-50 border-yellow-200' 
                       : 'bg-blue-50 border-blue-200'
                 }`}>
-                  <p className={`text-sm font-medium ${
+                  <p className={`text-xs sm:text-sm font-medium ${
                     isAtProductLimit 
                       ? 'text-red-800' 
                       : currentProductCount >= 25 
@@ -571,30 +560,32 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
               </div>
             )}
             
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="px-6 py-3 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors font-medium"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isLoading || (mode === 'add' && isAtProductLimit)}
-              className="flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-            >
-              {isLoading ? (
-                <>
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="w-5 h-5 mr-2" />
-                  {mode === 'edit' ? 'Update Product' : 'Save Product'}
-                </>
-              )}
-            </button>
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 order-2 sm:order-none">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="w-full sm:w-auto px-4 sm:px-6 py-3 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors font-medium text-sm min-h-[44px]"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isLoading || (mode === 'add' && isAtProductLimit)}
+                className="w-full sm:w-auto flex items-center justify-center px-4 sm:px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm min-h-[44px]"
+              >
+                {isLoading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mr-2"></div>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                    {mode === 'edit' ? 'Update Product' : 'Save Product'}
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </form>
       </div>

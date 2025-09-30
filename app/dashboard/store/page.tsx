@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
+import { isPremium } from '@/lib/auth';
+import PremiumFeatureGate from '@/components/PremiumFeatureGate';
 import { 
   getUserStore, 
   updateStore, 
@@ -15,7 +17,6 @@ import { Settings, Save, Palette, Globe, Badge as Widget, Megaphone, Mail, Code 
 import CustomToggle from '@/components/CustomToggle';
 import ImageUploadWithDelete from '@/components/ImageUploadWithDelete';
 import CustomHtmlEditor from '@/components/CustomHtmlEditor';
-import CustomDomainManager from '@/components/CustomDomainManager';
 
 const SOCIAL_PLATFORMS = [
   'instagram',
@@ -51,10 +52,14 @@ const HEADER_LAYOUTS = [
 
 export default function StoreSettingsPage() {
   const { user } = useAuth();
+  const { userProfile } = useAuth();
   const { showSuccess, showError } = useToast();
   const [store, setStore] = useState<Store | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  
+  // Check if user is premium
+  const isUserPremium = isPremium(userProfile);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -94,45 +99,6 @@ export default function StoreSettingsPage() {
       loadMoreButtonTextColor: '#ffffff',
     }
   });
-
-  const fetchStore = async () => {
-    if (!user) return;
-    
-    try {
-      const storeData = await getUserStore(user.uid);
-      if (storeData) {
-        setStore(storeData);
-        setFormData({
-          name: storeData.name,
-          description: storeData.description,
-          avatar: storeData.avatar || '',
-          socialLinks: storeData.socialLinks || [],
-          headerLayout: storeData.headerLayout || 'left-right',
-          widgetImage: storeData.widgetImage || '',
-          widgetLink: storeData.widgetLink || '',
-          widgetEnabled: storeData.widgetEnabled !== false,
-          bannerEnabled: storeData.bannerEnabled !== false,
-          bannerImage: storeData.bannerImage || '',
-          bannerDescription: storeData.bannerDescription || '',
-          bannerLink: storeData.bannerLink || '',
-          subscriptionEnabled: storeData.subscriptionEnabled !== false,
-          slidesEnabled: storeData.slidesEnabled !== false,
-          displayPriceOnProducts: storeData.displayPriceOnProducts !== false,
-          showCategories: storeData.showCategories !== false,
-          customHtml: storeData.customHtml || '',
-          customization: {
-            ...formData.customization,
-            ...storeData.customization
-          }
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching store:', error);
-      showError('Failed to load store settings');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
     const fetchStore = async () => {
@@ -317,65 +283,56 @@ export default function StoreSettingsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="space-y-4 sm:space-y-6 lg:space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <div className="p-3 bg-primary-100 rounded-lg">
-            <Settings className="w-7 h-7 text-primary-600" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Store Settings</h1>
-            <p className="text-gray-600 mt-1">Customize your store appearance and functionality</p>
-          </div>
+        <div>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">Store Settings</h1>
         </div>
       </div>
 
-      {/* Custom Domain Manager */}
-      <CustomDomainManager store={store} onStoreUpdate={fetchStore} />
-
       {/* General Information */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center space-x-3 mb-6">
-          <Globe className="w-6 h-6 text-primary-600" />
-          <h2 className="text-xl font-semibold text-gray-900">General Information</h2>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+        <div className="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
+          <Globe className="w-5 h-5 sm:w-6 sm:h-6 text-primary-600" />
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">General Information</h2>
         </div>
         
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">
+            <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
               Store Name *
             </label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm min-h-[44px]"
               placeholder="My Awesome Store"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">
+            <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
               Store Description *
             </label>
             <textarea
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
               rows={3}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none text-sm"
               placeholder="Welcome to my store! Discover amazing products..."
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">
+            <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
               Header Layout
             </label>
             <select
               value={formData.headerLayout}
               onChange={(e) => handleInputChange('headerLayout', e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm min-h-[44px]"
             >
               {HEADER_LAYOUTS.map((layout) => (
                 <option key={layout.value} value={layout.value}>
@@ -388,10 +345,10 @@ export default function StoreSettingsPage() {
       </div>
 
       {/* Store Avatar */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center space-x-3 mb-6">
-          <Palette className="w-6 h-6 text-primary-600" />
-          <h2 className="text-xl font-semibold text-gray-900">Store Avatar</h2>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+        <div className="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
+          <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-primary-600" />
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Store Avatar</h2>
         </div>
         
         <ImageUploadWithDelete
@@ -405,28 +362,28 @@ export default function StoreSettingsPage() {
       </div>
 
       {/* Social Media Links */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-3">
-            <Globe className="w-6 h-6 text-primary-600" />
-            <h2 className="text-xl font-semibold text-gray-900">Social Media Links</h2>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <Globe className="w-5 h-5 sm:w-6 sm:h-6 text-primary-600" />
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Social Media Links</h2>
           </div>
           <button
             type="button"
             onClick={addSocialLink}
-            className="px-4 py-2 bg-secondary-600 text-white rounded-lg hover:bg-secondary-700 transition-colors text-sm font-medium"
+            className="w-full sm:w-auto px-3 sm:px-4 py-2 bg-secondary-600 text-white rounded-lg hover:bg-secondary-700 transition-colors text-xs sm:text-sm font-medium min-h-[44px]"
           >
             Add Social Link
           </button>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {formData.socialLinks.map((link, index) => (
-            <div key={index} className="flex space-x-3">
+            <div key={index} className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
               <select
                 value={link.platform}
                 onChange={(e) => handleSocialLinkChange(index, 'platform', e.target.value)}
-                className="w-40 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full sm:w-32 lg:w-40 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm min-h-[44px]"
               >
                 {SOCIAL_PLATFORMS.map((platform) => (
                   <option key={platform} value={platform}>
@@ -439,12 +396,12 @@ export default function StoreSettingsPage() {
                 value={link.url}
                 onChange={(e) => handleSocialLinkChange(index, 'url', e.target.value)}
                 placeholder="https://..."
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm min-h-[44px]"
               />
               <button
                 type="button"
                 onClick={() => removeSocialLink(index)}
-                className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                className="w-full sm:w-auto px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm min-h-[44px]"
               >
                 Remove
               </button>
@@ -452,7 +409,7 @@ export default function StoreSettingsPage() {
           ))}
           
           {formData.socialLinks.length === 0 && (
-            <p className="text-gray-500 text-sm">No social links added yet. Click "Add Social Link" to get started.</p>
+            <p className="text-gray-500 text-xs sm:text-sm">No social links added yet. Click "Add Social Link" to get started.</p>
           )}
         </div>
       </div>
@@ -471,8 +428,9 @@ export default function StoreSettingsPage() {
             description="Display a floating widget on your store page to engage visitors."
             checked={formData.widgetEnabled}
             onChange={(checked) => handleInputChange('widgetEnabled', checked)}
+            disabled={!isUserPremium}
           />
-
+          
           {formData.widgetEnabled && (
             <>
               <ImageUploadWithDelete
@@ -518,8 +476,9 @@ export default function StoreSettingsPage() {
             description="Show a promotional banner popup to visitors when they first visit your store."
             checked={formData.bannerEnabled}
             onChange={(checked) => handleInputChange('bannerEnabled', checked)}
+            disabled={!isUserPremium}
           />
-
+          
           {formData.bannerEnabled && (
             <>
               <ImageUploadWithDelete
@@ -615,7 +574,9 @@ export default function StoreSettingsPage() {
             description="Show the horizontal category filter section on your store page. When disabled, only the main products section will be visible."
             checked={formData.showCategories}
             onChange={(checked) => handleInputChange('showCategories', checked)}
+            disabled={!isUserPremium}
           />
+          
         </div>
       </div>
 
@@ -853,16 +814,16 @@ export default function StoreSettingsPage() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center px-8 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-lg"
+          className="w-full sm:w-auto flex items-center justify-center px-6 sm:px-8 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm sm:text-base lg:text-lg min-h-[44px]"
         >
           {saving ? (
             <>
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+              <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mr-2"></div>
               Saving Changes...
             </>
           ) : (
             <>
-              <Save className="w-5 h-5 mr-2" />
+              <Save className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
               Save All Changes
             </>
           )}

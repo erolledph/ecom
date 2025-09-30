@@ -18,18 +18,7 @@ import {
 import { getGlobalBannerClickEvents } from '@/lib/analytics';
 import ImageUploadWithDelete from '@/components/ImageUploadWithDelete';
 import CustomToggle from '@/components/CustomToggle';
-import { 
-  Radio, 
-  Save, 
-  Trash2,
-  AlertTriangle,
-  CheckCircle,
-  XCircle,
-  ExternalLink,
-  ArrowLeft,
-  Settings,
-  Megaphone
-} from 'lucide-react';
+import { Radio, Save, Trash2, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle, Circle as XCircle, ExternalLink, ArrowLeft, Settings, Megaphone } from 'lucide-react';
 
 export default function GlobalBroadcastPage() {
   const { user, userProfile } = useAuth();
@@ -239,26 +228,14 @@ export default function GlobalBroadcastPage() {
     <AdminRoute>
       <div className="space-y-6 md:space-y-8">
         {/* Header */}
-        <div className="p-6">
-          <div className="flex items-center gap-4 mb-6">
-            <button
-              onClick={() => router.push('/dashboard/system-management')}
-              className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <div className="p-3 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg">
-              <Radio className="w-7 h-7 text-purple-600" />
-            </div>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Global Broadcast</h1>
-              <p className="text-gray-600 mt-1">Manage system-wide announcement banners</p>
-            </div>
+        <div className="p-3 sm:p-6">
+          <div className="mb-6">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Global Broadcast</h1>
           </div>
         </div>
 
-        <div className="p-6">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="p-3 sm:p-6">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
             {bannerLoading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
@@ -268,11 +245,11 @@ export default function GlobalBroadcastPage() {
               <div className="space-y-6">
                 {/* All Banners Table */}
                 <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-medium text-gray-900">All Global Banners</h3>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3 sm:gap-0">
+                    <h3 className="text-base sm:text-lg font-medium text-gray-900">All Global Banners</h3>
                     <button
                       onClick={handleCreateNewBanner}
-                      className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium"
+                      className="flex items-center justify-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm min-h-[44px]"
                     >
                       <Megaphone className="w-4 h-4 mr-2" />
                       Create New Banner
@@ -281,25 +258,26 @@ export default function GlobalBroadcastPage() {
 
                   {allGlobalBanners.length > 0 ? (
                     <div className="overflow-hidden border border-gray-200 rounded-lg">
+                      <div className="overflow-x-auto">
                       <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
                           <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                               Image
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                               Description
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                               Link
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                               Status
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                               Clicks
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                               Actions
                             </th>
                           </tr>
@@ -307,25 +285,25 @@ export default function GlobalBroadcastPage() {
                         <tbody className="bg-white divide-y divide-gray-200">
                           {allGlobalBanners.map((banner) => (
                             <tr key={banner.id} className="hover:bg-gray-50 transition-colors">
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <div className="flex-shrink-0 h-12 w-16">
+                              <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                                <div className="flex-shrink-0 h-8 w-12 sm:h-12 sm:w-16">
                                   <Image
                                     src={banner.imageUrl}
                                     alt="Banner"
-                                    width={64}
-                                    height={48}
-                                    className="h-12 w-16 rounded-lg object-cover"
+                                    width={48}
+                                    height={32}
+                                    className="h-8 w-12 sm:h-12 sm:w-16 rounded-lg object-cover"
                                   />
                                 </div>
                               </td>
-                              <td className="px-6 py-4">
-                                <div className="text-sm text-gray-900 max-w-xs truncate">
+                              <td className="px-3 sm:px-6 py-3 sm:py-4">
+                                <div className="text-xs sm:text-sm text-gray-900 max-w-[120px] sm:max-w-xs truncate">
                                   {banner.description || (
                                     <span className="text-gray-400 italic">No description</span>
                                   )}
                                 </div>
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
+                              <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap hidden sm:table-cell">
                                 {banner.link ? (
                                   <a
                                     href={banner.link}
@@ -340,7 +318,7 @@ export default function GlobalBroadcastPage() {
                                   <span className="text-gray-400 text-sm italic">No link</span>
                                 )}
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
+                              <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                                   banner.isActive 
                                     ? 'bg-green-100 text-green-800' 
@@ -359,29 +337,29 @@ export default function GlobalBroadcastPage() {
                                   )}
                                 </span>
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
+                              <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap hidden sm:table-cell">
                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
                                   {bannerClickCounts[banner.id] || 0} clicks
                                 </span>
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <div className="flex space-x-2">
+                              <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm font-medium">
+                                <div className="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-2">
                                   <button
                                     onClick={() => handleEditBanner(banner)}
-                                    className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                                    className="inline-flex items-center justify-center px-2 sm:px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 transition-colors min-h-[36px] min-w-[36px]"
                                     title="Edit banner"
                                   >
-                                    <Settings className="w-4 h-4" />
+                                    <Settings className="w-3 h-3 sm:w-4 sm:h-4" />
                                   </button>
                                   <button
                                     onClick={() => {
                                       setSelectedBanner(banner);
                                       handleDeleteBanner();
                                     }}
-                                    className="inline-flex items-center px-3 py-1.5 border border-red-300 shadow-sm text-xs font-medium rounded text-red-700 bg-red-50 hover:bg-red-100 transition-colors"
+                                    className="inline-flex items-center justify-center px-2 sm:px-3 py-1.5 border border-red-300 shadow-sm text-xs font-medium rounded text-red-700 bg-red-50 hover:bg-red-100 transition-colors min-h-[36px] min-w-[36px]"
                                     title="Delete banner"
                                   >
-                                    <Trash2 className="w-4 h-4" />
+                                    <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                                   </button>
                                 </div>
                               </td>
@@ -389,6 +367,7 @@ export default function GlobalBroadcastPage() {
                           ))}
                         </tbody>
                       </table>
+                      </div>
                     </div>
                   ) : (
                     <div className="text-center py-8 text-gray-500">
@@ -401,12 +380,12 @@ export default function GlobalBroadcastPage() {
 
                 {/* Banner Form - Only show when creating/editing */}
                 {(selectedBanner !== null || (!selectedBanner && (bannerForm.imageUrl || bannerForm.description || bannerForm.link))) && (
-                  <div className="border-t pt-6">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  <div className="border-t pt-4 sm:pt-6">
+                    <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
                       {selectedBanner ? 'Edit Banner' : 'Create New Banner'}
                     </h3>
 
-                    <div className="space-y-6">
+                    <div className="space-y-4 sm:space-y-6">
                       {/* Banner Image Upload */}
                       <ImageUploadWithDelete
                         label="Banner Image"
@@ -419,31 +398,31 @@ export default function GlobalBroadcastPage() {
 
                       {/* Banner Description */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                           Banner Description (Optional)
                         </label>
                         <textarea
                           value={bannerForm.description}
                           onChange={(e) => setBannerForm(prev => ({ ...prev, description: e.target.value }))}
                           rows={3}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                          className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none text-sm"
                           placeholder="Enter the announcement message..."
                         />
                       </div>
 
                       {/* Banner Link */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
                           Banner Link (Optional)
                         </label>
                         <input
                           type="url"
                           value={bannerForm.link}
                           onChange={(e) => setBannerForm(prev => ({ ...prev, link: e.target.value }))}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                          className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm min-h-[44px]"
                           placeholder="https://example.com/announcement"
                         />
-                        <p className="mt-1 text-sm text-gray-500">
+                        <p className="mt-1 text-xs sm:text-sm text-gray-500">
                           If only image and link are provided (no description), the image will be clickable
                         </p>
                       </div>
@@ -458,21 +437,21 @@ export default function GlobalBroadcastPage() {
                       />
 
                       {/* Banner Actions */}
-                      <div className="flex justify-between">
-                        <div className="flex space-x-3">
+                      <div className="flex flex-col sm:flex-row justify-between gap-4">
+                        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
                           <button
                             onClick={handleSaveBanner}
                             disabled={savingBanner}
-                            className="flex items-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                            className="flex items-center justify-center px-4 sm:px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm min-h-[44px]"
                           >
                             {savingBanner ? (
                               <>
-                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                                <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white mr-2"></div>
                                 Saving...
                               </>
                             ) : (
                               <>
-                                <Save className="w-5 h-5 mr-2" />
+                                <Save className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                                 {selectedBanner ? 'Update Banner' : 'Create Banner'}
                               </>
                             )}
@@ -488,7 +467,7 @@ export default function GlobalBroadcastPage() {
                                 isActive: false
                               });
                             }}
-                            className="flex items-center px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
+                            className="flex items-center justify-center px-4 sm:px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium text-sm min-h-[44px]"
                           >
                             Cancel
                           </button>
@@ -497,9 +476,9 @@ export default function GlobalBroadcastPage() {
                         {selectedBanner && (
                           <button
                             onClick={handleDeleteBanner}
-                            className="flex items-center px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                            className="flex items-center justify-center px-4 sm:px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm min-h-[44px]"
                           >
-                            <Trash2 className="w-5 h-5 mr-2" />
+                            <Trash2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                             Delete Banner
                           </button>
                         )}
@@ -507,20 +486,6 @@ export default function GlobalBroadcastPage() {
                     </div>
                   </div>
                 )}
-
-                {/* Troubleshooting Note */}
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                  <div className="flex items-start space-x-3">
-                    <AlertTriangle className="w-5 h-5 text-blue-600 mt-0.5" />
-                    <div className="flex-1">
-                      <h4 className="font-medium text-blue-900 mb-1">Banner Usage</h4>
-                      <p className="text-sm text-blue-800">
-                        Global banners will appear as popups to all users when they visit the application after a 3-second delay. 
-                        Use this feature to announce important updates, promotions, or system maintenance. If only an image and link are provided (no description), the image will be clickable.
-                      </p>
-                    </div>
-                  </div>
-                </div>
               </div>
             )}
           </div>

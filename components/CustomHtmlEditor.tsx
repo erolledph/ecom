@@ -56,33 +56,35 @@ export default function CustomHtmlEditor({ value, onChange }: CustomHtmlEditorPr
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-xs sm:text-sm text-gray-600 mt-1">
             Add custom HTML content to your store. Content will be sanitized for security.
           </p>
         </div>
       </div>
 
       {/* HTML Editor */}
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         <div>
-          <label htmlFor="customHtml" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="customHtml" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
             HTML Content
           </label>
           <textarea
             id="customHtml"
             value={value}
             onChange={(e) => handleContentChange(e.target.value)}
-            rows={12}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono text-sm resize-none"
+            rows={8}
+            className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent font-mono text-xs sm:text-sm resize-none"
             placeholder="Enter your custom HTML here..."
           />
           <div className="mt-2 text-xs text-gray-500">
-            <p><strong>Allowed tags:</strong> p, br, strong, em, u, h1-h6, ul, ol, li, blockquote, a, img, div, span, hr, table elements, pre, code</p>
-            <p><strong>Note:</strong> Script tags and event handlers will be removed for security.</p>
+            <div className="space-y-1">
+              <p><strong>Allowed tags:</strong> p, br, strong, em, u, h1-h6, ul, ol, li, blockquote, a, img, div, span, hr, table elements, pre, code</p>
+              <p><strong>Note:</strong> Script tags and event handlers will be removed for security.</p>
+            </div>
           </div>
         </div>
       </div>

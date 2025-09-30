@@ -89,11 +89,23 @@ const config: Config = {
       },
       animation: {
         'slide-in': 'slideIn 0.3s ease-out',
+        'float-1': 'card-float 4s ease-in-out infinite 0.2s',
+        'float-2': 'card-float 4s ease-in-out infinite 0.3s',
+        'float-3': 'card-float 4s ease-in-out infinite 0.7s',
+        'float-4': 'card-float 4s ease-in-out infinite 0.5s',
+        'float-5': 'card-float 4s ease-in-out infinite 0.9s',
+        'float-6': 'card-float 4s ease-in-out infinite 0.1s',
+        'float-center': 'card-float 5s ease-in-out infinite',
       },
       keyframes: {
         slideIn: {
           '0%': { transform: 'translateX(100%)', opacity: '0' },
           '100%': { transform: 'translateX(0)', opacity: '1' },
+        },
+        'card-float': {
+          '0%': { transform: 'translateY(0) scale(1)' },
+          '50%': { transform: 'translateY(-3px) scale(1.01)' },
+          '100%': { transform: 'translateY(0) scale(1)' },
         },
       },
     },

@@ -47,8 +47,8 @@ This is a comprehensive affiliate store builder application built with Next.js, 
 
 ### 🎨 Content & Promotional Features
 - **Promotional Slides**: Create carousel slides with images, descriptions, and affiliate links
-- **Floating Widget**: Customizable floating widgets with images and links
-- **Pop-up Banners**: Promotional banners with custom images, descriptions, and links
+- **Floating Widget**: Customizable floating widgets with images and links (Premium feature)
+- **Pop-up Banners**: Promotional banners with custom images, descriptions, and links (Premium feature)
 - **Auto-advancing Slideshow**: Slides automatically advance with manual navigation options
 - **Custom HTML Sections**: Add sanitized custom HTML content to stores
 
@@ -68,7 +68,7 @@ This is a comprehensive affiliate store builder application built with Next.js, 
   - Product clicks with detailed product information
   - Slide clicks and promotional content engagement
   - Social link clicks and platform engagement
-  - Widget and banner clicks
+  - Widget and banner clicks (Premium users)
   - Search queries and category filters
   - Subscription form interactions
   - Sponsored product clicks
@@ -87,6 +87,8 @@ This is a comprehensive affiliate store builder application built with Next.js, 
 - **Toast Notification System**: User-friendly feedback for all interactions
 - **Search Functionality**: Product search with real-time filtering and tracking
 - **Category Filtering**: Dynamic category filtering with user behavior tracking
+- **System Notifications**: Real-time broadcast notifications from administrators
+- **Notification Center**: Dashboard notification bell with unread count and persistent modal viewing
 
 ### 🎯 Admin & System Management
 - **User Management Panel**: 
@@ -100,6 +102,7 @@ This is a comprehensive affiliate store builder application built with Next.js, 
   - Upload custom images with descriptions and links
   - Control banner visibility and timing
   - Track banner click performance
+- **Broadcast Notifications**: Dashboard notification system with Markdown support and read tracking
 - **Sponsored Products Management**:
   - Admin-managed products that appear in user stores
   - Automatic placement in stores with 15+ products
@@ -140,10 +143,13 @@ This is a comprehensive affiliate store builder application built with Next.js, 
 
 ### Core Components
 - `components/DashboardNav.tsx` - Responsive dashboard navigation with auto-collapse
+- `components/DashboardHeader.tsx` - Header with notification bell and user menu
 - `components/ProductForm.tsx` - Product add/edit form with scraping functionality
 - `components/SlideForm.tsx` - Slide add/edit form with image handling
 - `components/Toast.tsx` - Toast notification system with animations
 - `components/SubscriptionModal.tsx` - Email subscription popup with tracking
+- `components/NotificationModal.tsx` - Persistent notification display modal
+- `components/NotificationForm.tsx` - Admin notification creation/editing form
 - `components/CustomToggle.tsx` - Reusable toggle component
 - `components/ImageUploadWithDelete.tsx` - Image upload component with optimization
 - `components/CustomHtmlEditor.tsx` - Sanitized HTML editor component
@@ -165,6 +171,7 @@ This is a comprehensive affiliate store builder application built with Next.js, 
 - `app/dashboard/system-management/` - Admin panel pages
 - `app/dashboard/system-management/users/page.tsx` - User management interface
 - `app/dashboard/system-management/global-broadcast/page.tsx` - Global banner management
+- `app/dashboard/system-management/broadcast-notifications/page.tsx` - Notification management
 - `app/dashboard/system-management/sponsor-products/` - Sponsored product management
 
 ## Database Schema & Security
@@ -178,6 +185,8 @@ This is a comprehensive affiliate store builder application built with Next.js, 
 - **analytics_events**: User interaction tracking nested under stores
 - **sponsored_products**: Global sponsored products managed by admins
 - **global_banners**: System-wide announcement banners
+- **notifications**: Broadcast notifications for all users
+- **read_notifications**: Per-user notification read status tracking (nested under users)
 
 ### Security Implementation
 - **Firestore Rules**: Comprehensive row-level security with proper access controls
@@ -187,6 +196,16 @@ This is a comprehensive affiliate store builder application built with Next.js, 
 - **Analytics Security**: Public can create events, owners can read their own data
 
 ## Recent Major Updates & Enhancements
+
+### Enhanced Notification System (Latest Update)
+- Implemented comprehensive broadcast notification system for admin-to-user communication
+- Added real-time notification bell with unread count badges in dashboard header
+- Created persistent notification modal that remains open until manually closed
+- Integrated Markdown formatting support for rich notification content
+- Built per-user read status tracking with Firestore persistence
+- Added notification management interface for administrators
+- **Fixed auto-closing modal issue**: Notifications now stay open for proper reading
+- Enhanced user experience with non-intrusive notification system
 
 ### Complete Admin System Implementation
 - Built comprehensive user management system with search and role controls
@@ -203,7 +222,7 @@ This is a comprehensive affiliate store builder application built with Next.js, 
 
 ### Enhanced Store Customization
 - Expanded customization options with typography and color controls
-- Added widget and banner system with engagement tracking
+- Added widget and banner system with engagement tracking (Premium features)
 - Implemented custom HTML editor with DOMPurify sanitization
 - Enhanced header layout options and responsive design
 
@@ -212,7 +231,7 @@ This is a comprehensive affiliate store builder application built with Next.js, 
 - Implemented bulk CSV import for premium users with validation
 - Enhanced product forms with better image handling
 - Added comprehensive product analytics and performance tracking
-- Implemented product limits (30 for standard users, unlimited for premium)
+- Implemented strict product limits (30 for standard users, unlimited for premium)
 
 ### Image Optimization System
 - Implemented automatic image compression and WebP conversion
@@ -225,6 +244,12 @@ This is a comprehensive affiliate store builder application built with Next.js, 
 - Improved responsive design across all components
 - Added loading states and error handling throughout the application
 - Implemented auto-collapse navigation for better space utilization
+
+### Premium Feature Gating
+- Implemented comprehensive premium feature restrictions
+- Added `PremiumFeatureGate` component for access control
+- Enhanced store settings with premium-only toggles
+- Clear UI indicators for premium features
 
 ## Performance Optimizations
 
@@ -262,7 +287,10 @@ This is a comprehensive affiliate store builder application built with Next.js, 
 - Email subscription system with management
 - Bulk import functionality for premium users
 - Custom HTML editor with sanitization
-- Product limits enforcement (30 for standard, unlimited for premium)
+- **Strict product limits enforcement** (30 for standard, unlimited for premium)
+- **Premium feature gating** for widgets, banners, and category controls
+- **Enhanced notification system** with persistent modal viewing and read tracking
+- **Real-time notification center** with unread count badges and Markdown support
 
 ### 🔄 Current Focus
 - Performance optimizations and bug fixes
@@ -271,6 +299,7 @@ This is a comprehensive affiliate store builder application built with Next.js, 
 - Mobile responsiveness improvements
 
 ### 📋 Future Enhancements
+- **Custom Domain Support**: Allow premium users to connect their own domains (implementation plan exists)
 - Advanced SEO features and optimization
 - Payment processing integration (Stripe)
 - A/B testing capabilities for store optimization
@@ -299,16 +328,34 @@ This is a comprehensive affiliate store builder application built with Next.js, 
 - Authentication requirements for protected routes
 - Input validation and sanitization throughout
 
+## Standard User Experience Analysis
+
+### Current Restrictions Impact:
+1. **Product Limit (30)**: Reasonable for beginners but may limit growth
+2. **No Floating Widget**: Reduces engagement optimization capabilities
+3. **No Pop-up Banner**: Limits promotional announcement options
+4. **No Category Toggle**: Reduces layout control flexibility
+5. **No Bulk Import**: Requires manual product entry (time-consuming for larger catalogs)
+6. **No Data Export**: Prevents external analysis and marketing automation
+
+### Recommendations for Balance:
+- **Consider enabling floating widgets** for standard users as they significantly improve conversion rates
+- **Maintain product limits** as they encourage upgrades while still allowing meaningful stores
+- **Keep bulk import premium** as it's clearly a power-user feature
+- **Consider making category toggle available** to all users for better UX control
+
 ---
 
 **Project Statistics:**
 - **Total Files**: 60+ TypeScript/JavaScript files
-- **Lines of Code**: 10,000+ lines
-- **Components**: 30+ reusable React components
-- **Database Collections**: 7 main collections with nested subcollections
-- **Features**: 20+ major feature sets implemented
+- **Lines of Code**: 12,000+ lines
+- **Components**: 35+ reusable React components
+- **Database Collections**: 9 main collections with nested subcollections
+- **Features**: 25+ major feature sets implemented
 - **User Roles**: 2 role types (User, Admin) with premium tiers
 - **Admin Features**: Complete system management capabilities
+- **Premium Restrictions**: 6 major feature restrictions for standard users
+- **Notification System**: Real-time broadcast messaging with read tracking
 
 *Last Updated: January 2025*
-*Status: Production Ready with Advanced Admin Features*
+*Status: Production Ready with Enhanced Notification System*

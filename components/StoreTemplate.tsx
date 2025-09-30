@@ -116,26 +116,25 @@ export default function StoreTemplate({ store, products, slides, categories, ini
 
   // Get displayed products with category prioritization and search filtering
   const getDisplayedProducts = () => {
-    // If search term is active, filter all products by search
+    let filteredProducts = products;
+    
+    // Apply search filter to all products (including sponsored ones)
     if (searchTerm) {
-      return products.filter(product => 
-        !product.isSponsored && // Exclude sponsored products from search
+      filteredProducts = filteredProducts.filter(product => 
         product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.category.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     
-    // If specific category is selected, show only that category
+    // Apply category filter to all products (including sponsored ones)
     if (selectedCategory !== 'all') {
-      return products.filter(product => 
-        !product.isSponsored && // Exclude sponsored products from category filtering
+      filteredProducts = filteredProducts.filter(product => 
         product.category === selectedCategory
       );
     }
     
-    // Default: show all products
-    return products;
+    return filteredProducts;
   };
 
   // Auto-advance slides
@@ -197,6 +196,13 @@ export default function StoreTemplate({ store, products, slides, categories, ini
     setCurrentSlide(index);
   };
 
+  const goToPreviousSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  const goToNextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+  };
   const finalFilteredProducts = getDisplayedProducts();
   const visibleProducts = finalFilteredProducts.slice(0, visibleProductsCount);
   const hasMoreProducts = finalFilteredProducts.length > visibleProductsCount;
@@ -205,22 +211,6 @@ export default function StoreTemplate({ store, products, slides, categories, ini
     setVisibleProductsCount(prev => Math.min(prev + 9, finalFilteredProducts.length));
   };
 
-  const loadMoreAllProducts = () => {
-    const nonSponsoredProducts = products.filter(p => !p.isSponsored);
-    setVisibleAllProductsCount(prev => Math.min(prev + 9, nonSponsoredProducts.length));
-  };
-
-  const handleProductClick = (productLink?: string) => {
-    if (productLink) {
-      // Track product click before redirect
-      trackEvent('product_click', store.ownerId, {
-        product_link: productLink,
-        store_slug: store.slug,
-        store_name: store.name,
-      });
-      window.open(productLink, '_blank', 'noopener,noreferrer');
-    }
-  };
 
   const handleProductClickWithDetails = (product: Product) => {
     // Track product click with detailed information
@@ -330,538 +320,498 @@ export default function StoreTemplate({ store, products, slides, categories, ini
   };
 
   return (
-    <main 
-      className="min-h-screen max-w-md mx-auto"
-      style={{
-        fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'Inter, system-ui, -apple-system, sans-serif',
-        color: store.customization?.bodyTextColor || '#374151',
-        background: store.customization?.mainBackgroundGradientStartColor && store.customization?.mainBackgroundGradientEndColor
-          ? `linear-gradient(135deg, ${store.customization.mainBackgroundGradientStartColor}, ${store.customization.mainBackgroundGradientEndColor})`
-          : '#f3f4f6'
-      }}
-    >
-      {/* Header Section */}
-      <header 
-        className="relative text-white py-4 overflow-hidden"
+    <>
+      <main 
+        className="min-h-screen w-full"
         style={{
-          background: 'transparent'
+          fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'Inter, system-ui, -apple-system, sans-serif',
+          color: store.customization?.bodyTextColor || '#374151',
+          background: store.customization?.mainBackgroundGradientStartColor && store.customization?.mainBackgroundGradientEndColor
+            ? `linear-gradient(135deg, ${store.customization.mainBackgroundGradientStartColor}, ${store.customization.mainBackgroundGradientEndColor})`
+            : '#f3f4f6'
         }}
       >
-        <div className="relative z-10">
-          {/* Header layout based on user preference */}
-          {store.headerLayout === 'center' ? (
-            <div className="px-4 mb-4">
-              {/* Centered avatar */}
-              <div className="flex justify-center mb-4">
-                {store.avatar && (
-                  <div 
-                    className="w-20 h-20 rounded-full overflow-hidden border-4 shadow-lg"
-                    style={{
-                      borderColor: store.customization?.avatarBorderColor || '#ffffff'
-                    }}
-                  >
-                    <Image
-                      src={store.avatar}
-                      alt={store.name}
-                      width={80}
-                      height={80}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-              </div>
-              
-              {/* Centered social links */}
-              <div className="flex justify-center space-x-3">
-                {store.socialLinks?.map((socialLink, index) => {
-                  const IconComponent = SOCIAL_ICONS[socialLink.platform] || Globe;
-                  return (
-                    <a
-                      key={index}
-                      href={socialLink.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:opacity-75 transition-opacity"
-                      style={{ color: store.customization?.socialIconColor || '#ffffff' }}
-                      onClick={() => handleSocialLinkClick(socialLink.platform, socialLink.url)}
-                    >
-                      <IconComponent className="w-6 h-6" />
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
-          ) : (
-            <div className={`flex justify-between items-center px-4 mb-4 ${getHeaderLayoutStyle()}`}>
-              {/* Avatar */}
-              <div className="flex items-center">
-                {store.avatar && (
-                  <div 
-                    className="w-16 h-16 rounded-full overflow-hidden border-4 shadow-lg"
-                    style={{
-                      borderColor: store.customization?.avatarBorderColor || '#ffffff'
-                    }}
-                  >
-                    <Image
-                      src={store.avatar}
-                      alt={store.name}
-                      width={64}
-                      height={64}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-              </div>
-              
-              {/* Social links */}
-              <div className="flex space-x-3">
-                {store.socialLinks?.map((socialLink, index) => {
-                  const IconComponent = SOCIAL_ICONS[socialLink.platform] || Globe;
-                  return (
-                    <a
-                      key={index}
-                      href={socialLink.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hover:opacity-75 transition-opacity"
-                      style={{ color: store.customization?.socialIconColor || '#ffffff' }}
-                      onClick={() => handleSocialLinkClick(socialLink.platform, socialLink.url)}
-                    >
-                      <IconComponent className="w-6 h-6" />
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-          
-          {/* Centered store name and description */}
-          <div className="text-center px-4">
-            <h1 
-              className="text-2xl font-extrabold mb-2" 
-              style={{
-                color: storeNameColor,
-                fontFamily: store.customization?.headingFontFamily || store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
-              }}
-            >
-              {store.name}
-            </h1>
-            <p 
-              className="text-sm max-w-xs mx-auto leading-snug"
-              style={{
-                color: store.customization?.storeBioFontColor || '#e5e7eb',
-                fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
-              }}
-            >
-              {store.description}
-            </p>
-          </div>
-        </div>
-      </header>
-
-      {/* Slides Section */}
-      {store.slidesEnabled !== false && slides.length > 0 && (
-        <section className="py-6">
-          <div className="relative h-64 md:h-80 lg:h-96 overflow-hidden shadow-lg">
-            <div 
-              className="flex transition-transform duration-500 ease-in-out w-full h-full"
-              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-            >
-              {slides.map((slide, index) => (
-                <div
-                  key={slide.id}
-                  className="min-w-full relative cursor-pointer"
-                  onClick={() => handleSlideClickWithDetails(slide)}
-                >
-                  <Image
-                    src={slide.image}
-                    alt={slide.title}
-                    width={1200}
-                    height={400}
-                    className="w-full h-full object-cover"
-                    priority={index === 0}
-                  />
-                  {/* Overlay layer */}
-                  <div 
-                    className="absolute inset-0 opacity-0"
-                  />
-                  {/* Text content layer */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 z-10">
-                    <h2 
-                      className="text-2xl font-bold mb-2"
-                      style={{
-                        color: '#ffffff',
-                        fontFamily: store.customization?.headingFontFamily || store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
-                      }}
-                    >
-                      {slide.title}
-                    </h2>
-                    {slide.description && (
-                      <p 
-                        className="text-sm max-w-2xl"
+        {/* Main Content Wrapper with Max Width */}
+        <div className="w-full mx-auto px-3 sm:px-4 lg:max-w-[444px]">
+          {/* Header Section */}
+          <header 
+            className="relative text-white py-3 sm:py-4 overflow-hidden"
+            style={{
+              background: 'transparent'
+            }}
+          >
+            <div className="relative z-10">
+              {/* Header layout based on user preference */}
+              {store.headerLayout === 'center' ? (
+                <div className="mb-3 sm:mb-4">
+                  {/* Centered avatar */}
+                  <div className="flex justify-center mb-3 sm:mb-4">
+                    {store.avatar && (
+                      <div 
+                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-3 sm:border-4 shadow-lg"
                         style={{
-                          color: '#e5e7eb',
-                          fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+                          borderColor: store.customization?.avatarBorderColor || '#ffffff'
                         }}
                       >
-                        {slide.description}
-                      </p>
+                        <Image
+                          src={store.avatar}
+                          alt={store.name}
+                          width={64}
+                          height={64}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
                     )}
                   </div>
+                  
+                  {/* Centered social links */}
+                  <div className="flex justify-center space-x-2 sm:space-x-3">
+                    {store.socialLinks?.map((socialLink, index) => {
+                      const IconComponent = SOCIAL_ICONS[socialLink.platform] || Globe;
+                      return (
+                        <a
+                          key={index}
+                          href={socialLink.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:opacity-75 transition-opacity p-1"
+                          style={{ color: store.customization?.socialIconColor || '#ffffff' }}
+                          onClick={() => handleSocialLinkClick(socialLink.platform, socialLink.url)}
+                        >
+                          <IconComponent className="w-5 h-5 sm:w-6 sm:h-6" />
+                        </a>
+                      );
+                    })}
+                  </div>
                 </div>
-              ))}
-            </div>
-            
-            {/* Pagination Dots */}
-            {slides.length > 1 && (
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-[5px] pagination-dots">
-                {slides.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => goToSlide(index)}
-                    className={`w-3 h-3 rounded-full transition-all pagination-dot ${
-                      index === currentSlide ? 'w-8' : 'opacity-50'
-                    }`}
-                    style={{
-                      backgroundColor: '#ffffff'
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
-      {/* Categories */}
-      {store.showCategories !== false && categories.length > 0 && (
-        <section className="container mx-auto px-4 pt-6 overflow-x-auto category-scroller">
-          <h2 className="sr-only">Product Categories</h2>
-          <div className="flex space-x-[5px] px-4">
-            {categories.map((category) => {
-              return (
-                <div
-                  key={category.id}
-                  onClick={() => handleCategoryChange(category.id)}
-                  className="flex flex-col items-center cursor-pointer text-center"
-                >
-                  <div
-                    className={`w-20 h-20 rounded-full shadow-md overflow-hidden ${
-                      selectedCategory === category.id
-                        ? `bg-indigo-200 border-4`
-                        : 'bg-gray-200'
-                    } ${
-                      category.id === 'all' 
-                        ? 'grid grid-cols-2 grid-rows-2 gap-0' 
-                        : 'flex items-center justify-center'
-                    }`}
-                    style={selectedCategory === category.id ? { borderColor: activeCategoryBorderColor } : {}}
-                  >
-                    {category.id === 'all' ? (
-                      // Photo collage for All Products
-                      products
-                        .filter(product => product.images && product.images[0])
-                        .slice(0, 4)
-                        .map((product, index) => (
-                          <div key={`collage-${product.id}-${index}`} className="w-full h-full">
-                            <Image
-                              src={product.images![0]}
-                              alt={product.title}
-                              width={40}
-                              height={40}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        ))
-                    ) : category.image ? (
-                      <Image
-                        src={category.image}
-                        alt={category.name}
-                        width={80}
-                        height={80}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span 
-                        className="text-[0.8rem] font-semibold"
-                        style={{ color: priceColor }}
+              ) : (
+                <div className={`flex justify-between items-center mb-3 sm:mb-4 ${getHeaderLayoutStyle()}`}>
+                  {/* Avatar */}
+                  <div className="flex items-center">
+                    {store.avatar && (
+                      <div 
+                        className="w-12 h-12 sm:w-16 sm:h-16 rounded-full overflow-hidden border-3 sm:border-4 shadow-lg"
+                        style={{
+                          borderColor: store.customization?.avatarBorderColor || '#ffffff'
+                        }}
                       >
-                        {category.id === 'all' ? 'All' : category.name}
-                      </span>
+                        <Image
+                          src={store.avatar}
+                          alt={store.name}
+                          width={48}
+                          height={48}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
                     )}
                   </div>
-                  <span 
-                    className="text-[0.8rem] font-semibold mt-1 whitespace-nowrap"
-                    style={{ 
-                      color: '#000000',
-                      fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
-                    }}
-                  >
-                    {category.name}
-                  </span>
+                  
+                  {/* Social links */}
+                  <div className="flex space-x-2 sm:space-x-3">
+                    {store.socialLinks?.map((socialLink, index) => {
+                      const IconComponent = SOCIAL_ICONS[socialLink.platform] || Globe;
+                      return (
+                        <a
+                          key={index}
+                          href={socialLink.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:opacity-75 transition-opacity p-1"
+                          style={{ color: store.customization?.socialIconColor || '#ffffff' }}
+                          onClick={() => handleSocialLinkClick(socialLink.platform, socialLink.url)}
+                        >
+                          <IconComponent className="w-5 h-5 sm:w-6 sm:h-6" />
+                        </a>
+                      );
+                    })}
+                  </div>
                 </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
-
-      {/* All Products Section */}
-      <section className="container mx-auto px-4 py-6" id="products" aria-labelledby="products-heading">
-        <div className="mb-6">
-          <h2
-            id="products-heading"
-            className="text-[0.8rem] font-bold mb-2"
-            style={{ 
-              color: store.customization?.headingTextColor || priceColor,
-              fontFamily: store.customization?.headingFontFamily || store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
-            }}
-          >
-            {searchTerm 
-              ? `Search Results for "${searchTerm}"` 
-              : selectedCategory === 'all'
-                ? 'All Products'
-                : `${categories.find(c => c.id === selectedCategory)?.name || 'Category'}`}
-          </h2>
-          <p 
-            className="text-[0.8rem]"
-            style={{ 
-              color: store.customization?.bodyTextColor || '#6b7280',
-              fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
-            }}
-          >
-            {searchTerm
-              ? `Found ${finalFilteredProducts.length} result${finalFilteredProducts.length !== 1 ? 's' : ''}`
-              : ''
-            }
-          </p>
-          
-          {/* Search Input */}
-          <div className="mt-4 relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-4 w-4 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              placeholder="Search products&hellip;"
-              value={searchTerm}
-              onChange={handleSearchChange}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-400 text-sm bg-white text-gray-900 placeholder-gray-500"
-            />
-          </div>
-        </div>
-        
-        {searchTerm && (
-          <div className="mb-4">
-            <p 
-              className="text-sm"
-              style={{ 
-                color: store.customization?.bodyTextColor || '#6b7280',
-                fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
-              }}
-            >
-              {finalFilteredProducts.length} result{finalFilteredProducts.length !== 1 ? 's' : ''} found for &ldquo;{searchTerm}&rdquo;
-            </p>
-          </div>
-        )}
-        
-        <div className="grid grid-cols-3 lg:grid-cols-4 gap-[5px]">
-          {visibleProducts.map((product) => (
-            <div
-              key={product.id}
-              onClick={() => handleProductClickWithDetails(product)}
-              className={`border rounded-md shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow ${
-                product.isSponsored 
-                  ? 'bg-yellow-50 border-yellow-300 ring-1 ring-yellow-200' 
-                  : 'bg-white border-gray-200'
-              }`}
-            >
-              <div className="aspect-square overflow-hidden relative">
-                {product.images && product.images[0] && (
-                  <Image
-                    src={product.images[0]}
-                    alt={product.title}
-                    width={300}
-                    height={300}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                  />
-                )}
-              </div>
-              <div className="p-[5px]">
-                <h3 
-                  className="font-semibold line-clamp-2 text-[0.8rem] mb-[5px] min-h-[2.4rem]"
-                  style={{ 
-                    color: store.customization?.headingTextColor || '#1f2937',
+              )}
+              
+              {/* Centered store name and description */}
+              <div className="text-center">
+                <h1 
+                  className="text-xl sm:text-2xl font-extrabold mb-2" 
+                  style={{
+                    color: storeNameColor,
                     fontFamily: store.customization?.headingFontFamily || store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
                   }}
                 >
-                  {product.title}
-                </h3>
-                {store.displayPriceOnProducts !== false && (
-                  <div className="flex items-center justify-between">
-                    <span 
-                      className="font-bold text-[0.8rem]"
-                      style={{ 
-                        color: priceColor,
-                        fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
-                      }}
+                  {store.name}
+                </h1>
+                <p 
+                  className="text-xs sm:text-sm max-w-xs mx-auto leading-snug"
+                  style={{
+                    color: store.customization?.storeBioFontColor || '#e5e7eb',
+                    fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+                  }}
+                >
+                  {store.description}
+                </p>
+              </div>
+            </div>
+          </header>
+
+          {/* Slides Section */}
+          {store.slidesEnabled !== false && slides.length > 0 && (
+            <section className="py-3 sm:py-6">
+              <div className="relative h-48 sm:h-64 md:h-80 lg:h-96 overflow-hidden shadow-lg rounded-lg">
+                <div 
+                  className="flex transition-transform duration-500 ease-in-out w-full h-full"
+                  style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                >
+                  {slides.map((slide, index) => (
+                    <div
+                      key={slide.id}
+                      className="min-w-full relative cursor-pointer"
+                      onClick={() => handleSlideClickWithDetails(slide)}
                     >
-                      {currencySymbol}{product.price}
-                    </span>
+                      <Image
+                        src={slide.image}
+                        alt={slide.title}
+                        width={1200}
+                        height={400}
+                        className="w-full h-full object-cover"
+                        priority={index === 0}
+                      />
+                      {/* Text content layer */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-3 sm:p-4 z-10">
+                        <h2 
+                          className="text-lg sm:text-2xl font-bold mb-1 sm:mb-2"
+                          style={{
+                            color: '#ffffff',
+                            fontFamily: store.customization?.headingFontFamily || store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+                          }}
+                        >
+                          {slide.title}
+                        </h2>
+                        {slide.description && (
+                          <p 
+                            className="text-xs sm:text-sm max-w-xs sm:max-w-2xl"
+                            style={{
+                              color: '#e5e7eb',
+                              fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+                            }}
+                          >
+                            {slide.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Manual Navigation Controls */}
+                {slides.length > 1 && (
+                  <>
+                    {/* Previous Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        goToPreviousSlide();
+                      }}
+                      className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center hover:bg-opacity-70 transition-all z-20"
+                      aria-label="Previous slide"
+                    >
+                      <span className="text-sm sm:text-base font-bold">‹</span>
+                    </button>
+                    
+                    {/* Next Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        goToNextSlide();
+                      }}
+                      className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center hover:bg-opacity-70 transition-all z-20"
+                      aria-label="Next slide"
+                    >
+                      <span className="text-sm sm:text-base font-bold">›</span>
+                    </button>
+                  </>
+                )}
+                
+                {/* Pagination Dots */}
+                {slides.length > 1 && (
+                  <div className="absolute bottom-2 sm:bottom-4 left-1/2 transform -translate-x-1/2 flex gap-1 sm:gap-[5px] pagination-dots z-20">
+                    {slides.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          goToSlide(index);
+                        }}
+                        className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all pagination-dot ${
+                          index === currentSlide ? 'w-6 sm:w-8' : 'opacity-50'
+                        }`}
+                        style={{
+                          backgroundColor: '#ffffff'
+                        }}
+                      />
+                    ))}
                   </div>
                 )}
               </div>
-            </div>
-          ))}
-        </div>
-        
-        {/* Load More Button */}
-        {hasMoreProducts && (
-          <div className="text-center mt-6">
-            <button
-              onClick={loadMoreProducts}
-              className="inline-flex items-center px-6 py-3 rounded-lg transition-colors font-medium"
-              style={{
-                backgroundColor: store.customization?.loadMoreButtonBgColor || '#84cc16',
-                color: store.customization?.loadMoreButtonTextColor || '#ffffff'
-              }}
-            >
-              Load More Products
-            </button>
-          </div>
-        )}
-        
-        {/* No Results Message */}
-        {searchTerm && finalFilteredProducts.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-gray-400 text-4xl mb-4">🔍</div>
-            <h3 
-              className="text-lg font-medium mb-2"
-              style={{ 
-                color: store.customization?.headingTextColor || '#111827',
-                fontFamily: store.customization?.headingFontFamily || store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
-              }}
-            >
-              No products found
-            </h3>
-            <p 
-              style={{ 
-                color: store.customization?.bodyTextColor || '#6b7280',
-                fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
-              }}
-            >
-              Try adjusting your search terms or browse all products.
-            </p>
-            <button
-              onClick={() => setSearchTerm('')}
-              className="mt-4 inline-flex items-center px-4 py-2 rounded-lg transition-colors font-medium"
-              style={{
-                backgroundColor: store.customization?.loadMoreButtonBgColor || '#84cc16',
-                color: store.customization?.loadMoreButtonTextColor || '#ffffff',
-                fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
-              }}
-            >
-              Clear Search
-            </button>
-          </div>
-        )}
-      </section>
+            </section>
+          )}
 
-      {/* All Products Section - Only show when category filtering is active (not for search) */}
-      {store.showCategories !== false && selectedCategory !== 'all' && !searchTerm && (
-        <section className="container mx-auto px-4 pt-6 pb-6" id="all-products">
-          <div className="mb-6">
-            <h2
-              className="text-[0.8rem] font-bold mb-2"
-              style={{ 
-                color: store.customization?.headingTextColor || priceColor,
-                fontFamily: store.customization?.headingFontFamily || store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
-              }}
-            >
-              All Products
-            </h2>
-          </div>
-          
-          <div className="grid grid-cols-3 lg:grid-cols-4 gap-[5px]">
-            {products.filter(p => !p.isSponsored).slice(0, visibleAllProductsCount).map((product) => (
-              <div
-                key={`all-${product.id}`}
-                onClick={() => handleProductClickWithDetails(product)}
-                className="bg-white rounded-md shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
-              >
-                <div className="aspect-square overflow-hidden">
-                  {product.images && product.images[0] && (
-                    <Image
-                      src={product.images[0]}
-                      alt={product.title}
-                      width={300}
-                      height={300}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    />
-                  )}
-                </div>
-                <div className="p-[5px]">
-                  <h3 
-                    className="font-semibold line-clamp-2 text-[0.8rem] mb-[5px] min-h-[2.4rem]"
-                    style={{ 
-                      color: store.customization?.headingTextColor || '#1f2937',
-                      fontFamily: store.customization?.headingFontFamily || store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
-                    }}
-                  >
-                    {product.title}
-                  </h3>
-                  {store.displayPriceOnProducts !== false && (
-                    <div className="flex items-center justify-between">
+          {/* Categories */}
+          {store.showCategories !== false && categories.length > 1 && (
+            <section className="pt-4 sm:pt-6 overflow-x-auto category-scroller">
+              <h2 className="sr-only">Product Categories</h2>
+              <div className="flex space-x-2 sm:space-x-3 px-3 sm:px-4 pb-3">
+                {categories.map((category) => {
+                  return (
+                    <div
+                      key={category.id}
+                      onClick={() => handleCategoryChange(category.id)}
+                      className="flex flex-col items-center cursor-pointer text-center flex-shrink-0"
+                    >
+                      <div
+                        className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full shadow-md overflow-hidden ${
+                          selectedCategory === category.id
+                            ? `bg-indigo-200 border-4`
+                            : 'bg-gray-200'
+                        } ${
+                          category.id === 'all' 
+                            ? 'grid grid-cols-2 grid-rows-2 gap-0' 
+                            : 'flex items-center justify-center'
+                        }`}
+                        style={selectedCategory === category.id ? { borderColor: activeCategoryBorderColor } : {}}
+                      >
+                        {category.id === 'all' ? (
+                          // Photo collage for All Products
+                          products
+                            .filter(product => product.images && product.images[0])
+                            .slice(0, 4)
+                            .map((product, index) => (
+                              <div key={`collage-${product.id}-${index}`} className="w-full h-full">
+                                <Image
+                                  src={product.images![0]}
+                                  alt={product.title}
+                                  width={32}
+                                  height={32}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ))
+                        ) : category.image ? (
+                          <Image
+                            src={category.image}
+                            alt={category.name}
+                            width={64}
+                            height={64}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span 
+                            className="text-[0.7rem] sm:text-[0.8rem] font-semibold"
+                            style={{ color: priceColor }}
+                          >
+                            {category.id === 'all' ? 'All' : category.name}
+                          </span>
+                        )}
+                      </div>
                       <span 
-                        className="font-bold text-[0.8rem]"
+                        className="text-[0.7rem] sm:text-[0.8rem] font-semibold mt-2 whitespace-nowrap max-w-[4rem] sm:max-w-[5rem] truncate"
                         style={{ 
-                          color: priceColor,
+                          color: '#000000',
                           fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
                         }}
                       >
-                        {currencySymbol}{product.price}
+                        {category.name}
                       </span>
                     </div>
-                  )}
-                </div>
+                  );
+                })}
               </div>
-            ))}
-          </div>
-          
-          {/* Load More Button for All Products */}
-          {products.filter(p => !p.isSponsored).length > visibleAllProductsCount && (
-            <div className="text-center mt-6">
-              <button
-                onClick={loadMoreAllProducts}
-                className="inline-flex items-center px-6 py-3 rounded-lg transition-colors font-medium"
-                style={{
-                  backgroundColor: store.customization?.loadMoreButtonBgColor || '#84cc16',
-                  color: store.customization?.loadMoreButtonTextColor || '#ffffff'
+            </section>
+          )}
+
+          {/* All Products Section */}
+          <section className="py-4 sm:py-6" id="products" aria-labelledby="products-heading">
+            <div className="mb-4 sm:mb-6">
+              <h2
+                id="products-heading"
+                className="text-[0.8rem] sm:text-[0.9rem] font-bold mb-2"
+                style={{ 
+                  color: store.customization?.headingTextColor || priceColor,
+                  fontFamily: store.customization?.headingFontFamily || store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
                 }}
               >
-                Load More Products
-              </button>
+                {searchTerm 
+                  ? `Search Results for "${searchTerm}"` 
+                  : selectedCategory === 'all'
+                    ? 'All Products'
+                    : `${categories.find(c => c.id === selectedCategory)?.name || 'Category'}`}
+              </h2>
+              <p 
+                className="text-[0.7rem] sm:text-[0.8rem]"
+                style={{ 
+                  color: store.customization?.bodyTextColor || '#6b7280',
+                  fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+                }}
+              >
+                {searchTerm
+                  ? `Found ${finalFilteredProducts.length} result${finalFilteredProducts.length !== 1 ? 's' : ''}`
+                  : ''
+                }
+              </p>
+              
+              {/* Search Input */}
+              <div className="mt-3 sm:mt-4 relative">
+                <div className="absolute inset-y-0 left-0 pl-2 sm:pl-3 flex items-center pointer-events-none">
+                  <Search className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search products&hellip;"
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-400 text-xs sm:text-sm bg-white text-gray-900 placeholder-gray-500 min-h-[44px]"
+                />
+              </div>
             </div>
+            
+            {searchTerm && (
+              <div className="mb-3 sm:mb-4">
+                <p 
+                  className="text-xs sm:text-sm"
+                  style={{ 
+                    color: store.customization?.bodyTextColor || '#6b7280',
+                    fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+                  }}
+                >
+                  {finalFilteredProducts.length} result{finalFilteredProducts.length !== 1 ? 's' : ''} found for &ldquo;{searchTerm}&rdquo;
+                </p>
+              </div>
+            )}
+            
+            <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-3">
+              {visibleProducts.map((product) => {
+                const showPrice = store.displayPriceOnProducts !== false;
+                return (
+                  <div
+                    key={product.id}
+                    onClick={() => handleProductClickWithDetails(product)}
+                    className={`border-0 rounded-md shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow min-h-[44px] ${
+                      product.isSponsored 
+                        ? 'bg-yellow-50 ring-1 ring-yellow-200'
+                        : 'bg-white'
+                    }`}
+                  >
+                    <div className="aspect-square overflow-hidden relative">
+                      {product.images && product.images[0] && (
+                        <Image
+                          src={product.images[0]}
+                          alt={product.title}
+                          width={200}
+                          height={200}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                      )}
+                    </div>
+                    <div 
+                      className={`p-1 sm:p-[5px] ${showPrice ? 'min-h-[3.5rem] sm:min-h-[4rem]' : 'min-h-[2.5rem] sm:min-h-[3rem]'} flex flex-col ${showPrice ? 'justify-between' : 'justify-start'}`}
+                    >
+                      <h3 
+                        className="font-semibold line-clamp-2 text-[0.7rem] sm:text-[0.8rem] mb-0 sm:mb-[5px]"
+                        style={{ 
+                          color: store.customization?.headingTextColor || '#1f2937',
+                          fontFamily: store.customization?.headingFontFamily || store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+                        }}
+                      >
+                        {product.title}
+                      </h3>
+                      {showPrice && (
+                        <div className="flex items-center justify-between mt-auto">
+                          <span 
+                            className="font-bold text-[0.7rem] sm:text-[0.8rem]"
+                            style={{ 
+                              color: priceColor,
+                              fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+                            }}
+                          >
+                            {currencySymbol}{product.price}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* Load More Button */}
+            {hasMoreProducts && (
+              <div className="text-center mt-4 sm:mt-6">
+                <button
+                  onClick={loadMoreProducts}
+                  className="inline-flex items-center px-4 sm:px-6 py-3 rounded-lg transition-colors font-medium text-sm sm:text-base min-h-[44px]"
+                  style={{
+                    backgroundColor: store.customization?.loadMoreButtonBgColor || '#84cc16',
+                    color: store.customization?.loadMoreButtonTextColor || '#ffffff'
+                  }}
+                >
+                  Load More Products
+                </button>
+              </div>
+            )}
+            
+            {/* No Results Message */}
+            {searchTerm && finalFilteredProducts.length === 0 && (
+              <div className="text-center py-8 sm:py-12">
+                <div className="text-gray-400 text-3xl sm:text-4xl mb-3 sm:mb-4">🔍</div>
+                <h3 
+                  className="text-base sm:text-lg font-medium mb-2"
+                  style={{ 
+                    color: store.customization?.headingTextColor || '#111827',
+                    fontFamily: store.customization?.headingFontFamily || store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+                  }}
+                >
+                  No products found
+                </h3>
+                <p 
+                  className="text-sm sm:text-base mb-3 sm:mb-4"
+                  style={{ 
+                    color: store.customization?.bodyTextColor || '#6b7280',
+                    fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+                  }}
+                >
+                  Try adjusting your search terms or browse all products.
+                </p>
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="mt-2 sm:mt-4 inline-flex items-center px-4 py-2 rounded-lg transition-colors font-medium text-sm sm:text-base min-h-[44px]"
+                  style={{
+                    backgroundColor: store.customization?.loadMoreButtonBgColor || '#84cc16',
+                    color: store.customization?.loadMoreButtonTextColor || '#ffffff',
+                    fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit'
+                  }}
+                >
+                  Clear Search
+                </button>
+              </div>
+            )}
+          </section>
+
+          {/* Custom HTML Section */}
+          {store.customHtml && store.customHtml.trim() && (
+            <section className="py-4 sm:py-6">
+              <h2 className="sr-only">Custom Content</h2>
+              <div 
+                dangerouslySetInnerHTML={{ __html: store.customHtml }}
+                className="prose prose-xs sm:prose-sm max-w-none"
+                style={{
+                  fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit',
+                  color: store.customization?.bodyTextColor || '#374151'
+                }}
+              />
+            </section>
           )}
-        </section>
-      )}
+        </div>
+      </main>
 
-      {/* Custom HTML Section */}
-      {store.customHtml && store.customHtml.trim() && (
-        <section className="container mx-auto px-4 py-6">
-          <h2 className="sr-only">Custom Content</h2>
-          <div 
-            dangerouslySetInnerHTML={{ __html: store.customHtml }}
-            className="prose prose-sm max-w-none"
-            style={{
-              fontFamily: store.customization?.bodyFontFamily || store.customization?.fontFamily || 'inherit',
-              color: store.customization?.bodyTextColor || '#374151'
-            }}
-          />
-        </section>
-      )}
-
-      {/* Footer - Independent of store customization */}
+      {/* Footer - Outside main section for full width */}
       <StoreFooter />
 
       {/* Floating Widget */}
@@ -881,22 +831,22 @@ export default function StoreTemplate({ store, products, slides, categories, ini
               handleWidgetClick();
             }
           }}
-          className="fixed bottom-4 right-4 z-50 animate-pulse"
+          className="fixed bottom-3 right-3 sm:bottom-4 sm:right-4 z-50 animate-pulse"
           style={{ animation: 'pulse-animation 2s infinite cubic-bezier(0.4, 0, 0.6, 1)' }}
         >
           <Image
             src={store.widgetImage || store.avatar}
             alt={`${store.name} Store`}
-            width={64}
-            height={64}
-            className="w-16 h-16 rounded-full shadow-lg"
+            width={48}
+            height={48}
+            className="w-12 h-12 sm:w-16 sm:h-16 rounded-full shadow-lg"
           />
         </button>
       )}
 
       {/* Popup Message */}
       <div
-        className={`absolute bottom-20 right-4 bg-gray-800 text-white text-[0.8rem] p-3 rounded-lg shadow-xl transition-opacity duration-300 ${
+        className={`fixed bottom-16 sm:bottom-20 right-3 sm:right-4 bg-gray-800 text-white text-[0.7rem] sm:text-[0.8rem] p-2 sm:p-3 rounded-lg shadow-xl transition-opacity duration-300 max-w-[200px] sm:max-w-none z-40 ${
           isPopupVisible ? 'opacity-100' : 'opacity-0 hidden'
         }`}
       >
@@ -905,12 +855,12 @@ export default function StoreTemplate({ store, products, slides, categories, ini
 
       {/* Pop-up Banner */}
       {store.bannerEnabled !== false && showBannerPopup && store.bannerImage && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-hidden relative">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-xs sm:max-w-md w-full max-h-[80vh] overflow-hidden relative">
             {/* Close Button */}
             <button
               onClick={handleBannerClose}
-              className="absolute top-2 right-2 z-10 bg-black bg-opacity-50 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-opacity-70 transition-colors"
+              className="absolute top-2 right-2 z-10 bg-black bg-opacity-50 text-white rounded-full w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center hover:bg-opacity-70 transition-colors"
             >
               ✕
             </button>
@@ -936,20 +886,20 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                 <Image
                   src={store.bannerImage}
                   alt="Banner"
-                  width={400}
-                  height={300}
+                  width={320}
+                  height={240}
                   className="w-full h-full object-cover"
                 />
               </div>
               
               {store.bannerDescription && (
-                <div className="p-4">
-                  <p className="text-gray-800 text-sm leading-relaxed">
+                <div className="p-3 sm:p-4">
+                  <p className="text-gray-800 text-xs sm:text-sm leading-relaxed">
                     {store.bannerDescription}
                   </p>
                   {store.bannerLink && (
-                    <div className="mt-3">
-                      <span className="inline-flex items-center text-primary-600 text-sm font-medium">
+                    <div className="mt-2 sm:mt-3">
+                      <span className="inline-flex items-center text-primary-600 text-xs sm:text-sm font-medium">
                         Click to learn more →
                       </span>
                     </div>
@@ -980,13 +930,6 @@ export default function StoreTemplate({ store, products, slides, categories, ini
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
-        .line-clamp-2 {
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
         @keyframes pulse-animation {
           0%, 100% {
             transform: scale(1);
@@ -998,7 +941,23 @@ export default function StoreTemplate({ store, products, slides, categories, ini
         .store-name-color {
           background-color: ${storeNameColor};
         }
+        
+        @media (max-width: 640px) {
+          .category-scroller {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+          }
+          
+          .grid {
+            gap: 0.5rem;
+          }
+          
+          .prose {
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+          }
+        }
       `}</style>
-    </main>
+    </>
   );
 }

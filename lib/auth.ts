@@ -108,6 +108,14 @@ export const signUp = async (email: string, password: string, displayName?: stri
       backgroundImage: '',
       socialLinks: [],
       headerLayout: 'left-right',
+      // Standard users start with restricted features disabled
+      showCategories: false,
+      bannerEnabled: false,
+      widgetEnabled: false,
+      // Other features enabled by default
+      subscriptionEnabled: true,
+      slidesEnabled: true,
+      displayPriceOnProducts: true,
       createdAt: new Date(),
       updatedAt: new Date(),
       isActive: true

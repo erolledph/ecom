@@ -7,7 +7,7 @@ import PremiumFeatureGate from '@/components/PremiumFeatureGate';
 import { isPremium } from '@/lib/auth';
 import { addProductsBatch, Product } from '@/lib/store';
 import Papa from 'papaparse';
-import { Upload, Download, FileText, AlertCircle, CheckCircle, X } from 'lucide-react';
+import { Upload, Download, FileText, CircleAlert as AlertCircle, CircleCheck as CheckCircle, X } from 'lucide-react';
 
 interface CSVProduct {
   title: string;
@@ -191,31 +191,31 @@ export default function ProductCSVImporter() {
 
   return (
     <PremiumFeatureGate feature="csv_import" showUpgrade={false}>
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-secondary-100 rounded-lg">
-            <Upload className="w-5 h-5 text-secondary-600" />
+    <div className="p-3 sm:p-4 lg:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
+        <div className="flex items-center space-x-2 sm:space-x-3">
+          <div className="p-1.5 sm:p-2 bg-secondary-100 rounded-lg">
+            <Upload className="w-4 h-4 sm:w-5 sm:h-5 text-secondary-600" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Import Products from CSV</h3>
-            <p className="text-sm text-gray-600">Upload a CSV file to add multiple products at once</p>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Import Products from CSV</h3>
+            <p className="text-xs sm:text-sm text-gray-600">Upload a CSV file to add multiple products at once</p>
           </div>
         </div>
         
-        <div className="flex space-x-2">
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
           <button
             onClick={() => setShowInstructions(!showInstructions)}
-            className="flex items-center px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+            className="flex items-center justify-center px-3 py-2 text-xs sm:text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors min-h-[44px]"
           >
-            <FileText className="w-4 h-4 mr-2" />
+            <FileText className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
             Instructions
           </button>
           <button
             onClick={downloadTemplate}
-            className="flex items-center px-3 py-2 text-sm bg-secondary-600 text-white rounded-lg hover:bg-secondary-700 transition-colors"
+            className="flex items-center justify-center px-3 py-2 text-xs sm:text-sm bg-secondary-600 text-white rounded-lg hover:bg-secondary-700 transition-colors min-h-[44px]"
           >
-            <Download className="w-4 h-4 mr-2" />
+            <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
             Download Template
           </button>
         </div>
@@ -223,17 +223,17 @@ export default function ProductCSVImporter() {
 
       {/* Instructions Panel */}
       {showInstructions && (
-        <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <div className="flex items-start space-x-3">
-            <FileText className="w-5 h-5 text-blue-600 mt-0.5" />
+        <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="flex items-start space-x-2 sm:space-x-3">
+            <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mt-0.5" />
             <div className="flex-1">
-              <h4 className="font-medium text-blue-900 mb-2">CSV Format Instructions</h4>
-              <div className="text-sm text-blue-800 space-y-2">
+              <h4 className="font-medium text-blue-900 mb-2 text-sm sm:text-base">CSV Format Instructions</h4>
+              <div className="text-xs sm:text-sm text-blue-800 space-y-1 sm:space-y-2">
                 <p><strong>Required columns:</strong> title, description, price, category, productLink</p>
                 <p><strong>Optional columns:</strong> imageUrl</p>
-                <div className="mt-3">
+                <div className="mt-2 sm:mt-3">
                   <p className="font-medium mb-1">Column descriptions:</p>
-                  <ul className="list-disc list-inside space-y-1 text-xs">
+                  <ul className="list-disc list-inside space-y-0.5 sm:space-y-1 text-xs">
                     <li><strong>title:</strong> Product name (required)</li>
                     <li><strong>description:</strong> Product description (required)</li>
                     <li><strong>price:</strong> Product price as a number (required)</li>
@@ -242,25 +242,25 @@ export default function ProductCSVImporter() {
                     <li><strong>imageUrl:</strong> Direct link to product image (optional)</li>
                   </ul>
                 </div>
-                <p className="text-xs mt-2 font-medium">💡 Tip: Download the template above to get started with the correct format.</p>
+                <p className="text-xs mt-1 sm:mt-2 font-medium">💡 Tip: Download the template above to get started with the correct format.</p>
               </div>
             </div>
             <button
               onClick={() => setShowInstructions(false)}
-              className="text-blue-600 hover:text-blue-800"
+              className="text-blue-600 hover:text-blue-800 p-1 min-h-[32px] min-w-[32px] flex items-center justify-center"
             >
-              <X className="w-4 h-4" />
+              <X className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
           </div>
         </div>
       )}
 
       {/* File Upload Area */}
-      <div className="mb-6">
-        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
-          <div className="flex flex-col items-center justify-center pt-5 pb-6">
-            <Upload className={`w-8 h-8 mb-2 ${isImporting ? 'text-primary-600 animate-bounce' : 'text-gray-400'}`} />
-            <p className="mb-2 text-sm text-gray-500">
+      <div className="mb-4 sm:mb-6">
+        <label className="flex flex-col items-center justify-center w-full h-24 sm:h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-colors">
+          <div className="flex flex-col items-center justify-center pt-3 sm:pt-5 pb-3 sm:pb-6">
+            <Upload className={`w-6 h-6 sm:w-8 sm:h-8 mb-2 ${isImporting ? 'text-primary-600 animate-bounce' : 'text-gray-400'}`} />
+            <p className="mb-1 sm:mb-2 text-xs sm:text-sm text-gray-500 text-center px-2">
               {isImporting ? (
                 <span className="font-semibold text-primary-600">Processing CSV file...</span>
               ) : (
@@ -284,12 +284,12 @@ export default function ProductCSVImporter() {
 
       {/* Import Results */}
       {importResults && (
-        <div className="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
-          <div className="flex items-center space-x-2 mb-2">
-            <CheckCircle className="w-5 h-5 text-green-600" />
-            <h4 className="font-medium text-green-900">Import Complete</h4>
+        <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-50 rounded-lg border border-green-200">
+          <div className="flex items-center space-x-2 mb-1 sm:mb-2">
+            <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+            <h4 className="font-medium text-green-900 text-sm sm:text-base">Import Complete</h4>
           </div>
-          <div className="text-sm text-green-800">
+          <div className="text-xs sm:text-sm text-green-800">
             <p>Total products processed: <strong>{importResults.total}</strong></p>
             <p>Successfully imported: <strong>{importResults.successful}</strong></p>
             {importResults.failed > 0 && (
@@ -301,15 +301,15 @@ export default function ProductCSVImporter() {
 
       {/* Validation Errors */}
       {validationErrors.length > 0 && (
-        <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-          <div className="flex items-center space-x-2 mb-3">
-            <AlertCircle className="w-5 h-5 text-red-600" />
-            <h4 className="font-medium text-red-900">Validation Errors ({validationErrors.length})</h4>
+        <div className="p-3 sm:p-4 bg-red-50 rounded-lg border border-red-200">
+          <div className="flex items-center space-x-2 mb-2 sm:mb-3">
+            <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
+            <h4 className="font-medium text-red-900 text-sm sm:text-base">Validation Errors ({validationErrors.length})</h4>
           </div>
-          <div className="max-h-40 overflow-y-auto">
+          <div className="max-h-32 sm:max-h-40 overflow-y-auto">
             <div className="space-y-1">
               {validationErrors.map((error, index) => (
-                <div key={index} className="text-sm text-red-800">
+                <div key={index} className="text-xs sm:text-sm text-red-800">
                   <strong>Row {error.row}:</strong> {error.field} - {error.message}
                 </div>
               ))}

@@ -139,9 +139,9 @@ export default function SubscriptionModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
       <div 
-        className="rounded-xl shadow-2xl max-w-xs w-full max-h-[80vh] overflow-hidden relative border"
+        className="rounded-xl shadow-2xl max-w-xs sm:max-w-sm w-full max-h-[90vh] sm:max-h-[80vh] overflow-hidden relative border"
         style={{
           backgroundColor: modalBgColor,
           borderColor: modalBorderColor
@@ -151,49 +151,49 @@ export default function SubscriptionModal({
         {/* Close Button */}
         <button
           onClick={handleClose}
-          className="absolute top-3 right-3 z-20 bg-opacity-80 hover:bg-opacity-100 text-gray-600 hover:text-gray-800 rounded-full w-6 h-6 flex items-center justify-center transition-all shadow-sm"
+          className="absolute top-2 sm:top-3 right-2 sm:right-3 z-20 bg-opacity-80 hover:bg-opacity-100 text-gray-600 hover:text-gray-800 rounded-full w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center transition-all shadow-sm min-h-[44px] min-w-[44px]"
           style={{ backgroundColor: modalBgColor }}
           aria-label="Close subscription form"
         >
-          <X className="w-3 h-3" />
+          <X className="w-3 h-3 sm:w-4 sm:h-4" />
         </button>
 
         {/* Content */}
-        <div className="relative z-10 p-4 sm:p-5">
+        <div className="relative z-10 p-3 sm:p-4 lg:p-5">
           {/* Header */}
-          <div className="text-center mb-4">
-            <div className="w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+          <div className="text-center mb-3 sm:mb-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-2 sm:mb-3 flex items-center justify-center">
               {storeAvatar ? (
                 <Image
                   src={storeAvatar}
                   alt={storeName}
-                  width={48}
-                  height={48}
-                  className="w-12 h-12 rounded-full object-cover border-2 border-primary-200"
+                  width={40}
+                  height={40}
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-primary-200"
                 />
               ) : (
-                <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
-                  <Mail className="w-6 h-6 text-white" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
+                  <Mail className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
               )}
             </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-1">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
               Stay Updated!
             </h2>
-            <p className="text-xs leading-snug" style={{ color: modalTextColor, opacity: 0.8 }}>
+            <p className="text-xs sm:text-sm leading-snug px-2" style={{ color: modalTextColor, opacity: 0.8 }}>
               Subscribe to <strong>{storeName}</strong> and be the first to know about new products, exclusive deals, and special offers.
             </p>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
             <div>
               <label htmlFor="name" className="block text-xs font-medium mb-1" style={{ color: modalTextColor }}>
                 Your Name *
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
-                  <User className="h-3 w-3 text-gray-400" />
+                <div className="absolute inset-y-0 left-0 pl-2 sm:pl-3 flex items-center pointer-events-none">
+                  <User className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
                 </div>
                 <input
                   type="text"
@@ -202,7 +202,7 @@ export default function SubscriptionModal({
                   value={formData.name}
                   onChange={handleInputChange}
                   required
-                  className="w-full pl-8 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-sm"
+                  className="w-full pl-7 sm:pl-8 pr-3 py-2.5 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-sm min-h-[44px]"
                   style={{ 
                     backgroundColor: inputBgColor,
                     borderColor: inputBorderColor,
@@ -218,8 +218,8 @@ export default function SubscriptionModal({
                 Email Address *
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
-                  <Mail className="h-3 w-3 text-gray-400" />
+                <div className="absolute inset-y-0 left-0 pl-2 sm:pl-3 flex items-center pointer-events-none">
+                  <Mail className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
                 </div>
                 <input
                   type="email"
@@ -228,7 +228,7 @@ export default function SubscriptionModal({
                   value={formData.email}
                   onChange={handleInputChange}
                   required
-                  className="w-full pl-8 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-sm"
+                  className="w-full pl-7 sm:pl-8 pr-3 py-2.5 sm:py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors text-sm min-h-[44px]"
                   style={{ 
                     backgroundColor: inputBgColor,
                     borderColor: inputBorderColor,
@@ -242,7 +242,7 @@ export default function SubscriptionModal({
             <button
               type="submit"
               disabled={isSubmitting || isSubscribed}
-              className="w-full flex items-center justify-center px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium shadow-lg hover:shadow-xl text-sm"
+              className="w-full flex items-center justify-center px-4 py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium shadow-lg hover:shadow-xl text-sm min-h-[44px]"
               style={{
                 backgroundColor: buttonBgColor,
                 color: buttonTextColor
@@ -250,14 +250,14 @@ export default function SubscriptionModal({
             >
               {isSubmitting ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  <div className="animate-spin rounded-full h-3 w-3 sm:h-4 sm:w-4 border-b-2 border-white mr-2"></div>
                   Subscribing...
                 </>
               ) : isSubscribed ? (
                 'Thank you!'
               ) : (
                 <>
-                  <Send className="w-3 h-3 mr-2" />
+                  <Send className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
                   Subscribe Now
                 </>
               )}
@@ -265,7 +265,7 @@ export default function SubscriptionModal({
           </form>
 
           {/* Footer */}
-          <div className="mt-4 text-center">
+          <div className="mt-3 sm:mt-4 text-center">
             <p className="text-xs" style={{ color: modalTextColor, opacity: 0.7 }}>
               We respect your privacy. Unsubscribe at any time.
             </p>

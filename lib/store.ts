@@ -24,6 +24,8 @@ import {
 } from 'firebase/storage';
 import { fromBlob } from 'image-resize-compress';
 
+import { isPremium, getUserProfile } from './auth';
+
 // Interfaces
 export interface Store {
   id: string;
@@ -68,14 +70,6 @@ export interface Store {
   createdAt: Date;
   updatedAt: Date;
   isActive: boolean;
-  // Custom domain fields
-  customDomain?: string;
-  domainVerificationCode?: string;
-  domainVerified?: boolean;
-  domainVerificationAttempts?: number;
-  domainVerificationLastAttempt?: Date;
-  sslStatus?: 'pending' | 'active' | 'failed' | 'not_applicable';
-  customDomainEnabled?: boolean;
 }
 
 export interface Product {
@@ -143,6 +137,22 @@ export interface SponsoredProduct {
   updatedAt?: Date;
 }
 
+export interface Notification {
+  id?: string;
+  ownerId: string;
+  title: string;
+  description: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface UserNotificationStatus {
+  id?: string;
+  userId: string;
+  notificationId: string;
+  readAt: Date;
+}
 // Store Management Functions
 export const checkSlugAvailability = async (slug: string): Promise<boolean> => {
   try {
@@ -174,8 +184,7 @@ export const getUserStore = async (userId: string): Promise<Store | null> => {
         id: storeSnap.id,
         ...data,
         createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
-        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt,
-        domainVerificationLastAttempt: data.domainVerificationLastAttempt?.toDate ? data.domainVerificationLastAttempt.toDate() : data.domainVerificationLastAttempt
+        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt
       } as Store;
     }
     
@@ -205,8 +214,7 @@ export const getStoreBySlug = async (slug: string): Promise<Store | null> => {
         id: doc.id,
         ...data,
         createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
-        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt,
-        domainVerificationLastAttempt: data.domainVerificationLastAttempt?.toDate ? data.domainVerificationLastAttempt.toDate() : data.domainVerificationLastAttempt
+        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt
       } as Store;
     }
     
@@ -220,6 +228,24 @@ export const getStoreBySlug = async (slug: string): Promise<Store | null> => {
 export const updateStore = async (userId: string, updates: Partial<Store>): Promise<void> => {
   try {
     if (!db) throw new Error('Firebase not initialized');
+    
+    // Get user profile to check premium status
+    const userProfile = await getUserProfile(userId);
+    const isUserPremium = isPremium(userProfile);
+    
+    // Enforce restrictions for standard users
+    if (!isUserPremium) {
+      // Override restricted features to false for standard users
+      if (updates.showCategories === true) {
+        updates.showCategories = false;
+      }
+      if (updates.bannerEnabled === true) {
+        updates.bannerEnabled = false;
+      }
+      if (updates.widgetEnabled === true) {
+        updates.widgetEnabled = false;
+      }
+    }
     
     const storeRef = doc(db, 'users', userId, 'stores', userId);
     await updateDoc(storeRef, {
@@ -877,6 +903,185 @@ export const incrementSponsoredProductClickCount = async (sponsoredProductId: st
   }
 };
 
+// Notification Management Functions
+export const addNotification = async (notification: Omit<Notification, 'id' | 'createdAt' | 'updatedAt'>, userId: string): Promise<string> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+    
+    const notificationData = {
+      ...notification,
+      ownerId: userId,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    const docRef = await addDoc(collection(db, 'notifications'), notificationData);
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding notification:', error);
+    throw error;
+  }
+};
+
+export const getAllNotifications = async (): Promise<Notification[]> => {
+  try {
+    if (!db) return [];
+    
+    const notificationsRef = collection(db, 'notifications');
+    const q = query(notificationsRef, orderBy('createdAt', 'desc'));
+    const querySnapshot = await getDocs(q);
+    
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : doc.data().createdAt,
+      updatedAt: doc.data().updatedAt?.toDate ? doc.data().updatedAt.toDate() : doc.data().updatedAt
+    })) as Notification[];
+  } catch (error) {
+    console.error('Error fetching all notifications:', error);
+    return [];
+  }
+};
+
+export const getNotificationById = async (notificationId: string): Promise<Notification | null> => {
+  try {
+    if (!db) return null;
+    
+    const notificationRef = doc(db, 'notifications', notificationId);
+    const notificationSnap = await getDoc(notificationRef);
+    
+    if (notificationSnap.exists()) {
+      const data = notificationSnap.data();
+      return {
+        id: notificationSnap.id,
+        ...data,
+        createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
+        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt
+      } as Notification;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error fetching notification by ID:', error);
+    return null;
+  }
+};
+
+export const updateNotification = async (notificationId: string, updates: Partial<Notification>): Promise<void> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+    
+    const notificationRef = doc(db, 'notifications', notificationId);
+    await updateDoc(notificationRef, {
+      ...updates,
+      updatedAt: new Date()
+    });
+  } catch (error) {
+    console.error('Error updating notification:', error);
+    throw error;
+  }
+};
+
+export const deleteNotification = async (notificationId: string): Promise<void> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+    
+    const notificationRef = doc(db, 'notifications', notificationId);
+    await deleteDoc(notificationRef);
+  } catch (error) {
+    console.error('Error deleting notification:', error);
+    throw error;
+  }
+};
+
+// User Notification Status Functions
+export const markNotificationAsRead = async (userId: string, notificationId: string): Promise<void> => {
+  try {
+    if (!db) throw new Error('Firebase not initialized');
+    
+    const readNotificationData = {
+      userId,
+      notificationId,
+      readAt: new Date()
+    };
+    
+    await addDoc(collection(db, 'users', userId, 'read_notifications'), readNotificationData);
+  } catch (error) {
+    console.error('Error marking notification as read:', error);
+    throw error;
+  }
+};
+
+export const getReadNotificationIds = async (userId: string): Promise<string[]> => {
+  try {
+    if (!db) return [];
+    
+    const readNotificationsRef = collection(db, 'users', userId, 'read_notifications');
+    const querySnapshot = await getDocs(readNotificationsRef);
+    
+    return querySnapshot.docs.map(doc => doc.data().notificationId);
+  } catch (error) {
+    console.error('Error fetching read notification IDs:', error);
+    return [];
+  }
+};
+
+export const getUnreadNotificationCount = async (userId: string): Promise<number> => {
+  try {
+    if (!db) return 0;
+    
+    // Get all active notifications
+    const notificationsRef = collection(db, 'notifications');
+    const activeNotificationsQuery = query(notificationsRef, where('isActive', '==', true));
+    const activeNotificationsSnapshot = await getDocs(activeNotificationsQuery);
+    
+    // Get read notification IDs for this user
+    const readNotificationIds = await getReadNotificationIds(userId);
+    
+    // Count unread notifications
+    const unreadCount = activeNotificationsSnapshot.docs.filter(doc => 
+      !readNotificationIds.includes(doc.id)
+    ).length;
+    
+    return unreadCount;
+  } catch (error) {
+    console.error('Error getting unread notification count:', error);
+    return 0;
+  }
+};
+
+export const getAllUserNotifications = async (userId: string): Promise<(Notification & { isRead: boolean })[]> => {
+  try {
+    if (!db) return [];
+    
+    // Get all active notifications
+    const notificationsRef = collection(db, 'notifications');
+    const activeNotificationsQuery = query(
+      notificationsRef, 
+      where('isActive', '==', true),
+      orderBy('createdAt', 'desc')
+    );
+    const activeNotificationsSnapshot = await getDocs(activeNotificationsQuery);
+    
+    // Get read notification IDs for this user
+    const readNotificationIds = await getReadNotificationIds(userId);
+    
+    // Map notifications with read status
+    return activeNotificationsSnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
+        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt,
+        isRead: readNotificationIds.includes(doc.id)
+      } as Notification & { isRead: boolean };
+    });
+  } catch (error) {
+    console.error('Error fetching user notifications:', error);
+    return [];
+  }
+};
 // Utility Functions
 export const getAllStoreSlugs = async (): Promise<Map<string, string>> => {
   try {
@@ -940,189 +1145,4 @@ export const generateCategoriesWithCountSync = (products: Product[]): Array<{ id
     },
     ...categories
   ];
-};
-
-// Custom Domain Management Functions
-export const checkCustomDomainAvailability = async (domain: string): Promise<boolean> => {
-  try {
-    if (!db) return false;
-    
-    console.log('Checking domain availability in Firestore for:', domain);
-    
-    const storesQuery = query(
-      collectionGroup(db, 'stores'),
-      where('customDomain', '==', domain)
-    );
-    
-    const querySnapshot = await getDocs(storesQuery);
-    console.log('Query snapshot size:', querySnapshot.size);
-    console.log('Domain is available:', querySnapshot.empty);
-    
-    return querySnapshot.empty;
-  } catch (error) {
-    console.error('Error checking custom domain availability:', error);
-    console.error('Error details:', {
-      name: error.name,
-      message: error.message,
-      stack: error.stack
-    });
-    return false;
-  }
-};
-
-export const addCustomDomain = async (userId: string, domain: string): Promise<{ verificationCode: string }> => {
-  try {
-    if (!db) throw new Error('Firebase not initialized');
-
-    console.log('Checking domain availability for:', domain);
-    // Check if domain is already in use by another store
-    const isAvailable = await checkCustomDomainAvailability(domain);
-    console.log('Domain availability:', isAvailable);
-    
-    if (!isAvailable) {
-      throw new Error('This custom domain is already in use by another store.');
-    }
-
-    const verificationCode = `bolt-verify-${Math.random().toString(36).substring(2, 15)}`;
-    console.log('Generated verification code:', verificationCode);
-    
-    const storeRef = doc(db, 'users', userId, 'stores', userId);
-    console.log('Store reference path:', `users/${userId}/stores/${userId}`);
-
-    console.log('Updating store with custom domain data...');
-    await updateDoc(storeRef, {
-      customDomain: domain,
-      domainVerificationCode: verificationCode,
-      domainVerified: false,
-      domainVerificationAttempts: 0,
-      domainVerificationLastAttempt: new Date(),
-      sslStatus: 'not_applicable',
-      customDomainEnabled: false,
-      updatedAt: new Date()
-    });
-    console.log('Store updated successfully');
-
-    return { verificationCode };
-  } catch (error) {
-    console.error('Error adding custom domain:', error);
-    console.error('Error details:', {
-      name: error.name,
-      message: error.message,
-      stack: error.stack
-    });
-    throw error;
-  }
-};
-
-export const verifyCustomDomain = async (userId: string, domain: string, expectedVerificationCode: string): Promise<boolean> => {
-  try {
-    if (!db) throw new Error('Firebase not initialized');
-
-    const storeRef = doc(db, 'users', userId, 'stores', userId);
-    const storeSnap = await getDoc(storeRef);
-
-    if (!storeSnap.exists()) {
-      throw new Error('Store not found.');
-    }
-
-    const storeData = storeSnap.data() as Store;
-
-    if (storeData.customDomain !== domain) {
-      throw new Error('Provided domain does not match the one configured for this store.');
-    }
-
-    // Simulate DNS TXT record lookup
-    // In production, you would use a DNS lookup library to query _bolt-verify.${domain}
-    const isTxtRecordValid = storeData.domainVerificationCode === expectedVerificationCode;
-
-    if (isTxtRecordValid) {
-      await updateDoc(storeRef, {
-        domainVerified: true,
-        sslStatus: 'pending',
-        customDomainEnabled: true,
-        domainVerificationAttempts: increment(1),
-        domainVerificationLastAttempt: new Date(),
-        updatedAt: new Date()
-      });
-      
-      // Simulate SSL becoming active after a delay
-      setTimeout(async () => {
-        try {
-          await updateDoc(storeRef, {
-            sslStatus: 'active',
-            updatedAt: new Date()
-          });
-        } catch (error) {
-          console.error('Error updating SSL status:', error);
-        }
-      }, 5000);
-      
-      return true;
-    } else {
-      await updateDoc(storeRef, {
-        domainVerified: false,
-        domainVerificationAttempts: increment(1),
-        domainVerificationLastAttempt: new Date(),
-        updatedAt: new Date()
-      });
-      return false;
-    }
-  } catch (error) {
-    console.error('Error verifying custom domain:', error);
-    throw error;
-  }
-};
-
-export const removeCustomDomain = async (userId: string): Promise<void> => {
-  try {
-    if (!db) throw new Error('Firebase not initialized');
-
-    const storeRef = doc(db, 'users', userId, 'stores', userId);
-    await updateDoc(storeRef, {
-      customDomain: null,
-      domainVerificationCode: null,
-      domainVerified: null,
-      domainVerificationAttempts: null,
-      domainVerificationLastAttempt: null,
-      sslStatus: null,
-      customDomainEnabled: null,
-      updatedAt: new Date()
-    });
-  } catch (error) {
-    console.error('Error removing custom domain:', error);
-    throw error;
-  }
-};
-
-export const getStoreByCustomDomain = async (domain: string): Promise<Store | null> => {
-  try {
-    if (!db) return null;
-
-    const storesQuery = query(
-      collectionGroup(db, 'stores'),
-      where('customDomain', '==', domain),
-      where('domainVerified', '==', true),
-      where('customDomainEnabled', '==', true),
-      limit(1)
-    );
-
-    const querySnapshot = await getDocs(storesQuery);
-
-    if (!querySnapshot.empty) {
-      const doc = querySnapshot.docs[0];
-      const data = doc.data();
-      return {
-        id: doc.id,
-        ...data,
-        createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
-        updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt,
-        domainVerificationLastAttempt: data.domainVerificationLastAttempt?.toDate ? data.domainVerificationLastAttempt.toDate() : data.domainVerificationLastAttempt
-      } as Store;
-    }
-
-    return null;
-  } catch (error) {
-    console.error('Error fetching store by custom domain:', error);
-    return null;
-  }
 };
