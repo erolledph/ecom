@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { logout } from '@/lib/auth';
 import { canAccessFeature } from '@/lib/auth';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
 import { ChartBar as BarChart3, Store, Image, Package, LogOut, X, User, CirclePlus as PlusCircle, SquarePlus as PlusSquare, TrendingUp, Users, Settings, DollarSign, Radio, Bell } from 'lucide-react';
 
 interface DashboardNavProps {
@@ -17,6 +18,7 @@ export default function DashboardNav({ isSidebarOpen, toggleSidebar }: Dashboard
   const pathname = usePathname();
   const router = useRouter();
   const { userProfile } = useAuth();
+  const { clearAll } = useToast();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Generate navigation items based on user role and premium status
@@ -64,9 +66,10 @@ export default function DashboardNav({ isSidebarOpen, toggleSidebar }: Dashboard
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
+    clearAll();
     try {
       await logout();
-      router.push('/auth');
+      router.push('/');
     } catch (error) {
       console.error('Logout error:', error);
     } finally {

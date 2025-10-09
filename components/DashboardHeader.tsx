@@ -4,8 +4,9 @@ import React from 'react';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
+import { isPremium, isOnTrial, hasTrialExpired, getTrialDaysRemaining } from '@/lib/auth';
 import { getUserStore, getAllUserNotifications, markNotificationAsRead, Notification } from '@/lib/store';
-import { Menu, Bell, User, Copy, ExternalLink, ChevronDown, Calendar, Check } from 'lucide-react';
+import { Menu, Bell, User, Copy, ExternalLink, ChevronDown, Calendar, Check, Clock, Crown } from 'lucide-react';
 import NotificationModal from '@/components/NotificationModal';
 
 interface DashboardHeaderProps {
@@ -255,9 +256,21 @@ export default function DashboardHeader({ isSidebarOpen, toggleSidebar }: Dashbo
                           Administrator
                         </span>
                       )}
-                      {userProfile?.isPremium && (
+                      {userProfile && isPremium(userProfile) && !isOnTrial(userProfile) && (
                         <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mt-1">
-                          Premium User
+                          <Crown className="w-3 h-3 mr-1" />
+                          Premium
+                        </span>
+                      )}
+                      {userProfile && isOnTrial(userProfile) && (
+                        <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mt-1">
+                          <Clock className="w-3 h-3 mr-1" />
+                          Trial
+                        </span>
+                      )}
+                      {userProfile && hasTrialExpired(userProfile) && !isPremium(userProfile) && (
+                        <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mt-1">
+                          Basic
                         </span>
                       )}
                     </div>

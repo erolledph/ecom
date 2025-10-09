@@ -77,17 +77,23 @@ export default function NotificationForm({ notification, mode, onSave, onCancel 
           ...notificationData,
           ownerId: user.uid
         }, user.uid);
-        showSuccess('Notification created successfully!');
+        showSuccess('Successfully created new notification!');
       }
 
       if (onSave) {
-        onSave();
+        setTimeout(() => {
+          onSave();
+        }, 1500);
       } else {
-        router.push('/dashboard/system-management/broadcast-notifications');
+        setTimeout(() => {
+          router.push('/dashboard/system-management/broadcast-notifications');
+        }, 1500);
       }
     } catch (error) {
       console.error('Error saving notification:', error);
-      showError('Failed to save notification. Please try again.');
+      // Display the specific error message from the backend
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save notification: An unexpected error occurred. Please try again.';
+      showError(errorMessage);
     } finally {
       setSaving(false);
     }

@@ -56,6 +56,10 @@ export default function StoreTemplate({ store, products, slides, categories, ini
   const [showBannerPopup, setShowBannerPopup] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
 
+  // Check if owner's trial has expired or premium revoked
+  const isOwnerPremiumActive = store.ownerIsPremiumAdminSet === true ||
+    (store.ownerTrialEndDate && store.ownerTrialEndDate instanceof Date && store.ownerTrialEndDate.getTime() > Date.now());
+
   // Show subscription modal on component mount if subscription is enabled
   useEffect(() => {
     if (store.subscriptionEnabled !== false) {
@@ -153,15 +157,15 @@ export default function StoreTemplate({ store, products, slides, categories, ini
     setVisibleAllProductsCount(9);
   }, [selectedCategory]);
 
-  // Show banner popup on component mount if banner is enabled
+  // Show banner popup on component mount if banner is enabled and owner has premium
   useEffect(() => {
-    if (store.bannerEnabled !== false && store.bannerImage) {
+    if (store.bannerEnabled !== false && isOwnerPremiumActive && store.bannerImage) {
       const timer = setTimeout(() => {
         setShowBannerPopup(true);
       }, 2000); // Show banner after 2 seconds
       return () => clearTimeout(timer);
     }
-  }, [store.bannerEnabled, store.bannerImage]);
+  }, [store.bannerEnabled, isOwnerPremiumActive, store.bannerImage]);
 
   const handleBannerClose = () => {
     setShowBannerPopup(false);
@@ -348,7 +352,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                   <div className="flex justify-center mb-3 sm:mb-4">
                     {store.avatar && (
                       <div 
-                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-3 sm:border-4 shadow-lg"
+                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-4 shadow-lg"
                         style={{
                           borderColor: store.customization?.avatarBorderColor || '#ffffff'
                         }}
@@ -390,7 +394,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                   <div className="flex items-center">
                     {store.avatar && (
                       <div 
-                        className="w-12 h-12 sm:w-16 sm:h-16 rounded-full overflow-hidden border-3 sm:border-4 shadow-lg"
+                        className="w-12 h-12 sm:w-16 sm:h-16 rounded-full overflow-hidden border-4 shadow-lg"
                         style={{
                           borderColor: store.customization?.avatarBorderColor || '#ffffff'
                         }}
@@ -555,7 +559,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
           )}
 
           {/* Categories */}
-          {store.showCategories !== false && categories.length > 1 && (
+          {store.showCategories !== false && isOwnerPremiumActive && categories.length > 1 && (
             <section className="pt-4 sm:pt-6 overflow-x-auto category-scroller">
               <h2 className="sr-only">Product Categories</h2>
               <div className="flex space-x-2 sm:space-x-3 px-3 sm:px-4 pb-3">
@@ -815,7 +819,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
       <StoreFooter />
 
       {/* Floating Widget */}
-      {store.widgetEnabled !== false && (store.widgetImage || store.avatar) && (
+      {store.widgetEnabled !== false && isOwnerPremiumActive && (store.widgetImage || store.avatar) && (
         <button
           onClick={() => {
             if (store.widgetLink) {
@@ -839,7 +843,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
             alt={`${store.name} Store`}
             width={48}
             height={48}
-            className="w-12 h-12 sm:w-16 sm:h-16 rounded-full shadow-lg"
+            className="w-12 h-12 sm:w-16 sm:h-16"
           />
         </button>
       )}
@@ -854,9 +858,9 @@ export default function StoreTemplate({ store, products, slides, categories, ini
       </div>
 
       {/* Pop-up Banner */}
-      {store.bannerEnabled !== false && showBannerPopup && store.bannerImage && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-3 sm:p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-xs sm:max-w-md w-full max-h-[80vh] overflow-hidden relative">
+      {store.bannerEnabled !== false && isOwnerPremiumActive && showBannerPopup && store.bannerImage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 pointer-events-none">
+          <div className="relative max-w-xs sm:max-w-2xl w-full pointer-events-auto">
             {/* Close Button */}
             <button
               onClick={handleBannerClose}
@@ -864,7 +868,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
             >
               ✕
             </button>
-            
+
             {/* Banner Content */}
             <div
               className={store.bannerLink ? 'cursor-pointer' : ''}
@@ -872,7 +876,6 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                 if (store.bannerLink) {
                   trackEvent('banner_click', store.ownerId, {
                     banner_image_url: store.bannerImage,
-                    banner_description: store.bannerDescription,
                     store_slug: store.slug,
                     store_name: store.name,
                     destination_link: store.bannerLink,
@@ -882,30 +885,13 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                 }
               }}
             >
-              <div className="aspect-video overflow-hidden">
-                <Image
+              <div className="overflow-hidden rounded-lg">
+                <img
                   src={store.bannerImage}
-                  alt="Banner"
-                  width={320}
-                  height={240}
-                  className="w-full h-full object-cover"
+                  alt="Store Banner"
+                  className="w-full h-auto"
                 />
               </div>
-              
-              {store.bannerDescription && (
-                <div className="p-3 sm:p-4">
-                  <p className="text-gray-800 text-xs sm:text-sm leading-relaxed">
-                    {store.bannerDescription}
-                  </p>
-                  {store.bannerLink && (
-                    <div className="mt-2 sm:mt-3">
-                      <span className="inline-flex items-center text-primary-600 text-xs sm:text-sm font-medium">
-                        Click to learn more →
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
           </div>
         </div>

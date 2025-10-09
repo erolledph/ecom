@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
-import { isPremium } from '@/lib/auth';
+import { isPremium, isOnTrial, hasTrialExpired, getTrialDaysRemaining } from '@/lib/auth';
 import { getUserStore, getStoreProducts, getStoreSlides, Store } from '@/lib/store';
-import { Store as StoreIcon, Package, Image as ImageIcon, Users, ExternalLink, Plus, ChartBar as BarChart3, Eye, Settings, TrendingUp } from 'lucide-react';
+import { Store as StoreIcon, Package, Image as ImageIcon, Users, ExternalLink, Plus, ChartBar as BarChart3, Eye, Settings, TrendingUp, Clock, Crown } from 'lucide-react';
 
 export default function DashboardOverview() {
   const { user, userProfile } = useAuth();
@@ -144,6 +144,7 @@ export default function DashboardOverview() {
         </div>
       </div>
 
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
         <div className="bg-gradient-to-b from-white to-gray-50 rounded-lg shadow-md p-4 sm:p-6 lg:p-8 border border-gray-200">
@@ -253,7 +254,7 @@ export default function DashboardOverview() {
               onClick={(e) => {
                 if (isAtProductLimit) {
                   e.preventDefault();
-                  showError('Cannot add more products. You have reached the 30-product limit for normal users.');
+                  showError('Cannot add more products: You have reached the 30-product limit for standard users. Please upgrade to premium for unlimited products or contact an administrator for assistance.');
                 }
               }}
               aria-label="Add New Product"
@@ -277,7 +278,7 @@ export default function DashboardOverview() {
                     : 'text-gray-500'
                 }`}>
                   {isAtProductLimit 
-                    ? 'Upgrade to premium for unlimited products' 
+                    ? 'Upgrade to premium for unlimited products and advanced features' 
                     : 'Add affiliate products to your store'
                   }
                 </p>

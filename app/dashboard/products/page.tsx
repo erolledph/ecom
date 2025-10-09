@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { trackEvent } from '@/lib/analytics';
-import { isPremium } from '@/lib/auth';
+import { isPremium, isOnTrial, hasTrialExpired, getTrialDaysRemaining } from '@/lib/auth';
 import { 
   getStoreProducts, 
   deleteProduct,
@@ -14,7 +14,7 @@ import {
   Product,
   getUserStore
 } from '@/lib/store';
-import { Edit, Trash2, Plus, Check, X, Users } from 'lucide-react';
+import { Edit, Trash2, Plus, Check, X, Users, Clock, Crown } from 'lucide-react';
 import { RefreshCcw } from 'lucide-react';
 import ProductCSVImporter from '@/components/ProductCSVImporter';
 
@@ -62,16 +62,16 @@ export default function ProductsPage() {
 
   const handleDeleteProduct = async (productId: string) => {
     if (!user) return;
-    
-    showWarning('Deleting product...');
-    
+
     try {
       await deleteProduct(user.uid, productId);
       showSuccess('Product deleted successfully');
       fetchProducts();
     } catch (error) {
       console.error('Error deleting product:', error);
-      showError('Failed to delete product. Please try again.');
+      // Display the specific error message from the backend
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete product: An unexpected error occurred. Please try again.';
+      showError(errorMessage);
     }
   };
 
@@ -79,7 +79,7 @@ export default function ProductsPage() {
     setRefreshing(true);
     try {
       await fetchProducts();
-      showSuccess('Products refreshed successfully');
+      showSuccess('Products refreshed');
     } catch (error) {
       showError('Failed to refresh products');
     } finally {
@@ -137,14 +137,14 @@ export default function ProductsPage() {
             <button
               onClick={() => {
                 if (isAtProductLimit) {
-                  showError('Cannot add more products. You have reached the 30-product limit for normal users.');
+                  showError('Cannot add more products: You have reached the 30-product limit for standard users. Please upgrade to premium for unlimited products.');
                   return;
                 }
                 router.push('/dashboard/products/add');
               }}
               disabled={isAtProductLimit}
               className="flex items-center justify-center px-3 sm:px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm min-h-[44px]"
-              title={isAtProductLimit ? 'Product limit reached. Enhanced access required for more products.' : 'Add new product'}
+              title={isAtProductLimit ? 'Product limit reached (30/30). Upgrade to premium for unlimited products.' : 'Add new product'}
             >
               <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
               Add Product
@@ -162,8 +162,9 @@ export default function ProductsPage() {
               <div className="flex-1">
                 <h4 className="font-medium text-red-900 mb-1 text-sm sm:text-base">Product Limit Reached</h4>
                 <p className="text-xs sm:text-sm text-red-800">
-                  You have reached the maximum of 30 products. 
-                  To add more products, you will need enhanced access.
+                  You have reached the maximum of 30 products allowed for standard users. 
+                  To add unlimited products and unlock advanced features, please upgrade to premium access. 
+                  Contact an administrator for assistance with upgrading your account.
                 </p>
               </div>
             </div>

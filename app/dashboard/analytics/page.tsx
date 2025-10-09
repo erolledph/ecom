@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { getAnalyticsEvents, clearAnalyticsEvents, AnalyticsEvent } from '@/lib/analytics';
-import { getStoreProducts, Product } from '@/lib/store';
+import { getStoreProducts, Product, getStoreProductsWithTrialLimits } from '@/lib/store';
 import { TrendingUp, Eye, MousePointer, ChartBar as BarChart3, ChartPie as PieChart, Activity, Trash2, RefreshCw, Megaphone, Package, Users, Search, ListFilter as Filter, Share2, ArrowUp, ArrowDown, Download } from 'lucide-react';
 
 interface TopProduct {
@@ -55,7 +55,7 @@ export default function AnalyticsPage() {
       // Fetch analytics events and products in parallel
       const [analyticsEvents, storeProducts] = await Promise.all([
         getAnalyticsEvents(user.uid),
-        getStoreProducts(user.uid)
+        getStoreProducts(user.uid) // Use regular getStoreProducts for analytics since we're in authenticated context
       ]);
       
       setEvents(analyticsEvents);

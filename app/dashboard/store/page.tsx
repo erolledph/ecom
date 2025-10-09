@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
-import { isPremium } from '@/lib/auth';
+import { isPremium, isOnTrial, hasTrialExpired, getTrialDaysRemaining } from '@/lib/auth';
 import PremiumFeatureGate from '@/components/PremiumFeatureGate';
 import { 
   getUserStore, 
@@ -13,7 +13,7 @@ import {
   deleteImageFromStorage,
   Store 
 } from '@/lib/store';
-import { Settings, Save, Palette, Globe, Badge as Widget, Megaphone, Mail, Code } from 'lucide-react';
+import { Settings, Save, Palette, Globe, Badge as Widget, Megaphone, Mail, Code, Clock, Crown } from 'lucide-react';
 import CustomToggle from '@/components/CustomToggle';
 import ImageUploadWithDelete from '@/components/ImageUploadWithDelete';
 import CustomHtmlEditor from '@/components/CustomHtmlEditor';
@@ -73,7 +73,6 @@ export default function StoreSettingsPage() {
     widgetEnabled: true,
     bannerEnabled: true,
     bannerImage: '',
-    bannerDescription: '',
     bannerLink: '',
     subscriptionEnabled: true,
     slidesEnabled: true,
@@ -103,11 +102,15 @@ export default function StoreSettingsPage() {
   useEffect(() => {
     const fetchStore = async () => {
       if (!user) return;
-      
+
       try {
         const storeData = await getUserStore(user.uid);
         if (storeData) {
           setStore(storeData);
+
+          // If user is not premium, force disable premium features
+          const isPremiumUser = isUserPremium;
+
           setFormData({
             name: storeData.name,
             description: storeData.description,
@@ -116,15 +119,14 @@ export default function StoreSettingsPage() {
             headerLayout: storeData.headerLayout || 'left-right',
             widgetImage: storeData.widgetImage || '',
             widgetLink: storeData.widgetLink || '',
-            widgetEnabled: storeData.widgetEnabled !== false,
-            bannerEnabled: storeData.bannerEnabled !== false,
+            widgetEnabled: isPremiumUser ? (storeData.widgetEnabled !== false) : false,
+            bannerEnabled: isPremiumUser ? (storeData.bannerEnabled !== false) : false,
             bannerImage: storeData.bannerImage || '',
-            bannerDescription: storeData.bannerDescription || '',
             bannerLink: storeData.bannerLink || '',
             subscriptionEnabled: storeData.subscriptionEnabled !== false,
             slidesEnabled: storeData.slidesEnabled !== false,
             displayPriceOnProducts: storeData.displayPriceOnProducts !== false,
-            showCategories: storeData.showCategories !== false,
+            showCategories: isPremiumUser ? (storeData.showCategories !== false) : false,
             customHtml: storeData.customHtml || '',
             customization: {
               ...formData.customization,
@@ -134,14 +136,14 @@ export default function StoreSettingsPage() {
         }
       } catch (error) {
         console.error('Error fetching store:', error);
-        showError('Failed to load store settings');
+        showError('Failed to load settings');
       } finally {
         setLoading(false);
       }
     };
 
     fetchStore();
-  }, [user]);
+  }, [user, isUserPremium]);
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({
@@ -183,31 +185,47 @@ export default function StoreSettingsPage() {
   const handleImageUpload = async (file: File, type: 'avatar' | 'banner' | 'widget' | 'subscription') => {
     if (!user) throw new Error('User not authenticated');
 
+    // Validate file size (5MB limit)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+      throw new Error(`Image file is too large. Maximum size allowed is 5MB. Your file is ${(file.size / 1024 / 1024).toFixed(1)}MB.`);
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      throw new Error('Invalid file type. Please select an image file (JPG, PNG, GIF, WebP).');
+    }
     let imageUrl: string;
     
     if (type === 'widget') {
       imageUrl = await uploadWidgetImage(user.uid, file);
     } else if (type === 'avatar' || type === 'banner') {
       imageUrl = await uploadStoreImage(user.uid, file, type);
+    } else {
+      throw new Error(`Unsupported image upload type: ${type}`);
     }
 
     // Update form data
     if (type === 'widget') {
       handleInputChange('widgetImage', imageUrl);
-    } else if (type === 'avatar' || type === 'banner') {
-      handleInputChange(type, imageUrl);
+    } else if (type === 'avatar') {
+      handleInputChange('avatar', imageUrl);
+    } else if (type === 'banner') {
+      handleInputChange('bannerImage', imageUrl);
     }
 
     return imageUrl;
   };
 
   const handleImageDelete = async (type: 'avatar' | 'banner' | 'widget' | 'subscription') => {
-    let currentImageUrl: string;
-    
+    let currentImageUrl: string = '';
+
     if (type === 'widget') {
       currentImageUrl = formData.widgetImage;
-    } else if (type === 'avatar' || type === 'banner') {
-      currentImageUrl = formData[type];
+    } else if (type === 'avatar') {
+      currentImageUrl = formData.avatar;
+    } else if (type === 'banner') {
+      currentImageUrl = formData.bannerImage;
     }
 
     if (currentImageUrl) {
@@ -221,8 +239,10 @@ export default function StoreSettingsPage() {
     // Update form data
     if (type === 'widget') {
       handleInputChange('widgetImage', '');
-    } else if (type === 'avatar' || type === 'banner') {
-      handleInputChange(type, '');
+    } else if (type === 'avatar') {
+      handleInputChange('avatar', '');
+    } else if (type === 'banner') {
+      handleInputChange('bannerImage', '');
     }
   };
 
@@ -242,7 +262,6 @@ export default function StoreSettingsPage() {
         widgetEnabled: formData.widgetEnabled,
         bannerEnabled: formData.bannerEnabled,
         bannerImage: formData.bannerImage,
-        bannerDescription: formData.bannerDescription,
         bannerLink: formData.bannerLink,
         subscriptionEnabled: formData.subscriptionEnabled,
         slidesEnabled: formData.slidesEnabled,
@@ -252,10 +271,12 @@ export default function StoreSettingsPage() {
         customization: formData.customization
       });
 
-      showSuccess('Store settings updated successfully!');
+      showSuccess('Settings saved successfully');
     } catch (error) {
       console.error('Error updating store:', error);
-      showError('Failed to update store settings');
+      // Display the specific error message from the backend
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save settings: An unexpected error occurred. Please check your connection and try again.';
+      showError(errorMessage);
     } finally {
       setSaving(false);
     }
@@ -429,6 +450,7 @@ export default function StoreSettingsPage() {
             checked={formData.widgetEnabled}
             onChange={(checked) => handleInputChange('widgetEnabled', checked)}
             disabled={!isUserPremium}
+            isPremiumFeature={true}
           />
           
           {formData.widgetEnabled && (
@@ -477,31 +499,20 @@ export default function StoreSettingsPage() {
             checked={formData.bannerEnabled}
             onChange={(checked) => handleInputChange('bannerEnabled', checked)}
             disabled={!isUserPremium}
+            isPremiumFeature={true}
           />
           
           {formData.bannerEnabled && (
             <>
               <ImageUploadWithDelete
                 label="Banner Image"
-                description="Upload an image for your promotional banner popup."
+                description="Upload an image for your promotional banner popup. PNG images with transparency are supported."
                 currentImageUrl={formData.bannerImage}
                 onImageUpload={(file) => handleImageUpload(file, 'banner')}
                 onImageDelete={() => handleImageDelete('banner')}
-                maxSizeText="Recommended: 400x300px, Max: 5MB"
+                maxSizeText="Recommended: 1200x600px, Max: 5MB, PNG or JPG"
+                accept="image/png,image/jpeg,image/jpg,image/webp"
               />
-
-              <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Banner Description
-                </label>
-                <textarea
-                  value={formData.bannerDescription}
-                  onChange={(e) => handleInputChange('bannerDescription', e.target.value)}
-                  rows={3}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
-                  placeholder="Special offer! Get 20% off your first purchase..."
-                />
-              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
@@ -514,6 +525,9 @@ export default function StoreSettingsPage() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   placeholder="https://example.com/special-offer"
                 />
+                <p className="mt-1 text-sm text-gray-500">
+                  The banner image will be clickable and redirect to this URL
+                </p>
               </div>
             </>
           )}
@@ -575,6 +589,7 @@ export default function StoreSettingsPage() {
             checked={formData.showCategories}
             onChange={(checked) => handleInputChange('showCategories', checked)}
             disabled={!isUserPremium}
+            isPremiumFeature={true}
           />
           
         </div>
@@ -590,8 +605,7 @@ export default function StoreSettingsPage() {
         <div className="space-y-8">
           {/* Font Settings */}
           <div>
-            <h3 className="text-lg font-medium text-gray-900">Font Settings</h3>
-
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Font Settings</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -677,7 +691,7 @@ export default function StoreSettingsPage() {
           {/* Text Colors */}
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-4">Text Colors</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Store Name Color
@@ -710,6 +724,30 @@ export default function StoreSettingsPage() {
                   type="color"
                   value={formData.customization.priceFontColor}
                   onChange={(e) => handleCustomizationChange('priceFontColor', e.target.value)}
+                  className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  Heading Text Color
+                </label>
+                <input
+                  type="color"
+                  value={formData.customization.headingTextColor}
+                  onChange={(e) => handleCustomizationChange('headingTextColor', e.target.value)}
+                  className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  Body Text Color
+                </label>
+                <input
+                  type="color"
+                  value={formData.customization.bodyTextColor}
+                  onChange={(e) => handleCustomizationChange('bodyTextColor', e.target.value)}
                   className="w-full h-10 border border-gray-300 rounded-lg cursor-pointer"
                 />
               </div>

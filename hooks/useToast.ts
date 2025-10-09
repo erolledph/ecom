@@ -1,6 +1,5 @@
 import { useContext } from 'react';
-import { ToastContext, ToastContextType } from '@/context/ToastContext';
-import { ToastType } from '@/components/Toast';
+import { ToastContext, ToastType } from '@/context/ToastContext';
 
 export const useToast = () => {
   const context = useContext(ToastContext);
@@ -12,9 +11,10 @@ export const useToast = () => {
   return {
     showToast: context.addToast,
     hideToast: context.removeToast,
-    showSuccess: (message: string) => context.addToast(message, 'success'),
-    showError: (message: string) => context.addToast(message, 'error'),
-    showInfo: (message: string) => context.addToast(message, 'info'),
-    showWarning: (message: string) => context.addToast(message, 'warning'),
+    clearAll: context.clearAllToasts,
+    showSuccess: (message: string, duration?: number) => context.addToast(message, 'success', duration),
+    showError: (message: string, duration?: number) => context.addToast(message, 'error', duration),
+    showInfo: (message: string, duration?: number) => context.addToast(message, 'info', duration),
+    showWarning: (message: string, duration?: number) => context.addToast(message, 'warning', duration),
   };
 };

@@ -18,6 +18,7 @@ import {
 import { getGlobalBannerClickEvents } from '@/lib/analytics';
 import ImageUploadWithDelete from '@/components/ImageUploadWithDelete';
 import CustomToggle from '@/components/CustomToggle';
+import ConfirmModal from '@/components/ConfirmModal';
 import { Radio, Save, Trash2, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle, Circle as XCircle, ExternalLink, ArrowLeft, Settings, Megaphone } from 'lucide-react';
 
 export default function GlobalBroadcastPage() {
@@ -30,14 +31,16 @@ export default function GlobalBroadcastPage() {
   const [allGlobalBanners, setAllGlobalBanners] = useState<GlobalBanner[]>([]);
   const [selectedBanner, setSelectedBanner] = useState<GlobalBanner | null>(null);
   const [bannerClickCounts, setBannerClickCounts] = useState<Record<string, number>>({});
+  const [showBannerForm, setShowBannerForm] = useState(false);
   const [bannerForm, setBannerForm] = useState({
     imageUrl: '',
-    description: '',
     link: '',
     isActive: false
   });
   const [bannerLoading, setBannerLoading] = useState(false);
   const [savingBanner, setSavingBanner] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [bannerToDelete, setBannerToDelete] = useState<GlobalBanner | null>(null);
 
   // Load current global banner
   useEffect(() => {
@@ -112,12 +115,16 @@ export default function GlobalBroadcastPage() {
       return;
     }
 
+    if (!bannerForm.link.trim()) {
+      showWarning('Please enter a banner link');
+      return;
+    }
+
     setSavingBanner(true);
     try {
       const bannerData = {
         imageUrl: bannerForm.imageUrl,
-        description: bannerForm.description.trim() || undefined,
-        link: bannerForm.link.trim() || undefined,
+        link: bannerForm.link.trim(),
         isActive: bannerForm.isActive,
         ownerId: user.uid
       };
@@ -157,68 +164,73 @@ export default function GlobalBroadcastPage() {
       }
       
       // Reset form and selection
+      setShowBannerForm(false);
       setSelectedBanner(null);
       setBannerForm({
         imageUrl: '',
-        description: '',
         link: '',
         isActive: false
       });
     } catch (error) {
       console.error('Error saving banner:', error);
-      showError('Failed to save global banner');
+      // Display the specific error message from the backend
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save global banner: An unexpected error occurred. Please try again.';
+      showError(errorMessage);
     } finally {
       setSavingBanner(false);
     }
   };
 
   const handleDeleteBanner = async () => {
-    if (!selectedBanner) return;
-
-    const confirmed = window.confirm('Are you sure you want to delete this global banner? This action cannot be undone.');
-    if (!confirmed) return;
+    if (!bannerToDelete) return;
 
     try {
-      await deleteGlobalBanner(selectedBanner.id);
+      await deleteGlobalBanner(bannerToDelete.id);
       
       // Remove from allGlobalBanners
-      setAllGlobalBanners(prev => prev.filter(banner => banner.id !== selectedBanner.id));
-      
-      // Clear currentBanner if it's the same as selectedBanner
-      if (currentBanner?.id === selectedBanner.id) {
+      setAllGlobalBanners(prev => prev.filter(banner => banner.id !== bannerToDelete.id));
+
+      // Clear currentBanner if it's the same as bannerToDelete
+      if (currentBanner?.id === bannerToDelete.id) {
         setCurrentBanner(null);
       }
-      
-      // Reset form and selection
-      setSelectedBanner(null);
-      setBannerForm({
-        imageUrl: '',
-        description: '',
-        link: '',
-        isActive: false
-      });
+
+      // Reset form and selection if deleting the currently selected banner
+      if (selectedBanner?.id === bannerToDelete.id) {
+        setShowBannerForm(false);
+        setSelectedBanner(null);
+        setBannerForm({
+          imageUrl: '',
+          link: '',
+          isActive: false
+        });
+      }
+
+      setBannerToDelete(null);
       showSuccess('Global banner deleted successfully');
     } catch (error) {
       console.error('Error deleting banner:', error);
-      showError('Failed to delete global banner');
+      // Display the specific error message from the backend
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete global banner: An unexpected error occurred. Please try again.';
+      showError(errorMessage);
     }
   };
 
   const handleEditBanner = (banner: GlobalBanner) => {
+    setShowBannerForm(true);
     setSelectedBanner(banner);
     setBannerForm({
       imageUrl: banner.imageUrl,
-      description: banner.description || '',
       link: banner.link || '',
       isActive: banner.isActive
     });
   };
 
   const handleCreateNewBanner = () => {
+    setShowBannerForm(true);
     setSelectedBanner(null);
     setBannerForm({
       imageUrl: '',
-      description: '',
       link: '',
       isActive: false
     });
@@ -243,16 +255,19 @@ export default function GlobalBroadcastPage() {
               </div>
             ) : (
               <div className="space-y-6">
-                {/* All Banners Table */}
+                {/* Single Global Banner */}
                 <div>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3 sm:gap-0">
-                    <h3 className="text-base sm:text-lg font-medium text-gray-900">All Global Banners</h3>
+                    <div>
+                      <h3 className="text-base sm:text-lg font-medium text-gray-900">Global Banner</h3>
+                      <p className="text-xs sm:text-sm text-gray-500 mt-1">Only 1 global banner is allowed. Creating a new one will replace the existing banner.</p>
+                    </div>
                     <button
                       onClick={handleCreateNewBanner}
                       className="flex items-center justify-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm min-h-[44px]"
                     >
                       <Megaphone className="w-4 h-4 mr-2" />
-                      Create New Banner
+                      {allGlobalBanners.length > 0 ? 'Replace Banner' : 'Create Banner'}
                     </button>
                   </div>
 
@@ -264,9 +279,6 @@ export default function GlobalBroadcastPage() {
                           <tr>
                             <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                               Image
-                            </th>
-                            <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Description
                             </th>
                             <th className="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                               Link
@@ -294,13 +306,6 @@ export default function GlobalBroadcastPage() {
                                     height={32}
                                     className="h-8 w-12 sm:h-12 sm:w-16 rounded-lg object-cover"
                                   />
-                                </div>
-                              </td>
-                              <td className="px-3 sm:px-6 py-3 sm:py-4">
-                                <div className="text-xs sm:text-sm text-gray-900 max-w-[120px] sm:max-w-xs truncate">
-                                  {banner.description || (
-                                    <span className="text-gray-400 italic">No description</span>
-                                  )}
                                 </div>
                               </td>
                               <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap hidden sm:table-cell">
@@ -353,8 +358,8 @@ export default function GlobalBroadcastPage() {
                                   </button>
                                   <button
                                     onClick={() => {
-                                      setSelectedBanner(banner);
-                                      handleDeleteBanner();
+                                      setBannerToDelete(banner);
+                                      setShowDeleteModal(true);
                                     }}
                                     className="inline-flex items-center justify-center px-2 sm:px-3 py-1.5 border border-red-300 shadow-sm text-xs font-medium rounded text-red-700 bg-red-50 hover:bg-red-100 transition-colors min-h-[36px] min-w-[36px]"
                                     title="Delete banner"
@@ -372,48 +377,42 @@ export default function GlobalBroadcastPage() {
                   ) : (
                     <div className="text-center py-8 text-gray-500">
                       <Megaphone className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                      <p>No global banners created yet</p>
-                      <p className="text-sm">Click "Create New Banner" to get started</p>
+                      <p>No global banner created yet</p>
+                      <p className="text-sm">Click "Create Banner" to get started</p>
                     </div>
                   )}
                 </div>
 
                 {/* Banner Form - Only show when creating/editing */}
-                {(selectedBanner !== null || (!selectedBanner && (bannerForm.imageUrl || bannerForm.description || bannerForm.link))) && (
+                {showBannerForm && (
                   <div className="border-t pt-4 sm:pt-6">
                     <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-3 sm:mb-4">
-                      {selectedBanner ? 'Edit Banner' : 'Create New Banner'}
+                      {selectedBanner ? 'Edit Global Banner' : 'Create Global Banner'}
                     </h3>
+                    {!selectedBanner && allGlobalBanners.length > 0 && (
+                      <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <p className="text-sm text-yellow-800">
+                          <strong>Note:</strong> Creating a new banner will automatically replace the existing banner.
+                        </p>
+                      </div>
+                    )}
 
                     <div className="space-y-4 sm:space-y-6">
                       {/* Banner Image Upload */}
                       <ImageUploadWithDelete
                         label="Banner Image"
-                        description="Upload an image for the global announcement banner that will be displayed to all users."
+                        description="Upload an image for the global announcement banner that will be displayed to all users. PNG images with transparency are supported."
                         currentImageUrl={bannerForm.imageUrl}
                         onImageUpload={handleBannerImageUpload}
                         onImageDelete={handleBannerImageDelete}
-                        maxSizeText="Recommended: 400x300px, Max: 5MB"
+                        maxSizeText="Recommended: 1200x600px, Max: 5MB, PNG or JPG"
+                        accept="image/png,image/jpeg,image/jpg,image/webp"
                       />
-
-                      {/* Banner Description */}
-                      <div>
-                        <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
-                          Banner Description (Optional)
-                        </label>
-                        <textarea
-                          value={bannerForm.description}
-                          onChange={(e) => setBannerForm(prev => ({ ...prev, description: e.target.value }))}
-                          rows={3}
-                          className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none text-sm"
-                          placeholder="Enter the announcement message..."
-                        />
-                      </div>
 
                       {/* Banner Link */}
                       <div>
                         <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
-                          Banner Link (Optional)
+                          Banner Link <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="url"
@@ -421,9 +420,10 @@ export default function GlobalBroadcastPage() {
                           onChange={(e) => setBannerForm(prev => ({ ...prev, link: e.target.value }))}
                           className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm min-h-[44px]"
                           placeholder="https://example.com/announcement"
+                          required
                         />
                         <p className="mt-1 text-xs sm:text-sm text-gray-500">
-                          If only image and link are provided (no description), the image will be clickable
+                          The banner image will be clickable and redirect to this URL
                         </p>
                       </div>
 
@@ -459,10 +459,10 @@ export default function GlobalBroadcastPage() {
                           
                           <button
                             onClick={() => {
+                              setShowBannerForm(false);
                               setSelectedBanner(null);
                               setBannerForm({
                                 imageUrl: '',
-                                description: '',
                                 link: '',
                                 isActive: false
                               });
@@ -475,7 +475,10 @@ export default function GlobalBroadcastPage() {
 
                         {selectedBanner && (
                           <button
-                            onClick={handleDeleteBanner}
+                            onClick={() => {
+                              setBannerToDelete(selectedBanner);
+                              setShowDeleteModal(true);
+                            }}
                             className="flex items-center justify-center px-4 sm:px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm min-h-[44px]"
                           >
                             <Trash2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
@@ -491,6 +494,20 @@ export default function GlobalBroadcastPage() {
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setBannerToDelete(null);
+        }}
+        onConfirm={handleDeleteBanner}
+        title="Delete Global Banner"
+        message="Are you sure you want to delete this global banner? This action cannot be undone."
+        confirmText="Delete Banner"
+        cancelText="Cancel"
+        isDangerous={true}
+      />
     </AdminRoute>
   );
 }

@@ -171,12 +171,17 @@ export default function SponsoredProductForm({ sponsoredProduct, mode }: Sponsor
           images: [finalImageUrl]
         });
       }
-      
-      showSuccess('Sponsored product saved successfully!');
-      router.push('/dashboard/system-management/sponsor-products');
+
+      showSuccess(mode === 'edit' ? 'Sponsored product updated successfully!' : 'Successfully added new sponsored product!');
+
+      setTimeout(() => {
+        router.push('/dashboard/system-management/sponsor-products');
+      }, 2000);
     } catch (error) {
       console.error('Save error:', error);
-      showError('Failed to save sponsored product. Please try again.');
+      // Display the specific error message from the backend
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save sponsored product: An unexpected error occurred. Please try again.';
+      showError(errorMessage);
     } finally {
       setIsLoading(false);
     }

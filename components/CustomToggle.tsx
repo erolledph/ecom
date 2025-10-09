@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { isOnTrial, hasTrialExpired, getTrialDaysRemaining } from '@/lib/auth';
 
 interface CustomToggleProps {
   id: string;
@@ -10,6 +12,7 @@ interface CustomToggleProps {
   onChange: (checked: boolean) => void;
   disabled?: boolean;
   title?: string;
+  isPremiumFeature?: boolean;
 }
 
 export default function CustomToggle({
@@ -19,14 +22,23 @@ export default function CustomToggle({
   checked,
   onChange,
   disabled = false,
-  title
+  title,
+  isPremiumFeature = false
 }: CustomToggleProps) {
+  const { userProfile } = useAuth();
+  
   const handleToggle = () => {
     if (!disabled) {
       onChange(!checked);
     }
   };
 
+  // Generate dynamic title for premium features
+  const getDynamicTitle = () => {
+    if (!isPremiumFeature || !userProfile) return title;
+
+    return title || 'Premium Access Required';
+  };
   return (
     <div className="flex items-start justify-between py-3 sm:py-4">
       <div className="flex-1 min-w-0 mr-3 sm:mr-4">
@@ -64,7 +76,7 @@ export default function CustomToggle({
 
         {disabled && (
           <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-xs sm:text-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-            {title || "Premium"}
+            {getDynamicTitle()}
           </div>
         )}
         

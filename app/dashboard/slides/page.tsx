@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { trackEvent } from '@/lib/analytics';
 import { getStoreSlides, deleteSlide, Slide, getUserStore } from '@/lib/store';
-import { Edit, Trash2, Plus, ExternalLink, RefreshCcw } from 'lucide-react';
+import { SquarePen as Edit, Trash2, Plus, ExternalLink, RefreshCcw } from 'lucide-react';
 
 export default function SlidesPage() {
   const { user } = useAuth();
@@ -45,16 +45,16 @@ export default function SlidesPage() {
 
   const handleDelete = async (slideId: string) => {
     if (!user) return;
-    
-    showWarning('Deleting slide...');
-    
+
     try {
       await deleteSlide(user.uid, slideId);
       showSuccess('Slide deleted successfully');
       await fetchSlides();
     } catch (error) {
       console.error('Error deleting slide:', error);
-      showError('Failed to delete slide. Please try again.');
+      // Display the specific error message from the backend
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete slide: An unexpected error occurred. Please try again.';
+      showError(errorMessage);
     }
   };
 
@@ -62,7 +62,7 @@ export default function SlidesPage() {
     setRefreshing(true);
     try {
       await fetchSlides();
-      showSuccess('Slides refreshed successfully');
+      showSuccess('Slides refreshed');
     } catch (error) {
       showError('Failed to refresh slides');
     } finally {

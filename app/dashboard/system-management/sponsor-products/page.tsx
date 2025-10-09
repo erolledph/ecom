@@ -5,12 +5,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
-import { 
-  getAllSponsoredProducts, 
-  deleteSponsoredProduct, 
-  SponsoredProduct 
+import {
+  getAllSponsoredProducts,
+  deleteSponsoredProduct,
+  SponsoredProduct
 } from '@/lib/store';
-import { Edit, Trash2, Plus, ExternalLink, RefreshCcw, DollarSign } from 'lucide-react';
+import ConfirmModal from '@/components/ConfirmModal';
+import { CreditCard as Edit, Trash2, Plus, ExternalLink, RefreshCcw, DollarSign } from 'lucide-react';
 
 export default function SponsorProductsPage() {
   const { user } = useAuth();
@@ -19,6 +20,8 @@ export default function SponsorProductsPage() {
   const [sponsoredProducts, setSponsoredProducts] = useState<SponsoredProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<string | null>(null);
 
   const fetchSponsoredProducts = useCallback(async () => {
     if (!user) return;
@@ -40,21 +43,21 @@ export default function SponsorProductsPage() {
     }
   }, [user, fetchSponsoredProducts]);
 
-  const handleDelete = async (sponsoredProductId: string) => {
-    if (!user) return;
-    
-    const confirmed = window.confirm('Are you sure you want to delete this sponsored product? This action cannot be undone.');
-    if (!confirmed) return;
-    
+  const handleDelete = async () => {
+    if (!user || !productToDelete) return;
+
     showWarning('Deleting sponsored product...');
-    
+
     try {
-      await deleteSponsoredProduct(sponsoredProductId);
+      await deleteSponsoredProduct(productToDelete);
+      setProductToDelete(null);
       showSuccess('Sponsored product deleted successfully');
       await fetchSponsoredProducts();
     } catch (error) {
       console.error('Error deleting sponsored product:', error);
-      showError('Failed to delete sponsored product. Please try again.');
+      // Display the specific error message from the backend
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete sponsored product: An unexpected error occurred. Please try again.';
+      showError(errorMessage);
     }
   };
 
@@ -243,7 +246,12 @@ export default function SponsorProductsPage() {
                             <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
                           </button>
                           <button
-                            onClick={() => product.id && handleDelete(product.id)}
+                            onClick={() => {
+                              if (product.id) {
+                                setProductToDelete(product.id);
+                                setShowDeleteModal(true);
+                              }
+                            }}
                             className="inline-flex items-center justify-center px-2 sm:px-3 py-1.5 border border-danger-300 shadow-sm text-xs font-medium rounded text-danger-700 bg-danger-100 hover:bg-danger-100 transition-colors min-h-[36px] min-w-[36px]"
                             title="Delete sponsored product"
                           >
@@ -280,6 +288,20 @@ export default function SponsorProductsPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setProductToDelete(null);
+        }}
+        onConfirm={handleDelete}
+        title="Delete Sponsored Product"
+        message="Are you sure you want to delete this sponsored product? This action cannot be undone."
+        confirmText="Delete Product"
+        cancelText="Cancel"
+        isDangerous={true}
+      />
     </div>
   );
 }

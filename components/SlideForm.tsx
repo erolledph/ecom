@@ -66,7 +66,7 @@ export default function SlideForm({ slide, mode }: SlideFormProps) {
     if (!user) return;
 
     if (!imageFile && mode === 'add') {
-      showError('Please select an image for the slide.');
+      showError('Image required');
       return;
     }
 
@@ -98,13 +98,17 @@ export default function SlideForm({ slide, mode }: SlideFormProps) {
         });
       }
 
+      showSuccess(mode === 'edit' ? 'Slide updated successfully!' : 'Successfully added new slide!');
 
-      showSuccess(mode === 'edit' ? 'Slide updated successfully!' : 'Slide created successfully!');
-      router.push('/dashboard/slides');
+      setTimeout(() => {
+        router.push('/dashboard/slides');
+      }, 2000);
     } catch (error) {
       console.error('Error saving slide:', error);
       
-      showError('Failed to save slide. Please try again.');
+      // Display the specific error message from the backend
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save slide: An unexpected error occurred. Please try again.';
+      showError(errorMessage);
     } finally {
       setSaving(false);
     }

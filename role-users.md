@@ -149,6 +149,11 @@ Administrators have full control over the platform, including managing users, sy
 - System configuration and maintenance capabilities
 - Global banner click analytics
 - Sponsored product performance tracking
+- **Advanced Trial Management**:
+  - Immediately end user trials without waiting for natural expiration
+  - Reset user trials for an additional 7 days (only within original trial window)
+  - Granular control over trial periods with business logic enforcement
+  - Visual indicators for trial status and available actions
 
 ## Feature Access Matrix
 
@@ -176,6 +181,7 @@ Administrators have full control over the platform, including managing users, sy
 | Broadcast Notifications | ❌ | ❌ | ✅ |
 | Sponsored Products | ❌ | ❌ | ✅ |
 | System Analytics | ❌ | ❌ | ✅ |
+| **Trial Management** | **❌** | **❌** | **✅** |
 
 ## Standard User Experience Assessment
 
@@ -270,6 +276,12 @@ Consider making floating widgets available to standard users as they significant
 - Broadcast notification system for dashboard messaging
 - Sponsored products system for revenue generation
 - Comprehensive analytics tracking for admin insights
+- **Advanced Trial Management**: 
+  - End user trials immediately (bypasses natural 7-day expiration)
+  - Reset user trials for additional 7 days (only if original trial window is still valid)
+  - Business logic prevents trial resets after original 7-day window expires
+  - Visual feedback and status indicators for trial management actions
+- **Advanced Trial Management**: Granular control over user trial periods with immediate end and reset capabilities
 
 ### Product Limit Enforcement
 - Standard users: Maximum 30 products per store

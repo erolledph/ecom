@@ -141,6 +141,7 @@ When visitors interact with your store:
   - Toggle user roles between User and Admin
   - Grant or revoke Premium access
   - Direct links to user stores
+  - **Advanced Trial Management**: Immediately end or reset user trials with business logic enforcement
 - **Global Broadcast System**: 
   - Create system-wide announcement banners
   - Upload custom images with descriptions and links
@@ -157,6 +158,11 @@ When visitors interact with your store:
   - Automatic placement in stores with 15+ products
   - Revenue sharing through sponsored product clicks
   - Performance tracking and analytics
+- **Trial Management System**:
+  - Immediately end user trials without waiting for natural expiration
+  - Reset user trials for additional 7 days (only within original trial window)
+  - Business logic prevents abuse and ensures fair trial periods
+  - Visual status indicators and action feedback
 
 ## Getting Started
 
@@ -244,8 +250,10 @@ The application is configured for Netlify deployment:
 
 - **User Management**: Search, manage roles, and premium access
 - **Global Broadcast**: System-wide announcements and banners
+- **Broadcast Notifications**: Dashboard notification system with Markdown support and read tracking
 - **Sponsored Products**: Manage products that appear in user stores
 - **System Analytics**: Platform-wide usage and performance metrics
+- **Trial Management**: Advanced controls for user trial periods with immediate end and conditional reset
 
 ## Development Guidelines
 
@@ -254,6 +262,19 @@ The application is configured for Netlify deployment:
 - **File Structure**: Organized by feature with clear separation of concerns
 - **TypeScript**: Strict typing throughout the application
 - **Component Reusability**: Shared components for common functionality
+
+### Error Handling Best Practices
+- **Specific Error Messages**: All error messages provide clear, actionable feedback to users
+- **Consistent Error Propagation**: Errors are properly caught and re-thrown with context
+- **User-Friendly Feedback**: Technical errors are translated to user-friendly language
+- **Mobile Optimization**: Error handling optimized for mobile device constraints
+
+### Production Readiness Checklist
+- **Client-Side Validation**: Comprehensive input validation with user feedback
+- **Server-Side Security**: Firestore rules enforce data access and business logic
+- **Image Processing**: Optimized for mobile devices with size and type validation
+- **Error Recovery**: Graceful error handling with retry mechanisms
+- **Performance Monitoring**: Analytics tracking for error rates and user experience
 
 ### Key Directories
 ```
@@ -303,6 +324,16 @@ app/dashboard/system-management/ # Admin panel pages
 - **Bundle Optimization**: Code splitting and tree shaking
 
 ### Recent Major Updates & Enhancements
+
+### Advanced Trial Management System (Latest Update)
+- Implemented granular trial management controls for administrators
+- Added ability to immediately end user trials without waiting for natural expiration
+- Created trial reset functionality with business logic enforcement
+- Added visual indicators and status displays for trial management
+- Enhanced user management interface with trial action buttons
+- Implemented safeguards to prevent trial resets after original 7-day window expires
+- **Business Logic**: Admins can only reset trials within the original 7-day window from user creation
+- **Security**: All trial management actions properly validated and logged
 
 ### Enhanced Notification System
 - Implemented comprehensive broadcast notification system for admin-to-user communication

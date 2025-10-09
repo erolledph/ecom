@@ -121,7 +121,9 @@ export default function SubscriptionModal({
       }, 1500);
     } catch (error) {
       console.error('Error subscribing:', error);
-      showError('Failed to subscribe. Please try again.');
+      // Display the specific error message from the backend
+      const errorMessage = error instanceof Error ? error.message : 'Failed to subscribe: An unexpected error occurred. Please try again.';
+      showError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

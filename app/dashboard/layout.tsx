@@ -24,7 +24,7 @@ export default function DashboardLayout({
 
   useEffect(() => {
     if (!loading && !user && mounted) {
-      router.push('/auth');
+      router.push('/');
     }
   }, [user, loading, router, mounted]);
 

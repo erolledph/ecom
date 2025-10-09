@@ -4,9 +4,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import PremiumFeatureGate from '@/components/PremiumFeatureGate';
-import { canAccessFeature } from '@/lib/auth';
+import { canAccessFeature, isOnTrial, hasTrialExpired, getTrialDaysRemaining } from '@/lib/auth';
 import { getStoreSubscribers, deleteSubscriber, Subscriber } from '@/lib/store';
-import { Users, Download, Trash2, RefreshCcw, Mail, User, TrendingUp } from 'lucide-react';
+import { Users, Download, Trash2, RefreshCcw, Mail, User, TrendingUp, Clock, Crown } from 'lucide-react';
 import Papa from 'papaparse';
 
 export default function SubscribersPage() {
@@ -49,7 +49,7 @@ export default function SubscribersPage() {
     setHasShownError(false); // Reset error flag when manually refreshing
     try {
       await fetchSubscribers();
-      showSuccess('Subscribers refreshed successfully');
+      showSuccess('Subscribers refreshed');
     } catch (error) {
       showError('Failed to refresh subscribers');
     } finally {
@@ -92,10 +92,12 @@ export default function SubscribersPage() {
       link.click();
       document.body.removeChild(link);
       
-      showSuccess(`Exported ${subscribers.length} subscribers to CSV`);
+      showSuccess('Subscribers exported successfully');
     } catch (error) {
       console.error('Error exporting CSV:', error);
-      showError('Failed to export subscribers');
+      // Display more specific error message for CSV export
+      const errorMessage = error instanceof Error ? error.message : 'Export failed: Unable to generate CSV file. Please try again.';
+      showError(errorMessage);
     } finally {
       setExporting(false);
     }
@@ -112,10 +114,12 @@ export default function SubscribersPage() {
       await deleteSubscriber(user.uid, subscriberId);
       // Remove the deleted subscriber from the local state
       setSubscribers(prev => prev.filter(sub => sub.id !== subscriberId));
-      showSuccess('Subscriber deleted successfully');
+      showSuccess('Subscriber removed successfully');
     } catch (error) {
       console.error('Error deleting subscriber:', error);
-      showError('Failed to delete subscriber');
+      // Display the specific error message from the backend
+      const errorMessage = error instanceof Error ? error.message : 'Failed to remove subscriber: An unexpected error occurred. Please try again.';
+      showError(errorMessage);
     }
   };
 

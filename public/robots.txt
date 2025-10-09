@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Allow: /contact
+Allow: /help
+Allow: /privacy
+Allow: /terms
+Disallow: /dashboard
+Disallow: /auth
+Disallow: /api/
+
+Sitemap: https://tiangge.ph/sitemap.xml

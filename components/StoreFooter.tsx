@@ -16,25 +16,32 @@ export default function StoreFooter() {
         
         {/* Navigation Links */}
         <div className="flex flex-wrap justify-center gap-2 sm:gap-4 text-xs">
-          <a 
-            href="#" 
+          <a
+            href="/help"
             className="text-gray-600 hover:text-gray-800 transition-colors px-2 py-1"
           >
-            Terms & Privacy
+            Help Center
           </a>
           <span className="text-gray-400 hidden sm:inline">•</span>
-          <a 
-            href="#" 
+          <a
+            href="/contact"
             className="text-gray-600 hover:text-gray-800 transition-colors px-2 py-1"
           >
-            Contact
+            Contact Us
           </a>
           <span className="text-gray-400 hidden sm:inline">•</span>
-          <a 
-            href="#" 
+          <a
+            href="/privacy"
             className="text-gray-600 hover:text-gray-800 transition-colors px-2 py-1"
           >
-            Career
+            Privacy
+          </a>
+          <span className="text-gray-400 hidden sm:inline">•</span>
+          <a
+            href="/terms"
+            className="text-gray-600 hover:text-gray-800 transition-colors px-2 py-1"
+          >
+            Terms
           </a>
         </div>
         

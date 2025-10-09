@@ -5,20 +5,7 @@ import { useRouter } from 'next/navigation';
 import { signIn, signUp } from '@/lib/auth';
 import { checkSlugAvailability } from '@/lib/store';
 import { useAuth } from '@/hooks/useAuth';
-import { 
-  Store, 
-  Package, 
-  TrendingUp, 
-  Users, 
-  Eye, 
-  MousePointer, 
-  ArrowRight,
-  Star,
-  StarHalf,
-  RefreshCw,
-  AtSign,
-  Lock
-} from 'lucide-react';
+import { Store, Package, TrendingUp, Users, Eye, EyeOff, MousePointer, ArrowRight, Star, StarHalf, RefreshCw, AtSign, CircleAlert as AlertCircle, CircleCheck as CheckCircle } from 'lucide-react';
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -28,9 +15,17 @@ export default function AuthPage() {
   const [storeSlug, setStoreSlug] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [emailError, setEmailError] = useState('');
   const [slugError, setSlugError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [isCheckingSlug, setIsCheckingSlug] = useState(false);
+  const [touched, setTouched] = useState({
+    email: false,
+    password: false,
+    displayName: false,
+    storeSlug: false
+  });
+  const [showPassword, setShowPassword] = useState(false);
   
   const router = useRouter();
   const { user } = useAuth();
@@ -40,6 +35,31 @@ export default function AuthPage() {
       router.push('/dashboard');
     }
   }, [user, router]);
+
+  const validateEmail = (email: string): string => {
+    if (!email) return 'Email is required';
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return 'Please enter a valid email address';
+    }
+
+    return '';
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEmail(value);
+
+    if (touched.email) {
+      setEmailError(validateEmail(value));
+    }
+  };
+
+  const handleEmailBlur = () => {
+    setTouched(prev => ({ ...prev, email: true }));
+    setEmailError(validateEmail(email));
+  };
 
   const checkSlug = async (slug: string) => {
     if (!slug || slug.length < 3) {
@@ -51,13 +71,13 @@ export default function AuthPage() {
     try {
       const isAvailable = await checkSlugAvailability(slug);
       if (!isAvailable) {
-        setSlugError('This store URL is already taken. Please choose a different one.');
+        setSlugError('This store URL is already taken');
       } else {
         setSlugError('');
       }
     } catch (error) {
       console.error('Error checking slug:', error);
-      setSlugError('Error checking URL availability');
+      setSlugError('Unable to verify availability');
     } finally {
       setIsCheckingSlug(false);
     }
@@ -66,60 +86,122 @@ export default function AuthPage() {
   const handleStoreSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
     setStoreSlug(value);
-    
-    const timeoutId = setTimeout(() => checkSlug(value), 500);
-    return () => clearTimeout(timeoutId);
+    setTouched(prev => ({ ...prev, storeSlug: true }));
+
+    if (value.length >= 3) {
+      const timeoutId = setTimeout(() => checkSlug(value), 500);
+      return () => clearTimeout(timeoutId);
+    } else if (value.length > 0) {
+      setSlugError('Store URL must be at least 3 characters long');
+    } else {
+      setSlugError('');
+    }
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setPassword(value);
-    
-    if (!isLogin) {
+
+    if (!isLogin && touched.password && value) {
       let error = '';
-      try {
-        if (value) {
-          if (value.length < 8) {
-            error = 'Password must be at least 8 characters long';
-          } else if (!/[A-Z]/.test(value)) {
-            error = 'Password must contain at least one uppercase letter';
-          } else if (!/[a-z]/.test(value)) {
-            error = 'Password must contain at least one lowercase letter';
-          } else if (!/\d/.test(value)) {
-            error = 'Password must contain at least one number';
-          } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) {
-            error = 'Password must contain at least one special character';
-          }
-        }
-      } catch (err: any) {
-        error = err.message;
+      if (value.length < 8) {
+        error = 'Password must be at least 8 characters';
+      } else if (!/[A-Z]/.test(value)) {
+        error = 'Must contain at least one uppercase letter';
+      } else if (!/[a-z]/.test(value)) {
+        error = 'Must contain at least one lowercase letter';
+      } else if (!/\d/.test(value)) {
+        error = 'Must contain at least one number';
+      } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) {
+        error = 'Must contain at least one special character';
       }
       setPasswordError(error);
     }
   };
 
+  const handlePasswordBlur = () => {
+    setTouched(prev => ({ ...prev, password: true }));
+    if (!isLogin && password) {
+      handlePasswordChange({ target: { value: password } } as React.ChangeEvent<HTMLInputElement>);
+    }
+  };
+
+  const parseFirebaseError = (errorMessage: string): string => {
+    if (errorMessage.includes('auth/invalid-credential')) {
+      return 'Account does not exist or incorrect password';
+    }
+    if (errorMessage.includes('auth/user-not-found')) {
+      return 'Account does not exist';
+    }
+    if (errorMessage.includes('auth/wrong-password')) {
+      return 'Incorrect password';
+    }
+    if (errorMessage.includes('auth/email-already-in-use')) {
+      return 'An account with this email already exists';
+    }
+    if (errorMessage.includes('auth/weak-password')) {
+      return 'Password is too weak. Please use a stronger password';
+    }
+    if (errorMessage.includes('auth/invalid-email')) {
+      return 'Invalid email address format';
+    }
+    if (errorMessage.includes('auth/too-many-requests')) {
+      return 'Too many failed attempts. Please try again later';
+    }
+    if (errorMessage.includes('auth/network-request-failed')) {
+      return 'Network error. Please check your connection';
+    }
+
+    return errorMessage
+      .replace('Firebase: Error', '')
+      .replace(/\(auth\/[^)]+\)\.?/g, '')
+      .trim() || 'An error occurred. Please try again';
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
 
+    const emailValidationError = validateEmail(email);
+    if (emailValidationError) {
+      setEmailError(emailValidationError);
+      setTouched(prev => ({ ...prev, email: true }));
+      return;
+    }
+
+    if (isLogin && !password) {
+      setError('Password is required');
+      return;
+    }
+
     if (!isLogin) {
+      if (!displayName.trim()) {
+        setError('Display name is required');
+        return;
+      }
+
       if (passwordError) {
         setError('Please fix the password requirements');
-        setLoading(false);
         return;
       }
+
+      if (!password) {
+        setError('Password is required');
+        return;
+      }
+
       if (slugError) {
         setError('Please fix the store URL error');
-        setLoading(false);
         return;
       }
+
       if (!storeSlug.trim()) {
         setError('Store URL is required');
-        setLoading(false);
         return;
       }
     }
+
+    setLoading(true);
 
     try {
       if (isLogin) {
@@ -129,15 +211,30 @@ export default function AuthPage() {
       }
       router.push('/dashboard');
     } catch (error: any) {
-      setError(error.message);
+      const friendlyError = parseFirebaseError(error.message);
+      setError(friendlyError);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleModeSwitch = () => {
+    setIsLogin(!isLogin);
+    setError('');
+    setEmailError('');
+    setSlugError('');
+    setPasswordError('');
+    setTouched({
+      email: false,
+      password: false,
+      displayName: false,
+      storeSlug: false
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-2 sm:p-4">
-      <div className="w-full max-w-6xl min-h-[500px] sm:min-h-[600px] flex flex-col lg:flex-row shadow-2xl rounded-xl bg-white relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-2 sm:p-4">
+      <div className="w-full max-w-6xl min-h-[500px] sm:min-h-[600px] flex flex-col lg:flex-row shadow-2xl rounded-2xl bg-white relative overflow-hidden">
         
         {/* Left Side - Visual Showcase */}
         <div className="hidden lg:flex flex-1 bg-gradient-to-br from-emerald-600 to-green-500 relative overflow-hidden flex-col items-center justify-center text-white p-4 lg:p-8">
@@ -241,104 +338,170 @@ export default function AuthPage() {
         <div className="flex-none w-full lg:w-[450px] bg-white p-4 sm:p-6 lg:p-12 flex flex-col min-h-[500px] lg:min-h-auto">
           <div>
             {/* Logo Section */}
-            <div className="flex items-center mb-6 lg:mb-8 text-emerald-600 font-bold text-lg lg:text-xl">
+            <a
+              href="/"
+              className="flex items-center mb-6 lg:mb-8 text-emerald-600 font-bold text-lg lg:text-xl hover:text-emerald-700 transition-colors cursor-pointer"
+            >
               <Store className="w-4 h-4 lg:w-5 lg:h-5 mr-2" />
               <span>Tiangge</span>
-            </div>
+            </a>
 
-            <h1 className="text-2xl lg:text-3xl font-semibold text-gray-800 mb-6 lg:mb-10">
-              {isLogin ? 'Log in to your account' : 'Create your account'}
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-800 mb-2">
+              {isLogin ? 'Welcome back' : 'Get started'}
             </h1>
+            <p className="text-sm text-gray-600 mb-6 lg:mb-8">
+              {isLogin ? 'Log in to your account to continue' : 'Create your account and start selling'}
+            </p>
 
-            <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-5 lg:space-y-6">
               {!isLogin && (
                 <div className="relative">
-                  <input
-                    type="text"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    className="w-full pb-2 lg:pb-3 border-0 border-b border-gray-300 text-sm lg:text-base outline-none focus:border-green-400 transition-colors bg-transparent"
-                    placeholder="Display Name"
-                    required={!isLogin}
-                  />
-                  <Users className="absolute top-1/2 transform -translate-y-1/2 right-0 w-3 h-3 lg:w-4 lg:h-4 text-gray-400" />
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">
+                    Display Name
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      className="w-full px-4 py-2.5 lg:py-3 border border-gray-300 rounded-lg text-sm lg:text-base outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all bg-white"
+                      placeholder="John Doe"
+                      required={!isLogin}
+                    />
+                    <Users className="absolute top-1/2 transform -translate-y-1/2 right-3 w-4 h-4 text-gray-400" />
+                  </div>
                 </div>
               )}
 
               {!isLogin && (
                 <div className="relative">
-                  <div className="flex items-center border-b border-gray-300 focus-within:border-green-400 transition-colors">
-                    <span className="text-gray-500 text-sm lg:text-base py-2 lg:py-3 pr-2">
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">
+                    Store URL
+                  </label>
+                  <div className="flex items-stretch border border-gray-300 rounded-lg focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-100 transition-all overflow-hidden">
+                    <span className="bg-gray-50 text-gray-600 text-xs lg:text-sm px-3 flex items-center border-r border-gray-300">
                       tiangge.shop/
                     </span>
                     <input
                       type="text"
                       value={storeSlug}
                       onChange={handleStoreSlugChange}
-                      className="flex-1 border-0 text-sm lg:text-base outline-none bg-transparent text-left leading-normal py-2 lg:py-3"
+                      className="flex-1 px-3 py-2.5 lg:py-3 text-sm lg:text-base outline-none bg-white"
                       placeholder="my-store"
                       required={!isLogin}
                     />
                   </div>
                   {isCheckingSlug && (
-                    <p className="mt-2 text-xs lg:text-sm text-gray-500 flex items-center">
-                      <div className="animate-spin rounded-full h-3 w-3 lg:h-4 lg:w-4 border-b-2 border-emerald-600 mr-2"></div>
+                    <p className="mt-1.5 text-xs text-gray-500 flex items-center">
+                      <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-emerald-600 mr-1.5"></div>
                       Checking availability...
                     </p>
                   )}
                   {slugError && (
-                    <p className="mt-2 text-xs lg:text-sm text-red-600">{slugError}</p>
+                    <p className="mt-1.5 text-xs text-red-600 flex items-center">
+                      <AlertCircle className="w-3 h-3 mr-1" />
+                      {slugError}
+                    </p>
                   )}
-                  {!slugError && !isCheckingSlug && storeSlug && (
-                    <p className="mt-2 text-xs lg:text-sm text-green-600">Store URL is available</p>
+                  {!slugError && !isCheckingSlug && storeSlug && storeSlug.length >= 3 && (
+                    <p className="mt-1.5 text-xs text-emerald-600 flex items-center">
+                      <CheckCircle className="w-3 h-3 mr-1" />
+                      Store URL is available
+                    </p>
                   )}
                 </div>
               )}
 
               <div className="relative">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pb-2 lg:pb-3 border-0 border-b border-gray-300 text-sm lg:text-base outline-none focus:border-green-400 transition-colors bg-transparent"
-                  placeholder="Email Address"
-                  required
-                />
-                <AtSign className="absolute top-1/2 transform -translate-y-1/2 right-0 w-3 h-3 lg:w-4 lg:h-4 text-gray-400" />
+                <label className="block text-xs font-medium text-gray-700 mb-1.5">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={handleEmailChange}
+                    onBlur={handleEmailBlur}
+                    className={`w-full px-4 py-2.5 lg:py-3 border rounded-lg text-sm lg:text-base outline-none focus:ring-2 transition-all bg-white ${
+                      emailError && touched.email
+                        ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
+                        : 'border-gray-300 focus:border-emerald-500 focus:ring-emerald-100'
+                    }`}
+                    placeholder="you@example.com"
+                    required
+                  />
+                  <AtSign className={`absolute top-1/2 transform -translate-y-1/2 right-3 w-4 h-4 ${
+                    emailError && touched.email ? 'text-red-400' : 'text-gray-400'
+                  }`} />
+                </div>
+                {emailError && touched.email && (
+                  <p className="mt-1.5 text-xs text-red-600 flex items-center">
+                    <AlertCircle className="w-3 h-3 mr-1" />
+                    {emailError}
+                  </p>
+                )}
               </div>
 
               <div className="relative">
-                <input
-                  type="password"
-                  value={password}
-                  onChange={handlePasswordChange}
-                  className="w-full pb-2 lg:pb-3 border-0 border-b border-gray-300 text-sm lg:text-base outline-none focus:border-green-400 transition-colors bg-transparent"
-                  placeholder="Enter Password"
-                  required
-                />
-                <Lock className="absolute top-1/2 transform -translate-y-1/2 right-0 w-3 h-3 lg:w-4 lg:h-4 text-gray-400" />
-                {!isLogin && passwordError && (
-                  <p className="mt-2 text-xs lg:text-sm text-red-600">{passwordError}</p>
+                <label className="block text-xs font-medium text-gray-700 mb-1.5">
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={handlePasswordChange}
+                    onBlur={handlePasswordBlur}
+                    className={`w-full px-4 py-2.5 lg:py-3 border rounded-lg text-sm lg:text-base outline-none focus:ring-2 transition-all bg-white pr-10 ${
+                      passwordError && touched.password && !isLogin
+                        ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
+                        : 'border-gray-300 focus:border-emerald-500 focus:ring-emerald-100'
+                    }`}
+                    placeholder={isLogin ? 'Enter your password' : 'Create a strong password'}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute top-1/2 transform -translate-y-1/2 right-3 hover:opacity-70 transition-opacity"
+                  >
+                    {showPassword ? (
+                      <EyeOff className={`w-4 h-4 ${
+                        passwordError && touched.password && !isLogin ? 'text-red-400' : 'text-gray-400'
+                      }`} />
+                    ) : (
+                      <Eye className={`w-4 h-4 ${
+                        passwordError && touched.password && !isLogin ? 'text-red-400' : 'text-gray-400'
+                      }`} />
+                    )}
+                  </button>
+                </div>
+                {!isLogin && passwordError && touched.password && (
+                  <p className="mt-1.5 text-xs text-red-600 flex items-center">
+                    <AlertCircle className="w-3 h-3 mr-1" />
+                    {passwordError}
+                  </p>
                 )}
-                {!isLogin && !passwordError && password && (
-                  <p className="mt-2 text-xs lg:text-sm text-green-600">Password meets requirements</p>
+                {!isLogin && !passwordError && password && touched.password && (
+                  <p className="mt-1.5 text-xs text-emerald-600 flex items-center">
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    Password meets requirements
+                  </p>
                 )}
               </div>
 
               {isLogin && (
-                <div className="mt-1 mb-4 lg:mb-8">
-                  <a href="#" className="text-green-400 text-xs lg:text-sm font-medium hover:text-green-500 transition-colors">
+                <div className="flex justify-end">
+                  <a href="#" className="text-emerald-600 text-xs font-medium hover:text-emerald-700 transition-colors">
                     Forgot Password?
                   </a>
                 </div>
               )}
 
               {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3 lg:p-4">
-                  <div className="flex items-center">
-                    <div className="w-4 h-4 lg:w-5 lg:h-5 bg-red-100 rounded-full flex items-center justify-center mr-2 lg:mr-3">
-                      <span className="text-red-600 text-xs font-bold">!</span>
-                    </div>
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                  <div className="flex items-start">
+                    <AlertCircle className="w-4 h-4 text-red-600 mt-0.5 mr-2 flex-shrink-0" />
                     <span className="text-red-800 text-xs lg:text-sm">{error}</span>
                   </div>
                 </div>
@@ -347,105 +510,39 @@ export default function AuthPage() {
               <button
                 type="submit"
                 disabled={loading || (!isLogin && (slugError !== '' || passwordError !== '' || isCheckingSlug))}
-                className="w-full py-3 lg:py-3 border-0 rounded-md text-sm lg:text-base cursor-pointer mb-3 lg:mb-4 transition-all font-semibold shadow-sm bg-green-400 text-white hover:bg-green-500 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+                className="w-full py-3 rounded-lg text-sm lg:text-base font-semibold transition-all shadow-sm bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] flex items-center justify-center"
               >
                 {loading ? (
-                  <div className="flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-4 w-4 lg:h-5 lg:w-5 border-b-2 border-white mr-2"></div>
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     {isLogin ? 'Signing in...' : 'Creating account...'}
-                  </div>
+                  </>
                 ) : (
                   isLogin ? 'Log in' : 'Create Account'
                 )}
               </button>
             </form>
 
-            <div className="text-center mt-6 lg:mt-10">
-              <span className="text-gray-600 text-sm lg:text-base">
-                {isLogin ? 'Need a Tiangge account? ' : 'Already have an account? '}
+            <div className="text-center mt-6 lg:mt-8">
+              <span className="text-gray-600 text-sm">
+                {isLogin ? "Don't have an account? " : 'Already have an account? '}
               </span>
               <button
                 type="button"
-                onClick={() => setIsLogin(!isLogin)}
-                className="text-green-400 font-semibold hover:text-green-500 transition-colors text-sm lg:text-base"
+                onClick={handleModeSwitch}
+                className="text-emerald-600 font-semibold hover:text-emerald-700 transition-colors text-sm"
               >
-                {isLogin ? 'Create an account' : 'Log in'}
+                {isLogin ? 'Sign up' : 'Log in'}
               </button>
             </div>
           </div>
 
           {/* Footer */}
-          <div className="text-xs text-gray-400 leading-relaxed pt-4 lg:pt-8 mt-4 lg:mt-8 border-t border-gray-200">
+          <div className="text-xs text-gray-500 leading-relaxed pt-6 mt-6 border-t border-gray-200">
             Tiangge ©2025 All Rights Reserved.
           </div>
         </div>
       </div>
-
-      {/* Custom Styles for Animations */}
-      <style jsx>{`
-        @keyframes card-float {
-          0% { transform: translateY(0) scale(1) rotate(var(--initial-rotation, 0deg)); }
-          50% { transform: translateY(-3px) scale(1.01) rotate(var(--initial-rotation, 0deg)); }
-          100% { transform: translateY(0) scale(1) rotate(var(--initial-rotation, 0deg)); }
-        }
-
-        @media (max-width: 1024px) {
-          .animate-float-1,
-          .animate-float-2,
-          .animate-float-3,
-          .animate-float-4,
-          .animate-float-5,
-          .animate-float-6 {
-            animation-duration: 3s;
-          }
-        }
-
-        .animate-float-1 {
-          --initial-rotation: 5deg;
-          transform: rotate(5deg);
-          animation: card-float 4s ease-in-out infinite;
-          animation-delay: 0.2s;
-        }
-
-        .animate-float-2 {
-          --initial-rotation: -10deg;
-          transform: rotate(-10deg);
-          animation: card-float 4s ease-in-out infinite;
-          animation-delay: 0.3s;
-        }
-
-        .animate-float-3 {
-          --initial-rotation: -15deg;
-          transform: rotate(-15deg);
-          animation: card-float 4s ease-in-out infinite;
-          animation-delay: 0.7s;
-        }
-
-        .animate-float-4 {
-          --initial-rotation: 8deg;
-          transform: rotate(8deg);
-          animation: card-float 4s ease-in-out infinite;
-          animation-delay: 0.5s;
-        }
-
-        .animate-float-5 {
-          --initial-rotation: -5deg;
-          transform: rotate(-5deg);
-          animation: card-float 4s ease-in-out infinite;
-          animation-delay: 0.9s;
-        }
-
-        .animate-float-6 {
-          --initial-rotation: -12deg;
-          transform: rotate(-12deg);
-          animation: card-float 4s ease-in-out infinite;
-          animation-delay: 0.1s;
-        }
-
-        .animate-float-center {
-          animation: card-float 5s ease-in-out infinite;
-        }
-      `}</style>
     </div>
   );
 }

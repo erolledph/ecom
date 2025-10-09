@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { trackEvent } from '@/lib/analytics';
 import { addProduct, updateProduct, Product, uploadProductImage, getStoreProducts } from '@/lib/store';
-import { isPremium } from '@/lib/auth';
+import { isPremium, isOnTrial, hasTrialExpired, getTrialDaysRemaining } from '@/lib/auth';
 import Image from 'next/image';
 import { addDoc, collection, updateDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -82,7 +82,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
         setIsAtProductLimit(atLimit);
         
         if (atLimit) {
-          showError('You have reached the 30-product limit for normal users. Upgrade to premium for unlimited products.');
+          showError('Product limit reached (30/30)');
         }
       } catch (error) {
         console.error('Error checking product limit:', error);
@@ -178,14 +178,14 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
       
       // Show appropriate success message
       if (scrapedData.price) {
-        showSuccess('Product information scraped successfully!');
+        showSuccess('Product information scraped');
       } else {
-        showInfo('Product metadata scraped successfully! Only meta data available, please manually enter the product price.');
+        showInfo('Product metadata scraped (price not available)');
       }
       
     } catch (error) {
       console.error('Error scraping product:', error);
-      showError('Failed to scrape product information. Please try again or enter details manually.');
+      showError('Failed to scrape product information');
     } finally {
       setIsScraping(false);
     }
@@ -201,7 +201,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
     
     // Check product limit for normal users when adding new products
     if (mode === 'add' && isAtProductLimit) {
-      showError('Cannot add more products. You have reached the 30-product limit for normal users.');
+      showError('Product limit reached (30/30)');
       return;
     }
     
@@ -266,12 +266,17 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
           images: [finalImageUrl]
         }, isPremium(userProfile));
       }
-      showSuccess('Product saved successfully!');
-      router.push('/dashboard/products');
+      showSuccess(mode === 'edit' ? 'Product updated successfully!' : 'Successfully added new product!');
+
+      setTimeout(() => {
+        router.push('/dashboard/products');
+      }, 2000);
     } catch (error) {
       console.error('Save error:', error);
       
-      showError('Failed to save product. Please try again.');
+      // Display the specific error message from the backend
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save product: An unexpected error occurred. Please try again.';
+      showError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -524,35 +529,35 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
             {mode === 'add' && !isPremium(userProfile) && (
               <div className="w-full sm:flex-1 sm:mr-4 order-1 sm:order-none">
                 <div className={`p-2 sm:p-3 rounded-lg border ${
-                  isAtProductLimit 
-                    ? 'bg-red-50 border-red-200' 
-                    : currentProductCount >= 25 
-                      ? 'bg-yellow-50 border-yellow-200' 
+                  isAtProductLimit
+                    ? 'bg-red-50 border-red-200'
+                    : currentProductCount >= 25
+                      ? 'bg-yellow-50 border-yellow-200'
                       : 'bg-blue-50 border-blue-200'
                 }`}>
                   <p className={`text-xs sm:text-sm font-medium ${
-                    isAtProductLimit 
-                      ? 'text-red-800' 
-                      : currentProductCount >= 25 
-                        ? 'text-yellow-800' 
+                    isAtProductLimit
+                      ? 'text-red-800'
+                      : currentProductCount >= 25
+                        ? 'text-yellow-800'
                         : 'text-blue-800'
                   }`}>
-                    {isAtProductLimit 
-                      ? '⚠️ Product Limit Reached' 
-                      : currentProductCount >= 25 
-                        ? '⚠️ Approaching Product Limit' 
+                    {isAtProductLimit
+                      ? '⚠️ Product Limit Reached'
+                      : currentProductCount >= 25
+                        ? '⚠️ Approaching Product Limit'
                         : '📦 Product Count'
                     }
                   </p>
                   <p className={`text-xs mt-1 ${
-                    isAtProductLimit 
-                      ? 'text-red-600' 
-                      : currentProductCount >= 25 
-                        ? 'text-yellow-600' 
+                    isAtProductLimit
+                      ? 'text-red-600'
+                      : currentProductCount >= 25
+                        ? 'text-yellow-600'
                         : 'text-blue-600'
                   }`}>
-                    {isAtProductLimit 
-                      ? 'You have reached the 30-product limit. Upgrade to premium for unlimited products.' 
+                    {isAtProductLimit
+                      ? 'You have reached the 30-product limit for standard users. To add more products, please upgrade to premium access or contact an administrator for assistance.'
                       : `${currentProductCount}/30 products used. ${30 - currentProductCount} remaining.`
                     }
                   </p>

@@ -2,101 +2,122 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return request.auth != null &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
     // Allow admins to list all users
     match /users {
-      allow read, list: if request.auth != null && 
-                        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow read, list: if isAdmin();
     }
 
     // Users collection: Users can only read/write their own profile
     match /users/{userId} {
+      // Users can read and write their own profile
       allow read, write: if request.auth != null && request.auth.uid == userId;
+
       // Admins can read any user's profile
-      allow read: if request.auth != null && 
-                  get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow read: if isAdmin();
+
       // Admin can update specific fields (role, isPremium) for any user
-      allow update: if request.auth != null && 
-                    get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' &&
-                    request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role', 'isPremium', 'updatedAt']);
+      allow update: if isAdmin() &&
+                    request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role', 'isPremium', 'isPremiumAdminSet', 'trialEndDate', 'updatedAt']);
 
       // Stores subcollection: Public read, owner write/create/delete
       match /stores/{storeId} {
-        allow read; // Anyone can read store details
-        allow create: if request.auth != null && request.auth.uid == userId && request.resource.data.ownerId == userId;
-        allow update, delete: if request.auth != null && request.auth.uid == userId && resource.data.ownerId == userId;
-        // Allow updating specific fields for store customization
-        allow update: if request.auth != null && request.auth.uid == userId && resource.data.ownerId == userId;
+        // Anyone can read store details
+        allow read: if true;
+
+        // Owner can create their own store
+        allow create: if request.auth != null &&
+                      request.auth.uid == userId &&
+                      request.resource.data.ownerId == userId;
+
+        // Owner can delete their own store
+        allow delete: if request.auth != null &&
+                      request.auth.uid == userId &&
+                      resource.data.ownerId == userId;
+
+        // Admin can update any store (for syncing premium status)
+        allow update: if isAdmin();
+
+        // Owner can update their own store with restrictions
+        allow update: if request.auth != null &&
+                      request.auth.uid == userId &&
+                      resource.data.ownerId == userId &&
+                      (
+                        // Allow if user is admin
+                        get(/databases/$(database)/documents/users/$(userId)).data.role == 'admin' ||
+                        // Allow if premium was set by admin
+                        get(/databases/$(database)/documents/users/$(userId)).data.isPremiumAdminSet == true ||
+                        // Allow if trial is still active
+                        (get(/databases/$(database)/documents/users/$(userId)).data.trialEndDate != null &&
+                         get(/databases/$(database)/documents/users/$(userId)).data.trialEndDate > request.time) ||
+                        // Allow if not trying to enable premium features
+                        !(request.resource.data.widgetEnabled == true ||
+                          request.resource.data.bannerEnabled == true ||
+                          request.resource.data.showCategories == true)
+                      );
 
         // Products subcollection: Public read, owner write
         match /products/{productId} {
-          allow read; // Anyone can read products from any store
+          allow read: if true;
           allow create: if request.auth != null && request.auth.uid == userId;
           allow update, delete: if request.auth != null && request.auth.uid == userId;
         }
 
         // Slides subcollection: Public read, owner write
         match /slides/{slideId} {
-          allow read; // Anyone can read slides from any store
+          allow read: if true;
           allow create: if request.auth != null && request.auth.uid == userId;
           allow update, delete: if request.auth != null && request.auth.uid == userId;
         }
 
         // Subscribers subcollection: Public can create, owners can manage their own
         match /subscribers/{subscriberId} {
-          // Allow unauthenticated users to create subscriber entries (for public store visitors)
           allow create: if request.resource.data.storeId != null;
-          // Only authenticated store owners can read, update, or delete their own subscriber data
           allow read, update, delete: if request.auth != null && request.auth.uid == userId;
         }
 
         // Analytics events subcollection: Users can only read/write their own analytics data
         match /analytics_events/{eventId} {
-          // Allow unauthenticated users to create analytics events (for public store visitors)
           allow create: if request.resource.data.ownerId != null;
-          // Only authenticated store owners can read, update, or delete their own analytics data
           allow read, update, delete: if request.auth != null && request.auth.uid == userId;
         }
+      }
+
+      // User read notifications subcollection: Users can only manage their own read status
+      match /read_notifications/{readNotificationId} {
+        allow read, create, update, delete: if request.auth != null && request.auth.uid == userId;
       }
     }
 
     // Collection Group for 'stores' to allow querying by slug across all users
-    // This enables getStoreBySlug and checkSlugAvailability functions
     match /{path=**}/stores/{storeId} {
-      allow read: if true; // Public read for stores via collection group query
+      allow read: if true;
     }
 
     // Sponsored products collection: Admin create/manage, public read
     match /sponsored_products/{sponsoredProductId} {
-      // Allow public read access for displaying in user stores
       allow read: if true;
-      // Allow admins to create, update, and delete sponsored products
-      allow create, update, delete: if request.auth != null && 
-                                    get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
-      // Allow public update of clickCount field for tracking clicks
+      allow create, update, delete: if isAdmin();
       allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['clickCount', 'updatedAt']);
     }
 
     // Global banners collection: Public read, admin write
     match /global_banners/{bannerId} {
-      allow read: if true; // Anyone can read active global banners
-      allow create, update, delete: if request.auth != null && 
-                                    get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
-      allow list: if request.auth != null && 
-                  get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+      allow list: if isAdmin();
     }
 
     // Notifications collection: Public read for active notifications, admin write
     match /notifications/{notificationId} {
-      allow read: if request.auth != null; // Authenticated users can read notifications
-      allow create, update, delete: if request.auth != null && 
-                                    get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
-      allow list: if request.auth != null && 
-                  get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
-    }
-
-    // User read notifications subcollection: Users can only manage their own read status
-    match /users/{userId}/read_notifications/{readNotificationId} {
-      allow read, create, update, delete: if request.auth != null && request.auth.uid == userId;
+      allow read: if request.auth != null;
+      allow create, update, delete: if isAdmin();
+      allow list: if isAdmin();
     }
   }
 }

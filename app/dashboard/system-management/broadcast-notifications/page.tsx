@@ -10,7 +10,8 @@ import {
   Notification
 } from '@/lib/store';
 import NotificationForm from '@/components/NotificationForm';
-import { Bell, Plus, PenSquare as Edit, Trash2, RefreshCw, ToggleLeft, ToggleRight } from 'lucide-react';
+import ConfirmModal from '@/components/ConfirmModal';
+import { Bell, Plus, Edit, Trash2, RefreshCw, ToggleLeft, ToggleRight } from 'lucide-react';
 
 export default function BroadcastNotificationsPage() {
   const { user, userProfile } = useAuth();
@@ -22,6 +23,8 @@ export default function BroadcastNotificationsPage() {
   const [formMode, setFormMode] = useState<'add' | 'edit'>('add');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [notificationToDelete, setNotificationToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     if (userProfile?.role === 'admin') {
@@ -66,17 +69,19 @@ export default function BroadcastNotificationsPage() {
     setShowForm(true);
   };
 
-  const handleDelete = async (notificationId: string) => {
-    const confirmed = window.confirm('Are you sure you want to delete this notification? This action cannot be undone.');
-    if (!confirmed) return;
+  const handleDelete = async () => {
+    if (!notificationToDelete) return;
 
     try {
-      await deleteNotification(notificationId);
-      setNotifications(prev => prev.filter(n => n.id !== notificationId));
+      await deleteNotification(notificationToDelete);
+      setNotifications(prev => prev.filter(n => n.id !== notificationToDelete));
+      setNotificationToDelete(null);
       showSuccess('Notification deleted successfully');
     } catch (error) {
       console.error('Error deleting notification:', error);
-      showError('Failed to delete notification');
+      // Display the specific error message from the backend
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete notification: An unexpected error occurred. Please try again.';
+      showError(errorMessage);
     }
   };
 
@@ -265,7 +270,12 @@ export default function BroadcastNotificationsPage() {
                                 <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
                               </button>
                               <button
-                                onClick={() => notification.id && handleDelete(notification.id)}
+                                onClick={() => {
+                                  if (notification.id) {
+                                    setNotificationToDelete(notification.id);
+                                    setShowDeleteModal(true);
+                                  }
+                                }}
                                 className="inline-flex items-center justify-center px-2 sm:px-3 py-1.5 border border-red-300 shadow-sm text-xs font-medium rounded text-red-700 bg-red-50 hover:bg-red-100 transition-colors min-h-[36px] min-w-[36px]"
                                 title="Delete notification"
                               >
@@ -302,6 +312,20 @@ export default function BroadcastNotificationsPage() {
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setNotificationToDelete(null);
+        }}
+        onConfirm={handleDelete}
+        title="Delete Notification"
+        message="Are you sure you want to delete this notification? This action cannot be undone."
+        confirmText="Delete Notification"
+        cancelText="Cancel"
+        isDangerous={true}
+      />
     </AdminRoute>
   );
 }

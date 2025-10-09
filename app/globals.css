@@ -25,3 +25,121 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+/* Custom Styles for Animations */
+@keyframes card-float {
+  0% { transform: translateY(0) scale(1) rotate(var(--initial-rotation, 0deg)); }
+  50% { transform: translateY(-3px) scale(1.01) rotate(var(--initial-rotation, 0deg)); }
+  100% { transform: translateY(0) scale(1) rotate(var(--initial-rotation, 0deg)); }
+}
+
+@media (max-width: 1024px) {
+  .animate-float-1,
+  .animate-float-2,
+  .animate-float-3,
+  .animate-float-4,
+  .animate-float-5,
+  .animate-float-6 {
+    animation-duration: 3s;
+  }
+}
+
+.animate-float-1 {
+  --initial-rotation: 5deg;
+  transform: rotate(5deg);
+  animation: card-float 4s ease-in-out infinite;
+  animation-delay: 0.2s;
+}
+
+.animate-float-2 {
+  --initial-rotation: -10deg;
+  transform: rotate(-10deg);
+  animation: card-float 4s ease-in-out infinite;
+  animation-delay: 0.3s;
+}
+
+.animate-float-3 {
+  --initial-rotation: -15deg;
+  transform: rotate(-15deg);
+  animation: card-float 4s ease-in-out infinite;
+  animation-delay: 0.7s;
+}
+
+.animate-float-4 {
+  --initial-rotation: 8deg;
+  transform: rotate(8deg);
+  animation: card-float 4s ease-in-out infinite;
+  animation-delay: 0.5s;
+}
+
+.animate-float-5 {
+  --initial-rotation: -5deg;
+  transform: rotate(-5deg);
+  animation: card-float 4s ease-in-out infinite;
+  animation-delay: 0.9s;
+}
+
+.animate-float-6 {
+  --initial-rotation: -12deg;
+  transform: rotate(-12deg);
+  animation: card-float 4s ease-in-out infinite;
+  animation-delay: 0.1s;
+}
+
+.animate-float-center {
+  animation: card-float 5s ease-in-out infinite;
+}
+
+@keyframes toast-slide-in {
+  from {
+    transform: translateX(400px) scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-slide-out {
+  from {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(400px) scale(0.9);
+    opacity: 0;
+  }
+}
+
+.toast-enter {
+  animation: toast-slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.toast-exit {
+  animation: toast-slide-out 0.3s ease-in forwards;
+}
+
+@media (max-width: 640px) {
+  @keyframes toast-slide-in {
+    from {
+      transform: translateY(-100px) scale(0.9);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes toast-slide-out {
+    from {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+    to {
+      transform: translateY(-100px) scale(0.9);
+      opacity: 0;
+    }
+  }
+}

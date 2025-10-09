@@ -34,11 +34,28 @@ export default function ImageUploadWithDelete({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Validate file size (5MB limit)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+      console.error('File too large:', file.size, 'bytes');
+      // Don't call onImageUpload, just reset the input
+      e.target.value = '';
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      console.error('Invalid file type:', file.type);
+      // Don't call onImageUpload, just reset the input
+      e.target.value = '';
+      return;
+    }
     setIsUploading(true);
     try {
       await onImageUpload(file);
     } catch (error) {
       console.error('Error uploading image:', error);
+      // The error will be handled by the parent component's onImageUpload function
     } finally {
       setIsUploading(false);
       // Reset the input value so the same file can be selected again
