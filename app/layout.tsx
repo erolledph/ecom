@@ -7,8 +7,24 @@ import { AnalyticsProvider } from '@/components/AnalyticsProvider';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Tiangge 🏪 - Create Your Online Affiliate Store',
+  title: 'Tiangge - Create Your Online Affiliate Store',
   description: 'Build and customize your own affiliate store. Add products, create promotional slides, and start earning commissions through affiliate marketing.',
+  metadataBase: new URL('https://tiangge.shop'),
+  openGraph: {
+    title: 'Tiangge - Create Your Online Affiliate Store',
+    description: 'Build and customize your own affiliate store. Add products, create promotional slides, and start earning commissions through affiliate marketing.',
+    url: 'https://tiangge.shop',
+    siteName: 'Tiangge',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Tiangge - Create Your Online Affiliate Store',
+    description: 'Build and customize your own affiliate store. Add products, create promotional slides, and start earning commissions through affiliate marketing.',
+  },
+  alternates: {
+    canonical: 'https://tiangge.shop',
+  },
 };
 
 export default function RootLayout({

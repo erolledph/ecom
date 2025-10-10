@@ -8,4 +8,4 @@ Disallow: /dashboard
 Disallow: /auth
 Disallow: /api/
 
-Sitemap: https://tiangge.ph/sitemap.xml
+Sitemap: https://tiangge.shop/sitemap.xml
