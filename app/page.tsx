@@ -1,23 +1,77 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import Head from 'next/head';
-import { Store, Package, TrendingUp, Users, Eye, MousePointer, ArrowRight, Star, StarHalf, RefreshCw, CheckCircle, Crown, Lock, DollarSign, Zap, ShieldCheck, LayoutDashboard, Code, Globe, Mail, Settings, BarChart3, Image as ImageIcon, PlusCircle, SquarePlus, LogOut, X, User, Copy, ChevronDown, Calendar, Clock, CircleAlert as AlertCircle } from 'lucide-react';
+import { Store, Package, TrendingUp, Users, Eye, MousePointer, ArrowRight, Star, StarHalf, RefreshCw, CheckCircle, Zap, Code, Globe, Mail, Image as ImageIcon, SquarePlus, X, ChevronLeft, ChevronRight, Bell, Clock, Gift } from 'lucide-react';
 import HomeHeader from '@/components/HomeHeader';
 import HomeFooter from '@/components/HomeFooter';
 
 export default function HomePage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
+
+  const testimonials = [
+    {
+      name: 'Jane Doe',
+      role: 'Affiliate Marketing Pro',
+      image: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+      quote: 'Tiangge transformed my affiliate business. The customization options are incredible, and the analytics help me optimize everything. My earnings have doubled!'
+    },
+    {
+      name: 'John Smith',
+      role: 'E-commerce Entrepreneur',
+      image: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+      quote: 'I love how easy it is to add products and create stunning slides. The product scraping feature saves me so much time. Highly recommend!'
+    },
+    {
+      name: 'Sarah Lee',
+      role: 'Content Creator',
+      image: 'https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+      quote: 'Finally, a platform that understands affiliate marketing. The built-in SEO and responsive design mean my stores look great and perform well on any device.'
+    },
+    {
+      name: 'Michael Chen',
+      role: 'Digital Marketer',
+      image: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+      quote: 'The subscriber management and notification system helped me build a loyal audience. My conversion rates increased by 40% in just two months.'
+    },
+    {
+      name: 'Emily Rodriguez',
+      role: 'Lifestyle Blogger',
+      image: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+      quote: 'Beautiful templates and easy customization made launching my affiliate store a breeze. I was up and running in less than an hour!'
+    }
+  ];
 
   useEffect(() => {
     if (!loading && user) {
       router.push('/dashboard');
     }
   }, [user, loading, router]);
+
+  const [isPaused, setIsPaused] = useState(false);
+
+  useEffect(() => {
+    if (isPaused) return;
+
+    const timer = setInterval(() => {
+      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+
+    return () => clearInterval(timer);
+  }, [testimonials.length, isPaused]);
+
+  const nextTestimonial = () => {
+    setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+  };
+
+  const prevTestimonial = () => {
+    setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  };
 
   if (loading) {
     return (
@@ -49,32 +103,32 @@ export default function HomePage() {
         <HomeHeader />
 
       {/* Hero Section - Enhanced Copy and CTA */}
-      <section className="relative min-h-[70vh] pt-24 pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden flex items-center bg-gradient-to-br from-emerald-50 to-white">
+      <section className="relative min-h-[80vh] pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden flex items-center bg-gradient-to-br from-emerald-50 to-white">
         <div className="max-w-7xl mx-auto w-full text-center">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 mb-6 leading-tight">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-gray-900 mb-8 leading-tight">
             Create Your Online Affiliate Store and
-            <span className="text-emerald-600 block">Earn Commissions Today</span>
+            <span className="text-emerald-600 block mt-2">Earn Commissions Today</span>
           </h1>
-          <p className="text-xl text-gray-700 mb-4 max-w-3xl mx-auto">
+          <p className="text-lg sm:text-xl lg:text-2xl text-gray-700 mb-6 max-w-3xl mx-auto leading-relaxed">
             Effortlessly build, customize, and manage your own high-converting affiliate store. Maximize your earnings with powerful tools designed for success.
           </p>
-          <div className="flex items-center justify-center gap-2 mb-8">
-            <div className="bg-emerald-100 border border-emerald-300 rounded-lg px-4 py-2 flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2 mb-10">
+            <div className="bg-emerald-100 border border-emerald-300 rounded-lg px-5 py-3 flex items-center gap-2">
               <Clock className="w-5 h-5 text-emerald-600" />
-              <span className="text-emerald-800 font-semibold">7-Day FREE Premium Trial</span>
+              <span className="text-emerald-800 font-semibold text-base">7-Day FREE Premium Trial</span>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="#pricing"
-              className="inline-flex items-center px-8 py-4 bg-emerald-600 text-white rounded-lg text-lg font-semibold hover:bg-emerald-700 transition-colors shadow-lg transform hover:scale-105"
+              className="inline-flex items-center px-8 py-4 bg-emerald-600 text-white rounded-lg text-lg font-semibold transition-colors shadow-lg"
             >
               Start Building Now
               <ArrowRight className="w-5 h-5 ml-2" />
             </Link>
             <Link
               href="/auth"
-              className="inline-flex items-center px-8 py-4 border-2 border-emerald-600 text-emerald-600 rounded-lg text-lg font-semibold hover:bg-emerald-50 transition-colors transform hover:scale-105"
+              className="inline-flex items-center px-8 py-4 border-2 border-emerald-600 text-emerald-600 rounded-lg text-lg font-semibold transition-colors"
             >
               Explore Features
             </Link>
@@ -83,13 +137,13 @@ export default function HomePage() {
       </section>
 
       {/* Showcase Section - Mobile Mockup with Floating Cards on Desktop */}
-      <section className="relative py-16 sm:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden bg-white">
+      <section className="relative py-20 sm:py-28 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden bg-white">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-16 sm:mb-20">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-5">
               See Your Store Come to Life
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
               Visualize the power of a fully customized, high-performance affiliate store.
             </p>
           </div>
@@ -412,172 +466,756 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Features Section - Refined Content */}
-      <section id="features" className="py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+      {/* Features Section - Visual Mockups with Alternating Layout */}
+      <section id="features" className="py-20 sm:py-28 lg:py-32 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 sm:mb-20">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-5">
               Everything You Need to Succeed
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
               Our platform provides all the tools you need to build, customize, and grow your affiliate marketing business.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Store,
-                title: 'Custom Store Builder',
-                description: 'Create a beautiful, professional store with our easy-to-use customization tools. No coding required.'
-              },
-              {
-                icon: Package,
-                title: 'Smart Product Management',
-                description: 'Add products with ease, auto-fill details by scraping URLs, and manage your inventory efficiently.'
-              },
-              {
-                icon: TrendingUp,
-                title: 'Actionable Analytics',
-                description: 'Track store views, product clicks, and conversions with a detailed, real-time dashboard.'
-              },
-              {
-                icon: Users,
-                title: 'Engage Your Audience',
-                description: 'Build your mailing list with subscription forms and keep customers informed with notifications.'
-              },
-              {
-                icon: ShieldCheck,
-                title: 'Secure & Optimized',
-                description: 'Benefit from robust security, image optimization, and SEO-friendly features for better visibility.'
-              },
-              {
-                icon: Zap,
-                title: 'Boost Conversions',
-                description: 'Utilize promotional slides, widgets, and banners to highlight offers and drive sales.'
-              }
-            ].map((feature, index) => (
-              <div key={index} className="bg-white rounded-xl p-8 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mb-4">
-                  <feature.icon className="w-6 h-6 text-emerald-600" />
+          <div className="space-y-16 sm:space-y-20 lg:space-y-24">
+            {/* Feature 1: Product Scraper - Left */}
+            <div className="flex flex-col md:flex-row items-center gap-10 md:gap-12 lg:gap-16">
+              <div className="w-full md:w-1/2">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+                    <Package className="w-6 h-6 text-emerald-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900">Smart Product Scraper</h3>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
+                <p className="text-lg text-gray-600 leading-relaxed">
+                  Paste any product URL and our smart scraper automatically extracts product details, images, prices, and descriptions. Save hours of manual data entry.
+                </p>
               </div>
-            ))}
+              <div className="w-full md:w-1/2">
+                <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 h-[320px] flex flex-col">
+                  <div className="p-6 bg-gradient-to-br from-emerald-50 to-white flex-1 flex items-center">
+                    <div className="flex gap-4 w-full">
+                      <div className="flex-1 flex flex-col justify-center space-y-3">
+                        <div className="flex items-center gap-2 bg-white border-2 border-gray-300 rounded-lg px-3 py-3 shadow-sm">
+                          <Globe className="w-5 h-5 text-gray-400" />
+                          <input type="text" placeholder="amazon.com/product/..." className="flex-1 text-sm text-gray-500 bg-transparent border-none outline-none" readOnly />
+                        </div>
+                        <button className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+                          Scrape Product
+                        </button>
+                      </div>
+                      <div className="w-36 border border-gray-300 rounded-lg overflow-hidden bg-white flex-shrink-0">
+                        <div className="aspect-square overflow-hidden bg-gray-200">
+                          <div className="w-full h-full"></div>
+                        </div>
+                        <div className="p-2 flex flex-col justify-between">
+                          <div className="space-y-1.5 mb-2">
+                            <div className="h-2.5 bg-gray-300 rounded w-full"></div>
+                            <div className="h-2.5 bg-gray-300 rounded w-4/5"></div>
+                          </div>
+                          <div className="flex items-center justify-start">
+                            <div className="h-3 w-2/5 bg-gray-300 rounded"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature 2: Store Customization - Right */}
+            <div className="flex flex-col md:flex-row-reverse items-center gap-10 md:gap-12 lg:gap-16">
+              <div className="w-full md:w-1/2">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <Store className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900">Custom Store Builder</h3>
+                </div>
+                <p className="text-lg text-gray-600 leading-relaxed">
+                  Design your perfect store with our intuitive customization tools. Choose colors, fonts, layouts, and branding to match your unique style.
+                </p>
+              </div>
+              <div className="w-full md:w-1/2">
+                <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 h-[320px] flex flex-col">
+                  <div className="p-6 bg-gradient-to-br from-blue-50 to-white flex-1 flex flex-col justify-center">
+                    <div className="space-y-4">
+                      <div className="flex gap-3 justify-center">
+                        <div className="w-10 h-10 rounded-full bg-emerald-500 border-2 border-white shadow-lg"></div>
+                        <div className="w-10 h-10 rounded-full bg-blue-500 border-2 border-white shadow-lg"></div>
+                        <div className="w-10 h-10 rounded-full bg-pink-500 border-2 border-white shadow-lg"></div>
+                      </div>
+                      <div className="bg-white rounded-xl border-2 border-gray-200 p-5 shadow-md">
+                        <div className="flex flex-col items-center text-center mb-4">
+                          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 mb-3"></div>
+                          <div className="space-y-2 w-full">
+                            <div className="h-2.5 bg-gray-300 rounded w-2/3 mx-auto"></div>
+                            <div className="h-2 bg-gray-200 rounded w-1/2 mx-auto"></div>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-3">
+                          <div className="aspect-square bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-lg"></div>
+                          <div className="aspect-square bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-lg"></div>
+                          <div className="aspect-square bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-lg"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature 3: Analytics Dashboard - Left */}
+            <div className="flex flex-col md:flex-row items-center gap-10 md:gap-12 lg:gap-16">
+              <div className="w-full md:w-1/2">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                    <TrendingUp className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900">Real-Time Analytics</h3>
+                </div>
+                <p className="text-lg text-gray-600 leading-relaxed">
+                  Track every metric that matters. Monitor store views, product clicks, conversion rates, and user behavior with detailed real-time analytics.
+                </p>
+              </div>
+              <div className="w-full md:w-1/2">
+                <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 h-[320px] flex flex-col">
+                  <div className="p-6 bg-gradient-to-br from-orange-50 to-white flex-1 flex flex-col justify-center">
+                    <div className="bg-white rounded-xl border-2 border-gray-200 p-4 shadow-md space-y-3">
+                      <div className="text-center pb-2 border-b border-gray-200">
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Real-Time Dashboard</p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-3 text-center">
+                          <Eye className="w-5 h-5 text-blue-600 mx-auto mb-1" />
+                          <p className="text-xs text-gray-600 mb-1">Views</p>
+                          <p className="text-lg font-bold text-blue-600">1,234</p>
+                        </div>
+                        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-3 text-center">
+                          <MousePointer className="w-5 h-5 text-green-600 mx-auto mb-1" />
+                          <p className="text-xs text-gray-600 mb-1">Clicks</p>
+                          <p className="text-lg font-bold text-green-600">567</p>
+                        </div>
+                      </div>
+                      <div className="pt-2">
+                        <p className="text-xs text-gray-500 mb-2">Traffic Trend</p>
+                        <div className="h-16 flex items-end gap-1">
+                          <div className="flex-1 bg-gradient-to-t from-orange-400 to-orange-300 rounded-t" style={{height: '45%'}}></div>
+                          <div className="flex-1 bg-gradient-to-t from-orange-500 to-orange-400 rounded-t" style={{height: '65%'}}></div>
+                          <div className="flex-1 bg-gradient-to-t from-orange-600 to-orange-500 rounded-t" style={{height: '85%'}}></div>
+                          <div className="flex-1 bg-gradient-to-t from-orange-700 to-orange-600 rounded-t" style={{height: '100%'}}></div>
+                          <div className="flex-1 bg-gradient-to-t from-orange-600 to-orange-500 rounded-t" style={{height: '75%'}}></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature 4: Email Subscriptions - Right */}
+            <div className="flex flex-col md:flex-row-reverse items-center gap-10 md:gap-12 lg:gap-16">
+              <div className="w-full md:w-1/2">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center">
+                    <Users className="w-6 h-6 text-pink-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900">Email Subscriptions</h3>
+                </div>
+                <p className="text-lg text-gray-600 leading-relaxed">
+                  Build your audience with built-in subscription forms. Send notifications about new products and keep your customers engaged.
+                </p>
+              </div>
+              <div className="w-full md:w-1/2">
+                <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 h-[320px] flex flex-col">
+                  <div className="p-6 bg-gradient-to-br from-pink-50 to-white flex-1 flex flex-col justify-center items-center">
+                    <div className="bg-white rounded-2xl border-2 border-pink-200 shadow-2xl p-8 max-w-md w-full">
+                      <div className="text-center mb-6">
+                        <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <Mail className="w-8 h-8 text-pink-600" />
+                        </div>
+                        <h4 className="text-xl font-bold text-gray-900 mb-2">Stay Updated!</h4>
+                        <p className="text-sm text-gray-600">Get notified about new products</p>
+                      </div>
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 bg-gray-50 border border-gray-300 rounded-lg px-4 py-3">
+                          <Mail className="w-5 h-5 text-gray-400" />
+                          <input type="email" placeholder="Enter your email" className="flex-1 text-sm text-gray-500 bg-transparent border-none outline-none" readOnly />
+                        </div>
+                        <button className="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white text-base font-semibold py-3.5 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+                          Subscribe Now
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature 5: Promotional Slides - Left */}
+            <div className="flex flex-col md:flex-row items-center gap-10 md:gap-12 lg:gap-16">
+              <div className="w-full md:w-1/2">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+                    <Zap className="w-6 h-6 text-yellow-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900">Promotional Slides</h3>
+                </div>
+                <p className="text-lg text-gray-600 leading-relaxed">
+                  Create eye-catching promotional slides and pop-up banners to highlight special offers, featured products, and drive conversions.
+                </p>
+              </div>
+              <div className="w-full md:w-1/2">
+                <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 h-[320px] flex flex-col">
+                  <div className="p-6 bg-gradient-to-br from-yellow-50 to-white flex-1 flex flex-col justify-center">
+                    <div className="relative h-48 overflow-hidden shadow-lg rounded-lg">
+                      <div className="relative h-full">
+                        <div className="h-full bg-gradient-to-r from-yellow-400 to-orange-500 flex items-center justify-center">
+                          <ImageIcon className="w-24 h-24 text-white/60" />
+                        </div>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 z-10">
+                          <h2 className="text-2xl font-bold mb-2 text-white">Summer Sale</h2>
+                          <p className="text-sm text-gray-100">Up to 50% off on selected items</p>
+                        </div>
+                      </div>
+
+                      <button className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-opacity-70 transition-all z-20">
+                        <span className="text-sm font-bold">‹</span>
+                      </button>
+
+                      <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-opacity-70 transition-all z-20">
+                        <span className="text-sm font-bold">›</span>
+                      </button>
+
+                      <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-1 z-20">
+                        <div className="w-2 h-2 rounded-full bg-white"></div>
+                        <div className="w-2 h-2 rounded-full bg-white opacity-50"></div>
+                        <div className="w-2 h-2 rounded-full bg-white opacity-50"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature 6: Bulk Import - Right */}
+            <div className="flex flex-col md:flex-row-reverse items-center gap-10 md:gap-12 lg:gap-16">
+              <div className="w-full md:w-1/2">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                    <SquarePlus className="w-6 h-6 text-green-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900">Bulk CSV Import</h3>
+                </div>
+                <p className="text-lg text-gray-600 leading-relaxed">
+                  Upload hundreds of products at once with CSV import. Perfect for scaling your store quickly with our easy-to-use bulk upload feature.
+                </p>
+              </div>
+              <div className="w-full md:w-1/2">
+                <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 h-[320px] flex flex-col">
+                  <div className="p-6 bg-gradient-to-br from-green-50 to-white flex-1 flex flex-col justify-center">
+                    <div className="bg-white rounded-xl border-2 border-dashed border-gray-300 p-6 text-center space-y-4">
+                      <div className="w-16 h-16 bg-green-100 rounded-xl flex items-center justify-center mx-auto">
+                        <Code className="w-8 h-8 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="text-base font-semibold text-gray-700">products.csv</p>
+                        <div className="text-sm text-gray-500 mt-1">250 products ready to import</div>
+                      </div>
+                      <div className="pt-2">
+                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full" style={{width: '75%'}}></div>
+                        </div>
+                        <p className="text-xs text-gray-600 mt-2">Uploading... 75%</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature 7: Popup Banner - Left */}
+            <div className="flex flex-col md:flex-row items-center gap-10 md:gap-12 lg:gap-16">
+              <div className="w-full md:w-1/2">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <ImageIcon className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900">Pop-up Banner</h3>
+                </div>
+                <p className="text-lg text-gray-600 leading-relaxed">
+                  Capture attention with customizable pop-up banners. Promote special offers, new products, or important announcements to your visitors.
+                </p>
+              </div>
+              <div className="w-full md:w-1/2">
+                <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 h-[320px] flex flex-col relative">
+                  <div className="p-6 bg-gradient-to-br from-purple-50 to-white flex-1 flex flex-col justify-center items-center relative">
+                    <div className="absolute inset-0 bg-white bg-opacity-20 flex items-center justify-center z-10">
+                      <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden max-w-[240px] w-full">
+                        <button className="absolute top-2 right-2 bg-gray-800 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm hover:bg-gray-700 shadow-lg z-10">
+                          ✕
+                        </button>
+                        <div className="bg-gradient-to-br from-purple-400 via-purple-500 to-pink-500 h-48 flex items-center justify-center">
+                          <ImageIcon className="w-16 h-16 text-white/60" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-gray-100 rounded-lg w-full h-full flex items-center justify-center opacity-50">
+                      <div className="text-center text-gray-400">
+                        <div className="w-12 h-12 bg-gray-200 rounded-full mx-auto mb-2"></div>
+                        <div className="h-2 bg-gray-200 rounded w-20 mx-auto mb-1"></div>
+                        <div className="h-2 bg-gray-200 rounded w-16 mx-auto"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Feature 8: Floating Widget - Right */}
+            <div className="flex flex-col md:flex-row-reverse items-center gap-10 md:gap-12 lg:gap-16">
+              <div className="w-full md:w-1/2">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-cyan-100 rounded-xl flex items-center justify-center">
+                    <Gift className="w-6 h-6 text-cyan-600" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900">Floating Widget</h3>
+                </div>
+                <p className="text-lg text-gray-600 leading-relaxed">
+                  Add an eye-catching floating widget that follows visitors as they scroll. Perfect for promoting special offers or driving engagement.
+                </p>
+              </div>
+              <div className="w-full md:w-1/2">
+                <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 h-[320px] flex flex-col relative">
+                  <div className="p-6 bg-gradient-to-br from-cyan-50 to-white flex-1 flex flex-col justify-center relative">
+                    <div className="bg-white rounded-xl border-2 border-gray-200 shadow-md h-full relative overflow-hidden">
+                      <div className="p-5">
+                        <div className="flex flex-col items-center text-center mb-4">
+                          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-cyan-400 to-cyan-600 mb-3"></div>
+                          <div className="space-y-2 w-full">
+                            <div className="h-2.5 bg-gray-300 rounded w-2/3 mx-auto"></div>
+                            <div className="h-2 bg-gray-200 rounded w-1/2 mx-auto"></div>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2">
+                          <div className="aspect-square bg-gradient-to-br from-cyan-100 to-cyan-200 rounded-lg"></div>
+                          <div className="aspect-square bg-gradient-to-br from-cyan-100 to-cyan-200 rounded-lg"></div>
+                          <div className="aspect-square bg-gradient-to-br from-cyan-100 to-cyan-200 rounded-lg"></div>
+                        </div>
+                      </div>
+                      <div className="absolute bottom-4 right-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 via-cyan-600 to-blue-600 rounded-full shadow-xl flex items-center justify-center border-2 border-white">
+                          <Gift className="w-6 h-6 text-white" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Testimonials Section - New Section */}
-      <section className="py-24 bg-white">
+      {/* Testimonials Section - Slider */}
+      <section className="py-20 sm:py-28 lg:py-32 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-12 sm:mb-16 lg:mb-20">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-5">
               What Our Users Say
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto px-4">
               Hear from successful affiliate marketers who are growing their businesses with Tiangge.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-gray-50 rounded-xl p-8 shadow-sm border border-gray-200">
-              <div className="flex items-center mb-4">
-                <img src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="User Avatar" className="w-12 h-12 rounded-full object-cover mr-4" />
-                <div>
-                  <p className="font-semibold text-gray-900">Jane Doe</p>
-                  <p className="text-sm text-gray-600">Affiliate Marketing Pro</p>
+          <div className="relative max-w-4xl mx-auto">
+            <div className="px-8 sm:px-12 md:px-16">
+              <div
+                className="testimonial-slider-container"
+                onMouseEnter={() => setIsPaused(true)}
+                onMouseLeave={() => setIsPaused(false)}
+              >
+                <div
+                  className="testimonial-slider-track"
+                  style={{ transform: `translateX(-${currentTestimonial * 100}%)` }}
+                >
+                  {testimonials.map((testimonial, index) => (
+                    <div key={index} className="testimonial-slide">
+                      <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl sm:rounded-2xl p-6 sm:p-12 shadow-lg border border-gray-200">
+                        <div className="flex flex-col items-center text-center">
+                          <div className="mb-4 sm:mb-6">
+                            <img
+                              src={testimonial.image}
+                              alt={testimonial.name}
+                              className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-4 border-emerald-500 shadow-md"
+                            />
+                          </div>
+                          <div className="flex text-yellow-400 mb-3 sm:mb-4">
+                            <Star className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
+                            <Star className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
+                            <Star className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
+                            <Star className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
+                            <Star className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
+                          </div>
+                          <p className="text-base sm:text-lg md:text-xl text-gray-700 italic mb-4 sm:mb-6 leading-relaxed max-w-2xl">
+                            &ldquo;{testimonial.quote}&rdquo;
+                          </p>
+                          <div>
+                            <p className="font-bold text-gray-900 text-base sm:text-lg">{testimonial.name}</p>
+                            <p className="text-emerald-600 font-medium text-sm sm:text-base">{testimonial.role}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <p className="text-lg text-gray-700 italic">
-                &ldquo;Tiangge transformed my affiliate business. The customization options are incredible, and the analytics help me optimize everything. My earnings have doubled!&rdquo;
-              </p>
             </div>
-            <div className="bg-gray-50 rounded-xl p-8 shadow-sm border border-gray-200">
-              <div className="flex items-center mb-4">
-                <img src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="User Avatar" className="w-12 h-12 rounded-full object-cover mr-4" />
-                <div>
-                  <p className="font-semibold text-gray-900">John Smith</p>
-                  <p className="text-sm text-gray-600">E-commerce Entrepreneur</p>
-                </div>
-              </div>
-              <p className="text-lg text-gray-700 italic">
-                &ldquo;I love how easy it is to add products and create stunning slides. The product scraping feature saves me so much time. Highly recommend!&rdquo;
-              </p>
+
+            <button
+              onClick={prevTestimonial}
+              className="absolute left-0 top-1/2 -translate-y-1/2 bg-white hover:bg-gray-50 rounded-full p-3 shadow-lg border border-gray-200 transition-all hover:scale-110 z-10 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              aria-label="Previous testimonial"
+            >
+              <ChevronLeft className="w-6 h-6 text-gray-700" />
+            </button>
+
+            <button
+              onClick={nextTestimonial}
+              className="absolute right-0 top-1/2 -translate-y-1/2 bg-white hover:bg-gray-50 rounded-full p-3 shadow-lg border border-gray-200 transition-all hover:scale-110 z-10 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              aria-label="Next testimonial"
+            >
+              <ChevronRight className="w-6 h-6 text-gray-700" />
+            </button>
+
+            <div className="flex justify-center mt-6 sm:mt-8 gap-2">
+              {testimonials.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentTestimonial(index)}
+                  className={`transition-all ${
+                    index === currentTestimonial
+                      ? 'w-6 sm:w-8 bg-emerald-600'
+                      : 'w-2 bg-gray-300 hover:bg-gray-400'
+                  } h-2 rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2`}
+                  aria-label={`Go to testimonial ${index + 1}`}
+                />
+              ))}
             </div>
-            <div className="bg-gray-50 rounded-xl p-8 shadow-sm border border-gray-200">
-              <div className="flex items-center mb-4">
-                <img src="https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" alt="User Avatar" className="w-12 h-12 rounded-full object-cover mr-4" />
-                <div>
-                  <p className="font-semibold text-gray-900">Sarah Lee</p>
-                  <p className="text-sm text-gray-600">Content Creator</p>
-                </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Platform Compatibility Section - Infinite Brand Carousel */}
+      <section className="py-20 sm:py-28 lg:py-32 bg-gray-50 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 sm:mb-20">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-5">
+              Compatible with Leading Platforms
+            </h2>
+            <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
+              Promote products from top affiliate programs and platforms worldwide. Create your unique store selling anything from online courses to hosting services, fashion to finance.
+            </p>
+          </div>
+
+          {/* Infinite Carousel Container */}
+          <div className="relative">
+            {/* Top Row - Scrolling Right */}
+            <div className="carousel-wrapper mb-8">
+              <div className="carousel-track">
+                {[
+                  { name: 'Amazon', domain: 'amazon.com' },
+                  { name: 'Shopee', domain: 'shopee.com' },
+                  { name: 'Lazada', domain: 'lazada.com' },
+                  { name: 'eBay', domain: 'ebay.com' },
+                  { name: 'AliExpress', domain: 'aliexpress.com' },
+                  { name: 'Walmart', domain: 'walmart.com' },
+                  { name: 'Udemy', domain: 'udemy.com' },
+                  { name: 'Coursera', domain: 'coursera.org' },
+                  { name: 'Skillshare', domain: 'skillshare.com' },
+                  { name: 'LinkedIn Learning', domain: 'linkedin.com' },
+                  { name: 'Teachable', domain: 'teachable.com' },
+                  { name: 'MasterClass', domain: 'masterclass.com' }
+                ].map((platform, idx) => (
+                  <div key={idx} className="carousel-item">
+                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all h-24 flex items-center justify-center">
+                      <img
+                        src={`https://logo.clearbit.com/${platform.domain}`}
+                        alt={platform.name}
+                        className="max-h-12 max-w-full object-contain"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const textFallback = target.nextElementSibling as HTMLElement;
+                          if (textFallback) textFallback.style.display = 'block';
+                        }}
+                      />
+                      <span className="text-gray-900 font-semibold text-lg hidden">{platform.name}</span>
+                    </div>
+                  </div>
+                ))}
+                {[
+                  { name: 'Amazon', domain: 'amazon.com' },
+                  { name: 'Shopee', domain: 'shopee.com' },
+                  { name: 'Lazada', domain: 'lazada.com' },
+                  { name: 'eBay', domain: 'ebay.com' },
+                  { name: 'AliExpress', domain: 'aliexpress.com' },
+                  { name: 'Walmart', domain: 'walmart.com' },
+                  { name: 'Udemy', domain: 'udemy.com' },
+                  { name: 'Coursera', domain: 'coursera.org' },
+                  { name: 'Skillshare', domain: 'skillshare.com' },
+                  { name: 'LinkedIn Learning', domain: 'linkedin.com' },
+                  { name: 'Teachable', domain: 'teachable.com' },
+                  { name: 'MasterClass', domain: 'masterclass.com' }
+                ].map((platform, idx) => (
+                  <div key={`dup-${idx}`} className="carousel-item">
+                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all h-24 flex items-center justify-center">
+                      <img
+                        src={`https://logo.clearbit.com/${platform.domain}`}
+                        alt={platform.name}
+                        className="max-h-12 max-w-full object-contain"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const textFallback = target.nextElementSibling as HTMLElement;
+                          if (textFallback) textFallback.style.display = 'block';
+                        }}
+                      />
+                      <span className="text-gray-900 font-semibold text-lg hidden">{platform.name}</span>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <p className="text-lg text-gray-700 italic">
-                &ldquo;Finally, a platform that understands affiliate marketing. The built-in SEO and responsive design mean my stores look great and perform well on any device.&rdquo;
-              </p>
+            </div>
+
+            {/* Middle Row - Scrolling Left */}
+            <div className="carousel-wrapper mb-8">
+              <div className="carousel-track-reverse">
+                {[
+                  { name: 'Bluehost', domain: 'bluehost.com' },
+                  { name: 'HostGator', domain: 'hostgator.com' },
+                  { name: 'SiteGround', domain: 'siteground.com' },
+                  { name: 'GoDaddy', domain: 'godaddy.com' },
+                  { name: 'Namecheap', domain: 'namecheap.com' },
+                  { name: 'WP Engine', domain: 'wpengine.com' },
+                  { name: 'HubSpot', domain: 'hubspot.com' },
+                  { name: 'Shopify', domain: 'shopify.com' },
+                  { name: 'ConvertKit', domain: 'convertkit.com' },
+                  { name: 'Canva', domain: 'canva.com' },
+                  { name: 'Grammarly', domain: 'grammarly.com' },
+                  { name: 'Adobe', domain: 'adobe.com' }
+                ].map((platform, idx) => (
+                  <div key={idx} className="carousel-item">
+                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all h-24 flex items-center justify-center">
+                      <img
+                        src={`https://logo.clearbit.com/${platform.domain}`}
+                        alt={platform.name}
+                        className="max-h-12 max-w-full object-contain"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const textFallback = target.nextElementSibling as HTMLElement;
+                          if (textFallback) textFallback.style.display = 'block';
+                        }}
+                      />
+                      <span className="text-gray-900 font-semibold text-lg hidden">{platform.name}</span>
+                    </div>
+                  </div>
+                ))}
+                {[
+                  { name: 'Bluehost', domain: 'bluehost.com' },
+                  { name: 'HostGator', domain: 'hostgator.com' },
+                  { name: 'SiteGround', domain: 'siteground.com' },
+                  { name: 'GoDaddy', domain: 'godaddy.com' },
+                  { name: 'Namecheap', domain: 'namecheap.com' },
+                  { name: 'WP Engine', domain: 'wpengine.com' },
+                  { name: 'HubSpot', domain: 'hubspot.com' },
+                  { name: 'Shopify', domain: 'shopify.com' },
+                  { name: 'ConvertKit', domain: 'convertkit.com' },
+                  { name: 'Canva', domain: 'canva.com' },
+                  { name: 'Grammarly', domain: 'grammarly.com' },
+                  { name: 'Adobe', domain: 'adobe.com' }
+                ].map((platform, idx) => (
+                  <div key={`dup-${idx}`} className="carousel-item">
+                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all h-24 flex items-center justify-center">
+                      <img
+                        src={`https://logo.clearbit.com/${platform.domain}`}
+                        alt={platform.name}
+                        className="max-h-12 max-w-full object-contain"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const textFallback = target.nextElementSibling as HTMLElement;
+                          if (textFallback) textFallback.style.display = 'block';
+                        }}
+                      />
+                      <span className="text-gray-900 font-semibold text-lg hidden">{platform.name}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Bottom Row - Scrolling Right */}
+            <div className="carousel-wrapper">
+              <div className="carousel-track">
+                {[
+                  { name: 'Booking.com', domain: 'booking.com' },
+                  { name: 'Airbnb', domain: 'airbnb.com' },
+                  { name: 'Expedia', domain: 'expedia.com' },
+                  { name: 'TripAdvisor', domain: 'tripadvisor.com' },
+                  { name: 'Nike', domain: 'nike.com' },
+                  { name: 'Adidas', domain: 'adidas.com' },
+                  { name: 'Sephora', domain: 'sephora.com' },
+                  { name: 'Steam', domain: 'steampowered.com' },
+                  { name: 'Spotify', domain: 'spotify.com' },
+                  { name: 'Netflix', domain: 'netflix.com' },
+                  { name: 'Fiverr', domain: 'fiverr.com' },
+                  { name: 'Upwork', domain: 'upwork.com' }
+                ].map((platform, idx) => (
+                  <div key={idx} className="carousel-item">
+                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all h-24 flex items-center justify-center">
+                      <img
+                        src={`https://logo.clearbit.com/${platform.domain}`}
+                        alt={platform.name}
+                        className="max-h-12 max-w-full object-contain"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const textFallback = target.nextElementSibling as HTMLElement;
+                          if (textFallback) textFallback.style.display = 'block';
+                        }}
+                      />
+                      <span className="text-gray-900 font-semibold text-lg hidden">{platform.name}</span>
+                    </div>
+                  </div>
+                ))}
+                {[
+                  { name: 'Booking.com', domain: 'booking.com' },
+                  { name: 'Airbnb', domain: 'airbnb.com' },
+                  { name: 'Expedia', domain: 'expedia.com' },
+                  { name: 'TripAdvisor', domain: 'tripadvisor.com' },
+                  { name: 'Nike', domain: 'nike.com' },
+                  { name: 'Adidas', domain: 'adidas.com' },
+                  { name: 'Sephora', domain: 'sephora.com' },
+                  { name: 'Steam', domain: 'steampowered.com' },
+                  { name: 'Spotify', domain: 'spotify.com' },
+                  { name: 'Netflix', domain: 'netflix.com' },
+                  { name: 'Fiverr', domain: 'fiverr.com' },
+                  { name: 'Upwork', domain: 'upwork.com' }
+                ].map((platform, idx) => (
+                  <div key={`dup-${idx}`} className="carousel-item">
+                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-all h-24 flex items-center justify-center">
+                      <img
+                        src={`https://logo.clearbit.com/${platform.domain}`}
+                        alt={platform.name}
+                        className="max-h-12 max-w-full object-contain"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const textFallback = target.nextElementSibling as HTMLElement;
+                          if (textFallback) textFallback.style.display = 'block';
+                        }}
+                      />
+                      <span className="text-gray-900 font-semibold text-lg hidden">{platform.name}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Info */}
+          <div className="text-center mt-12">
+            <p className="text-lg text-gray-600 mb-4">
+              And hundreds more affiliate programs across all industries
+            </p>
+            <div className="flex flex-wrap justify-center gap-3">
+              <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 border border-gray-300">
+                Credit Cards & Finance
+              </span>
+              <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 border border-gray-300">
+                Trading & Crypto
+              </span>
+              <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 border border-gray-300">
+                Digital Downloads
+              </span>
+              <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 border border-gray-300">
+                Health & Fitness
+              </span>
+              <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 border border-gray-300">
+                Gaming & Entertainment
+              </span>
+              <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 border border-gray-300">
+                Insurance
+              </span>
+              <span className="px-4 py-2 bg-white rounded-full text-sm font-medium text-gray-700 border border-gray-300">
+                Custom Affiliate Links
+              </span>
             </div>
           </div>
         </div>
       </section>
 
       {/* Pricing Section - New Section */}
-      <section id="pricing" className="py-24 bg-gray-50">
+      <section id="pricing" className="py-20 sm:py-28 lg:py-32 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-16 sm:mb-20">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-5">
               Simple, Transparent Pricing
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
               Choose the plan that fits your ambition. Upgrade anytime for more power.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {/* Standard Plan */}
-            <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-200 flex flex-col">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Standard</h3>
-              <p className="text-gray-600 mb-6">Perfect for new affiliate marketers getting started. Now Enjoy 7days Full Premium Access</p>
-              <div className="text-4xl font-extrabold text-emerald-600 mb-2">
+            <div className="bg-gray-50 rounded-2xl p-8 lg:p-10 shadow-lg border-2 border-gray-200 flex flex-col">
+              <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">Standard</h3>
+              <p className="text-gray-600 mb-6 text-base lg:text-lg">Perfect for new affiliate marketers getting started. Now Enjoy 7 days Full Premium Access</p>
+              <div className="text-4xl lg:text-5xl font-extrabold text-emerald-600 mb-2">
                 Free
-                <span className="text-xl text-gray-500 font-medium"> / forever</span>
+                <span className="text-xl lg:text-2xl text-gray-500 font-medium"> / forever</span>
               </div>
-              <ul className="space-y-3 text-gray-700 flex-grow">
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-emerald-500 mr-2 flex-shrink-0" />
+              <ul className="space-y-4 text-gray-700 flex-grow mt-8">
+                <li className="flex items-center text-base">
+                  <CheckCircle className="w-5 h-5 text-emerald-500 mr-3 flex-shrink-0" />
                   Up to 30 Products
                 </li>
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-emerald-500 mr-2 flex-shrink-0" />
+                <li className="flex items-center text-base">
+                  <CheckCircle className="w-5 h-5 text-emerald-500 mr-3 flex-shrink-0" />
                   Store Customization & Theming
                 </li>
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-emerald-500 mr-2 flex-shrink-0" />
+                <li className="flex items-center text-base">
+                  <CheckCircle className="w-5 h-5 text-emerald-500 mr-3 flex-shrink-0" />
                   Product Scraping
                 </li>
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-emerald-500 mr-2 flex-shrink-0" />
+                <li className="flex items-center text-base">
+                  <CheckCircle className="w-5 h-5 text-emerald-500 mr-3 flex-shrink-0" />
                   Promotional Slides
                 </li>
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-emerald-500 mr-2 flex-shrink-0" />
+                <li className="flex items-center text-base">
+                  <CheckCircle className="w-5 h-5 text-emerald-500 mr-3 flex-shrink-0" />
                   Basic Analytics Dashboard
                 </li>
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-emerald-500 mr-2 flex-shrink-0" />
+                <li className="flex items-center text-base">
+                  <CheckCircle className="w-5 h-5 text-emerald-500 mr-3 flex-shrink-0" />
                   Email Subscriptions
                 </li>
-                <li className="flex items-center text-gray-500">
-                  <X className="w-5 h-5 text-red-500 mr-2 flex-shrink-0" />
+                <li className="flex items-center text-gray-500 text-base">
+                  <X className="w-5 h-5 text-red-500 mr-3 flex-shrink-0" />
                   No Bulk Import
                 </li>
-                <li className="flex items-center text-gray-500">
-                  <X className="w-5 h-5 text-red-500 mr-2 flex-shrink-0" />
+                <li className="flex items-center text-gray-500 text-base">
+                  <X className="w-5 h-5 text-red-500 mr-3 flex-shrink-0" />
                   No Data Export
                 </li>
-                <li className="flex items-center text-gray-500">
-                  <X className="w-5 h-5 text-red-500 mr-2 flex-shrink-0" />
+                <li className="flex items-center text-gray-500 text-base">
+                  <X className="w-5 h-5 text-red-500 mr-3 flex-shrink-0" />
                   No Floating Widget / Pop-up Banner
                 </li>
               </ul>
@@ -590,47 +1228,47 @@ export default function HomePage() {
             </div>
 
             {/* Premium Plan */}
-            <div className="bg-emerald-600 text-white rounded-xl p-8 shadow-lg border border-emerald-700 flex flex-col relative overflow-hidden">
-              <div className="absolute top-0 right-0 bg-emerald-700 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+            <div className="bg-emerald-600 text-white rounded-2xl p-8 lg:p-10 shadow-xl border-2 border-emerald-700 flex flex-col relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-emerald-800 text-white text-sm font-bold px-4 py-2 rounded-bl-xl">
                 Most Popular
               </div>
-              <h3 className="text-2xl font-bold mb-4">Premium</h3>
-              <p className="text-emerald-100 mb-6">Unlock advanced features for serious growth.</p>
-              <div className="text-4xl font-extrabold mb-2">
-                $29
-                <span className="text-xl text-emerald-200 font-medium"> / month</span>
+              <h3 className="text-2xl lg:text-3xl font-bold mb-4">Premium</h3>
+              <p className="text-emerald-100 mb-6 text-base lg:text-lg">Unlock advanced features for serious growth.</p>
+              <div className="text-4xl lg:text-5xl font-extrabold mb-2">
+                $7
+                <span className="text-xl lg:text-2xl text-emerald-200 font-medium"> / month</span>
               </div>
-              <ul className="space-y-3 flex-grow">
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-white mr-2 flex-shrink-0" />
+              <ul className="space-y-4 flex-grow mt-8">
+                <li className="flex items-center text-base">
+                  <CheckCircle className="w-5 h-5 text-white mr-3 flex-shrink-0" />
                   Unlimited Products
                 </li>
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-white mr-2 flex-shrink-0" />
+                <li className="flex items-center text-base">
+                  <CheckCircle className="w-5 h-5 text-white mr-3 flex-shrink-0" />
                   Advanced Customization
                 </li>
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-white mr-2 flex-shrink-0" />
+                <li className="flex items-center text-base">
+                  <CheckCircle className="w-5 h-5 text-white mr-3 flex-shrink-0" />
                   Bulk Product Import (CSV)
                 </li>
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-white mr-2 flex-shrink-0" />
+                <li className="flex items-center text-base">
+                  <CheckCircle className="w-5 h-5 text-white mr-3 flex-shrink-0" />
                   Floating Widget & Pop-up Banner
                 </li>
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-white mr-2 flex-shrink-0" />
+                <li className="flex items-center text-base">
+                  <CheckCircle className="w-5 h-5 text-white mr-3 flex-shrink-0" />
                   Advanced Analytics & Data Export
                 </li>
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-white mr-2 flex-shrink-0" />
+                <li className="flex items-center text-base">
+                  <CheckCircle className="w-5 h-5 text-white mr-3 flex-shrink-0" />
                   Priority Support
                 </li>
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-white mr-2 flex-shrink-0" />
+                <li className="flex items-center text-base">
+                  <CheckCircle className="w-5 h-5 text-white mr-3 flex-shrink-0" />
                   Custom Domain Support (Coming Soon)
                 </li>
-                <li className="flex items-center">
-                  <CheckCircle className="w-5 h-5 text-white mr-2 flex-shrink-0" />
+                <li className="flex items-center text-base">
+                  <CheckCircle className="w-5 h-5 text-white mr-3 flex-shrink-0" />
                   All Standard Features
                 </li>
               </ul>
@@ -646,105 +1284,105 @@ export default function HomePage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-24 bg-white">
+      <section className="py-20 sm:py-28 lg:py-32 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-16 sm:mb-20">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-5">
               Frequently Asked Questions
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-lg sm:text-xl text-gray-600">
               Everything you need to know about Tiangge
             </p>
           </div>
 
-          <div className="space-y-6">
-            <details className="bg-gray-50 rounded-xl p-6 border border-gray-200 group">
+          <div className="space-y-5">
+            <details className="bg-white rounded-xl p-6 lg:p-8 border border-gray-200 group shadow-sm hover:shadow-md transition-shadow">
               <summary className="text-lg font-semibold text-gray-900 cursor-pointer list-none flex items-center justify-between">
                 <span>What is Tiangge?</span>
                 <span className="text-emerald-600 group-open:rotate-180 transition-transform">▼</span>
               </summary>
-              <p className="text-gray-600 mt-4">
-                Tiangge is an affiliate store builder platform that allows you to create, customize, and manage your own online store for affiliate marketing. You can add products, track analytics, and earn commissions through affiliate links.
+              <p className="text-gray-600 mt-4 leading-relaxed">
+                An affiliate store builder for creating and managing your own online store with products, analytics, and commissions.
               </p>
             </details>
 
-            <details className="bg-gray-50 rounded-xl p-6 border border-gray-200 group">
+            <details className="bg-white rounded-xl p-6 lg:p-8 border border-gray-200 group shadow-sm hover:shadow-md transition-shadow">
               <summary className="text-lg font-semibold text-gray-900 cursor-pointer list-none flex items-center justify-between">
                 <span>Is Tiangge free to use?</span>
                 <span className="text-emerald-600 group-open:rotate-180 transition-transform">▼</span>
               </summary>
-              <p className="text-gray-600 mt-4">
-                Yes! When you sign up, you get a 7-day FREE trial with full Premium access to all features. After the trial, your account automatically switches to the free Standard plan with up to 30 products and core features. You can upgrade to Premium anytime for $29/month to unlock unlimited products and advanced features.
+              <p className="text-gray-600 mt-4 leading-relaxed">
+                Yes! Get a 7-day FREE trial with full Premium access. After the trial, it switches to the free Standard plan (30 products). Upgrade to Premium anytime for $7/month.
               </p>
             </details>
 
-            <details className="bg-gray-50 rounded-xl p-6 border border-gray-200 group">
+            <details className="bg-white rounded-xl p-6 lg:p-8 border border-gray-200 group shadow-sm hover:shadow-md transition-shadow">
               <summary className="text-lg font-semibold text-gray-900 cursor-pointer list-none flex items-center justify-between">
                 <span>How do I earn money with Tiangge?</span>
                 <span className="text-emerald-600 group-open:rotate-180 transition-transform">▼</span>
               </summary>
-              <p className="text-gray-600 mt-4">
-                You earn money through affiliate commissions. When visitors click on products in your store and make purchases through your affiliate links, you earn a commission from the affiliate program. Tiangge provides the tools to showcase products and track performance, but earnings come from your affiliate programs.
+              <p className="text-gray-600 mt-4 leading-relaxed">
+                Earn affiliate commissions when visitors click products and make purchases through your affiliate links. Tiangge provides the tools to showcase and track products.
               </p>
             </details>
 
-            <details className="bg-gray-50 rounded-xl p-6 border border-gray-200 group">
+            <details className="bg-white rounded-xl p-6 lg:p-8 border border-gray-200 group shadow-sm hover:shadow-md transition-shadow">
               <summary className="text-lg font-semibold text-gray-900 cursor-pointer list-none flex items-center justify-between">
                 <span>Can I customize my store design?</span>
                 <span className="text-emerald-600 group-open:rotate-180 transition-transform">▼</span>
               </summary>
-              <p className="text-gray-600 mt-4">
-                Absolutely! Tiangge offers extensive customization options including custom colors, fonts, layouts, backgrounds, and social media integration. You can create a unique store that matches your brand identity.
+              <p className="text-gray-600 mt-4 leading-relaxed">
+                Yes! Customize colors, fonts, layouts, backgrounds, and social media integration to match your brand.
               </p>
             </details>
 
-            <details className="bg-gray-50 rounded-xl p-6 border border-gray-200 group">
+            <details className="bg-white rounded-xl p-6 lg:p-8 border border-gray-200 group shadow-sm hover:shadow-md transition-shadow">
               <summary className="text-lg font-semibold text-gray-900 cursor-pointer list-none flex items-center justify-between">
                 <span>What are sponsored products?</span>
                 <span className="text-emerald-600 group-open:rotate-180 transition-transform">▼</span>
               </summary>
-              <p className="text-gray-600 mt-4">
-                Sponsored products are products placed in stores with 15 or more products. These products provide an additional revenue stream and help keep the platform affordable. They are clearly marked and blend naturally with your store content.
+              <p className="text-gray-600 mt-4 leading-relaxed">
+                Products placed in stores with 15+ products. They're clearly marked and help keep the platform affordable.
               </p>
             </details>
 
-            <details className="bg-gray-50 rounded-xl p-6 border border-gray-200 group">
+            <details className="bg-white rounded-xl p-6 lg:p-8 border border-gray-200 group shadow-sm hover:shadow-md transition-shadow">
               <summary className="text-lg font-semibold text-gray-900 cursor-pointer list-none flex items-center justify-between">
                 <span>How does the analytics feature work?</span>
                 <span className="text-emerald-600 group-open:rotate-180 transition-transform">▼</span>
               </summary>
-              <p className="text-gray-600 mt-4">
-                Our analytics dashboard tracks important metrics including store views, product clicks, search queries, and category selections. This data helps you understand visitor behavior and optimize your store for better conversions.
+              <p className="text-gray-600 mt-4 leading-relaxed">
+                Track store views, product clicks, search queries, and category selections to understand visitor behavior and optimize conversions.
               </p>
             </details>
 
-            <details className="bg-gray-50 rounded-xl p-6 border border-gray-200 group">
+            <details className="bg-white rounded-xl p-6 lg:p-8 border border-gray-200 group shadow-sm hover:shadow-md transition-shadow">
               <summary className="text-lg font-semibold text-gray-900 cursor-pointer list-none flex items-center justify-between">
                 <span>Can I import products in bulk?</span>
                 <span className="text-emerald-600 group-open:rotate-180 transition-transform">▼</span>
               </summary>
-              <p className="text-gray-600 mt-4">
-                Yes! Premium users can import hundreds of products at once using CSV files. This feature is perfect for quickly scaling your store. Standard users can add products one at a time or use the product URL scraping feature for auto-fill.
+              <p className="text-gray-600 mt-4 leading-relaxed">
+                Yes! Premium users can import hundreds of products using CSV files. Standard users can add products one at a time or use URL scraping.
               </p>
             </details>
 
-            <details className="bg-gray-50 rounded-xl p-6 border border-gray-200 group">
+            <details className="bg-white rounded-xl p-6 lg:p-8 border border-gray-200 group shadow-sm hover:shadow-md transition-shadow">
               <summary className="text-lg font-semibold text-gray-900 cursor-pointer list-none flex items-center justify-between">
                 <span>What happens after my 7-day trial ends?</span>
                 <span className="text-emerald-600 group-open:rotate-180 transition-transform">▼</span>
               </summary>
-              <p className="text-gray-600 mt-4">
-                After your 7-day trial, your account automatically switches to the free Standard plan. Premium features like bulk import, floating widgets, and data export will be disabled. If you have more than 30 products, only your 30 most recent products will remain visible. You can upgrade to Premium anytime to restore full access.
+              <p className="text-gray-600 mt-4 leading-relaxed">
+                Your account switches to the free Standard plan. Premium features are disabled, and only your 30 most recent products remain visible. Upgrade anytime to restore full access.
               </p>
             </details>
 
-            <details className="bg-gray-50 rounded-xl p-6 border border-gray-200 group">
+            <details className="bg-white rounded-xl p-6 lg:p-8 border border-gray-200 group shadow-sm hover:shadow-md transition-shadow">
               <summary className="text-lg font-semibold text-gray-900 cursor-pointer list-none flex items-center justify-between">
                 <span>What if I need help?</span>
                 <span className="text-emerald-600 group-open:rotate-180 transition-transform">▼</span>
               </summary>
-              <p className="text-gray-600 mt-4">
-                We offer comprehensive support through our Help Center with detailed guides and tutorials. You can also contact our support team directly through the Contact page, and Premium users receive priority support.
+              <p className="text-gray-600 mt-4 leading-relaxed">
+                Access our Help Center with guides and tutorials, or contact support through the Contact page. Premium users receive priority support.
               </p>
             </details>
           </div>
@@ -752,12 +1390,12 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-emerald-600">
+      <section className="py-20 sm:py-28 lg:py-32 bg-emerald-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6">
             Ready to Start Earning?
           </h2>
-          <p className="text-xl text-emerald-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-emerald-100 mb-10 max-w-2xl mx-auto">
             Join thousands of successful affiliate marketers who are already earning with Tiangge.
           </p>
           <Link
@@ -776,36 +1414,83 @@ export default function HomePage() {
         html {
           scroll-behavior: smooth;
         }
-        @keyframes float-1 {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-10px) rotate(2deg); }
+
+        /* Testimonial Slider Styles */
+        .testimonial-slider-container {
+          overflow: hidden;
+          position: relative;
+          width: 100%;
+          isolation: isolate;
         }
-        @keyframes float-2 {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-15px) rotate(-1deg); }
+        .testimonial-slider-track {
+          display: flex;
+          transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+          will-change: transform;
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
         }
-        @keyframes float-3 {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-5px) rotate(1deg); }
+        .testimonial-slide {
+          min-width: 100%;
+          max-width: 100%;
+          flex-shrink: 0;
+          padding: 0 8px;
+          box-sizing: border-box;
         }
-        @keyframes float-4 {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(3deg); }
+        .testimonial-slide > div {
+          width: 100%;
+          box-sizing: border-box;
+          min-height: 320px;
+          display: flex;
+          align-items: center;
         }
-        @keyframes float-5 {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-8px) rotate(-2deg); }
+        @media (max-width: 640px) {
+          .testimonial-slide {
+            padding: 0 4px;
+          }
+          .testimonial-slide > div {
+            min-height: 280px;
+          }
         }
-        @keyframes float-6 {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-12px) rotate(1deg); }
+
+        /* Infinite Brand Carousel Styles */
+        .carousel-wrapper {
+          overflow: hidden;
+          position: relative;
         }
-        .animate-float-1 { animation: float-1 6s ease-in-out infinite; }
-        .animate-float-2 { animation: float-2 6s ease-in-out infinite; }
-        .animate-float-3 { animation: float-3 6s ease-in-out infinite; }
-        .animate-float-4 { animation: float-4 6s ease-in-out infinite; }
-        .animate-float-5 { animation: float-5 6s ease-in-out infinite; }
-        .animate-float-6 { animation: float-6 6s ease-in-out infinite; }
+        .carousel-track, .carousel-track-reverse {
+          display: flex;
+          gap: 1.5rem;
+          width: fit-content;
+        }
+        .carousel-track {
+          animation: scroll-left 40s linear infinite;
+        }
+        .carousel-track-reverse {
+          animation: scroll-right 40s linear infinite;
+        }
+        .carousel-item {
+          flex-shrink: 0;
+          width: 200px;
+        }
+        @keyframes scroll-left {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+        @keyframes scroll-right {
+          0% {
+            transform: translateX(-50%);
+          }
+          100% {
+            transform: translateX(0);
+          }
+        }
+        .carousel-track:hover, .carousel-track-reverse:hover {
+          animation-play-state: paused;
+        }
         `}</style>
       </div>
     </>
