@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import Head from 'next/head';
-import { Store, Package, TrendingUp, Users, Eye, MousePointer, ArrowRight, Star, StarHalf, RefreshCw, CheckCircle, Zap, Code, Globe, Mail, Image as ImageIcon, SquarePlus, X, ChevronLeft, ChevronRight, Bell, Clock, Gift } from 'lucide-react';
+import { Store, Package, TrendingUp, Users, Eye, MousePointer, ArrowRight, Star, StarHalf, RefreshCw, CircleCheck as CheckCircle, Zap, Code, Globe, Mail, Image as ImageIcon, SquarePlus, X, ChevronLeft, ChevronRight, Bell, Clock, Gift } from 'lucide-react';
 import HomeHeader from '@/components/HomeHeader';
 import HomeFooter from '@/components/HomeFooter';
 
@@ -222,7 +222,11 @@ export default function HomePage() {
                           <div className="w-16 h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full mx-auto mb-4 flex items-center justify-center border-4 border-white shadow-xl">
                             <Store className="w-6 h-6 lg:w-8 lg:h-8 text-white" />
                           </div>
-
+                          
+                          {/* Store Name and Description */}
+                          <h2 className="text-lg lg:text-xl font-bold text-gray-900 mb-2">The Coffee Maker</h2>
+                          <p className="text-sm text-gray-600 mb-4">Welcome to my awesome store! Discover unique products curated just for you.</p>
+                          
                           {/* Social Icons */}
                           <div className="flex justify-center space-x-3 mb-3">
                             <div className="w-5 h-5 text-gray-700">
@@ -244,9 +248,7 @@ export default function HomePage() {
                             </div>
                           </div>
 
-                          {/* Store Name and Description */}
-                          <h2 className="text-lg lg:text-xl font-bold text-gray-900 mb-2">The Coffee Maker</h2>
-                          <p className="text-sm text-gray-600 mb-4">Welcome to my awesome store! Discover unique products curated just for you.</p>
+                      
                         </div>
 
                         {/* Categories */}
@@ -255,35 +257,35 @@ export default function HomePage() {
                             <div className="flex-shrink-0 mx-1">
                               <div className="w-14 h-14 lg:w-16 lg:h-16 rounded-full shadow-md overflow-hidden border-2 border-emerald-500 grid grid-cols-2 grid-rows-2 gap-0">
                                 <div className="w-full h-full">
-                                  <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&h=100&fit=crop" alt="Product collage" className="w-full h-full object-cover" />
+                                  <img src="https://images.pexels.com/photos/1649771/pexels-photo-1649771.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="Product collage" className="w-full h-full object-cover" />
                                 </div>
                                 <div className="w-full h-full">
-                                  <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&h=100&fit=crop" alt="Product collage" className="w-full h-full object-cover" />
+                                  <img src="https://images.pexels.com/photos/27609746/pexels-photo-27609746.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="Product collage" className="w-full h-full object-cover" />
                                 </div>
                                 <div className="w-full h-full">
-                                  <img src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=100&h=100&fit=crop" alt="Product collage" className="w-full h-full object-cover" />
+                                  <img src="https://images.pexels.com/photos/1627820/pexels-photo-1627820.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="Product collage" className="w-full h-full object-cover" />
                                 </div>
                                 <div className="w-full h-full">
-                                  <img src="https://images.unsplash.com/photo-1608043152269-423dbba4e7e4?w=100&h=100&fit=crop" alt="Product collage" className="w-full h-full object-cover" />
+                                  <img src="https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="Product collage" className="w-full h-full object-cover" />
                                 </div>
                               </div>
                               <p className="text-xs text-center mt-1 font-medium text-emerald-600">All</p>
                             </div>
                             <div className="flex-shrink-0 mx-1">
                               <div className="w-14 h-14 lg:w-16 lg:h-16 rounded-full shadow-md overflow-hidden bg-gray-200">
-                                <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&h=100&fit=crop" alt="Fashion category" className="w-full h-full object-cover" />
+                                <img src="https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="Fashion category" className="w-full h-full object-cover" />
                               </div>
                               <p className="text-xs text-center mt-1 font-medium text-gray-600">Fashion</p>
                             </div>
                             <div className="flex-shrink-0 mx-1">
                               <div className="w-14 h-14 lg:w-16 lg:h-16 rounded-full shadow-md overflow-hidden bg-gray-200">
-                                <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=100&h=100&fit=crop" alt="Health category" className="w-full h-full object-cover" />
+                                <img src="https://images.pexels.com/photos/414720/pexels-photo-414720.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="Health category" className="w-full h-full object-cover" />
                               </div>
                               <p className="text-xs text-center mt-1 font-medium text-gray-600">Health</p>
                             </div>
                             <div className="flex-shrink-0 mx-1">
                               <div className="w-14 h-14 lg:w-16 lg:h-16 rounded-full shadow-md overflow-hidden bg-gray-200">
-                                <img src="https://images.unsplash.com/photo-1484788984921-03950022c9ef?w=100&h=100&fit=crop" alt="Office category" className="w-full h-full object-cover" />
+                                <img src="https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="Office category" className="w-full h-full object-cover" />
                               </div>
                               <p className="text-xs text-center mt-1 font-medium text-gray-600">Office</p>
                             </div>
@@ -312,12 +314,12 @@ export default function HomePage() {
                           {/* Product Grid */}
                           <div className="grid grid-cols-3 gap-2 lg:gap-3">
                             {[
-                              { name: 'Wireless Headphones', price: '$149.99', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop' },
-                              { name: 'Smart Watch Pro', price: '$299.99', image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=200&h=200&fit=crop' },
-                              { name: 'Designer Backpack', price: '$89.99', image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=200&h=200&fit=crop' },
-                              { name: 'Sunglasses', price: '$129.99', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&h=200&fit=crop' },
-                              { name: 'Laptop Computer', price: '$999.99', image: 'https://images.unsplash.com/photo-1484788984921-03950022c9ef?w=200&h=200&fit=crop' },
-                              { name: 'Bluetooth Speaker', price: '$79.99', image: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e4?w=200&h=200&fit=crop' }
+                              { name: 'Wireless Headphones', price: '$149.99', image: 'https://images.pexels.com/photos/1649771/pexels-photo-1649771.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop' },
+                              { name: 'High Smart Watch Pro', price: '$299.99', image: 'https://images.pexels.com/photos/27609746/pexels-photo-27609746.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop' },
+                              { name: 'Designer Backpack', price: '$89.99', image: 'https://images.pexels.com/photos/1627820/pexels-photo-1627820.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop' },
+                              { name: 'Sport Sneakers', price: '$129.99', image: 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop' },
+                              { name: 'Laptop Computer', price: '$999.99', image: 'https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop' },
+                              { name: 'Bluetooth Speaker', price: '$79.99', image: 'https://images.pexels.com/photos/31683433/pexels-photo-31683433.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop' }
                             ].map((product, index) => (
                               <div key={index} className="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100">
                                 <div className="aspect-square overflow-hidden">
@@ -382,35 +384,35 @@ export default function HomePage() {
                         <div className="flex-shrink-0 mx-0.5 sm:mx-1">
                           <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-md overflow-hidden border-2 border-emerald-500 grid grid-cols-2 grid-rows-2 gap-0">
                             <div className="w-full h-full">
-                              <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=100&h=100&fit=crop" alt="Product collage" className="w-full h-full object-cover" />
+                              <img src="https://images.pexels.com/photos/1649771/pexels-photo-1649771.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="Product collage" className="w-full h-full object-cover" />
                             </div>
                             <div className="w-full h-full">
-                              <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&h=100&fit=crop" alt="Product collage" className="w-full h-full object-cover" />
+                              <img src="https://images.pexels.com/photos/27609746/pexels-photo-27609746.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="Product collage" className="w-full h-full object-cover" />
                             </div>
                             <div className="w-full h-full">
-                              <img src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=100&h=100&fit=crop" alt="Product collage" className="w-full h-full object-cover" />
+                              <img src="https://images.pexels.com/photos/1627820/pexels-photo-1627820.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="Product collage" className="w-full h-full object-cover" />
                             </div>
                             <div className="w-full h-full">
-                              <img src="https://images.unsplash.com/photo-1608043152269-423dbba4e7e4?w=100&h=100&fit=crop" alt="Product collage" className="w-full h-full object-cover" />
+                              <img src="https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="Product collage" className="w-full h-full object-cover" />
                             </div>
                           </div>
                           <p className="text-xs text-center mt-1 font-medium text-emerald-600">All</p>
                         </div>
                         <div className="flex-shrink-0 mx-0.5 sm:mx-1">
                           <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-md overflow-hidden bg-gray-200">
-                            <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=100&h=100&fit=crop" alt="Fashion category" className="w-full h-full object-cover" />
+                            <img src="https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="Fashion category" className="w-full h-full object-cover" />
                           </div>
                           <p className="text-xs text-center mt-1 font-medium text-gray-600">Fashion</p>
                         </div>
                         <div className="flex-shrink-0 mx-0.5 sm:mx-1">
                           <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-md overflow-hidden bg-gray-200">
-                            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=100&h=100&fit=crop" alt="Health category" className="w-full h-full object-cover" />
+                            <img src="https://images.pexels.com/photos/414720/pexels-photo-414720.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="Health category" className="w-full h-full object-cover" />
                           </div>
                           <p className="text-xs text-center mt-1 font-medium text-gray-600">Health</p>
                         </div>
                         <div className="flex-shrink-0 mx-0.5 sm:mx-1">
                           <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-md overflow-hidden bg-gray-200">
-                            <img src="https://images.unsplash.com/photo-1484788984921-03950022c9ef?w=100&h=100&fit=crop" alt="Office category" className="w-full h-full object-cover" />
+                            <img src="https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="Office category" className="w-full h-full object-cover" />
                           </div>
                           <p className="text-xs text-center mt-1 font-medium text-gray-600">Office</p>
                         </div>
@@ -439,12 +441,12 @@ export default function HomePage() {
                       {/* Product Grid - 3 columns for consistency */}
                       <div className="grid grid-cols-3 gap-1 sm:gap-1.5">
                         {[
-                          { name: 'Wireless Headphones', price: '$149.99', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop' },
-                          { name: 'Smart Watch Pro', price: '$299.99', image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=200&h=200&fit=crop' },
-                          { name: 'Designer Backpack', price: '$89.99', image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=200&h=200&fit=crop' },
-                          { name: 'Sunglasses', price: '$129.99', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&h=200&fit=crop' },
-                          { name: 'Laptop Computer', price: '$999.99', image: 'https://images.unsplash.com/photo-1484788984921-03950022c9ef?w=200&h=200&fit=crop' },
-                          { name: 'Bluetooth Speaker', price: '$79.99', image: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e4?w=200&h=200&fit=crop' }
+                          { name: 'Wireless Headphones', price: '$149.99', image: 'https://images.pexels.com/photos/1649771/pexels-photo-1649771.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop' },
+                          { name: 'Smart Watch Pro', price: '$299.99', image: 'https://images.pexels.com/photos/27609746/pexels-photo-27609746.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop' },
+                          { name: 'Designer Backpack', price: '$89.99', image: 'https://images.pexels.com/photos/1627820/pexels-photo-1627820.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop' },
+                          { name: 'Sport Sneakers', price: '$129.99', image: 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop' },
+                          { name: 'Laptop Computer', price: '$999.99', image: 'https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop' },
+                          { name: 'Bluetooth Speaker', price: '$79.99', image: 'https://images.pexels.com/photos/31683433/pexels-photo-31683433.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop' }
                         ].map((product, index) => (
                           <div key={index} className="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100">
                             <div className="aspect-square overflow-hidden">
@@ -494,29 +496,48 @@ export default function HomePage() {
               </div>
               <div className="w-full md:w-1/2">
                 <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 h-[320px] flex flex-col">
-                  <div className="p-6 bg-gradient-to-br from-emerald-50 to-white flex-1 flex items-center">
-                    <div className="flex gap-4 w-full">
-                      <div className="flex-1 flex flex-col justify-center space-y-3">
-                        <div className="flex items-center gap-2 bg-white border-2 border-gray-300 rounded-lg px-3 py-3 shadow-sm">
-                          <Globe className="w-5 h-5 text-gray-400" />
-                          <input type="text" placeholder="amazon.com/product/..." className="flex-1 text-sm text-gray-500 bg-transparent border-none outline-none" readOnly />
+                  <div className="p-6 bg-gradient-to-br from-emerald-50 to-white flex-1 overflow-auto">
+                    <div className="flex items-center gap-2 bg-white border-2 border-gray-300 rounded-lg px-3 py-3 shadow-sm mb-4">
+                      <Globe className="w-5 h-5 text-gray-400" />
+                      <input type="text" placeholder="amazon.com/product/..." className="flex-1 text-sm text-gray-500 bg-transparent border-none outline-none" readOnly />
+                    </div>
+                    <button className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition-shadow mb-4">
+                      Scrape Product
+                    </button>
+                    <div className="bg-white rounded-lg border border-gray-300 overflow-hidden">
+                      <div className="flex items-center text-xs font-semibold bg-gray-200 border-b border-gray-200">
+                        <div className="p-3 w-1/12 min-w-[50px]">
+                          <div className="h-3 bg-gray-400 rounded w-full"></div>
                         </div>
-                        <button className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-                          Scrape Product
-                        </button>
+                        <div className="p-3 w-7/12">
+                          <div className="h-3 bg-gray-400 rounded w-1/2"></div>
+                        </div>
+                        <div className="p-3 w-4/12">
+                          <div className="h-3 bg-gray-400 rounded w-3/4"></div>
+                        </div>
                       </div>
-                      <div className="w-36 border border-gray-300 rounded-lg overflow-hidden bg-white flex-shrink-0">
-                        <div className="aspect-square overflow-hidden bg-gray-200">
-                          <div className="w-full h-full"></div>
+                      <div className="flex items-center border-b border-gray-200">
+                        <div className="p-3 w-1/12 min-w-[50px]">
+                          <div className="aspect-square w-full bg-gray-200 rounded"></div>
                         </div>
-                        <div className="p-2 flex flex-col justify-between">
-                          <div className="space-y-1.5 mb-2">
-                            <div className="h-2.5 bg-gray-300 rounded w-full"></div>
-                            <div className="h-2.5 bg-gray-300 rounded w-4/5"></div>
-                          </div>
-                          <div className="flex items-center justify-start">
-                            <div className="h-3 w-2/5 bg-gray-300 rounded"></div>
-                          </div>
+                        <div className="p-3 w-7/12">
+                          <div className="h-3 bg-gray-300 rounded w-11/12 mb-1.5"></div>
+                          <div className="h-2 bg-gray-200 rounded w-8/12"></div>
+                        </div>
+                        <div className="p-3 w-4/12">
+                          <div className="h-3 bg-gray-300 rounded w-1/2"></div>
+                        </div>
+                      </div>
+                      <div className="flex items-center border-b border-gray-200">
+                        <div className="p-3 w-1/12 min-w-[50px]">
+                          <div className="aspect-square w-full bg-gray-200 rounded"></div>
+                        </div>
+                        <div className="p-3 w-7/12">
+                          <div className="h-3 bg-gray-300 rounded w-9/12 mb-1.5"></div>
+                          <div className="h-2 bg-gray-200 rounded w-7/12"></div>
+                        </div>
+                        <div className="p-3 w-4/12">
+                          <div className="h-3 bg-gray-300 rounded w-3/5"></div>
                         </div>
                       </div>
                     </div>
@@ -1176,7 +1197,7 @@ export default function HomePage() {
             {/* Standard Plan */}
             <div className="bg-gray-50 rounded-2xl p-8 lg:p-10 shadow-lg border-2 border-gray-200 flex flex-col">
               <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">Standard</h3>
-              <p className="text-gray-600 mb-6 text-base lg:text-lg">Perfect for new affiliate marketers getting started. Now Enjoy 7 days Full Premium Access</p>
+              <p className="text-gray-600 mb-6 text-base lg:text-lg">Perfect for new affiliate marketers getting started. Now Enjoy 7 days Full Premium Access.</p>
               <div className="text-4xl lg:text-5xl font-extrabold text-emerald-600 mb-2">
                 Free
                 <span className="text-xl lg:text-2xl text-gray-500 font-medium"> / forever</span>
