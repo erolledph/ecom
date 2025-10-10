@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
+import Head from 'next/head';
 import { Store, Package, TrendingUp, Users, Eye, MousePointer, ArrowRight, Star, StarHalf, RefreshCw, CheckCircle, Crown, Lock, DollarSign, Zap, ShieldCheck, LayoutDashboard, Code, Globe, Mail, Settings, BarChart3, Image as ImageIcon, PlusCircle, SquarePlus, LogOut, X, User, Copy, ChevronDown, Calendar, Clock, CircleAlert as AlertCircle } from 'lucide-react';
 import HomeHeader from '@/components/HomeHeader';
 import HomeFooter from '@/components/HomeFooter';
@@ -31,15 +32,28 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <HomeHeader />
+    <>
+      <Head>
+        <title>Tiangge - Create Your Online Affiliate Store | Earn Commissions Today</title>
+        <meta name="description" content="Build and customize your own affiliate store with Tiangge. Add products, create promotional slides, track analytics, and start earning commissions through affiliate marketing. Free 7-day trial." />
+        <meta name="keywords" content="affiliate store, affiliate marketing, online store builder, earn commissions, product management, analytics, affiliate business" />
+        <meta property="og:title" content="Tiangge - Create Your Online Affiliate Store" />
+        <meta property="og:description" content="Build and customize your own affiliate store. Add products, create promotional slides, and start earning commissions through affiliate marketing." />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Tiangge - Create Your Online Affiliate Store" />
+        <meta name="twitter:description" content="Build and customize your own affiliate store with Tiangge. Start earning commissions through affiliate marketing." />
+        <link rel="canonical" href="https://tiangge.shop" />
+      </Head>
+      <div className="min-h-screen bg-white">
+        <HomeHeader />
 
       {/* Hero Section - Enhanced Copy and CTA */}
       <section className="relative min-h-[70vh] pt-24 pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden flex items-center bg-gradient-to-br from-emerald-50 to-white">
         <div className="max-w-7xl mx-auto w-full text-center">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 mb-6 leading-tight">
-            Launch Your Profitable
-            <span className="text-emerald-600 block">Affiliate Store Today</span>
+            Create Your Online Affiliate Store and
+            <span className="text-emerald-600 block">Earn Commissions Today</span>
           </h1>
           <p className="text-xl text-gray-700 mb-4 max-w-3xl mx-auto">
             Effortlessly build, customize, and manage your own high-converting affiliate store. Maximize your earnings with powerful tools designed for success.
@@ -399,7 +413,7 @@ export default function HomePage() {
       </section>
 
       {/* Features Section - Refined Content */}
-      <section className="py-24 bg-gray-50">
+      <section id="features" className="py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
@@ -756,9 +770,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      <HomeFooter />
+        <HomeFooter />
 
-      <style jsx>{`
+        <style jsx>{`
         html {
           scroll-behavior: smooth;
         }
@@ -792,7 +806,8 @@ export default function HomePage() {
         .animate-float-4 { animation: float-4 6s ease-in-out infinite; }
         .animate-float-5 { animation: float-5 6s ease-in-out infinite; }
         .animate-float-6 { animation: float-6 6s ease-in-out infinite; }
-      `}</style>
-    </div>
+        `}</style>
+      </div>
+    </>
   );
 }
