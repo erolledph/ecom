@@ -658,7 +658,6 @@ export default function HomePage() {
                           <Mail className="w-8 h-8 text-pink-600" />
                         </div>
                         <h4 className="text-xl font-bold text-gray-900 mb-2">Stay Updated!</h4>
-                        <p className="text-sm text-gray-600">Get notified about new products</p>
                       </div>
                       <div className="space-y-4">
                         <div className="flex items-center gap-2 bg-gray-50 border border-gray-300 rounded-lg px-4 py-3">
