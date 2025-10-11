@@ -351,7 +351,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                   {/* Centered avatar */}
                   <div className="flex justify-center mb-3 sm:mb-4">
                     {store.avatar && (
-                      <div 
+                      <div
                         className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-4 shadow-lg"
                         style={{
                           borderColor: store.customization?.avatarBorderColor || '#ffffff'
@@ -363,6 +363,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                           width={64}
                           height={64}
                           className="w-full h-full object-cover"
+                          priority
                         />
                       </div>
                     )}
@@ -393,7 +394,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                   {/* Avatar */}
                   <div className="flex items-center">
                     {store.avatar && (
-                      <div 
+                      <div
                         className="w-12 h-12 sm:w-16 sm:h-16 rounded-full overflow-hidden border-4 shadow-lg"
                         style={{
                           borderColor: store.customization?.avatarBorderColor || '#ffffff'
@@ -405,6 +406,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                           width={48}
                           height={48}
                           className="w-full h-full object-cover"
+                          priority
                         />
                       </div>
                     )}
@@ -477,6 +479,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                         height={400}
                         className="w-full h-full object-cover"
                         priority={index === 0}
+                        loading={index === 0 ? undefined : "lazy"}
                       />
                       {/* Text content layer */}
                       <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-3 sm:p-4 z-10">
@@ -595,6 +598,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                                   width={32}
                                   height={32}
                                   className="w-full h-full object-cover"
+                                  loading="lazy"
                                 />
                               </div>
                             ))
@@ -605,6 +609,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                             width={64}
                             height={64}
                             className="w-full h-full object-cover"
+                            loading="lazy"
                           />
                         ) : (
                           <span 
@@ -711,6 +716,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
                           width={200}
                           height={200}
                           className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                          loading="lazy"
                         />
                       )}
                     </div>
@@ -835,8 +841,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
               handleWidgetClick();
             }
           }}
-          className="fixed bottom-3 right-3 sm:bottom-4 sm:right-4 z-50 animate-pulse"
-          style={{ animation: 'pulse-animation 2s infinite cubic-bezier(0.4, 0, 0.6, 1)' }}
+          className="fixed bottom-3 right-3 sm:bottom-4 sm:right-4 z-50 widget-pulse"
         >
           <Image
             src={store.widgetImage || store.avatar}
@@ -844,6 +849,7 @@ export default function StoreTemplate({ store, products, slides, categories, ini
             width={48}
             height={48}
             className="w-12 h-12 sm:w-16 sm:h-16"
+            loading="lazy"
           />
         </button>
       )}
@@ -916,31 +922,48 @@ export default function StoreTemplate({ store, products, slides, categories, ini
           -ms-overflow-style: none;
           scrollbar-width: none;
         }
+        .widget-pulse {
+          animation: pulse-animation 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+          will-change: transform;
+        }
         @keyframes pulse-animation {
           0%, 100% {
             transform: scale(1);
           }
           50% {
-            transform: scale(1.1);
+            transform: scale(1.05);
           }
         }
         .store-name-color {
           background-color: ${storeNameColor};
         }
-        
+
         @media (max-width: 640px) {
           .category-scroller {
             padding-left: 0.75rem;
             padding-right: 0.75rem;
           }
-          
+
           .grid {
             gap: 0.5rem;
           }
-          
+
           .prose {
             font-size: 0.875rem;
             line-height: 1.25rem;
+          }
+
+          .widget-pulse {
+            animation: pulse-animation 3s infinite cubic-bezier(0.4, 0, 0.6, 1);
+          }
+
+          @keyframes pulse-animation {
+            0%, 100% {
+              transform: scale(1);
+            }
+            50% {
+              transform: scale(1.03);
+            }
           }
         }
       `}</style>
