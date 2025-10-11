@@ -7,7 +7,7 @@ import { logout } from '@/lib/auth';
 import { canAccessFeature } from '@/lib/auth';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
-import { ChartBar as BarChart3, Store, Image, Package, LogOut, X, User, CirclePlus as PlusCircle, SquarePlus as PlusSquare, TrendingUp, Users, Settings, DollarSign, Radio, Bell } from 'lucide-react';
+import { ChartBar as BarChart3, Store, Image, Package, LogOut, X, User, CirclePlus as PlusCircle, SquarePlus as PlusSquare, TrendingUp, Users, Settings, DollarSign, Radio, Bell, HelpCircle } from 'lucide-react';
 
 interface DashboardNavProps {
   isSidebarOpen: boolean;
@@ -44,8 +44,19 @@ export default function DashboardNav({ isSidebarOpen, toggleSidebar }: Dashboard
     if (canAccessFeature(userProfile, 'analytics')) {
       const analyticsIndex = navigation.findIndex(item => item.name === 'Store Settings');
       if (analyticsIndex !== -1) {
-        navigation.splice(analyticsIndex + 1, 0, 
+        navigation.splice(analyticsIndex + 1, 0,
           { name: 'Analytics', href: '/dashboard/analytics', icon: TrendingUp }
+        );
+      }
+    }
+
+    // Add help desk for premium users (not trial)
+    if (userProfile?.isPremiumAdminSet === true || canAccessFeature(userProfile, 'admin')) {
+      const slidesIndex = navigation.findIndex(item => item.name === 'Add Slide');
+      if (slidesIndex !== -1) {
+        navigation.splice(slidesIndex + 1, 0,
+          { type: 'header', name: 'Support' },
+          { name: 'Help Desk', href: '/dashboard/helpdesk', icon: HelpCircle }
         );
       }
     }
@@ -58,6 +69,7 @@ export default function DashboardNav({ isSidebarOpen, toggleSidebar }: Dashboard
         { name: 'Global Broadcast', href: '/dashboard/system-management/global-broadcast', icon: Radio },
         { name: 'Broadcast Notifications', href: '/dashboard/system-management/broadcast-notifications', icon: Bell },
         { name: 'Sponsor Products', href: '/dashboard/system-management/sponsor-products', icon: DollarSign },
+        { name: 'Helpdesk Management', href: '/dashboard/system-management/helpdesk', icon: HelpCircle },
       );
     }
 

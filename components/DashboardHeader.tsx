@@ -6,7 +6,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { isPremium, isOnTrial, hasTrialExpired, getTrialDaysRemaining } from '@/lib/auth';
 import { getUserStore, getAllUserNotifications, markNotificationAsRead, Notification } from '@/lib/store';
-import { Menu, Bell, User, Copy, ExternalLink, ChevronDown, Calendar, Check, Clock, Crown } from 'lucide-react';
+import { getUserTicketNotifications, markTicketNotificationAsRead, subscribeToTicketNotifications, TicketNotification, clearTicketNotifications } from '@/lib/helpdesk';
+import { Menu, Bell, User, Copy, ExternalLink, ChevronDown, Calendar, Check, Clock, Crown, MessageSquare } from 'lucide-react';
 import NotificationModal from '@/components/NotificationModal';
 
 interface DashboardHeaderProps {
@@ -20,7 +21,9 @@ export default function DashboardHeader({ isSidebarOpen, toggleSidebar }: Dashbo
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNotificationMenuOpen, setIsNotificationMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState<(Notification & { isRead: boolean })[]>([]);
+  const [ticketNotifications, setTicketNotifications] = useState<TicketNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [ticketUnreadCount, setTicketUnreadCount] = useState(0);
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
@@ -65,6 +68,13 @@ export default function DashboardHeader({ isSidebarOpen, toggleSidebar }: Dashbo
   useEffect(() => {
     if (user) {
       loadNotifications();
+
+      const unsubscribe = subscribeToTicketNotifications(user.uid, (notifications) => {
+        setTicketNotifications(notifications);
+        setTicketUnreadCount(notifications.filter(n => !n.isRead).length);
+      });
+
+      return () => unsubscribe();
     }
   }, [user, loadNotifications]);
   // Close user menu when clicking outside
@@ -144,9 +154,9 @@ export default function DashboardHeader({ isSidebarOpen, toggleSidebar }: Dashbo
             >
               <Bell className="w-5 h-5 sm:w-6 sm:h-6" />
               {/* Notification badge */}
-              {unreadCount > 0 && (
+              {(unreadCount + ticketUnreadCount) > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-medium">
-                  {unreadCount > 99 ? '99+' : unreadCount}
+                  {(unreadCount + ticketUnreadCount) > 99 ? '99+' : (unreadCount + ticketUnreadCount)}
                 </span>
               )}
             </button>
@@ -158,9 +168,9 @@ export default function DashboardHeader({ isSidebarOpen, toggleSidebar }: Dashbo
                 <div className="px-4 py-3 border-b border-gray-100">
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
-                    {unreadCount > 0 && (
+                    {(unreadCount + ticketUnreadCount) > 0 && (
                       <span className="text-xs text-gray-500">
-                        {unreadCount} unread
+                        {unreadCount + ticketUnreadCount} unread
                       </span>
                     )}
                   </div>
@@ -173,15 +183,60 @@ export default function DashboardHeader({ isSidebarOpen, toggleSidebar }: Dashbo
                       <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600 mx-auto"></div>
                       <p className="text-sm text-gray-500 mt-2">Loading notifications...</p>
                     </div>
-                  ) : notifications.length > 0 ? (
+                  ) : (notifications.length > 0 || ticketNotifications.length > 0) ? (
                     <div className="py-2">
+                      {ticketNotifications.map((notification) => (
+                        <button
+                          key={`ticket-${notification.id}`}
+                          onClick={() => {
+                            if (notification.id) {
+                              markTicketNotificationAsRead(notification.id);
+                            }
+                            setIsNotificationMenuOpen(false);
+                            window.location.href = '/dashboard/helpdesk';
+                          }}
+                          className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors border-l-4 ${
+                            notification.isRead
+                              ? 'border-transparent'
+                              : 'border-blue-500 bg-blue-50'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <MessageSquare className="w-3 h-3 text-blue-500" />
+                                <span className="text-xs font-medium text-blue-600">Support Ticket</span>
+                              </div>
+                              <p className={`text-xs sm:text-sm font-medium line-clamp-2 ${
+                                notification.isRead ? 'text-gray-700' : 'text-gray-900'
+                              }`}>
+                                {notification.message}
+                              </p>
+                              <div className="flex items-center mt-1 space-x-2">
+                                <Calendar className="w-3 h-3 text-gray-400" />
+                                <span className="text-xs text-gray-500">
+                                  {notification.createdAt.toLocaleDateString()}
+                                </span>
+                                {!notification.isRead && (
+                                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    New
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            {!notification.isRead && (
+                              <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                            )}
+                          </div>
+                        </button>
+                      ))}
                       {notifications.map((notification) => (
                         <button
                           key={notification.id}
                           onClick={() => handleNotificationClick(notification)}
                           className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors border-l-4 ${
-                            notification.isRead 
-                              ? 'border-transparent' 
+                            notification.isRead
+                              ? 'border-transparent'
                               : 'border-primary-500 bg-primary-50'
                           }`}
                         >

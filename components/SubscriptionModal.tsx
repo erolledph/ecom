@@ -10,6 +10,7 @@ import { X, Mail, User, Send } from 'lucide-react';
 interface StoreCustomization {
   loadMoreButtonBgColor?: string;
   loadMoreButtonTextColor?: string;
+  avatarBorderColor?: string;
 }
 
 interface SubscriptionModalProps {
@@ -171,7 +172,8 @@ export default function SubscriptionModal({
                   alt={storeName}
                   width={40}
                   height={40}
-                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-primary-200"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2"
+                  style={{ borderColor: customization?.avatarBorderColor || '#ffffff' }}
                 />
               ) : (
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center">
