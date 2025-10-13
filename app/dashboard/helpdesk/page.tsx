@@ -243,12 +243,12 @@ export default function HelpdeskPage() {
           Back to tickets
         </button>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-start justify-between mb-6">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+          <div className="flex flex-col gap-4 mb-6">
             <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
+              <div className="flex items-start gap-2 sm:gap-3 mb-2">
                 {getStatusIcon(selectedTicket.status)}
-                <h1 className="text-2xl font-bold text-gray-900">{selectedTicket.subject}</h1>
+                <h1 className="text-lg sm:text-2xl font-bold text-gray-900 break-words">{selectedTicket.subject}</h1>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 {getStatusBadge(selectedTicket.status)}
@@ -272,10 +272,10 @@ export default function HelpdeskPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="p-4 rounded-lg bg-gray-50 border border-gray-200">
-                  <div className="flex items-center justify-between mb-2">
+                <div className="p-3 sm:p-4 rounded-lg bg-gray-50 border border-gray-200">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-gray-900">
+                      <span className="font-semibold text-gray-900 text-sm sm:text-base break-words">
                         {selectedTicket.userName}
                       </span>
                       <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-gray-600 text-white">
@@ -286,7 +286,7 @@ export default function HelpdeskPage() {
                       {selectedTicket.createdAt.toLocaleString()}
                     </span>
                   </div>
-                  <p className="text-gray-700 whitespace-pre-wrap">{selectedTicket.description}</p>
+                  <p className="text-gray-700 whitespace-pre-wrap text-sm sm:text-base break-words">{selectedTicket.description}</p>
                 </div>
                 {ticketReplies.length === 0 ? (
                   <p className="text-gray-500 text-center py-8">
@@ -296,15 +296,15 @@ export default function HelpdeskPage() {
                   ticketReplies.map((reply) => (
                     <div
                       key={reply.id}
-                      className={`p-4 rounded-lg ${
+                      className={`p-3 sm:p-4 rounded-lg ${
                         reply.isAdmin
                           ? 'bg-primary-50 border border-primary-200'
                           : 'bg-gray-50 border border-gray-200'
                       }`}
                     >
-                      <div className="flex items-center justify-between mb-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-gray-900">
+                          <span className="font-semibold text-gray-900 text-sm sm:text-base break-words">
                             {reply.userName}
                           </span>
                           {reply.isAdmin && (
@@ -313,11 +313,11 @@ export default function HelpdeskPage() {
                             </span>
                           )}
                         </div>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-gray-500 whitespace-nowrap">
                           {reply.createdAt.toLocaleString()}
                         </span>
                       </div>
-                      <p className="text-gray-700 whitespace-pre-wrap">{reply.message}</p>
+                      <p className="text-gray-700 whitespace-pre-wrap text-sm sm:text-base break-words">{reply.message}</p>
                     </div>
                   ))
                 )}
@@ -331,25 +331,25 @@ export default function HelpdeskPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Help Desk</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Help Desk</h1>
           <p className="text-gray-600 mt-2">Submit and track your support tickets</p>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={loadTicketsManually}
             disabled={loadingTickets}
-            className="flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
           >
-            <RefreshCw className={`w-5 h-5 mr-2 ${loadingTickets ? 'animate-spin' : ''}`} />
-            Refresh
+            <RefreshCw className={`w-4 h-4 sm:w-5 sm:h-5 sm:mr-2 ${loadingTickets ? 'animate-spin' : ''}`} />
+            <span className="hidden sm:inline">Refresh</span>
           </button>
           <button
             onClick={() => setShowNewTicketForm(!showNewTicketForm)}
-            className="flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+            className="flex items-center px-3 sm:px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm sm:text-base"
           >
-            <Plus className="w-5 h-5 mr-2" />
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
             New Ticket
           </button>
         </div>
@@ -452,18 +452,18 @@ export default function HelpdeskPage() {
       )}
 
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900">Your Tickets</h2>
+        <div className="p-4 sm:p-6 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Your Tickets</h2>
           {tickets.length > 0 && (
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Per page:</span>
+              <span className="text-xs sm:text-sm text-gray-600">Per page:</span>
               <select
                 value={itemsPerPage}
                 onChange={(e) => {
                   setItemsPerPage(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                className="px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm"
               >
                 <option value={5}>5</option>
                 <option value={10}>10</option>
@@ -487,7 +487,7 @@ export default function HelpdeskPage() {
           </div>
         ) : (
           <div>
-            <div className="overflow-x-auto">
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
@@ -560,26 +560,64 @@ export default function HelpdeskPage() {
               </tbody>
               </table>
             </div>
+            <div className="md:hidden divide-y divide-gray-200">
+              {paginatedTickets.map((ticket) => (
+                <div
+                  key={ticket.id}
+                  onClick={() => handleTicketClick(ticket)}
+                  className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                >
+                  <div className="flex items-start gap-2 mb-2">
+                    {getStatusIcon(ticket.status)}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-medium text-gray-900 break-words">{ticket.subject}</h3>
+                      <p className="text-xs text-gray-500 line-clamp-2 mt-1">{ticket.description}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap mt-2">
+                    {getStatusBadge(ticket.status)}
+                    {getPriorityBadge(ticket.priority)}
+                    <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">
+                      {ticket.category.replace('_', ' ').toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between mt-3 text-xs text-gray-500">
+                    <span>{ticket.createdAt.toLocaleDateString()}</span>
+                    {ticket.hasAdminReply ? (
+                      <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Admin replied
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-500">
+                        <Clock className="w-3 h-3 mr-1" />
+                        Waiting
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
 
             {totalPages > 1 && (
-              <div className="p-4 border-t border-gray-200 flex items-center justify-between">
-                <div className="text-sm text-gray-600">
+              <div className="p-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="text-xs sm:text-sm text-gray-600">
                   Showing {startIndex + 1} to {Math.min(endIndex, tickets.length)} of {tickets.length} tickets
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-center">
                   <button
                     onClick={() => setCurrentPage(1)}
                     disabled={currentPage === 1}
-                    className="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="px-2 sm:px-3 py-1 text-xs sm:text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     First
                   </button>
                   <button
                     onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                     disabled={currentPage === 1}
-                    className="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="px-2 sm:px-3 py-1 text-xs sm:text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
-                    Previous
+                    Prev
                   </button>
                   <div className="flex items-center gap-1">
                     {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -597,7 +635,7 @@ export default function HelpdeskPage() {
                         <button
                           key={pageNum}
                           onClick={() => setCurrentPage(pageNum)}
-                          className={`px-3 py-1 text-sm border rounded-lg transition-colors ${
+                          className={`px-2 sm:px-3 py-1 text-xs sm:text-sm border rounded-lg transition-colors ${
                             currentPage === pageNum
                               ? 'bg-primary-600 text-white border-primary-600'
                               : 'border-gray-300 hover:bg-gray-50'
@@ -611,14 +649,14 @@ export default function HelpdeskPage() {
                   <button
                     onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                     disabled={currentPage === totalPages}
-                    className="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="px-2 sm:px-3 py-1 text-xs sm:text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     Next
                   </button>
                   <button
                     onClick={() => setCurrentPage(totalPages)}
                     disabled={currentPage === totalPages}
-                    className="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="px-2 sm:px-3 py-1 text-xs sm:text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     Last
                   </button>

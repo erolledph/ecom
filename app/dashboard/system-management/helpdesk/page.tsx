@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { useRouter } from 'next/navigation';
 import { isAdmin } from '@/lib/auth';
-import { getAllTickets, getTicket, updateTicketStatus, addTicketReply, getTicketReplies, subscribeToTicketReplies, sendTicketNotification, HelpdeskTicket, TicketReply } from '@/lib/helpdesk';
+import { getAllTickets, getTicket, updateTicketStatus, addTicketReply, getTicketReplies, subscribeToTicketReplies, sendTicketNotification, markTicketAsOpened, HelpdeskTicket, TicketReply } from '@/lib/helpdesk';
 import { MessageSquare, Clock, CheckCircle, XCircle, AlertCircle, ChevronLeft, Send, Filter } from 'lucide-react';
 import AdminRoute from '@/components/AdminRoute';
 
@@ -61,6 +61,14 @@ function HelpdeskManagementContent() {
 
   const handleTicketClick = async (ticket: HelpdeskTicket) => {
     setSelectedTicket(ticket);
+
+    if (ticket.id && !ticket.openedByAdmin) {
+      try {
+        await markTicketAsOpened(ticket.id);
+      } catch (error) {
+        console.error('Error marking ticket as opened:', error);
+      }
+    }
   };
 
   const handleBackToList = () => {
@@ -69,28 +77,19 @@ function HelpdeskManagementContent() {
     setReplyMessage('');
   };
 
-  const handleStatusChange = async (ticketId: string, newStatus: 'open' | 'in_progress' | 'resolved' | 'closed', notify: boolean = false) => {
+  const handleStatusChange = async (ticketId: string, newStatus: 'open' | 'in_progress' | 'resolved' | 'closed') => {
     try {
       const ticket = tickets.find(t => t.id === ticketId) || selectedTicket;
       if (!ticket) return;
 
-      await updateTicketStatus(ticketId, newStatus);
+      const shouldNotify = ticket.lastNotifiedStatus !== newStatus;
 
-      if (notify) {
-        const statusMessages = {
-          open: 'reopened',
-          in_progress: 'is now being reviewed',
-          resolved: 'has been resolved',
-          closed: 'has been closed'
-        };
-        const message = `Your ticket "${ticket.subject}" ${statusMessages[newStatus]}.`;
-        await sendTicketNotification(ticket.userId, ticketId, ticket.subject, message);
-      }
+      await updateTicketStatus(ticketId, newStatus, shouldNotify);
 
       showToast('Ticket status updated', 'success');
 
       if (selectedTicket && selectedTicket.id === ticketId) {
-        setSelectedTicket({ ...selectedTicket, status: newStatus });
+        setSelectedTicket({ ...selectedTicket, status: newStatus, lastNotifiedStatus: shouldNotify ? newStatus : selectedTicket.lastNotifiedStatus });
       }
 
       loadTickets();
@@ -121,7 +120,7 @@ function HelpdeskManagementContent() {
       setReplyMessage('');
 
       if (selectedTicket.status === 'open') {
-        await handleStatusChange(selectedTicket.id!, 'in_progress', true);
+        await handleStatusChange(selectedTicket.id!, 'in_progress');
       }
     } catch (error) {
       console.error('Error sending reply:', error);
@@ -243,12 +242,12 @@ function HelpdeskManagementContent() {
           Back to all tickets
         </button>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-start justify-between mb-6">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+          <div className="flex flex-col gap-4 mb-6">
             <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
+              <div className="flex items-start gap-2 sm:gap-3 mb-2">
                 {getStatusIcon(selectedTicket.status)}
-                <h1 className="text-2xl font-bold text-gray-900">{selectedTicket.subject}</h1>
+                <h1 className="text-lg sm:text-2xl font-bold text-gray-900 break-words">{selectedTicket.subject}</h1>
               </div>
               <div className="flex items-center gap-2 flex-wrap mb-4">
                 {getStatusBadge(selectedTicket.status)}
@@ -258,15 +257,15 @@ function HelpdeskManagementContent() {
                 </span>
               </div>
             </div>
-            <div className="ml-4 flex gap-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   Change Status
                 </label>
                 <select
                   value={selectedTicket.status}
-                  onChange={(e) => handleStatusChange(selectedTicket.id!, e.target.value as any, true)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  onChange={(e) => handleStatusChange(selectedTicket.id!, e.target.value as any)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
                 >
                   <option value="open">Open</option>
                   <option value="in_progress">In Progress</option>
@@ -274,13 +273,13 @@ function HelpdeskManagementContent() {
                   <option value="closed">Closed</option>
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="flex-1">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                   Actions
                 </label>
                 <button
                   onClick={() => setShowNotificationModal(true)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
                 >
                   Notify User
                 </button>
@@ -289,14 +288,14 @@ function HelpdeskManagementContent() {
           </div>
 
           <div className="border-t border-gray-200 pt-4 mb-6">
-            <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 text-xs sm:text-sm">
               <div>
                 <span className="text-gray-500">From:</span>
-                <span className="ml-2 font-medium">{selectedTicket.userName}</span>
+                <span className="ml-2 font-medium break-words">{selectedTicket.userName}</span>
               </div>
               <div>
                 <span className="text-gray-500">Email:</span>
-                <span className="ml-2 font-medium">{selectedTicket.userEmail}</span>
+                <span className="ml-2 font-medium break-words">{selectedTicket.userEmail}</span>
               </div>
               <div>
                 <span className="text-gray-500">Created:</span>
@@ -308,8 +307,8 @@ function HelpdeskManagementContent() {
               </div>
             </div>
             <div className="mt-4">
-              <h3 className="text-sm font-medium text-gray-700 mb-2">Description:</h3>
-              <p className="text-gray-700 whitespace-pre-wrap bg-gray-50 p-4 rounded-lg">{selectedTicket.description}</p>
+              <h3 className="text-xs sm:text-sm font-medium text-gray-700 mb-2">Description:</h3>
+              <p className="text-gray-700 whitespace-pre-wrap bg-gray-50 p-3 sm:p-4 rounded-lg text-xs sm:text-base break-words">{selectedTicket.description}</p>
             </div>
           </div>
 
@@ -325,10 +324,10 @@ function HelpdeskManagementContent() {
               </div>
             ) : (
               <div className="space-y-4 mb-6">
-                <div className="p-4 rounded-lg bg-gray-50 border border-gray-200">
-                  <div className="flex items-center justify-between mb-2">
+                <div className="p-3 sm:p-4 rounded-lg bg-gray-50 border border-gray-200">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-gray-900">
+                      <span className="font-semibold text-gray-900 text-sm sm:text-base break-words">
                         {selectedTicket.userName}
                       </span>
                       <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-gray-600 text-white">
@@ -339,20 +338,20 @@ function HelpdeskManagementContent() {
                       {selectedTicket.createdAt.toLocaleString()}
                     </span>
                   </div>
-                  <p className="text-gray-700 whitespace-pre-wrap">{selectedTicket.description}</p>
+                  <p className="text-gray-700 whitespace-pre-wrap text-xs sm:text-base break-words">{selectedTicket.description}</p>
                 </div>
                 {ticketReplies.map((reply) => (
                   <div
                     key={reply.id}
-                    className={`p-4 rounded-lg ${
+                    className={`p-3 sm:p-4 rounded-lg ${
                       reply.isAdmin
                         ? 'bg-primary-50 border border-primary-200'
                         : 'bg-gray-50 border border-gray-200'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-gray-900">
+                        <span className="font-semibold text-gray-900 text-sm sm:text-base break-words">
                           {reply.userName}
                         </span>
                         {reply.isAdmin && (
@@ -361,11 +360,11 @@ function HelpdeskManagementContent() {
                           </span>
                         )}
                       </div>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-gray-500 whitespace-nowrap">
                         {reply.createdAt.toLocaleString()}
                       </span>
                     </div>
-                    <p className="text-gray-700 whitespace-pre-wrap">{reply.message}</p>
+                    <p className="text-gray-700 whitespace-pre-wrap text-xs sm:text-base break-words">{reply.message}</p>
                   </div>
                 ))}
               </div>
@@ -397,43 +396,43 @@ function HelpdeskManagementContent() {
 
         {showNotificationModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg max-w-md w-full p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Send Notification to User</h3>
+            <div className="bg-white rounded-lg max-w-md w-full p-4 sm:p-6 mx-4">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">Send Notification to User</h3>
               <form onSubmit={handleSendNotification}>
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                     Notification Message
                   </label>
                   <textarea
                     value={notificationMessage}
                     onChange={(e) => setNotificationMessage(e.target.value)}
                     rows={4}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
                     placeholder="Your ticket has been updated..."
                     required
                   />
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-xs text-gray-500 mt-2 break-words">
                     User: {selectedTicket.userName} ({selectedTicket.userEmail})
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 break-words">
                     Ticket: {selectedTicket.subject}
                   </p>
                 </div>
-                <div className="flex justify-end gap-3">
+                <div className="flex flex-col sm:flex-row justify-end gap-3">
                   <button
                     type="button"
                     onClick={() => {
                       setShowNotificationModal(false);
                       setNotificationMessage('');
                     }}
-                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="w-full sm:w-auto px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={sendingNotification || !notificationMessage.trim()}
-                    className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full sm:w-auto px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                   >
                     {sendingNotification ? 'Sending...' : 'Send Notification'}
                   </button>
@@ -448,55 +447,55 @@ function HelpdeskManagementContent() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Helpdesk Management</h1>
-        <p className="text-gray-600 mt-2">Manage and respond to user support tickets</p>
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Helpdesk Management</h1>
+        <p className="text-sm sm:text-base text-gray-600 mt-2">Manage and respond to user support tickets</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-        <div className="bg-white rounded-lg shadow p-4">
-          <p className="text-sm text-gray-600">Total Tickets</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{ticketStats.total}</p>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <div className="bg-white rounded-lg shadow p-3 sm:p-4">
+          <p className="text-xs sm:text-sm text-gray-600">Total Tickets</p>
+          <p className="text-xl sm:text-2xl font-bold text-gray-900 mt-1">{ticketStats.total}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
-          <p className="text-sm text-gray-600">Open</p>
-          <p className="text-2xl font-bold text-blue-600 mt-1">{ticketStats.open}</p>
+        <div className="bg-white rounded-lg shadow p-3 sm:p-4">
+          <p className="text-xs sm:text-sm text-gray-600">Open</p>
+          <p className="text-xl sm:text-2xl font-bold text-blue-600 mt-1">{ticketStats.open}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
-          <p className="text-sm text-gray-600">In Progress</p>
-          <p className="text-2xl font-bold text-yellow-600 mt-1">{ticketStats.inProgress}</p>
+        <div className="bg-white rounded-lg shadow p-3 sm:p-4">
+          <p className="text-xs sm:text-sm text-gray-600">In Progress</p>
+          <p className="text-xl sm:text-2xl font-bold text-yellow-600 mt-1">{ticketStats.inProgress}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
-          <p className="text-sm text-gray-600">Resolved</p>
-          <p className="text-2xl font-bold text-green-600 mt-1">{ticketStats.resolved}</p>
+        <div className="bg-white rounded-lg shadow p-3 sm:p-4">
+          <p className="text-xs sm:text-sm text-gray-600">Resolved</p>
+          <p className="text-xl sm:text-2xl font-bold text-green-600 mt-1">{ticketStats.resolved}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
-          <p className="text-sm text-gray-600">Closed</p>
-          <p className="text-2xl font-bold text-gray-600 mt-1">{ticketStats.closed}</p>
+        <div className="bg-white rounded-lg shadow p-3 sm:p-4 col-span-2 sm:col-span-1">
+          <p className="text-xs sm:text-sm text-gray-600">Closed</p>
+          <p className="text-xl sm:text-2xl font-bold text-gray-600 mt-1">{ticketStats.closed}</p>
         </div>
       </div>
 
       <div className="bg-white rounded-lg shadow-md mb-6">
-        <div className="p-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">All Tickets</h2>
+        <div className="p-3 sm:p-4 border-b border-gray-200">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">All Tickets</h2>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex-1 min-w-[200px]">
+          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3">
+            <div className="flex-1 min-w-full sm:min-w-[200px]">
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search tickets by ID, subject, description, or user..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                placeholder="Search tickets..."
+                className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm"
               />
             </div>
 
-            <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-gray-500" />
+            <div className="flex items-center gap-2 flex-wrap">
+              <Filter className="w-4 h-4 text-gray-500 hidden sm:inline" />
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                className="flex-1 sm:flex-none px-2 sm:px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm"
               >
                 <option value="all">All Status</option>
                 <option value="open">Open</option>
@@ -508,7 +507,7 @@ function HelpdeskManagementContent() {
               <select
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                className="flex-1 sm:flex-none px-2 sm:px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm"
               >
                 <option value="all">All Priorities</option>
                 <option value="high">High</option>
@@ -519,7 +518,7 @@ function HelpdeskManagementContent() {
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                className="flex-1 sm:flex-none px-2 sm:px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm"
               >
                 <option value="all">All Categories</option>
                 <option value="technical">Technical</option>
@@ -530,11 +529,11 @@ function HelpdeskManagementContent() {
             </div>
           </div>
 
-          <div className="mt-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          <div className="mt-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               {(searchTerm || statusFilter !== 'all' || priorityFilter !== 'all' || categoryFilter !== 'all') && (
                 <>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-xs sm:text-sm text-gray-600">
                     Showing {filteredTickets.length} of {tickets.length} tickets
                   </span>
                   <button
@@ -544,7 +543,7 @@ function HelpdeskManagementContent() {
                       setPriorityFilter('all');
                       setCategoryFilter('all');
                     }}
-                    className="text-sm text-primary-600 hover:text-primary-700 underline"
+                    className="text-xs sm:text-sm text-primary-600 hover:text-primary-700 underline"
                   >
                     Clear filters
                   </button>
@@ -552,11 +551,11 @@ function HelpdeskManagementContent() {
               )}
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Per page:</span>
+              <span className="text-xs sm:text-sm text-gray-600">Per page:</span>
               <select
                 value={itemsPerPage}
                 onChange={(e) => setItemsPerPage(Number(e.target.value))}
-                className="px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                className="px-2 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-xs sm:text-sm"
               >
                 <option value={5}>5</option>
                 <option value={10}>10</option>
@@ -584,18 +583,25 @@ function HelpdeskManagementContent() {
               <button
                 key={ticket.id}
                 onClick={() => handleTicketClick(ticket)}
-                className="w-full p-6 text-left hover:bg-gray-50 transition-colors"
+                className="w-full p-4 sm:p-6 text-left hover:bg-gray-50 transition-colors relative"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
+                {!ticket.openedByAdmin && (
+                  <div className="absolute top-3 sm:top-4 right-3 sm:right-4">
+                    <span className="inline-flex items-center px-2 py-1 text-xs font-bold rounded-full bg-red-500 text-white animate-pulse">
+                      NEW
+                    </span>
+                  </div>
+                )}
+                <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0 pr-12 sm:pr-0">
+                    <div className="flex items-start gap-2 sm:gap-3 mb-2">
                       {getStatusIcon(ticket.status)}
-                      <h3 className="text-lg font-semibold text-gray-900">{ticket.subject}</h3>
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 break-words">{ticket.subject}</h3>
                     </div>
-                    <p className="text-sm text-gray-600 mb-2">
+                    <p className="text-xs sm:text-sm text-gray-600 mb-2 break-words">
                       From: <span className="font-medium">{ticket.userName}</span> ({ticket.userEmail})
                     </p>
-                    <p className="text-gray-600 text-sm line-clamp-2 mb-3">
+                    <p className="text-gray-600 text-xs sm:text-sm line-clamp-2 mb-3">
                       {ticket.description}
                     </p>
                     <div className="flex items-center gap-2 flex-wrap">
@@ -606,14 +612,14 @@ function HelpdeskManagementContent() {
                       </span>
                     </div>
                   </div>
-                  <div className="text-right ml-4">
+                  <div className="text-left sm:text-right sm:ml-4 w-full sm:w-auto">
                     <p className="text-xs text-gray-500 mb-1">
                       {ticket.createdAt.toLocaleDateString()}
                     </p>
                     <p className="text-xs text-gray-400 mb-2">
                       {ticket.createdAt.toLocaleTimeString()}
                     </p>
-                    <p className="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded">
+                    <p className="text-xs text-gray-500 font-mono bg-gray-100 px-2 py-1 rounded inline-block">
                       #{ticket.id?.slice(-6).toUpperCase()}
                     </p>
                   </div>
@@ -623,24 +629,24 @@ function HelpdeskManagementContent() {
             </div>
 
             {totalPages > 1 && (
-              <div className="p-4 border-t border-gray-200 flex items-center justify-between">
-                <div className="text-sm text-gray-600">
+              <div className="p-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="text-xs sm:text-sm text-gray-600">
                   Showing {startIndex + 1} to {Math.min(endIndex, filteredTickets.length)} of {filteredTickets.length} tickets
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-center">
                   <button
                     onClick={() => setCurrentPage(1)}
                     disabled={currentPage === 1}
-                    className="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="px-2 sm:px-3 py-1 text-xs sm:text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     First
                   </button>
                   <button
                     onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                     disabled={currentPage === 1}
-                    className="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="px-2 sm:px-3 py-1 text-xs sm:text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
-                    Previous
+                    Prev
                   </button>
                   <div className="flex items-center gap-1">
                     {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -658,7 +664,7 @@ function HelpdeskManagementContent() {
                         <button
                           key={pageNum}
                           onClick={() => setCurrentPage(pageNum)}
-                          className={`px-3 py-1 text-sm border rounded-lg transition-colors ${
+                          className={`px-2 sm:px-3 py-1 text-xs sm:text-sm border rounded-lg transition-colors ${
                             currentPage === pageNum
                               ? 'bg-primary-600 text-white border-primary-600'
                               : 'border-gray-300 hover:bg-gray-50'
@@ -672,14 +678,14 @@ function HelpdeskManagementContent() {
                   <button
                     onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                     disabled={currentPage === totalPages}
-                    className="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="px-2 sm:px-3 py-1 text-xs sm:text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     Next
                   </button>
                   <button
                     onClick={() => setCurrentPage(totalPages)}
                     disabled={currentPage === totalPages}
-                    className="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="px-2 sm:px-3 py-1 text-xs sm:text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     Last
                   </button>

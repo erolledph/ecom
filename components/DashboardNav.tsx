@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { logout } from '@/lib/auth';
 import { canAccessFeature } from '@/lib/auth';
 import { useAuth } from '@/hooks/useAuth';
+import { subscribeToUnreadTicketsCount } from '@/lib/helpdesk';
 import { useToast } from '@/hooks/useToast';
 import { ChartBar as BarChart3, Store, Image, Package, LogOut, X, User, CirclePlus as PlusCircle, SquarePlus as PlusSquare, TrendingUp, Users, Settings, DollarSign, Radio, Bell, HelpCircle } from 'lucide-react';
 
@@ -20,6 +21,7 @@ export default function DashboardNav({ isSidebarOpen, toggleSidebar }: Dashboard
   const { userProfile } = useAuth();
   const { clearAll } = useToast();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [unreadTicketsCount, setUnreadTicketsCount] = useState(0);
 
   // Generate navigation items based on user role and premium status
   const getNavigationItems = () => {
@@ -88,6 +90,16 @@ export default function DashboardNav({ isSidebarOpen, toggleSidebar }: Dashboard
       setIsLoggingOut(false);
     }
   };
+
+  useEffect(() => {
+    if (canAccessFeature(userProfile, 'admin')) {
+      const unsubscribe = subscribeToUnreadTicketsCount((count) => {
+        setUnreadTicketsCount(count);
+      });
+
+      return () => unsubscribe();
+    }
+  }, [userProfile]);
 
   const closeSidebar = () => {
     toggleSidebar();
@@ -167,13 +179,18 @@ export default function DashboardNav({ isSidebarOpen, toggleSidebar }: Dashboard
                 // Keep sidebar open when navigating with keyboard
               }}
             >
-              <IconComponent 
+              <IconComponent
                 className={`
                   flex-shrink-0 transition-colors w-4 h-4 sm:w-5 sm:h-5
                   ${isActive ? 'text-primary-600' : 'text-gray-500 group-hover:text-gray-700'}
-                `} 
+                `}
               />
               <span className="ml-2 sm:ml-3 truncate flex-1 text-sm">{item.name}</span>
+              {item.name === 'Helpdesk Management' && unreadTicketsCount > 0 && (
+                <span className="ml-auto flex-shrink-0 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold rounded-full bg-red-500 text-white min-w-[20px]">
+                  {unreadTicketsCount > 99 ? '99+' : unreadTicketsCount}
+                </span>
+              )}
             </Link>
           );
         })}

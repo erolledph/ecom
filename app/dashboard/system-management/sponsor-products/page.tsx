@@ -11,7 +11,7 @@ import {
   SponsoredProduct
 } from '@/lib/store';
 import ConfirmModal from '@/components/ConfirmModal';
-import { CreditCard as Edit, Trash2, Plus, ExternalLink, RefreshCcw, DollarSign } from 'lucide-react';
+import { Edit, Trash2, Plus, ExternalLink, RefreshCcw, DollarSign } from 'lucide-react';
 
 export default function SponsorProductsPage() {
   const { user } = useAuth();
