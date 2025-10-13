@@ -102,13 +102,32 @@ function HelpdeskManagementContent() {
   const handleSendReply = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!user || !userProfile || !selectedTicket || !replyMessage.trim()) return;
+    if (!user || !userProfile || !selectedTicket || !replyMessage.trim()) {
+      console.error('Missing required data:', { user: !!user, userProfile: !!userProfile, selectedTicket: !!selectedTicket, replyMessage: replyMessage.trim() });
+      showToast('Missing required information to send reply', 'error');
+      return;
+    }
+
+    if (!selectedTicket.id) {
+      console.error('Ticket ID is missing');
+      showToast('Ticket ID is missing', 'error');
+      return;
+    }
 
     setSendingReply(true);
 
     try {
+      console.log('Sending admin reply:', {
+        ticketId: selectedTicket.id,
+        userId: user.uid,
+        userEmail: userProfile.email,
+        userName: userProfile.displayName || userProfile.email,
+        isAdmin: true,
+        messageLength: replyMessage.length
+      });
+
       await addTicketReply(
-        selectedTicket.id!,
+        selectedTicket.id,
         user.uid,
         userProfile.email,
         userProfile.displayName || userProfile.email,
@@ -116,15 +135,21 @@ function HelpdeskManagementContent() {
         replyMessage
       );
 
+      console.log('Reply sent successfully');
       showToast('Reply sent successfully', 'success');
       setReplyMessage('');
 
       if (selectedTicket.status === 'open') {
-        await handleStatusChange(selectedTicket.id!, 'in_progress');
+        await handleStatusChange(selectedTicket.id, 'in_progress');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending reply:', error);
-      showToast('Failed to send reply', 'error');
+      console.error('Error details:', {
+        message: error?.message,
+        code: error?.code,
+        stack: error?.stack
+      });
+      showToast(`Failed to send reply: ${error?.message || 'Unknown error'}`, 'error');
     } finally {
       setSendingReply(false);
     }

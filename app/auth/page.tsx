@@ -316,7 +316,7 @@ export default function AuthPage() {
               <div className="bg-white text-gray-800 rounded-xl p-0 text-left shadow-xl border border-gray-300 relative max-w-[140px] lg:max-w-[200px] w-full mx-auto overflow-hidden z-20 animate-float-center">
                 <div className="w-full aspect-square overflow-hidden">
                   <img 
-                    src="https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg" 
+                    src="https://i.ibb.co/XkrqrDVm/shoes.png" 
                     alt="Organic Cotton T-Shirt"
                     className="w-full h-full object-cover bg-gray-300"
                   />

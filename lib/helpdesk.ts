@@ -280,6 +280,27 @@ export const addTicketReply = async (
   message: string
 ): Promise<void> => {
   try {
+    console.log('addTicketReply called with:', {
+      ticketId,
+      userId,
+      userEmail,
+      userName,
+      isAdmin,
+      messageLength: message.length
+    });
+
+    if (!ticketId) {
+      throw new Error('Ticket ID is required');
+    }
+
+    if (!userId || !userEmail || !userName) {
+      throw new Error('User information is required');
+    }
+
+    if (!message || !message.trim()) {
+      throw new Error('Message is required');
+    }
+
     const replyData = {
       ticketId,
       userId,
@@ -290,7 +311,9 @@ export const addTicketReply = async (
       createdAt: serverTimestamp()
     };
 
-    await addDoc(collection(db, 'helpdesk_replies'), replyData);
+    console.log('Adding reply to Firestore...');
+    const docRef = await addDoc(collection(db, 'helpdesk_replies'), replyData);
+    console.log('Reply added to Firestore with ID:', docRef.id);
 
     const ticketRef = doc(db, 'helpdesk_tickets', ticketId);
     const updateData: any = {
@@ -300,21 +323,30 @@ export const addTicketReply = async (
     if (isAdmin) {
       updateData.hasAdminReply = true;
 
+      console.log('Fetching ticket data for notification...');
       const ticketDoc = await getDoc(ticketRef);
       if (ticketDoc.exists()) {
         const ticketData = ticketDoc.data();
+        console.log('Sending notification to user:', ticketData.userId);
         await sendTicketNotification(
           ticketData.userId,
           ticketId,
           ticketData.subject,
           `New reply from support on: ${ticketData.subject}`
         );
+        console.log('Notification sent successfully');
+      } else {
+        console.error('Ticket not found:', ticketId);
       }
     }
 
+    console.log('Updating ticket...');
     await updateDoc(ticketRef, updateData);
-  } catch (error) {
+    console.log('Ticket updated successfully');
+  } catch (error: any) {
     console.error('Error adding ticket reply:', error);
+    console.error('Error code:', error?.code);
+    console.error('Error message:', error?.message);
     throw error;
   }
 };

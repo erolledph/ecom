@@ -173,5 +173,45 @@ service cloud.firestore {
                     get(/databases/$(database)/documents/helpdesk_tickets/$(ticketId)).data.userId == request.auth.uid;
       }
     }
+
+    // Helpdesk replies collection (top-level): Users can read replies to their tickets, admins can create and manage all
+    match /helpdesk_replies/{replyId} {
+      // Users can read replies to their own tickets
+      allow read: if request.auth != null && (
+        resource.data.userId == request.auth.uid ||
+        get(/databases/$(database)/documents/helpdesk_tickets/$(resource.data.ticketId)).data.userId == request.auth.uid
+      );
+
+      // Users can create replies to their own tickets
+      allow create: if request.auth != null &&
+                    request.resource.data.userId == request.auth.uid &&
+                    get(/databases/$(database)/documents/helpdesk_tickets/$(request.resource.data.ticketId)).data.userId == request.auth.uid;
+
+      // Admins can create, read, and list all replies
+      allow create, read, list: if isAdmin();
+
+      // Users can list replies to their own tickets
+      allow list: if request.auth != null;
+    }
+
+    // Helpdesk notifications collection (top-level): Users can read and update their own notifications, admins can create
+    match /helpdesk_notifications/{notificationId} {
+      // Users can read their own notifications
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+
+      // Users can update their own notifications (to mark as read)
+      allow update: if request.auth != null &&
+                    resource.data.userId == request.auth.uid &&
+                    request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+
+      // Admins can create notifications
+      allow create: if isAdmin();
+
+      // Users can list their own notifications
+      allow list: if request.auth != null;
+
+      // Admins can list all notifications
+      allow list: if isAdmin();
+    }
   }
 }
