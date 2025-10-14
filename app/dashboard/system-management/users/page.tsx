@@ -16,7 +16,8 @@ import {
   updateUserTrialStatus,
   isOriginalTrialWindowValid,
   getUserStatistics,
-  UserStatistics
+  UserStatistics,
+  getPremiumSubscriptionInfo
 } from '@/lib/auth';
 import { getAllStoreSlugs } from '@/lib/store';
 import { Users, Search, Shield, Crown, RefreshCw, ExternalLink, ArrowLeft, Clock, CircleStop as StopCircle, RotateCcw, Settings } from 'lucide-react';
@@ -38,6 +39,9 @@ export default function UserManagementPage() {
   const [userStatistics, setUserStatistics] = useState<UserStatistics | null>(null);
   const [statsLoading, setStatsLoading] = useState(false);
   const [userFilter, setUserFilter] = useState<'all' | 'trial' | 'premium' | 'admin' | 'basic'>('all');
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+  const [subscriptionType, setSubscriptionType] = useState<'permanent' | '1month' | '3months' | '1year'>('permanent');
 
   // Handle URL search parameters
   useEffect(() => {
@@ -165,10 +169,32 @@ export default function UserManagementPage() {
     }
   };
 
-  const handleUpdateUserPremium = async (userId: string, isPremium: boolean) => {
-    setUpdatingUserId(userId);
+  const handleOpenPremiumModal = (user: UserProfile) => {
+    setSelectedUser(user);
+    const subscriptionInfo = getPremiumSubscriptionInfo(user);
+
+    if (subscriptionInfo.type !== 'none' && subscriptionInfo.type !== 'trial') {
+      setSubscriptionType(subscriptionInfo.type as any);
+    } else {
+      setSubscriptionType('permanent');
+    }
+
+    setShowPremiumModal(true);
+  };
+
+  const handleUpdateUserPremium = async (grantPremium: boolean) => {
+    if (!selectedUser) return;
+
+    setUpdatingUserId(selectedUser.uid);
     try {
-      await updateUserRoleAndPremiumStatus(userId, { isPremium });
+      if (grantPremium) {
+        await updateUserRoleAndPremiumStatus(selectedUser.uid, {
+          isPremium: true,
+          subscriptionType
+        });
+      } else {
+        await updateUserRoleAndPremiumStatus(selectedUser.uid, { isPremium: false });
+      }
 
       // Refresh user data from server after successful update
       const [users, storeSlugsMap] = await Promise.all([
@@ -184,14 +210,22 @@ export default function UserManagementPage() {
       setAllUsers(enrichedUsers);
 
       // Update found user if it's the same user
-      if (foundUser && foundUser.uid === userId) {
-        const updatedUser = enrichedUsers.find(u => u.uid === userId);
+      if (foundUser && foundUser.uid === selectedUser.uid) {
+        const updatedUser = enrichedUsers.find(u => u.uid === selectedUser.uid);
         if (updatedUser) {
           setFoundUser(updatedUser);
         }
       }
 
-      showSuccess(`User premium status ${isPremium ? 'granted' : 'revoked'}`);
+      const message = grantPremium
+        ? subscriptionType === 'permanent'
+          ? 'User granted permanent premium access'
+          : `User granted ${subscriptionType} premium subscription`
+        : 'User premium status revoked';
+
+      showSuccess(message);
+      setShowPremiumModal(false);
+      setSelectedUser(null);
     } catch (error) {
       console.error('Error updating user premium status:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to update user premium status: An unexpected error occurred. Please try again.';
@@ -402,31 +436,45 @@ export default function UserManagementPage() {
                   <div>
                     <p className="text-xs sm:text-sm text-gray-600">Premium Status</p>
                     <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        foundUser.isPremium 
-                          ? 'bg-yellow-100 text-yellow-800' 
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {foundUser.isPremium ? (
+                      {(() => {
+                        const subscriptionInfo = getPremiumSubscriptionInfo(foundUser);
+                        return (
                           <>
-                            <Crown className="w-3 h-3 mr-1" />
-                            Premium
+                            <div className="flex flex-col">
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                subscriptionInfo.hasPremium
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-gray-100 text-gray-800'
+                              }`}>
+                                {subscriptionInfo.hasPremium ? (
+                                  <>
+                                    <Crown className="w-3 h-3 mr-1" />
+                                    {subscriptionInfo.type === 'permanent' ? 'Premium (Permanent)' :
+                                     subscriptionInfo.type === 'trial' ? 'Trial' :
+                                     subscriptionInfo.type === '1month' ? 'Premium (1 Month)' :
+                                     subscriptionInfo.type === '3months' ? 'Premium (3 Months)' :
+                                     subscriptionInfo.type === '1year' ? 'Premium (1 Year)' : 'Premium'}
+                                  </>
+                                ) : (
+                                  'Basic'
+                                )}
+                              </span>
+                              {subscriptionInfo.expiryDate && subscriptionInfo.type !== 'trial' && subscriptionInfo.type !== 'permanent' && (
+                                <span className="text-xs text-gray-500 mt-1">
+                                  Expires: {subscriptionInfo.expiryDate.toLocaleDateString()} ({subscriptionInfo.daysRemaining} days)
+                                </span>
+                              )}
+                            </div>
+                            <button
+                              onClick={() => handleOpenPremiumModal(foundUser)}
+                              disabled={updatingUserId === foundUser.uid}
+                              className="px-2 sm:px-3 py-1 text-xs font-medium rounded transition-colors min-h-[32px] bg-yellow-100 text-yellow-700 hover:bg-yellow-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {updatingUserId === foundUser.uid ? 'Updating...' : 'Manage Premium'}
+                            </button>
                           </>
-                        ) : (
-                          'Basic'
-                        )}
-                      </span>
-                      <button
-                        onClick={() => handleUpdateUserPremium(foundUser.uid, !foundUser.isPremium)}
-                        disabled={updatingUserId === foundUser.uid}
-                        className={`px-2 sm:px-3 py-1 text-xs font-medium rounded transition-colors min-h-[32px] ${
-                          foundUser.isPremium
-                            ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
-                        } disabled:opacity-50 disabled:cursor-not-allowed`}
-                      >
-                        {updatingUserId === foundUser.uid ? 'Updating...' : (foundUser.isPremium ? 'Revoke Premium' : 'Grant Premium')}
-                      </button>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -695,57 +743,73 @@ export default function UserManagementPage() {
                           </td>
                           <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                             <div className="flex flex-col items-start space-y-1">
-                              {/* Premium Status Badge */}
-                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium w-fit ${
-                                user.isPremiumAdminSet === true || (user.isPremium && user.isPremiumAdminSet === undefined && !isOnTrial(user))
-                                  ? 'bg-yellow-100 text-yellow-800'
-                                  : isOnTrial(user)
-                                    ? 'bg-blue-100 text-blue-800'
-                                    : 'bg-gray-100 text-gray-800'
-                              }`}>
-                                {user.isPremiumAdminSet === true || (user.isPremium && user.isPremiumAdminSet === undefined && !isOnTrial(user)) ? (
+                              {(() => {
+                                const subscriptionInfo = getPremiumSubscriptionInfo(user);
+                                return (
                                   <>
-                                    <Crown className="w-3 h-3 mr-1" />
-                                    Premium
+                                    {/* Premium Status Badge */}
+                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium w-fit ${
+                                      subscriptionInfo.hasPremium
+                                        ? subscriptionInfo.type === 'trial'
+                                          ? 'bg-blue-100 text-blue-800'
+                                          : 'bg-yellow-100 text-yellow-800'
+                                        : 'bg-gray-100 text-gray-800'
+                                    }`}>
+                                      {subscriptionInfo.hasPremium ? (
+                                        <>
+                                          {subscriptionInfo.type === 'trial' ? (
+                                            <>
+                                              <Clock className="w-3 h-3 mr-1" />
+                                              Trial
+                                            </>
+                                          ) : (
+                                            <>
+                                              <Crown className="w-3 h-3 mr-1" />
+                                              {subscriptionInfo.type === 'permanent' ? 'Premium' :
+                                               subscriptionInfo.type === '1month' ? '1M Premium' :
+                                               subscriptionInfo.type === '3months' ? '3M Premium' :
+                                               subscriptionInfo.type === '1year' ? '1Y Premium' : 'Premium'}
+                                            </>
+                                          )}
+                                        </>
+                                      ) : (
+                                        'Basic'
+                                      )}
+                                    </span>
+
+                                    {/* Role Badge for Admin */}
+                                    {user.role === 'admin' && (
+                                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium w-fit bg-red-100 text-red-800">
+                                        <Shield className="w-3 h-3 mr-1" />
+                                        Admin
+                                      </span>
+                                    )}
+
+                                    {/* Subscription expiry info */}
+                                    {subscriptionInfo.expiryDate && subscriptionInfo.daysRemaining !== undefined && (
+                                      <span className={`text-xs font-medium ${
+                                        subscriptionInfo.type === 'trial' ? 'text-blue-600' : 'text-yellow-600'
+                                      }`}>
+                                        {subscriptionInfo.daysRemaining} days left
+                                      </span>
+                                    )}
+
+                                    {/* Trial Expired Notice */}
+                                    {hasTrialExpired(user) && user.isPremiumAdminSet !== true && !user.premiumExpiryDate && (
+                                      <span className="text-xs text-red-600 font-medium">
+                                        Trial expired
+                                      </span>
+                                    )}
+
+                                    {/* Fix Needed Notice - Only show for users who need migration (not on trial) */}
+                                    {user.isPremium && user.isPremiumAdminSet === undefined && !isOnTrial(user) && (
+                                      <span className="text-xs text-yellow-600 font-medium">
+                                        🔧 Needs migration
+                                      </span>
+                                    )}
                                   </>
-                                ) : isOnTrial(user) ? (
-                                  <>
-                                    <Clock className="w-3 h-3 mr-1" />
-                                    Trial
-                                  </>
-                                ) : (
-                                  'Basic'
-                                )}
-                              </span>
-
-                              {/* Role Badge for Admin */}
-                              {user.role === 'admin' && (
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium w-fit bg-red-100 text-red-800">
-                                  <Shield className="w-3 h-3 mr-1" />
-                                  Admin
-                                </span>
-                              )}
-
-                              {/* Trial Days Remaining - only show if not admin-set premium */}
-                              {isOnTrial(user) && user.isPremiumAdminSet !== true && (
-                                <span className="text-xs text-blue-600 font-medium">
-                                  {getTrialDaysRemaining(user)} days left
-                                </span>
-                              )}
-
-                              {/* Trial Expired Notice - only show if not admin-set premium */}
-                              {hasTrialExpired(user) && user.isPremiumAdminSet !== true && (
-                                <span className="text-xs text-red-600 font-medium">
-                                  Trial expired
-                                </span>
-                              )}
-
-                              {/* Fix Needed Notice - Only show for users who need migration (not on trial) */}
-                              {user.isPremium && user.isPremiumAdminSet === undefined && !isOnTrial(user) && (
-                                <span className="text-xs text-yellow-600 font-medium">
-                                  🔧 Needs migration
-                                </span>
-                              )}
+                                );
+                              })()}
                             </div>
                           </td>
                           <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-center">
@@ -808,6 +872,153 @@ export default function UserManagementPage() {
             )}
           </div>
         </div>
+
+        {/* Premium Subscription Modal */}
+        {showPremiumModal && selectedUser && (
+          <div
+            className="fixed inset-0 bg-transparent flex items-center justify-center p-4 z-50"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setShowPremiumModal(false);
+                setSelectedUser(null);
+              }
+            }}
+          >
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Manage Premium Access
+              </h3>
+
+              <div className="mb-4">
+                <p className="text-sm text-gray-600 mb-2">
+                  User: <span className="font-medium">{selectedUser.email}</span>
+                </p>
+                {(() => {
+                  const subscriptionInfo = getPremiumSubscriptionInfo(selectedUser);
+                  return subscriptionInfo.hasPremium && subscriptionInfo.type !== 'trial' && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                      <p className="text-sm text-blue-800">
+                        Current: <span className="font-semibold">
+                          {subscriptionInfo.type === 'permanent' ? 'Permanent Premium' :
+                           subscriptionInfo.type === '1month' ? '1 Month Subscription' :
+                           subscriptionInfo.type === '3months' ? '3 Months Subscription' :
+                           subscriptionInfo.type === '1year' ? '1 Year Subscription' : 'Premium'}
+                        </span>
+                      </p>
+                      {subscriptionInfo.expiryDate && subscriptionInfo.type !== 'permanent' && (
+                        <p className="text-xs text-blue-600 mt-1">
+                          Expires: {subscriptionInfo.expiryDate.toLocaleDateString()} ({subscriptionInfo.daysRemaining} days remaining)
+                        </p>
+                      )}
+                    </div>
+                  );
+                })()}
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Select Subscription Type:
+                </label>
+
+                <div className="space-y-2">
+                  <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                    <input
+                      type="radio"
+                      name="subscriptionType"
+                      value="permanent"
+                      checked={subscriptionType === 'permanent'}
+                      onChange={(e) => setSubscriptionType(e.target.value as any)}
+                      className="w-4 h-4 text-primary-600 focus:ring-primary-500"
+                    />
+                    <div className="ml-3">
+                      <span className="text-sm font-medium text-gray-900">Permanent Premium</span>
+                      <p className="text-xs text-gray-500">Never expires</p>
+                    </div>
+                  </label>
+
+                  <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                    <input
+                      type="radio"
+                      name="subscriptionType"
+                      value="1month"
+                      checked={subscriptionType === '1month'}
+                      onChange={(e) => setSubscriptionType(e.target.value as any)}
+                      className="w-4 h-4 text-primary-600 focus:ring-primary-500"
+                    />
+                    <div className="ml-3">
+                      <span className="text-sm font-medium text-gray-900">1 Month</span>
+                      <p className="text-xs text-gray-500">Expires in 30 days</p>
+                    </div>
+                  </label>
+
+                  <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                    <input
+                      type="radio"
+                      name="subscriptionType"
+                      value="3months"
+                      checked={subscriptionType === '3months'}
+                      onChange={(e) => setSubscriptionType(e.target.value as any)}
+                      className="w-4 h-4 text-primary-600 focus:ring-primary-500"
+                    />
+                    <div className="ml-3">
+                      <span className="text-sm font-medium text-gray-900">3 Months</span>
+                      <p className="text-xs text-gray-500">Expires in 90 days</p>
+                    </div>
+                  </label>
+
+                  <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                    <input
+                      type="radio"
+                      name="subscriptionType"
+                      value="1year"
+                      checked={subscriptionType === '1year'}
+                      onChange={(e) => setSubscriptionType(e.target.value as any)}
+                      className="w-4 h-4 text-primary-600 focus:ring-primary-500"
+                    />
+                    <div className="ml-3">
+                      <span className="text-sm font-medium text-gray-900">1 Year</span>
+                      <p className="text-xs text-gray-500">Expires in 365 days</p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => {
+                    setShowPremiumModal(false);
+                    setSelectedUser(null);
+                  }}
+                  disabled={updatingUserId === selectedUser.uid}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                >
+                  Cancel
+                </button>
+
+                {(() => {
+                  const subscriptionInfo = getPremiumSubscriptionInfo(selectedUser);
+                  return subscriptionInfo.hasPremium && subscriptionInfo.type !== 'trial' ? (
+                    <button
+                      onClick={() => handleUpdateUserPremium(false)}
+                      disabled={updatingUserId === selectedUser.uid}
+                      className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
+                    >
+                      {updatingUserId === selectedUser.uid ? 'Revoking...' : 'Revoke Premium'}
+                    </button>
+                  ) : null;
+                })()}
+
+                <button
+                  onClick={() => handleUpdateUserPremium(true)}
+                  disabled={updatingUserId === selectedUser.uid}
+                  className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 transition-colors"
+                >
+                  {updatingUserId === selectedUser.uid ? 'Granting...' : 'Grant Premium'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </AdminRoute>
   );

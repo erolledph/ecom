@@ -14,6 +14,8 @@ export interface UserProfile {
   isPremium?: boolean;
   isPremiumAdminSet?: boolean; // Indicates if premium was granted by admin (permanent)
   trialEndDate?: Date;         // When the trial period ends
+  premiumExpiryDate?: Date;    // When time-based premium subscription expires
+  subscriptionType?: 'permanent' | '1month' | '3months' | '1year' | 'trial'; // Type of premium access
   updatedAt?: Date;
 }
 
@@ -182,7 +184,8 @@ export const getUserProfile = async (uid: string): Promise<UserProfile | null> =
         ...data,
         createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
         updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt,
-        trialEndDate: data.trialEndDate?.toDate ? data.trialEndDate.toDate() : data.trialEndDate
+        trialEndDate: data.trialEndDate?.toDate ? data.trialEndDate.toDate() : data.trialEndDate,
+        premiumExpiryDate: data.premiumExpiryDate?.toDate ? data.premiumExpiryDate.toDate() : data.premiumExpiryDate
       } as UserProfile;
     }
     
@@ -201,7 +204,14 @@ export const getUserProfile = async (uid: string): Promise<UserProfile | null> =
   }
 };
 
-export const updateUserRoleAndPremiumStatus = async (userId: string, updates: { role?: 'user' | 'admin', isPremium?: boolean }): Promise<void> => {
+export const updateUserRoleAndPremiumStatus = async (
+  userId: string,
+  updates: {
+    role?: 'user' | 'admin',
+    isPremium?: boolean,
+    subscriptionType?: 'permanent' | '1month' | '3months' | '1year'
+  }
+): Promise<void> => {
   try {
     if (!db) throw new Error('Firebase not initialized');
 
@@ -209,21 +219,56 @@ export const updateUserRoleAndPremiumStatus = async (userId: string, updates: { 
 
     // Prepare the update object
     const updateData: any = {
-      ...updates,
       updatedAt: new Date()
     };
 
-    // If admin is granting premium access, make it permanent and clear trial
+    // Handle role updates
+    if (updates.role !== undefined) {
+      updateData.role = updates.role;
+    }
+
+    // If admin is granting premium access
     if (updates.isPremium === true) {
-      updateData.isPremiumAdminSet = true;
+      updateData.isPremium = true;
       updateData.trialEndDate = null;
-      console.log('✅ Setting permanent premium access');
+
+      const subscriptionType = updates.subscriptionType || 'permanent';
+      updateData.subscriptionType = subscriptionType;
+
+      if (subscriptionType === 'permanent') {
+        // Permanent premium access
+        updateData.isPremiumAdminSet = true;
+        updateData.premiumExpiryDate = null;
+        console.log('✅ Setting permanent premium access');
+      } else {
+        // Time-based premium subscription
+        updateData.isPremiumAdminSet = false;
+        const expiryDate = new Date();
+
+        switch (subscriptionType) {
+          case '1month':
+            expiryDate.setMonth(expiryDate.getMonth() + 1);
+            break;
+          case '3months':
+            expiryDate.setMonth(expiryDate.getMonth() + 3);
+            break;
+          case '1year':
+            expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+            break;
+        }
+
+        updateData.premiumExpiryDate = expiryDate;
+        console.log(`✅ Setting ${subscriptionType} premium subscription (expires: ${expiryDate.toLocaleDateString()})`);
+      }
     }
 
     // If admin is revoking premium access, clear all premium-related fields
     if (updates.isPremium === false) {
+      updateData.isPremium = false;
       updateData.isPremiumAdminSet = false;
       updateData.trialEndDate = null;
+      updateData.premiumExpiryDate = null;
+      updateData.subscriptionType = null;
       console.log('✅ Revoking premium access');
     }
 
@@ -294,7 +339,8 @@ export const getUserByEmail = async (email: string): Promise<UserProfile | null>
       ...data,
       createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
       updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt,
-      trialEndDate: data.trialEndDate?.toDate ? data.trialEndDate.toDate() : data.trialEndDate
+      trialEndDate: data.trialEndDate?.toDate ? data.trialEndDate.toDate() : data.trialEndDate,
+      premiumExpiryDate: data.premiumExpiryDate?.toDate ? data.premiumExpiryDate.toDate() : data.premiumExpiryDate
     } as UserProfile;
   } catch (error) {
     console.error('Error fetching user by email:', error);
@@ -321,7 +367,8 @@ export const getAllUserProfiles = async (): Promise<UserProfile[]> => {
         ...data,
         createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
         updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt,
-        trialEndDate: data.trialEndDate?.toDate ? data.trialEndDate.toDate() : data.trialEndDate
+        trialEndDate: data.trialEndDate?.toDate ? data.trialEndDate.toDate() : data.trialEndDate,
+        premiumExpiryDate: data.premiumExpiryDate?.toDate ? data.premiumExpiryDate.toDate() : data.premiumExpiryDate
       } as UserProfile);
     });
     
@@ -372,7 +419,13 @@ export const isPremium = (userProfile: UserProfile | null): boolean => {
     console.log('✅ User has permanent premium (isPremiumAdminSet=true)');
     return true;
   }
-  
+
+  // Check if time-based premium subscription is active
+  if (userProfile.premiumExpiryDate && userProfile.premiumExpiryDate instanceof Date && userProfile.premiumExpiryDate.getTime() > Date.now()) {
+    console.log('✅ User has active time-based premium subscription');
+    return true;
+  }
+
   // Check if trial is still active
   if (userProfile.trialEndDate && userProfile.trialEndDate instanceof Date && userProfile.trialEndDate.getTime() > Date.now()) {
     console.log('✅ User trial is still active');
@@ -673,6 +726,62 @@ export interface UserStatistics {
   totalStoreVisits: number;
   lastLogin?: Date;
 }
+
+// Helper function to get premium subscription details
+export const getPremiumSubscriptionInfo = (userProfile: UserProfile | null): {
+  hasPremium: boolean;
+  type: 'none' | 'trial' | 'permanent' | '1month' | '3months' | '1year';
+  expiryDate?: Date;
+  daysRemaining?: number;
+} => {
+  if (!userProfile) {
+    return { hasPremium: false, type: 'none' };
+  }
+
+  // Admin always has premium
+  if (isAdmin(userProfile)) {
+    return { hasPremium: true, type: 'permanent' };
+  }
+
+  // Check for permanent premium
+  if (userProfile.isPremiumAdminSet === true) {
+    return { hasPremium: true, type: 'permanent' };
+  }
+
+  // Check for time-based subscription
+  if (userProfile.premiumExpiryDate && userProfile.premiumExpiryDate instanceof Date) {
+    const now = Date.now();
+    const expiryTime = userProfile.premiumExpiryDate.getTime();
+
+    if (expiryTime > now) {
+      const daysRemaining = Math.ceil((expiryTime - now) / (1000 * 60 * 60 * 24));
+      return {
+        hasPremium: true,
+        type: userProfile.subscriptionType || '1month',
+        expiryDate: userProfile.premiumExpiryDate,
+        daysRemaining
+      };
+    }
+  }
+
+  // Check for trial
+  if (userProfile.trialEndDate && userProfile.trialEndDate instanceof Date) {
+    const now = Date.now();
+    const trialEndTime = userProfile.trialEndDate.getTime();
+
+    if (trialEndTime > now) {
+      const daysRemaining = Math.ceil((trialEndTime - now) / (1000 * 60 * 60 * 24));
+      return {
+        hasPremium: true,
+        type: 'trial',
+        expiryDate: userProfile.trialEndDate,
+        daysRemaining
+      };
+    }
+  }
+
+  return { hasPremium: false, type: 'none' };
+};
 
 // Get user statistics
 export const getUserStatistics = async (userId: string): Promise<UserStatistics> => {
