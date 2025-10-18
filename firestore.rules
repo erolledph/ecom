@@ -133,10 +133,16 @@ service cloud.firestore {
       // Users can read their own tickets
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
 
-      // Users can create tickets if they have premium access (not trial or basic)
+      // Users can create tickets if they have premium access (admin set, active trial, or paid subscription)
       allow create: if request.auth != null &&
                     request.resource.data.userId == request.auth.uid &&
-                    get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isPremiumAdminSet == true;
+                    (
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isPremiumAdminSet == true ||
+                      (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.trialEndDate != null &&
+                       get(/databases/$(database)/documents/users/$(request.auth.uid)).data.trialEndDate > request.time) ||
+                      (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.premiumExpiryDate != null &&
+                       get(/databases/$(database)/documents/users/$(request.auth.uid)).data.premiumExpiryDate > request.time)
+                    );
 
       // Users can update only their own tickets (to mark as resolved)
       allow update: if request.auth != null &&
