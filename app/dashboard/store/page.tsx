@@ -13,10 +13,11 @@ import {
   deleteImageFromStorage,
   Store 
 } from '@/lib/store';
-import { Settings, Save, Palette, Globe, Badge as Widget, Megaphone, Mail, Code, Clock, Crown } from 'lucide-react';
+import { Settings, Save, Palette, Globe, Badge as Widget, Megaphone, Mail, Code, Clock, Crown, Search } from 'lucide-react';
 import CustomToggle from '@/components/CustomToggle';
 import ImageUploadWithDelete from '@/components/ImageUploadWithDelete';
 import CustomHtmlEditor from '@/components/CustomHtmlEditor';
+import SeoPreviewCards from '@/components/SeoPreviewCards';
 
 const SOCIAL_PLATFORMS = [
   'instagram',
@@ -79,6 +80,12 @@ export default function StoreSettingsPage() {
     displayPriceOnProducts: true,
     showCategories: true,
     customHtml: '',
+    seoSettings: {
+      useAutomatic: true,
+      metaTitle: '',
+      metaDescription: '',
+      ogImage: '',
+    },
     customization: {
       storeNameFontColor: '#ffffff',
       storeBioFontColor: '#e5e7eb',
@@ -128,6 +135,12 @@ export default function StoreSettingsPage() {
             displayPriceOnProducts: storeData.displayPriceOnProducts !== false,
             showCategories: isPremiumUser ? (storeData.showCategories !== false) : false,
             customHtml: storeData.customHtml || '',
+            seoSettings: {
+              useAutomatic: storeData.seoSettings?.useAutomatic !== false,
+              metaTitle: storeData.seoSettings?.metaTitle || '',
+              metaDescription: storeData.seoSettings?.metaDescription || '',
+              ogImage: storeData.seoSettings?.ogImage || '',
+            },
             customization: {
               ...formData.customization,
               ...storeData.customization
@@ -157,6 +170,16 @@ export default function StoreSettingsPage() {
       ...prev,
       customization: {
         ...prev.customization,
+        [field]: value
+      }
+    }));
+  };
+
+  const handleSeoChange = (field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      seoSettings: {
+        ...prev.seoSettings,
         [field]: value
       }
     }));
@@ -268,6 +291,7 @@ export default function StoreSettingsPage() {
         displayPriceOnProducts: formData.displayPriceOnProducts,
         showCategories: formData.showCategories,
         customHtml: formData.customHtml,
+        seoSettings: formData.seoSettings,
         customization: formData.customization
       });
 
@@ -830,6 +854,129 @@ export default function StoreSettingsPage() {
                 />
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* SEO Settings */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center space-x-3 mb-6">
+          <Search className="w-6 h-6 text-primary-600" />
+          <h2 className="text-xl font-semibold text-gray-900">SEO Settings</h2>
+        </div>
+
+        <div className="space-y-6">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+              <div className="flex-1">
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="seoMode"
+                    checked={formData.seoSettings.useAutomatic}
+                    onChange={() => handleSeoChange('useAutomatic', true)}
+                    className="w-4 h-4 text-primary-600 focus:ring-primary-500"
+                  />
+                  <span className="ml-3">
+                    <span className="block text-sm font-medium text-gray-900">Automatic SEO</span>
+                    <span className="block text-sm text-gray-500">Use store name, description, and avatar for SEO</span>
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+              <div className="flex-1">
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="seoMode"
+                    checked={!formData.seoSettings.useAutomatic}
+                    onChange={() => handleSeoChange('useAutomatic', false)}
+                    className="w-4 h-4 text-primary-600 focus:ring-primary-500"
+                  />
+                  <span className="ml-3">
+                    <span className="block text-sm font-medium text-gray-900">Custom SEO</span>
+                    <span className="block text-sm text-gray-500">Provide custom meta tags and images</span>
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {!formData.seoSettings.useAutomatic && (
+            <div className="space-y-6 mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  Meta Title
+                </label>
+                <input
+                  type="text"
+                  value={formData.seoSettings.metaTitle}
+                  onChange={(e) => handleSeoChange('metaTitle', e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="Enter custom meta title (leave empty to use store name)"
+                  maxLength={60}
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  {formData.seoSettings.metaTitle.length}/60 characters (recommended)
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  Meta Description
+                </label>
+                <textarea
+                  value={formData.seoSettings.metaDescription}
+                  onChange={(e) => handleSeoChange('metaDescription', e.target.value)}
+                  rows={3}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                  placeholder="Enter custom meta description (leave empty to use store description)"
+                  maxLength={160}
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  {formData.seoSettings.metaDescription.length}/160 characters (recommended)
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-900 mb-2">
+                  Open Graph Image URL
+                </label>
+                <input
+                  type="url"
+                  value={formData.seoSettings.ogImage}
+                  onChange={(e) => handleSeoChange('ogImage', e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  placeholder="https://example.com/image.jpg (leave empty to use avatar)"
+                />
+                <p className="mt-1 text-sm text-gray-500">
+                  This image appears when your store is shared on social media. Recommended size: 1200x630px. Leave empty to use your store avatar.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div className="mt-6">
+            <SeoPreviewCards
+              title={
+                formData.seoSettings.useAutomatic
+                  ? formData.name
+                  : (formData.seoSettings.metaTitle || formData.name)
+              }
+              description={
+                formData.seoSettings.useAutomatic
+                  ? formData.description
+                  : (formData.seoSettings.metaDescription || formData.description)
+              }
+              imageUrl={
+                formData.seoSettings.useAutomatic
+                  ? formData.avatar
+                  : (formData.seoSettings.ogImage || formData.avatar)
+              }
+              url={store?.slug ? `${window.location.origin}/${store.slug}` : ''}
+            />
           </div>
         </div>
       </div>

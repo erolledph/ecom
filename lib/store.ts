@@ -48,6 +48,12 @@ export interface Store {
   displayPriceOnProducts?: boolean;
   showCategories?: boolean;
   customHtml?: string;
+  seoSettings?: {
+    useAutomatic?: boolean;
+    metaTitle?: string;
+    metaDescription?: string;
+    ogImage?: string;
+  };
   customization?: {
     storeNameFontColor?: string;
     storeBioFontColor?: string;
