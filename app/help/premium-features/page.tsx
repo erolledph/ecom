@@ -146,9 +146,11 @@ export default function PremiumFeaturesPage() {
             <h3 className="text-xl font-semibold text-gray-900 mt-6 mb-3">Pricing:</h3>
             <div className="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-6">
               <div className="text-center">
-                <div className="text-4xl font-bold text-emerald-600 mb-2">$7</div>
+                <div className="text-sm text-gray-600 mb-1">Starting at</div>
+                <div className="text-4xl font-bold text-emerald-600 mb-2">$3</div>
                 <div className="text-gray-600">per month</div>
-                <div className="text-sm text-gray-500 mt-2">Cancel anytime, no long-term commitment</div>
+                <div className="text-sm text-gray-500 mt-2">Save more with quarterly or annual billing</div>
+                <div className="text-sm text-gray-500">Cancel anytime, no long-term commitment</div>
               </div>
             </div>
 
