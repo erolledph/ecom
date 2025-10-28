@@ -2,12 +2,13 @@
 
 import React from 'react';
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
-import { isPremium, isOnTrial, hasTrialExpired, getTrialDaysRemaining } from '@/lib/auth';
+import { isPremium, isOnTrial, hasTrialExpired, getTrialDaysRemaining, logout } from '@/lib/auth';
 import { getUserStore, getAllUserNotifications, markNotificationAsRead, Notification } from '@/lib/store';
 import { getUserTicketNotifications, markTicketNotificationAsRead, subscribeToTicketNotifications, TicketNotification, clearTicketNotifications } from '@/lib/helpdesk';
-import { Menu, Bell, User, Copy, ExternalLink, ChevronDown, Calendar, Check, Clock, Crown, MessageSquare } from 'lucide-react';
+import { Menu, Bell, User, Copy, ExternalLink, ChevronDown, Calendar, Check, Clock, Crown, MessageSquare, LogOut } from 'lucide-react';
 import NotificationModal from '@/components/NotificationModal';
 
 interface DashboardHeaderProps {
@@ -16,8 +17,9 @@ interface DashboardHeaderProps {
 }
 
 export default function DashboardHeader({ isSidebarOpen, toggleSidebar }: DashboardHeaderProps) {
+  const router = useRouter();
   const { user, userProfile } = useAuth();
-  const { showSuccess, showError } = useToast();
+  const { showSuccess, showError, clearAll } = useToast();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNotificationMenuOpen, setIsNotificationMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState<(Notification & { isRead: boolean })[]>([]);
@@ -27,6 +29,7 @@ export default function DashboardHeader({ isSidebarOpen, toggleSidebar }: Dashbo
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [storeSlug, setStoreSlug] = useState<string>('');
   const userMenuRef = useRef<HTMLDivElement>(null);
   const notificationMenuRef = useRef<HTMLDivElement>(null);
@@ -118,7 +121,7 @@ export default function DashboardHeader({ isSidebarOpen, toggleSidebar }: Dashbo
 
   const handleMarkAsRead = async () => {
     if (!selectedNotification || !user) return;
-    
+
     try {
       await markNotificationAsRead(user.uid, selectedNotification.id!);
       await loadNotifications(); // Refresh notifications
@@ -126,13 +129,27 @@ export default function DashboardHeader({ isSidebarOpen, toggleSidebar }: Dashbo
       console.error('Error marking notification as read:', error);
     }
   };
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    clearAll();
+    try {
+      await logout();
+      router.push('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
   const storeUrl = storeSlug ? `${window.location.origin}/${storeSlug}` : '';
 
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-white shadow-sm border-b border-gray-200 z-30">
       <div className="flex items-center justify-between h-full px-3 sm:px-4">
-        {/* Left Side - Hamburger Menu */}
-        <div className="flex items-center">
+        {/* Left Side - Hamburger Menu & Branding */}
+        <div className="flex items-center gap-3">
           <button
             id="hamburger-button"
             onClick={toggleSidebar}
@@ -141,6 +158,14 @@ export default function DashboardHeader({ isSidebarOpen, toggleSidebar }: Dashbo
           >
             <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
+          <div className="hidden sm:flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">T</span>
+            </div>
+            <div>
+              <h1 className="text-base font-bold text-gray-900">Tiangge</h1>
+            </div>
+          </div>
         </div>
 
         {/* Right Side - Notifications and User Info */}
@@ -163,7 +188,7 @@ export default function DashboardHeader({ isSidebarOpen, toggleSidebar }: Dashbo
 
             {/* Notifications Dropdown */}
             {isNotificationMenuOpen && (
-              <div className="absolute right-3 sm:right-4 mt-2 w-72 sm:w-80 md:w-96 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 max-h-[80vh] overflow-hidden">
+              <div className="absolute right-0 mt-2 w-72 sm:w-80 md:w-96 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 max-h-[80vh] overflow-hidden">
                 {/* Header */}
                 <div className="px-4 py-3 border-b border-gray-100">
                   <div className="flex items-center justify-between">
@@ -185,51 +210,79 @@ export default function DashboardHeader({ isSidebarOpen, toggleSidebar }: Dashbo
                     </div>
                   ) : (notifications.length > 0 || ticketNotifications.length > 0) ? (
                     <div className="py-2">
-                      {ticketNotifications.map((notification) => (
-                        <button
-                          key={`ticket-${notification.id}`}
-                          onClick={() => {
-                            if (notification.id) {
-                              markTicketNotificationAsRead(notification.id);
-                            }
-                            setIsNotificationMenuOpen(false);
-                            window.location.href = '/dashboard/helpdesk';
-                          }}
-                          className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors border-l-4 ${
-                            notification.isRead
-                              ? 'border-transparent'
-                              : 'border-blue-500 bg-blue-50'
-                          }`}
-                        >
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <MessageSquare className="w-3 h-3 text-blue-500" />
-                                <span className="text-xs font-medium text-blue-600">Support Ticket</span>
-                              </div>
-                              <p className={`text-xs sm:text-sm font-medium line-clamp-2 ${
-                                notification.isRead ? 'text-gray-700' : 'text-gray-900'
-                              }`}>
-                                {notification.message}
-                              </p>
-                              <div className="flex items-center mt-1 space-x-2">
-                                <Calendar className="w-3 h-3 text-gray-400" />
-                                <span className="text-xs text-gray-500">
-                                  {notification.createdAt.toLocaleDateString()}
-                                </span>
-                                {!notification.isRead && (
-                                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    New
+                      {ticketNotifications.map((notification) => {
+                        const notifData = notification as any;
+                        const isSubscriptionNotification = notifData.type === 'subscription_approved' || notifData.type === 'subscription_rejected';
+                        const isTicketNotification = notifData.ticketId;
+
+                        return (
+                          <button
+                            key={`ticket-${notification.id}`}
+                            onClick={() => {
+                              if (notification.id) {
+                                markTicketNotificationAsRead(notification.id);
+                              }
+                              setIsNotificationMenuOpen(false);
+
+                              if (isSubscriptionNotification) {
+                                router.push('/dashboard/subscription');
+                              } else if (isTicketNotification) {
+                                router.push('/dashboard/helpdesk');
+                              }
+                            }}
+                            className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors border-l-4 ${
+                              notification.isRead
+                                ? 'border-transparent'
+                                : isSubscriptionNotification
+                                  ? 'border-green-500 bg-green-50'
+                                  : 'border-blue-500 bg-blue-50'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                  {isSubscriptionNotification ? (
+                                    <>
+                                      <Crown className="w-3 h-3 text-green-500" />
+                                      <span className="text-xs font-medium text-green-600">Subscription Update</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <MessageSquare className="w-3 h-3 text-blue-500" />
+                                      <span className="text-xs font-medium text-blue-600">Support Ticket</span>
+                                    </>
+                                  )}
+                                </div>
+                                <p className={`text-xs sm:text-sm font-medium line-clamp-2 ${
+                                  notification.isRead ? 'text-gray-700' : 'text-gray-900'
+                                }`}>
+                                  {notification.message}
+                                </p>
+                                <div className="flex items-center mt-1 space-x-2">
+                                  <Calendar className="w-3 h-3 text-gray-400" />
+                                  <span className="text-xs text-gray-500">
+                                    {notification.createdAt.toLocaleDateString()}
                                   </span>
-                                )}
+                                  {!notification.isRead && (
+                                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${
+                                      isSubscriptionNotification
+                                        ? 'bg-green-100 text-green-800'
+                                        : 'bg-blue-100 text-blue-800'
+                                    }`}>
+                                      New
+                                    </span>
+                                  )}
+                                </div>
                               </div>
+                              {!notification.isRead && (
+                                <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
+                                  isSubscriptionNotification ? 'bg-green-500' : 'bg-blue-500'
+                                }`}></div>
+                              )}
                             </div>
-                            {!notification.isRead && (
-                              <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                            )}
-                          </div>
-                        </button>
-                      ))}
+                          </button>
+                        );
+                      })}
                       {notifications.map((notification) => (
                         <button
                           key={notification.id}
@@ -292,7 +345,7 @@ export default function DashboardHeader({ isSidebarOpen, toggleSidebar }: Dashbo
 
             {/* User Dropdown Menu */}
             {isUserMenuOpen && (
-              <div className="absolute right-3 sm:right-4 mt-2 w-64 sm:w-72 md:w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 max-h-[80vh] overflow-y-auto">
+              <div className="absolute right-0 mt-2 w-64 sm:w-72 md:w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 max-h-[80vh] overflow-y-auto">
                 {/* User Info Section */}
                 <div className="px-3 sm:px-4 py-3 border-b border-gray-100">
                   <div className="flex items-center space-x-2 sm:space-x-3">
@@ -391,6 +444,20 @@ export default function DashboardHeader({ isSidebarOpen, toggleSidebar }: Dashbo
                       <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
                     </button>
                   </div>
+                </div>
+
+                {/* Logout Button */}
+                <div className="px-3 sm:px-4 py-3 border-t border-gray-100">
+                  <button
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
+                    className="group flex items-center w-full px-2 sm:px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-red-50 hover:text-red-700 transition-all duration-200 disabled:opacity-50 min-h-[44px]"
+                  >
+                    <LogOut className="flex-shrink-0 text-gray-500 group-hover:text-red-600 transition-colors w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="ml-2 sm:ml-3 truncate flex-1 text-left">
+                      {isLoggingOut ? 'Logging out...' : 'Logout'}
+                    </span>
+                  </button>
                 </div>
               </div>
             )}

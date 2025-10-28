@@ -6,6 +6,8 @@ import { getActiveGlobalBanner, GlobalBanner } from '@/lib/store';
 import { trackEvent } from '@/lib/analytics';
 import { X } from 'lucide-react';
 
+const BANNER_STORAGE_KEY = 'globalBannerShown';
+
 export default function GlobalBannerDisplay() {
   const { user, loading: authLoading } = useAuth();
   const [banner, setBanner] = useState<GlobalBanner | null>(null);
@@ -13,33 +15,43 @@ export default function GlobalBannerDisplay() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadBanner = async () => {
-      // Only load banner if user is authenticated
-      if (!user) {
+    if (!authLoading && user) {
+      const hasShownBanner = sessionStorage.getItem(BANNER_STORAGE_KEY);
+
+      if (hasShownBanner) {
         setLoading(false);
         return;
       }
 
-      try {
-        const activeBanner = await getActiveGlobalBanner();
-        if (activeBanner && activeBanner.isActive) {
-          setBanner(activeBanner);
+      let timeoutId: NodeJS.Timeout;
 
-          // Show banner after a delay to ensure dashboard is loaded
-          setTimeout(() => {
-            setIsVisible(true);
-          }, 2000); // 2 second delay
+      const loadBanner = async () => {
+        try {
+          const activeBanner = await getActiveGlobalBanner();
+          if (activeBanner && activeBanner.isActive) {
+            setBanner(activeBanner);
+            sessionStorage.setItem(BANNER_STORAGE_KEY, 'true');
+
+            timeoutId = setTimeout(() => {
+              setIsVisible(true);
+            }, 2000);
+          }
+        } catch (error) {
+          console.error('Error loading global banner:', error);
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        console.error('Error loading global banner:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      };
 
-    // Only load banner when auth is not loading and user is authenticated
-    if (!authLoading) {
       loadBanner();
+
+      return () => {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+      };
+    } else if (!authLoading && !user) {
+      setLoading(false);
     }
   }, [user, authLoading]);
 

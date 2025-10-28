@@ -77,10 +77,10 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       <DashboardHeader isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
       <DashboardNav isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-      
+
       {/* Main Content */}
       <main className="pt-16">
         <div className="px-3 py-4 sm:px-4 sm:py-6 md:px-8 md:py-8">
@@ -89,17 +89,9 @@ export default function DashboardLayout({
           </div>
         </div>
       </main>
-      
+
       {/* Global Banner Display - Only shown in dashboard */}
       <GlobalBannerDisplay />
-      
-      {/* Sidebar Overlay for Mobile */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
-          onClick={toggleSidebar}
-        />
-      )}
     </div>
   );
 }

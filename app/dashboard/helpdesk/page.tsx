@@ -213,7 +213,7 @@ export default function HelpdeskPage() {
     );
   }
 
-  if (!userProfile?.isPremiumAdminSet && !isAdmin(userProfile)) {
+  if (!isPremium(userProfile) && !isAdmin(userProfile)) {
     return (
       <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg border border-yellow-200 p-8 text-center max-w-2xl mx-auto mt-12">
         <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6 text-white">

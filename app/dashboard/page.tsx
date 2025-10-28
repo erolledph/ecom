@@ -26,34 +26,29 @@ export default function DashboardOverview() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       if (!user) return;
-      
+
       try {
         // Fetch store data
         const storeData = await getUserStore(user.uid);
         if (storeData) {
           setStore(storeData);
-          
+
           // Fetch products and slides for stats
           const [products, slides] = await Promise.all([
             getStoreProducts(user.uid),
             getStoreSlides(user.uid)
           ]);
-          
+
           setStats({
             totalProducts: products.length,
             totalSlides: slides.length,
             activeProducts: products.filter(p => p.isActive !== false).length,
             activeSlides: slides.filter(s => s.isActive).length
           });
-          
+
           // Check product limit for normal users
           if (userProfile && !isPremium(userProfile)) {
             setIsAtProductLimit(products.length >= 30);
-          }
-          
-          // Show welcome toast for new users
-          if (products.length === 0 && slides.length === 0) {
-            showInfo('Welcome to your dashboard! Start by adding products or creating slides.');
           }
         } else {
           setError('No store found. Please contact support if this issue persists.');

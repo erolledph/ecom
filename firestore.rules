@@ -219,5 +219,20 @@ service cloud.firestore {
       // Admins can list all notifications
       allow list: if isAdmin();
     }
+
+    // Subscription requests collection: Users can create and read their own, admins can manage all
+    match /subscription_requests/{requestId} {
+      // Users can create their own subscription requests
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+
+      // Users can read their own subscription requests
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+
+      // Users can list their own subscription requests
+      allow list: if request.auth != null;
+
+      // Admins can read, update, and list all subscription requests
+      allow read, update, list: if isAdmin();
+    }
   }
 }
