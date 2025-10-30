@@ -16,11 +16,20 @@ export const metadata: Metadata = {
     url: 'https://tiangge.shop',
     siteName: 'Tiangge',
     type: 'website',
+    images: [
+      {
+        url: '/default-avatar.webp',
+        width: 1200,
+        height: 630,
+        alt: 'Tiangge - Create Your Online Affiliate Store',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Tiangge - Create Your Online Affiliate Store',
     description: 'Build and customize your own affiliate store. Add products, create promotional slides, and start earning commissions through affiliate marketing.',
+    images: ['/default-avatar.webp'],
   },
   alternates: {
     canonical: 'https://tiangge.shop',
