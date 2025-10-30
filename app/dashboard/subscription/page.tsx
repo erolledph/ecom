@@ -286,20 +286,114 @@ export default function SubscriptionPage() {
               <h3 className="text-lg font-semibold mb-4">Payment Details</h3>
 
               {/* Payment Instructions */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                <h4 className="font-semibold text-blue-900 mb-2">Payment Instructions</h4>
-                <p className="text-sm text-blue-800 mb-3">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 sm:p-6 mb-6">
+                <h4 className="font-bold text-blue-900 text-lg sm:text-xl mb-3">Payment Instructions</h4>
+                <p className="text-sm sm:text-base text-blue-800 mb-4 sm:mb-6">
                   Please send your payment to one of the following methods:
                 </p>
-                <div className="space-y-2 text-sm text-blue-900">
-                  <div className="bg-white rounded p-3">
-                    <div className="font-semibold">GCash / PayMaya / PayPal</div>
-                    <div className="text-gray-600 mt-1">Account details will be provided here by admin</div>
+
+                <div className="bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-gray-200">
+                  <div className="font-bold text-xl sm:text-2xl text-gray-800 mb-4 sm:mb-6 flex items-center">
+                    <svg className="w-6 h-6 sm:w-7 sm:h-7 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                    Payment Options
+                  </div>
+
+                  <div className="space-y-5 sm:space-y-6">
+                    {/* GCash */}
+                    <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 sm:p-5 border border-blue-200">
+                      <h4 className="font-bold text-base sm:text-lg text-gray-800 mb-3 flex items-center">
+                        <span className="inline-block w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
+                        GCash (Philippines)
+                      </h4>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+                        <div className="text-sm sm:text-base text-gray-700">
+                          <span className="font-semibold text-gray-900">Number:</span>
+                          <span className="ml-2 font-mono text-lg font-bold text-blue-700">09169888275</span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText('09169888275');
+                            showToast('GCash number copied!', 'success');
+                          }}
+                          className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium w-full sm:w-auto"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          Copy Number
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* PayMaya */}
+                    <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4 sm:p-5 border border-green-200">
+                      <h4 className="font-bold text-base sm:text-lg text-gray-800 mb-3 flex items-center">
+                        <span className="inline-block w-2 h-2 bg-green-600 rounded-full mr-2"></span>
+                        PayMaya / Maya (Philippines)
+                      </h4>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+                        <div className="text-sm sm:text-base text-gray-700">
+                          <span className="font-semibold text-gray-900">Number:</span>
+                          <span className="ml-2 font-mono text-lg font-bold text-green-700">09293069403</span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText('09293069403');
+                            showToast('Maya number copied!', 'success');
+                          }}
+                          className="flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium w-full sm:w-auto"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          Copy Number
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* PayPal */}
+                    <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-4 sm:p-5 border border-purple-200">
+                      <h4 className="font-bold text-base sm:text-lg text-gray-800 mb-3 flex items-center">
+                        <span className="inline-block w-2 h-2 bg-purple-600 rounded-full mr-2"></span>
+                        PayPal (International)
+                      </h4>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+                        <div className="text-sm sm:text-base text-gray-700 break-all">
+                          <span className="font-semibold text-gray-900">Link:</span>
+                          <a
+                            href="http://paypal.me/erolled"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="ml-2 font-mono text-base font-bold text-purple-700 hover:text-purple-800 underline"
+                          >
+                            paypal.me/erolled
+                          </a>
+                        </div>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText('http://paypal.me/erolled');
+                            showToast('PayPal link copied!', 'success');
+                          }}
+                          className="flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium w-full sm:w-auto"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          Copy Link
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <p className="text-sm text-blue-800 mt-3">
-                  Selected Plan: <span className="font-semibold">{SUBSCRIPTION_PLANS[selectedPlan].label}</span> - ${SUBSCRIPTION_PLANS[selectedPlan].price}
-                </p>
+
+                <div className="mt-4 sm:mt-6 bg-blue-100 border-l-4 border-blue-600 rounded-r-lg p-3 sm:p-4">
+                  <p className="text-sm sm:text-base text-blue-900 font-medium">
+                    <span className="font-bold">Selected Plan:</span> {SUBSCRIPTION_PLANS[selectedPlan].label} -
+                    <span className="text-lg font-bold ml-1">${SUBSCRIPTION_PLANS[selectedPlan].price}</span>
+                  </p>
+                </div>
               </div>
 
               {/* File Upload */}

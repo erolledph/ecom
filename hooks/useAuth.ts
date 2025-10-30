@@ -35,8 +35,19 @@ export const useAuth = () => {
           console.log('👤 useAuth: Auth state changed', {
             userExists: !!user,
             userEmail: user?.email,
-            userId: user?.uid
+            userId: user?.uid,
+            emailVerified: user?.emailVerified
           });
+
+          // Only set user if email is verified
+          if (user && !user.emailVerified) {
+            console.log('👤 useAuth: User email not verified, treating as not logged in');
+            setUser(null);
+            setUserProfile(null);
+            setLoading(false);
+            return;
+          }
+
           setUser(user);
 
           if (user) {

@@ -28,6 +28,8 @@ function AuthPageContent() {
     storeSlug: false
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
+  const [lastResetEmailSent, setLastResetEmailSent] = useState<number | null>(null);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -44,7 +46,21 @@ function AuthPageContent() {
       setIsForgotPassword(false);
       setSuccess('Password reset successful! You can now log in with your new password.');
     }
+
+    const verified = searchParams.get('verified');
+    if (verified === 'true') {
+      setIsLogin(true);
+      setIsForgotPassword(false);
+      setSuccess('Email verified successfully! You can now log in to your account.');
+    }
   }, [user, router, searchParams]);
+
+  useEffect(() => {
+    if (resendTimer > 0) {
+      const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendTimer]);
 
   const validateEmail = (email: string): string => {
     if (!email) return 'Email is required';
@@ -185,6 +201,8 @@ function AuthPageContent() {
     try {
       await resetPassword(email);
       setSuccess('Password reset email sent! Please check your inbox.');
+      setResendTimer(300);
+      setLastResetEmailSent(Date.now());
       setEmail('');
       setTouched(prev => ({ ...prev, email: false }));
     } catch (error: any) {
@@ -242,11 +260,30 @@ function AuthPageContent() {
 
     try {
       if (isLogin) {
-        await signIn(email, password);
+        const user = await signIn(email, password);
+
+        if (!user.emailVerified) {
+          setError('Please verify your email before logging in. Check your inbox for the verification link.');
+          setLoading(false);
+          return;
+        }
+
+        router.push('/dashboard');
       } else {
         await signUp(email, password, displayName, storeSlug);
+        setSuccess('Account created! Please check your email and verify your account before logging in.');
+        setIsLogin(true);
+        setEmail('');
+        setPassword('');
+        setDisplayName('');
+        setStoreSlug('');
+        setTouched({
+          email: false,
+          password: false,
+          displayName: false,
+          storeSlug: false
+        });
       }
-      router.push('/dashboard');
     } catch (error: any) {
       const friendlyError = parseFirebaseError(error.message);
       setError(friendlyError);
@@ -573,7 +610,7 @@ function AuthPageContent() {
 
               <button
                 type="submit"
-                disabled={loading || (!isLogin && !isForgotPassword && (slugError !== '' || passwordError !== '' || isCheckingSlug))}
+                disabled={loading || (isForgotPassword && resendTimer > 0) || (!isLogin && !isForgotPassword && (slugError !== '' || passwordError !== '' || isCheckingSlug))}
                 className="w-full py-3 rounded-lg text-sm lg:text-base font-semibold transition-all shadow-sm bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] flex items-center justify-center"
               >
                 {loading ? (
@@ -581,6 +618,8 @@ function AuthPageContent() {
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     {isForgotPassword ? 'Sending...' : isLogin ? 'Signing in...' : 'Creating account...'}
                   </>
+                ) : isForgotPassword && resendTimer > 0 ? (
+                  `Resend in ${Math.floor(resendTimer / 60)}:${(resendTimer % 60).toString().padStart(2, '0')}`
                 ) : (
                   isForgotPassword ? 'Send Reset Link' : isLogin ? 'Log in' : 'Create Account'
                 )}

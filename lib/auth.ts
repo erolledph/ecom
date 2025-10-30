@@ -1,5 +1,5 @@
 import { auth, db } from './firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, confirmPasswordReset, verifyPasswordResetCode } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, confirmPasswordReset, verifyPasswordResetCode, sendEmailVerification } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { checkSlugAvailability } from '@/lib/store';
 
@@ -164,7 +164,16 @@ export const signUp = async (email: string, password: string, displayName?: stri
     }, { merge: true });
     
     console.log('User profile updated with store reference. Store ID:', user.uid);
-    
+
+    // Send email verification
+    try {
+      await sendEmailVerification(user);
+      console.log('Email verification sent successfully');
+    } catch (emailError: any) {
+      console.error('Error sending verification email:', emailError);
+      // Don't throw error here - account was created successfully
+    }
+
     return user;
   } catch (error: any) {
     throw new Error(error.message);

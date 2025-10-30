@@ -3,6 +3,8 @@
 import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { verifyResetCode, confirmPasswordResetWithCode } from '@/lib/auth';
+import { applyActionCode } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 import { Store, Eye, EyeOff, CircleAlert as AlertCircle, CircleCheck as CheckCircle, Loader2 } from 'lucide-react';
 
 function ResetPasswordContent() {
@@ -22,17 +24,37 @@ function ResetPasswordContent() {
     password: false,
     confirmPassword: false
   });
+  const [isEmailVerification, setIsEmailVerification] = useState(false);
 
   const oobCode = searchParams.get('oobCode');
+  const mode = searchParams.get('mode');
 
   useEffect(() => {
-    const verifyCode = async () => {
+    const handleAction = async () => {
       if (!oobCode) {
-        setError('Invalid or missing reset code');
+        setError('Invalid or missing action code');
         setVerifying(false);
         return;
       }
 
+      // Handle email verification
+      if (mode === 'verifyEmail') {
+        setIsEmailVerification(true);
+        try {
+          await applyActionCode(auth, oobCode);
+          setSuccess(true);
+          setVerifying(false);
+          setTimeout(() => {
+            router.push('/auth?verified=true');
+          }, 3000);
+        } catch (error: any) {
+          setError('Invalid or expired verification link.');
+          setVerifying(false);
+        }
+        return;
+      }
+
+      // Handle password reset
       try {
         const userEmail = await verifyResetCode(oobCode);
         setEmail(userEmail);
@@ -43,8 +65,8 @@ function ResetPasswordContent() {
       }
     };
 
-    verifyCode();
-  }, [oobCode]);
+    handleAction();
+  }, [oobCode, mode, router]);
 
   const validatePassword = (password: string): string => {
     if (!password) return 'Password is required';
@@ -136,7 +158,9 @@ function ResetPasswordContent() {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center">
           <Loader2 className="w-12 h-12 text-emerald-600 animate-spin mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-800">Verifying reset link...</h2>
+          <h2 className="text-xl font-semibold text-gray-800">
+            {mode === 'verifyEmail' ? 'Verifying your email...' : 'Verifying reset link...'}
+          </h2>
           <p className="text-gray-600 mt-2">Please wait a moment</p>
         </div>
       </div>
@@ -150,8 +174,17 @@ function ResetPasswordContent() {
           <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle className="w-10 h-10 text-emerald-600" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Password Reset Successful!</h2>
-          <p className="text-gray-600 mb-6">Your password has been successfully reset. You can now log in with your new password.</p>
+          {isEmailVerification ? (
+            <>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">Email Verified!</h2>
+              <p className="text-gray-600 mb-6">Your email has been successfully verified. You can now access all features of your account.</p>
+            </>
+          ) : (
+            <>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">Password Reset Successful!</h2>
+              <p className="text-gray-600 mb-6">Your password has been successfully reset. You can now log in with your new password.</p>
+            </>
+          )}
           <p className="text-sm text-gray-500">Redirecting to login page...</p>
         </div>
       </div>
