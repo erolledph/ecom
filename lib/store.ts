@@ -284,21 +284,21 @@ export const updateStore = async (userId: string, updates: Partial<Store>): Prom
 };
 
 // Image Upload Functions
-export const uploadStoreImage = async (userId: string, file: File, type: 'avatar' | 'banner'): Promise<string> => {
+export const uploadStoreImage = async (userId: string, file: File, type: 'avatar' | 'banner' | 'seo'): Promise<string> => {
   try {
     if (!storage) throw new Error('Firebase Storage not initialized');
 
-    // For banners, preserve PNG transparency
-    const isPNG = file.type === 'image/png' && type === 'banner';
+    // For banners and SEO images, preserve PNG transparency
+    const isPNG = file.type === 'image/png' && (type === 'banner' || type === 'seo');
     const fileExtension = isPNG ? 'png' : 'webp';
     const targetFormat = isPNG ? 'png' : 'webp';
 
     // Compress image
     const compressedFile = await fromBlob(
       file,
-      isPNG ? 100 : 75, // quality (100 for PNG banners to preserve transparency, 75 for others)
-      type === 'avatar' ? 200 : 1200, // width
-      type === 'avatar' ? 200 : 'auto', // height
+      isPNG ? 100 : 75, // quality (100 for PNG banners/SEO to preserve transparency, 75 for others)
+      type === 'avatar' ? 200 : (type === 'seo' ? 1200 : 1200), // width
+      type === 'avatar' ? 200 : (type === 'seo' ? 630 : 'auto'), // height (1200x630 for SEO)
       targetFormat // format
     );
 

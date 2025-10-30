@@ -205,7 +205,7 @@ export default function StoreSettingsPage() {
     }));
   };
 
-  const handleImageUpload = async (file: File, type: 'avatar' | 'banner' | 'widget' | 'subscription') => {
+  const handleImageUpload = async (file: File, type: 'avatar' | 'banner' | 'widget' | 'subscription' | 'seo') => {
     if (!user) throw new Error('User not authenticated');
 
     // Validate file size (5MB limit)
@@ -219,10 +219,10 @@ export default function StoreSettingsPage() {
       throw new Error('Invalid file type. Please select an image file (JPG, PNG, GIF, WebP).');
     }
     let imageUrl: string;
-    
+
     if (type === 'widget') {
       imageUrl = await uploadWidgetImage(user.uid, file);
-    } else if (type === 'avatar' || type === 'banner') {
+    } else if (type === 'avatar' || type === 'banner' || type === 'seo') {
       imageUrl = await uploadStoreImage(user.uid, file, type);
     } else {
       throw new Error(`Unsupported image upload type: ${type}`);
@@ -235,12 +235,14 @@ export default function StoreSettingsPage() {
       handleInputChange('avatar', imageUrl);
     } else if (type === 'banner') {
       handleInputChange('bannerImage', imageUrl);
+    } else if (type === 'seo') {
+      handleSeoChange('ogImage', imageUrl);
     }
 
     return imageUrl;
   };
 
-  const handleImageDelete = async (type: 'avatar' | 'banner' | 'widget' | 'subscription') => {
+  const handleImageDelete = async (type: 'avatar' | 'banner' | 'widget' | 'subscription' | 'seo') => {
     let currentImageUrl: string = '';
 
     if (type === 'widget') {
@@ -249,6 +251,8 @@ export default function StoreSettingsPage() {
       currentImageUrl = formData.avatar;
     } else if (type === 'banner') {
       currentImageUrl = formData.bannerImage;
+    } else if (type === 'seo') {
+      currentImageUrl = formData.seoSettings.ogImage;
     }
 
     if (currentImageUrl) {
@@ -266,6 +270,8 @@ export default function StoreSettingsPage() {
       handleInputChange('avatar', '');
     } else if (type === 'banner') {
       handleInputChange('bannerImage', '');
+    } else if (type === 'seo') {
+      handleSeoChange('ogImage', '');
     }
   };
 
@@ -371,20 +377,81 @@ export default function StoreSettingsPage() {
           </div>
 
           <div>
-            <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-2">
+            <label className="block text-xs sm:text-sm font-medium text-gray-900 mb-3">
               Header Layout
             </label>
-            <select
-              value={formData.headerLayout}
-              onChange={(e) => handleInputChange('headerLayout', e.target.value)}
-              className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm min-h-[44px]"
-            >
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
               {HEADER_LAYOUTS.map((layout) => (
-                <option key={layout.value} value={layout.value}>
-                  {layout.label}
-                </option>
+                <button
+                  key={layout.value}
+                  type="button"
+                  onClick={() => handleInputChange('headerLayout', layout.value)}
+                  className={`relative p-4 border-2 rounded-lg transition-all duration-200 hover:shadow-md ${
+                    formData.headerLayout === layout.value
+                      ? 'border-primary-600 bg-primary-50 ring-2 ring-primary-200'
+                      : 'border-gray-300 bg-white hover:border-gray-400'
+                  }`}
+                >
+                  {/* Visual Mockup */}
+                  <div className="mb-3 bg-gray-100 rounded-md p-3 h-20 flex items-center justify-center">
+                    {layout.value === 'left-right' && (
+                      <div className="flex items-center justify-between w-full gap-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full bg-gray-400"></div>
+                        </div>
+                        <div className="flex gap-1">
+                          <div className="w-3 h-3 rounded-full bg-gray-400"></div>
+                          <div className="w-3 h-3 rounded-full bg-gray-400"></div>
+                          <div className="w-3 h-3 rounded-full bg-gray-400"></div>
+                        </div>
+                      </div>
+                    )}
+                    {layout.value === 'right-left' && (
+                      <div className="flex items-center justify-between w-full gap-2">
+                        <div className="flex gap-1">
+                          <div className="w-3 h-3 rounded-full bg-gray-400"></div>
+                          <div className="w-3 h-3 rounded-full bg-gray-400"></div>
+                          <div className="w-3 h-3 rounded-full bg-gray-400"></div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full bg-gray-400"></div> 
+                        </div>
+                      </div>
+                    )}
+                    {layout.value === 'center' && (
+                      <div className="flex flex-col items-center w-full gap-2">
+                        <div className="w-8 h-8 rounded-full bg-gray-400"></div>
+                        <div className="flex gap-1">
+                          <div className="w-3 h-3 rounded-full bg-gray-400"></div>
+                          <div className="w-3 h-3 rounded-full bg-gray-400"></div>
+                          <div className="w-3 h-3 rounded-full bg-gray-400"></div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Label */}
+                  <div className="text-center">
+                    <p className={`text-xs sm:text-sm font-medium ${
+                      formData.headerLayout === layout.value
+                        ? 'text-primary-700'
+                        : 'text-gray-700'
+                    }`}>
+                      {layout.label}
+                    </p>
+                  </div>
+
+                  {/* Selected Indicator */}
+                  {formData.headerLayout === layout.value && (
+                    <div className="absolute top-2 right-2 w-5 h-5 bg-primary-600 rounded-full flex items-center justify-center">
+                      <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                  )}
+                </button>
               ))}
-            </select>
+            </div>
           </div>
         </div>
       </div>
@@ -941,19 +1008,15 @@ export default function StoreSettingsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-900 mb-2">
-                  Open Graph Image URL
-                </label>
-                <input
-                  type="url"
-                  value={formData.seoSettings.ogImage}
-                  onChange={(e) => handleSeoChange('ogImage', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="https://example.com/image.jpg (leave empty to use avatar)"
+                <ImageUploadWithDelete
+                  label="Open Graph Image"
+                  description="This image appears when your store is shared on social media. Upload a custom image or leave empty to use your store avatar."
+                  currentImageUrl={formData.seoSettings.ogImage}
+                  onImageUpload={(file) => handleImageUpload(file, 'seo')}
+                  onImageDelete={() => handleImageDelete('seo')}
+                  maxSizeText="Recommended: 1200x630px, Max: 5MB"
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
                 />
-                <p className="mt-1 text-sm text-gray-500">
-                  This image appears when your store is shared on social media. Recommended size: 1200x630px. Leave empty to use your store avatar.
-                </p>
               </div>
             </div>
           )}

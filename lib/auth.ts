@@ -1,5 +1,5 @@
 import { auth, db } from './firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, confirmPasswordReset, verifyPasswordResetCode } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { checkSlugAvailability } from '@/lib/store';
 
@@ -176,6 +176,41 @@ export const logout = async () => {
     if (!auth) throw new Error('Firebase not initialized');
 
     await signOut(auth);
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};
+
+export const resetPassword = async (email: string) => {
+  try {
+    if (!auth) throw new Error('Firebase not initialized');
+
+    // Configure the action code settings to redirect to custom reset page
+    const actionCodeSettings = {
+      url: `${window.location.origin}/auth/reset-password`,
+      handleCodeInApp: true,
+    };
+
+    await sendPasswordResetEmail(auth, email, actionCodeSettings);
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};
+
+export const verifyResetCode = async (code: string): Promise<string> => {
+  try {
+    if (!auth) throw new Error('Firebase not initialized');
+    const email = await verifyPasswordResetCode(auth, code);
+    return email;
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};
+
+export const confirmPasswordResetWithCode = async (code: string, newPassword: string) => {
+  try {
+    if (!auth) throw new Error('Firebase not initialized');
+    await confirmPasswordReset(auth, code, newPassword);
   } catch (error: any) {
     throw new Error(error.message);
   }

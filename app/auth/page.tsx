@@ -1,20 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { signIn, signUp } from '@/lib/auth';
+import { Suspense, useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { signIn, signUp, resetPassword } from '@/lib/auth';
 import { checkSlugAvailability } from '@/lib/store';
 import { useAuth } from '@/hooks/useAuth';
 import { Store, Package, TrendingUp, Users, Eye, EyeOff, MousePointer, ArrowRight, Star, StarHalf, RefreshCw, AtSign, CircleAlert as AlertCircle, CircleCheck as CheckCircle } from 'lucide-react';
 
-export default function AuthPage() {
+function AuthPageContent() {
   const [isLogin, setIsLogin] = useState(true);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [storeSlug, setStoreSlug] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [emailError, setEmailError] = useState('');
   const [slugError, setSlugError] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -26,15 +28,23 @@ export default function AuthPage() {
     storeSlug: false
   });
   const [showPassword, setShowPassword] = useState(false);
-  
+
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
 
   useEffect(() => {
     if (user) {
       router.push('/dashboard');
     }
-  }, [user, router]);
+
+    const resetSuccess = searchParams.get('reset');
+    if (resetSuccess === 'success') {
+      setIsLogin(true);
+      setIsForgotPassword(false);
+      setSuccess('Password reset successful! You can now log in with your new password.');
+    }
+  }, [user, router, searchParams]);
 
   const validateEmail = (email: string): string => {
     if (!email) return 'Email is required';
@@ -158,6 +168,33 @@ export default function AuthPage() {
       .trim() || 'An error occurred. Please try again';
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    const emailValidationError = validateEmail(email);
+    if (emailValidationError) {
+      setEmailError(emailValidationError);
+      setTouched(prev => ({ ...prev, email: true }));
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await resetPassword(email);
+      setSuccess('Password reset email sent! Please check your inbox.');
+      setEmail('');
+      setTouched(prev => ({ ...prev, email: false }));
+    } catch (error: any) {
+      const friendlyError = parseFirebaseError(error.message);
+      setError(friendlyError);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -220,7 +257,9 @@ export default function AuthPage() {
 
   const handleModeSwitch = () => {
     setIsLogin(!isLogin);
+    setIsForgotPassword(false);
     setError('');
+    setSuccess('');
     setEmailError('');
     setSlugError('');
     setPasswordError('');
@@ -230,6 +269,14 @@ export default function AuthPage() {
       displayName: false,
       storeSlug: false
     });
+  };
+
+  const handleForgotPasswordToggle = () => {
+    setIsForgotPassword(!isForgotPassword);
+    setError('');
+    setSuccess('');
+    setEmailError('');
+    setTouched(prev => ({ ...prev, email: false }));
   };
 
   return (
@@ -347,14 +394,16 @@ export default function AuthPage() {
             </a>
 
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-800 mb-2">
-              {isLogin ? 'Welcome back' : 'Get started'}
+              {isForgotPassword ? 'Reset Password' : isLogin ? 'Welcome back' : 'Get started'}
             </h1>
             <p className="text-sm text-gray-600 mb-6 lg:mb-8">
-              {isLogin ? 'Log in to your account to continue' : 'Create your account and start selling'}
+              {isForgotPassword
+                ? 'Enter your email address and we will send you a link to reset your password'
+                : isLogin ? 'Log in to your account to continue' : 'Create your account and start selling'}
             </p>
 
-            <form onSubmit={handleSubmit} className="space-y-5 lg:space-y-6">
-              {!isLogin && (
+            <form onSubmit={isForgotPassword ? handleForgotPassword : handleSubmit} className="space-y-5 lg:space-y-6">
+              {!isLogin && !isForgotPassword && (
                 <div className="relative">
                   <label className="block text-xs font-medium text-gray-700 mb-1.5">
                     Display Name
@@ -373,7 +422,7 @@ export default function AuthPage() {
                 </div>
               )}
 
-              {!isLogin && (
+              {!isLogin && !isForgotPassword && (
                 <div className="relative">
                   <label className="block text-xs font-medium text-gray-700 mb-1.5">
                     Store URL
@@ -442,59 +491,65 @@ export default function AuthPage() {
                 )}
               </div>
 
-              <div className="relative">
-                <label className="block text-xs font-medium text-gray-700 mb-1.5">
-                  Password
-                </label>
+              {!isForgotPassword && (
                 <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={handlePasswordChange}
-                    onBlur={handlePasswordBlur}
-                    className={`w-full px-4 py-2.5 lg:py-3 border rounded-lg text-sm lg:text-base outline-none focus:ring-2 transition-all bg-white pr-10 ${
-                      passwordError && touched.password && !isLogin
-                        ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
-                        : 'border-gray-300 focus:border-emerald-500 focus:ring-emerald-100'
-                    }`}
-                    placeholder={isLogin ? 'Enter your password' : 'Create a strong password'}
-                    required
-                  />
+                  <label className="block text-xs font-medium text-gray-700 mb-1.5">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={handlePasswordChange}
+                      onBlur={handlePasswordBlur}
+                      className={`w-full px-4 py-2.5 lg:py-3 border rounded-lg text-sm lg:text-base outline-none focus:ring-2 transition-all bg-white pr-10 ${
+                        passwordError && touched.password && !isLogin
+                          ? 'border-red-300 focus:border-red-500 focus:ring-red-100'
+                          : 'border-gray-300 focus:border-emerald-500 focus:ring-emerald-100'
+                      }`}
+                      placeholder={isLogin ? 'Enter your password' : 'Create a strong password'}
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute top-1/2 transform -translate-y-1/2 right-3 hover:opacity-70 transition-opacity"
+                    >
+                      {showPassword ? (
+                        <EyeOff className={`w-4 h-4 ${
+                          passwordError && touched.password && !isLogin ? 'text-red-400' : 'text-gray-400'
+                        }`} />
+                      ) : (
+                        <Eye className={`w-4 h-4 ${
+                          passwordError && touched.password && !isLogin ? 'text-red-400' : 'text-gray-400'
+                        }`} />
+                      )}
+                    </button>
+                  </div>
+                  {!isLogin && passwordError && touched.password && (
+                    <p className="mt-1.5 text-xs text-red-600 flex items-center">
+                      <AlertCircle className="w-3 h-3 mr-1" />
+                      {passwordError}
+                    </p>
+                  )}
+                  {!isLogin && !passwordError && password && touched.password && (
+                    <p className="mt-1.5 text-xs text-emerald-600 flex items-center">
+                      <CheckCircle className="w-3 h-3 mr-1" />
+                      Password meets requirements
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {isLogin && !isForgotPassword && (
+                <div className="flex justify-end">
                   <button
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute top-1/2 transform -translate-y-1/2 right-3 hover:opacity-70 transition-opacity"
+                    onClick={handleForgotPasswordToggle}
+                    className="text-emerald-600 text-xs font-medium hover:text-emerald-700 transition-colors"
                   >
-                    {showPassword ? (
-                      <EyeOff className={`w-4 h-4 ${
-                        passwordError && touched.password && !isLogin ? 'text-red-400' : 'text-gray-400'
-                      }`} />
-                    ) : (
-                      <Eye className={`w-4 h-4 ${
-                        passwordError && touched.password && !isLogin ? 'text-red-400' : 'text-gray-400'
-                      }`} />
-                    )}
-                  </button>
-                </div>
-                {!isLogin && passwordError && touched.password && (
-                  <p className="mt-1.5 text-xs text-red-600 flex items-center">
-                    <AlertCircle className="w-3 h-3 mr-1" />
-                    {passwordError}
-                  </p>
-                )}
-                {!isLogin && !passwordError && password && touched.password && (
-                  <p className="mt-1.5 text-xs text-emerald-600 flex items-center">
-                    <CheckCircle className="w-3 h-3 mr-1" />
-                    Password meets requirements
-                  </p>
-                )}
-              </div>
-
-              {isLogin && (
-                <div className="flex justify-end">
-                  <a href="#" className="text-emerald-600 text-xs font-medium hover:text-emerald-700 transition-colors">
                     Forgot Password?
-                  </a>
+                  </button>
                 </div>
               )}
 
@@ -507,33 +562,54 @@ export default function AuthPage() {
                 </div>
               )}
 
+              {success && (
+                <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                  <div className="flex items-start">
+                    <CheckCircle className="w-4 h-4 text-emerald-600 mt-0.5 mr-2 flex-shrink-0" />
+                    <span className="text-emerald-800 text-xs lg:text-sm">{success}</span>
+                  </div>
+                </div>
+              )}
+
               <button
                 type="submit"
-                disabled={loading || (!isLogin && (slugError !== '' || passwordError !== '' || isCheckingSlug))}
+                disabled={loading || (!isLogin && !isForgotPassword && (slugError !== '' || passwordError !== '' || isCheckingSlug))}
                 className="w-full py-3 rounded-lg text-sm lg:text-base font-semibold transition-all shadow-sm bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] flex items-center justify-center"
               >
                 {loading ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    {isLogin ? 'Signing in...' : 'Creating account...'}
+                    {isForgotPassword ? 'Sending...' : isLogin ? 'Signing in...' : 'Creating account...'}
                   </>
                 ) : (
-                  isLogin ? 'Log in' : 'Create Account'
+                  isForgotPassword ? 'Send Reset Link' : isLogin ? 'Log in' : 'Create Account'
                 )}
               </button>
             </form>
 
             <div className="text-center mt-6 lg:mt-8">
-              <span className="text-gray-600 text-sm">
-                {isLogin ? "Don't have an account? " : 'Already have an account? '}
-              </span>
-              <button
-                type="button"
-                onClick={handleModeSwitch}
-                className="text-emerald-600 font-semibold hover:text-emerald-700 transition-colors text-sm"
-              >
-                {isLogin ? 'Sign up' : 'Log in'}
-              </button>
+              {isForgotPassword ? (
+                <button
+                  type="button"
+                  onClick={handleForgotPasswordToggle}
+                  className="text-emerald-600 font-semibold hover:text-emerald-700 transition-colors text-sm"
+                >
+                  Back to Login
+                </button>
+              ) : (
+                <>
+                  <span className="text-gray-600 text-sm">
+                    {isLogin ? "Don't have an account? " : 'Already have an account? '}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleModeSwitch}
+                    className="text-emerald-600 font-semibold hover:text-emerald-700 transition-colors text-sm"
+                  >
+                    {isLogin ? 'Sign up' : 'Log in'}
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
@@ -544,5 +620,22 @@ export default function AuthPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+        <div className="w-full max-w-6xl min-h-[500px] flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <AuthPageContent />
+    </Suspense>
   );
 }
